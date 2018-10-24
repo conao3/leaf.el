@@ -1,9 +1,9 @@
 EMACS := emacs
-BATCH := $(EMACS) -Q --batch $(LOAD_PATH)
+BATCH := $(EMACS) -Q --batch
 ELS   := leaf.el
 ELCS  := $(ELS:.el=.elc)
 
-all: build
+all: clean build
 
 build: $(ELCS)
 
@@ -12,9 +12,8 @@ build: $(ELCS)
 	-@$(BATCH) -f batch-byte-compile $<
 
 test:
-	$(BATCH) --eval "(progn \
-	(load-file \"leaf-tests.el\") \
-	(ert-run-tests-batch-and-exit))"
+	$(BATCH) --eval "(require 'ert)"
+	$(BATCH) -l leaf-tests.el -f ert-run-tests-batch-and-exit
 
 clean:
 	-find . -type f -name "*.elc" | xargs rm
