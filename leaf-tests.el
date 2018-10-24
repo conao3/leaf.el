@@ -23,6 +23,7 @@
 ;;
 
 ;;; Code:
+(require 'leaf)
 
 (provide 'leaf-tests)
 ;;; leaf-tests.el ends here
