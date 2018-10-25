@@ -1,0 +1,8 @@
+#+date: <2018-10-25 Thu>
+# readme.org
+
+* leaf.el
+[[https://travis-ci.org/conao3/leaf.el.svg?branch=master?style-flat-square]]
+
+** What is it?
+~leaf.el~ support your setting init.el.
