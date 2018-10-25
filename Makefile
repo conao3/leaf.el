@@ -25,5 +25,11 @@ test:
 	    $(BATCH) -l leaf-tests.el -f ert-run-tests-batch-and-exit; \
 	  fi
 
+localtest:
+#	@echo -e '\e[1;34mBuilding\e[0m'
+	echo -e '\e[1;31m hoge hoge \e[m'
+	EMACS=emacs-22.1 make test
+	EMACS=emacs-26.1 make test
+
 clean:
 	-find . -type f -name "*.elc" | xargs rm
