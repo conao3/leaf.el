@@ -1,13 +1,13 @@
 TOP       := $(dir $(lastword $(MAKEFILE_LIST)))
 
-EMACS     := emacs-22.1
+EMACS     := emacs
 LOAD_PATH := -L $(TOP)
 BATCH     := $(EMACS) -Q --batch $(LOAD_PATH)
 
 ELS   := leaf.el
 ELCS  := $(ELS:.el=.elc)
 
-all: clean build
+all: build
 
 build: $(ELCS)
 
@@ -16,11 +16,11 @@ build: $(ELCS)
 	-@$(BATCH) -f batch-byte-compile $<
 
 test:
-	$(BATCH) --eval "(require 'ert)" || \
+	$(BATCH) --eval "(require 'ert)"; \
 	  if [ $$? -ne 0 ]; then \
-	    $(BATCH) -l leaf-tests-noert.el ;\
+	    $(BATCH) -l leaf-tests-noert.el; \
 	  else \
-	    $(BATCH) -l leaf-tests.el -f ert-run-tests-batch-and-exit ;\
+	    $(BATCH) -l leaf-tests.el -f ert-run-tests-batch-and-exit; \
 	  fi
 
 clean:
