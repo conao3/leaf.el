@@ -25,5 +25,30 @@
 ;;; Code:
 (require 'leaf)
 
+;; (defun ert-run-tests-batch-and-exit (&optional selector)
+;;   "Like `ert-run-tests-batch', but exits Emacs when done.
+;;
+;; The exit status will be 0 if all test results were as expected, 1
+;; on unexpected results, or 2 if the tool detected an error outside
+;; of the tests (e.g. invalid SELECTOR or bug in the code that runs
+;; the tests)."
+;;   (or noninteractive
+;;       (user-error "This function is only for use in batch mode"))
+;;   ;; Better crash loudly than attempting to recover from undefined
+;;   ;; behavior.
+;;   (setq attempt-stack-overflow-recovery nil
+;;         attempt-orderly-shutdown-on-fatal-signal nil)
+;;   (unwind-protect
+;;       (let ((stats (ert-run-tests-batch selector)))
+;;         (kill-emacs (if (zerop (ert-stats-completed-unexpected stats)) 0 1)))
+;;     (unwind-protect
+;;         (progn
+;;           (message "Error running tests")
+;;           (backtrace))
+;;       (kill-emacs 2))))
+
+(defun run-tests-batch-and-exit ()
+  (kill-emacs 0))
+
 (provide 'leaf-tests-noert)
 ;;; leaf-tests-noert.el ends here

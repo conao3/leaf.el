@@ -1,0 +1,9 @@
+#+author: conao
+#+date: <2018-10-25 Thu>
+# readme.org
+
+* leaf.el
+[[https://travis-ci.org/conao3/leaf.el][https://img.shields.io/travis/conao3/leaf.el/master.svg?style=flat-square]]
+
+** What is it?
+~leaf.el~ support your setting init.el.
