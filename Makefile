@@ -8,6 +8,8 @@ BATCH     := $(EMACS) -Q --batch $(LOAD_PATH)
 ELS   := leaf.el
 ELCS  := $(ELS:.el=.elc)
 
+include Makefunc.mk
+
 all: build
 
 build: $(ELCS)
@@ -29,10 +31,16 @@ test:
 	  fi
 
 localtest:
-#	@echo -e '\e[1;34mBuilding\e[0m'
-	echo -e '\e[1;31m hoge hoge \e[m'
+	$(call ECHO_MAGENTA, "test by emacs-22.1")
 	EMACS=emacs-22.1 make test
+
+	@echo "\n"
+	$(call ECHO_MAGENTA, "test by emacs-26.1")
 	EMACS=emacs-26.1 make test
+
+	@echo "\n"
+	$(call ECHO_CYAN, "localtest completed!!")
+	@echo "\n"
 
 clean:
 	-find . -type f -name "*.elc" | xargs rm

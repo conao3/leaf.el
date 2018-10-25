@@ -1,6 +1,6 @@
 # echo with color
 
-ECHO_COLOR   = @tput setaf $1; echo $2; tput sgr0
+ECHO_COLOR   = @tput setaf $1; echo "=== " $2 " ==="; tput sgr0
 ECHO_BLACK   = $(call ECHO_COLOR, 0, $1)
 ECHO_RED     = $(call ECHO_COLOR, 1, $1)
 ECHO_GREEN   = $(call ECHO_COLOR, 2, $1)
