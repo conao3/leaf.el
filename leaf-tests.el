@@ -24,6 +24,7 @@
 
 ;;; Code:
 (require 'leaf)
+(require 'ert)
 
 (provide 'leaf-tests)
 ;;; leaf-tests.el ends here
