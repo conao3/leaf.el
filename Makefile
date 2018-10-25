@@ -1,6 +1,6 @@
 TOP       := $(dir $(lastword $(MAKEFILE_LIST)))
 
-EMACS     := emacs
+EMACS     ?= emacs
 LOAD_PATH := -L $(TOP)
 BATCH     := $(EMACS) -Q --batch $(LOAD_PATH)
 
@@ -12,10 +12,12 @@ all: build
 build: $(ELCS)
 
 %.elc: %.el
+	$(EMACS) --version
 	@printf "Compiling $<\n"
 	-@$(BATCH) -f batch-byte-compile $<
 
 test:
+	$(EMACS) --version
 	$(BATCH) --eval "(require 'ert)"; \
 	  if [ $$? -ne 0 ]; then \
 	    $(BATCH) -l leaf-tests-noert.el; \
