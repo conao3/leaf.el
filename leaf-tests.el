@@ -24,7 +24,15 @@
 
 ;;; Code:
 (require 'leaf)
-(require 'ert)
+(cond ((require 'ert nil t)
+       (message "test with ert.")
+
+       (defun leaf-run-tests-batch-and-exit ()
+	 (ert-run-tests-batch-and-exit)))
+      (t
+       (message "test without ert.")
+
+       (defun leaf-run-tests-batch-and-exit ())))
 
 (provide 'leaf-tests)
 ;;; leaf-tests.el ends here

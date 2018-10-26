@@ -21,14 +21,7 @@ build: $(ELCS)
 
 test:
 	$(EMACS) --version
-	$(BATCH) --eval "(require 'ert)"; \
-	  if [ $$? -ne 0 ]; then \
-	    echo "emacs-noert"; \
-	    $(BATCH) -l leaf-tests-noert.el; \
-	  else \
-	    echo "emacs-ert"; \
-	    $(BATCH) -l leaf-tests.el -f ert-run-tests-batch-and-exit; \
-	  fi
+	$(BATCH) -l leaf-tests.el -f leaf-run-tests-batch-and-exit
 
 localtest:
 	$(call ECHO_MAGENTA, "test by emacs-22.1")
