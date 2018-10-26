@@ -3,7 +3,10 @@
 # readme.org
 
 * [WIP]leaf.el
+[[https://github.com/conao3/leaf.el][https://img.shields.io/github/tag/conao3/leaf.el.svg?style=flat-square]]
 [[https://travis-ci.org/conao3/leaf.el][https://img.shields.io/travis/conao3/leaf.el/master.svg?style=flat-square]]
+[[https://github.com/conao3/leaf.el][https://img.shields.io/github/license/mashape/apistatus.svg?style=flat-square]]
+
 
 ** What is it?
 ~leaf.el~ support your setting init.el.
