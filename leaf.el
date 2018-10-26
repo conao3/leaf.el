@@ -34,9 +34,11 @@
     ;; are those that must happen directly after the config forms.
     :config))
 
-(defmacro leaf (name &rest arg)
+(defmacro leaf-core (name args))
+
+(defmacro leaf (name &rest args)
+  (declare (indent 1))
   "leaf macro"
-  
   `(progn ,name ,arg))
 
 (provide 'leaf)
