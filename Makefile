@@ -8,19 +8,15 @@ BATCH     := $(EMACS) -Q --batch $(LOAD_PATH)
 ELS   := leaf.el
 ELCS  := $(ELS:.el=.elc)
 
-include Makefunc.mk
-
 all: build
 
 build: $(ELCS)
 
 %.elc: %.el
-	$(EMACS) --version
 	@printf "Compiling $<\n"
 	-@$(BATCH) -f batch-byte-compile $<
 
 test:
-	$(EMACS) --version
 	$(BATCH) -l leaf-tests.el -f leaf-run-tests-batch-and-exit
 
 localtest:
@@ -37,3 +33,6 @@ localtest:
 
 clean:
 	-find . -type f -name "*.elc" | xargs rm
+
+include Makefunc.mk
+

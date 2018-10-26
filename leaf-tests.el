@@ -28,11 +28,13 @@
        (message "test with ert.")
 
        (defun leaf-run-tests-batch-and-exit ()
+	 (message (format "\n%s" (emacs-version)))
 	 (ert-run-tests-batch-and-exit)))
       (t
        (message "test without ert.")
 
-       (defun leaf-run-tests-batch-and-exit ())))
+       (defun leaf-run-tests-batch-and-exit ()
+	 (message (format "\n%s" (emacs-version))))))
 
 (provide 'leaf-tests)
 ;;; leaf-tests.el ends here
