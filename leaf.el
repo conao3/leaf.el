@@ -35,7 +35,16 @@
     :config)
   "leaf-keywords")
 
-(defmacro leaf-core (name args))
+(defun leaf-normalize-plist (name input &optional)
+  "Given a pseudo-plist, normalize it to a regular plist.
+The normalized key/value pairs from input are added to PLIST,
+extending any keys already present."
+  (let
+      ))
+
+(defmacro leaf-core (name args)
+  (let ((args* (leaf-normalize-plist name args)))
+    ))
 
 (defmacro leaf (name &rest args)
   (declare (indent 1))
