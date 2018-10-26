@@ -32,14 +32,15 @@
     :init
     ;; This must occur almost last; the only forms which should appear after
     ;; are those that must happen directly after the config forms.
-    :config))
+    :config)
+  "leaf-keywords")
 
 (defmacro leaf-core (name args))
 
 (defmacro leaf (name &rest args)
   (declare (indent 1))
   "leaf macro"
-  `(progn ,name ,arg))
+  `(leaf-core ,name ,args))
 
 (provide 'leaf)
 ;;; leaf.el ends here
