@@ -24,6 +24,16 @@
 
 ;;; Code:
 
+(defcustom leaf-keywords
+  '(:disabled
+    :if :when :unless
+    ;; Any other keyword that also declares commands to be autoloaded
+    ;; (such as :bind) must appear before this keyword.
+    :init
+    ;; This must occur almost last; the only forms which should appear after
+    ;; are those that must happen directly after the config forms.
+    :config))
+
 (defmacro leaf (name &rest arg)
   "leaf macro"
   
