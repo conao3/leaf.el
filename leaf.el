@@ -35,12 +35,38 @@
     :config)
   "leaf-keywords")
 
-(defun leaf-normalize-plist (name input &optional)
-  "Given a pseudo-plist, normalize it to a regular plist.
-The normalized key/value pairs from input are added to PLIST,
-extending any keys already present."
-  (let
-      ))
+(defun leaf-merge-dupkey-values-plist (plist)
+  "Given a PLIST, merge duplicate key values.
+
+EXAMPLE:
+(leaf-merge-value-on-duplicate-key
+  (:defer t
+   :config ((message \"a\") (message \"b\"))
+   :config (message \"c\")))
+ -> (:defer t
+     :config ((message \"a\") (message \"b\") (message \"c\")))"
+  )
+
+(defun leaf-normalize-plist (plist mergep)
+  "Given a pseudo-PLIST, normalize it to a regular plist.
+if MERGEP is t, merge dplicate key values.
+
+EXAMPLE:
+(leaf-normalize-plist
+  (:defer t
+   :config (message \"a\") (message \"b\")
+   :config (message \"c\")) nil)
+ -> (:defer t
+     :config ((message \"a\") (message \"b\"))
+     :config (message \"c\"))
+
+(leaf-normalize-plist
+  (:defer t
+   :config (message \"a\") (message \"b\")
+   :config (message \"c\")) t)
+ -> (:defer t
+     :config ((message \"a\") (message \"b\") (message \"c\"))"
+  )
 
 (defmacro leaf-core (name args)
   (let ((args* (leaf-normalize-plist name args)))
