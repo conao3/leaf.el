@@ -40,33 +40,48 @@
 
 EXAMPLE:
 (leaf-merge-value-on-duplicate-key
-  (:defer t
+  (:defer (t)
    :config ((message \"a\") (message \"b\"))
-   :config (message \"c\")))
- -> (:defer t
+   :config ((message \"c\"))))
+ -> (:defer (t)
      :config ((message \"a\") (message \"b\") (message \"c\")))"
   )
 
 (defun leaf-normalize-plist (plist mergep)
   "Given a pseudo-PLIST, normalize it to a regular plist.
-if MERGEP is t, merge dplicate key values.
+if MERGEP is t, merge duplicate key values.
 
 EXAMPLE:
 (leaf-normalize-plist
   (:defer t
    :config (message \"a\") (message \"b\")
    :config (message \"c\")) nil)
- -> (:defer t
+ -> (:defer (t)
      :config ((message \"a\") (message \"b\"))
-     :config (message \"c\"))
+     :config ((message \"c\")))
 
 (leaf-normalize-plist
   (:defer t
    :config (message \"a\") (message \"b\")
    :config (message \"c\")) t)
- -> (:defer t
+ -> (:defer (t)
      :config ((message \"a\") (message \"b\") (message \"c\"))"
-  )
+
+  ;; using reverse list, push (:keyword worklist) when find :keyword
+  (let ((retplist) (worklist) (rlist (reverse plist)))
+    (dolist (target rlist)
+      (princ (format "%s, %s, %s\n" target retplist worklist))
+      (if (keywordp target)
+	  (progn
+	    (push worklist retplist)
+	    (push target retplist)
+
+	    ;; clean worklist for new keyword
+	    (setq worklist nil))
+	(push target worklist)))
+    
+    ;; merge value for duplicated key if MERGEP is t
+    (if mergep (leaf-merge-dupkey-values-plist retplist) retplist)))
 
 (defmacro leaf-core (name args)
   (let ((args* (leaf-normalize-plist name args)))
