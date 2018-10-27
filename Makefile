@@ -16,15 +16,17 @@ build: $(ELCS)
 	@printf "Compiling $<\n"
 	-@$(BATCH) -f batch-byte-compile $<
 
-test:
+test: build
 	$(BATCH) -l leaf-tests.el -f leaf-run-tests-batch-and-exit
 
 localtest:
 	$(call ECHO_MAGENTA, "test by emacs-22.1")
+	make clean
 	EMACS=emacs-22.1 make test
 
 	@echo "\n"
 	$(call ECHO_MAGENTA, "test by emacs-26.1")
+	make clean
 	EMACS=emacs-26.1 make test
 
 	@echo "\n"
