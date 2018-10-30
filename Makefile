@@ -8,7 +8,10 @@ BATCH     := $(EMACS) -Q --batch $(LOAD_PATH)
 ELS   := leaf.el
 ELCS  := $(ELS:.el=.elc)
 
-all: build
+all: git-hook build
+
+git-hook:
+	cp -a git-hooks/* .git/hooks/
 
 build: $(ELCS)
 
