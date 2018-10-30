@@ -21,12 +21,12 @@ build: $(ELCS)
 	-@$(BATCH) -f batch-byte-compile $<
 
 test: build
-# if byte compile for specific emacs,
-# set EMACS such as `EMACS=26.1 make`
+# If byte compile for specific emacs,
+# set EMACS such as `EMACS=26.1 make`.
 	$(BATCH) -l leaf-tests.el -f leaf-run-tests-batch-and-exit
 
 localtest:
-# clean all of .elc, compile .el, and run test.
+# Clean all of .elc, compile .el, and run test.
 
 	$(call ECHO_MAGENTA, "test by emacs-22.1")
 	make clean
