@@ -40,23 +40,44 @@
 ;;  support functions
 ;;
 
+;;
+;; pseudo-PLIST is list separated value with :keyword.
+;;   such as (:key1 v1 v2 :key2 v3 :key3 v4 v5 v6)
+;;
+;; PLIST is normalized plist, and duplicate keys are allowed.
+;;   such as (:key1 (v1 v2) :key2 v3 :key3 (v4 v5 v6)),
+;;           (:key1 (v1 v2) :key2 v3 :key2 (v4 v5 v6))
+;;
+;; well-formed PLIST is normalized plst, and duplicate keys are NOT allowed.
+;;   such as (:key1 (v1 v2) :key2 v3 :key3 (v4 v5 v6))
+;;
+;; list-valued PLIST is well-formed PLIST and value are ALWAYS list.
+;; Duplicate keys are NOT allowed.
+;;   such as (:key1 (v1 v2) :key2 (v3) :key2 (v4 v5 v6))
+;;
+;; sorted-list PLIST is list-valued PLIST and keys are sorted by `leaf-keywords'
+;; Duplicate keys are NOT allowed.
+;;   such as (:if (t) :config ((prin1 "a") (prin1 "b)))
+;;
+
 (defun leaf-sort-values-plist (plist)
-  "Given a PLIST, sort by `leaf-keywords'
+  "Given a list-valued PLIST, return sorted-list PLIST.
 
 EXAMPLE:
 (leaf-sort-values-plist
   '(:config (message \"a\")
     :disabled (t)))
  -> (:disabled (t)
-     :config (message \"a\"))"  
+     :config (message \"a\"))"
+
   (let ((retplist))
     (dolist (key leaf-keywords)
       (if (plist-member plist key)
 	  (setq retplist `(,@retplist ,key ,(plist-get plist key)))))
     retplist))
-    
+
 (defun leaf-merge-dupkey-values-plist (plist)
-  "Given a PLIST, merge duplicate key values.
+  "Given a PLIST, return list-valued PLIST.
 
 EXAMPLE:
 (leaf-merge-value-on-duplicate-key
@@ -65,6 +86,7 @@ EXAMPLE:
     :config ((message \"c\"))))
  -> (:defer (t)
      :config ((message \"a\") (message \"b\") (message \"c\")))"
+
   (let ((retplist) (existkeys) (existvalue) (key) (value))
     (while plist
       (setq key (pop plist))
@@ -76,8 +98,8 @@ EXAMPLE:
     retplist))
 
 (defun leaf-normalize-plist (plist mergep)
-  "Given a pseudo-PLIST, normalize it to a regular plist.
-if MERGEP is t, merge duplicate key values.
+  "Given a pseudo-PLIST, return PLIST,
+if MERGEP is t, return well-formed PLIST.
 
 EXAMPLE:
 (leaf-normalize-plist
