@@ -102,7 +102,7 @@ EXAMPLE:
 ;;  keyword handlers
 ;;
 
-(defun leaf-process-keyword (name plist)
+(defun leaf-process-keywords (name plist)
   )
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -111,7 +111,7 @@ EXAMPLE:
 ;;
 
 (defmacro leaf-core (name args)
-  (let ((args* (leaf-normalize-plist name args)))
+  (let ((args* (leaf-normalize-plist args t)))
     ))
 
 (defmacro leaf (name &rest args)
