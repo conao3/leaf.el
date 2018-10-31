@@ -40,6 +40,21 @@
 ;;  support functions
 ;;
 
+(defun leaf-sort-values-plist (plist)
+  "Given a PLIST, sort by `leaf-keywords'
+
+EXAMPLE:
+(leaf-sort-values-plist
+  '(:config (message \"a\")
+    :disabled (t)))
+ -> (:disabled (t)
+     :config (message \"a\"))"  
+  (let ((retplist))
+    (dolist (key leaf-keywords)
+      (if (plist-member plist key)
+	  (setq retplist `(,@retplist ,key ,(plist-get plist key)))))
+    retplist))
+    
 (defun leaf-merge-dupkey-values-plist (plist)
   "Given a PLIST, merge duplicate key values.
 
@@ -160,7 +175,8 @@ This handler return value with progn form."
 ;;
 
 (defmacro leaf-core (name args)
-  (let ((args* (leaf-normalize-plist args t)))
+  (let ((args* (leaf-sort-values-plist
+		(leaf-normalize-plist args t))))
     (leaf-process-keywords name* args*)))
 
 (defmacro leaf (name &rest args)
