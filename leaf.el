@@ -129,7 +129,7 @@ remaining arguments"
 This handler surround the processing of the remaining arguments
 with an if block"
   (let ((body (leaf-process-keywords name rest)))
-    `(if ,value ,body)))
+    `(if ,(car value) ,body)))
 
 (defun leaf-handler/:when (name value rest)
   "Process :when.
@@ -137,7 +137,7 @@ with an if block"
 This handler surround the processing of the remaining arguments
 with an when block"
   (let ((body (leaf-process-keywords name rest)))
-    `(when ,value ,body)))
+    `(when ,(car value) ,body)))
 
 (defun leaf-handler/:unless (name value rest)
   "Process :unless.
@@ -145,7 +145,7 @@ with an when block"
 This handler surround the processing of the remaining arguments
 with an unless block"
   (let ((body (leaf-process-keywords name rest)))
-    `(unless ,value ,body)))
+    `(unless ,(car value) ,body)))
 
 (defun leaf-handler/:config (name value rest)
   "Process :config.
