@@ -147,6 +147,13 @@ with an unless block"
   (let ((body (leaf-process-keywords name rest)))
     `(unless ,value ,body)))
 
+(defun leaf-handler/:config (name value rest)
+  "Process :config.
+
+This handler return value with progn form."
+  (let ((body (leaf-process-keywords name rest)))
+    `(progn ,value)))
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
 ;;  main macros
