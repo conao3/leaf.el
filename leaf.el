@@ -102,6 +102,8 @@ EXAMPLE:
 ;;  keyword handlers
 ;;
 
+(defun leaf-process-keyword (name plist)
+  )
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
