@@ -156,7 +156,7 @@ with an unless block"
 
 (defmacro leaf-core (name args)
   (let ((args* (leaf-normalize-plist args t)))
-    ))
+    (leaf-process-keywords name args*)))
 
 (defmacro leaf (name &rest args)
   (declare (indent 1))
