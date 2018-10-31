@@ -60,14 +60,14 @@
        (t form))))
   
   (defmacro expand-minimally (form)
-    `(let ((use-package-verbose 'errors)
-           (use-package-expand-minimally t))
-       (macroexpand-1 ',form)))
+    `(let ((leaf-verbose 'errors)
+           (leaf-expand-minimally t))
+       (macroexpand ',form)))
 
   (defmacro expand-maximally (form)
-    `(let ((use-package-verbose 'debug)
-           (use-package-expand-minimally nil))
-       (macroexpand-1 ',form)))
+    `(let ((leaf-verbose 'debug)
+           (leaf-expand-minimally nil))
+       (macroexpand ',form)))
   
   (defmacro match-expansion (form &rest value)
     `(should (pcase (expand-minimally ,form)
@@ -77,9 +77,75 @@
   ;;
   ;;  test definition
   ;;
+
+  (ert-deftest leaf-test:/disabled-1 ()
+    (match-expansion
+     (leaf foo :disabled t)
+     '()))
   
-  ;; (ert-deftest leaf ()
-  ;;   (should (equal EXPECTED ACTUAL)))
+  (ert-deftest leaf-test/:if-1 ()
+    (match-expansion
+     (leaf foo :if t)
+     `(if t
+	  (progn
+	    (require 'foo nil nil)))))
+
+  (ert-deftest leaf-test/:if-2 ()
+    (match-expansion
+     (leaf foo :if (and t t))
+     `(if (and t t)
+	  (progn
+	    (require 'foo nil nil)))))
+
+  (ert-deftest leaf-test/:if-3 ()
+    (match-expansion
+     (leaf foo :if nil)
+     `(if nil
+	  (progn
+	    (require 'foo nil nil)))))
+
+  (ert-deftest leaf-test/:when-1 ()
+    (match-expansion
+     (leaf foo :when t)
+     `(when t
+	(progn
+	  (require 'foo nil nil)))))
+
+  (ert-deftest leaf-test/:when-2 ()
+    (match-expansion
+     (leaf foo :when (and t t))
+     `(when (and t t)
+	(progn
+	  (require 'foo nil nil)))))
+
+  (ert-deftest leaf-test/:when-3 ()
+    (match-expansion
+     (leaf foo :when nil)
+     `(when nil
+	(progn
+	  (require 'foo nil nil)))))
+
+  (ert-deftest leaf-test/:unless-1 ()
+    (match-expansion
+     (leaf foo :unless t)
+     `(unless t
+	(progn
+	  (require 'foo nil nil)))))
+
+  (ert-deftest leaf-test/:unless-2 ()
+    (match-expansion
+     (leaf foo :unless (and t t))
+     `(unless (and t t)
+	(progn
+	  (require 'foo nil nil)))))
+
+  (ert-deftest leaf-test/:unless-3 ()
+    (match-expansion
+
+     (leaf foo :unless nil)
+     `(unless nil
+	(progn
+	  (require 'foo nil nil)))))
 
   ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
   ;;

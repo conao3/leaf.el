@@ -26,7 +26,9 @@
 
 (defcustom leaf-keywords
   '(:disabled
+    
     :if :when :unless
+    :require
     ;; Any other keyword that also declares commands to be autoloaded
     ;; (such as :bind) must appear before this keyword.
     :init
@@ -34,6 +36,10 @@
     ;; are those that must happen directly after the config forms.
     :config)
   "leaf-keywords")
+
+(defcustom leaf-defaults
+  '(:require t)
+  "Default values for each leaf packages.")
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
@@ -59,6 +65,11 @@
 ;; Duplicate keys are NOT allowed.
 ;;   such as (:if (t) :config ((prin1 "a") (prin1 "b)))
 ;;
+
+(defun leaf-apply-defaults (plist)
+  "Add leaf default values to plist."
+
+  `(,@plist ,@leaf-defaults))
 
 (defun leaf-sort-values-plist (plist)
   "Given a list-valued PLIST, return sorted-list PLIST.
@@ -160,6 +171,15 @@ This handler always return nil, and interrupt processing of
 remaining arguments"
   nil)
 
+(defun leaf-handler/:require (name value rest)
+  "Process :require.
+
+This handler add require comamnd for name."
+  (let ((body (leaf-process-keywords name rest)))
+    `(progn
+       (require ,name nil nil)
+       ,@body)))
+
 (defun leaf-handler/:if (name value rest)
   "Process :if.
 
@@ -198,7 +218,8 @@ This handler return value with progn form."
 
 (defmacro leaf-core (name args)
   (let ((args* (leaf-sort-values-plist
-		(leaf-normalize-plist args t))))
+		(leaf-normalize-plist
+		 (leaf-apply-defaults args) t))))
     (leaf-process-keywords name args*)))
 
 (defmacro leaf (name &rest args)
