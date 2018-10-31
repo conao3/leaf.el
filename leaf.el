@@ -114,16 +114,16 @@ Don't call this function directory."
 	   (rest        plist)
 	   (handler     (format "leaf-handler/%s" key))
 	   (handler-sym (intern handler)))
-      (funcall hander-sym name value rest))))
+      (funcall handler-sym name value rest))))
 
-(defun leaf-hander/:disabled (name value rest)
+(defun leaf-handler/:disabled (name value rest)
   "Process :disabled.
 
 This handler always return nil, and interrupt processing of
 remaining arguments"
   nil)
 
-(defun leaf-hander/:if (name value rest)
+(defun leaf-handler/:if (name value rest)
   "Process :if.
 
 This handler surround the processing of the remaining arguments
@@ -131,7 +131,7 @@ with an if block"
   (let ((body (leaf-process-keywords name rest)))
     `(if ,value ,body)))
 
-(defun leaf-hander/:when (name value rest)
+(defun leaf-handler/:when (name value rest)
   "Process :when.
 
 This handler surround the processing of the remaining arguments
@@ -139,7 +139,7 @@ with an when block"
   (let ((body (leaf-process-keywords name rest)))
     `(when ,value ,body)))
 
-(defun leaf-hander/:unless (name value rest)
+(defun leaf-handler/:unless (name value rest)
   "Process :unless.
 
 This handler surround the processing of the remaining arguments
