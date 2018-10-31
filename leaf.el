@@ -152,7 +152,7 @@ with an unless block"
 
 This handler return value with progn form."
   (let ((body (leaf-process-keywords name rest)))
-    `(progn ,value)))
+    `(progn ,@value)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
