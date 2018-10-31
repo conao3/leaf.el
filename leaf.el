@@ -35,14 +35,19 @@
     :config)
   "leaf-keywords")
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;
+;;  support functions
+;;
+
 (defun leaf-merge-dupkey-values-plist (plist)
   "Given a PLIST, merge duplicate key values.
 
 EXAMPLE:
 (leaf-merge-value-on-duplicate-key
-  (:defer (t)
-   :config ((message \"a\") (message \"b\"))
-   :config ((message \"c\"))))
+  '(:defer (t)
+    :config ((message \"a\") (message \"b\"))
+    :config ((message \"c\"))))
  -> (:defer (t)
      :config ((message \"a\") (message \"b\") (message \"c\")))"
   (let ((retplist) (existkeys) (existvalue) (key) (value))
@@ -62,17 +67,17 @@ if MERGEP is t, merge duplicate key values.
 
 EXAMPLE:
 (leaf-normalize-plist
-  (:defer t
-   :config (message \"a\") (message \"b\")
-   :config (message \"c\")) nil)
+  '(:defer t
+    :config (message \"a\") (message \"b\")
+    :config (message \"c\")) nil)
  -> (:defer (t)
      :config ((message \"a\") (message \"b\"))
      :config ((message \"c\")))
 
 (leaf-normalize-plist
-  (:defer t
-   :config (message \"a\") (message \"b\")
-   :config (message \"c\")) t)
+  '(:defer t
+    :config (message \"a\") (message \"b\")
+    :config (message \"c\")) t)
  -> (:defer (t)
      :config ((message \"a\") (message \"b\") (message \"c\"))"
 
@@ -91,6 +96,17 @@ EXAMPLE:
     
     ;; merge value for duplicated key if MERGEP is t
     (if mergep (leaf-merge-dupkey-values-plist retplist) retplist)))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;
+;;  keyword handlers
+;;
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;
+;;  main macros
+;;
 
 (defmacro leaf-core (name args)
   (let ((args* (leaf-normalize-plist name args)))
