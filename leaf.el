@@ -45,7 +45,16 @@ EXAMPLE:
    :config ((message \"c\"))))
  -> (:defer (t)
      :config ((message \"a\") (message \"b\") (message \"c\")))"
-  )
+  (let ((retplist) (existkeys) (existvalue) (key) (value))
+    (while plist
+      (setq key (pop plist))
+      (setq value (pop plist))
+
+      (if (plist-member retplist key)
+	  (plist-put retplist key `(,@(plist-get retplist key) ,@value))
+	(setq retplist `(,@retplist ,key ,value)))
+      (princ (format "%s, %s, %s, %s\n" retplist (plist-get retplist key) key value)))
+    retplist))
 
 (defun leaf-normalize-plist (plist mergep)
   "Given a pseudo-PLIST, normalize it to a regular plist.
