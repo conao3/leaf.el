@@ -103,6 +103,13 @@ EXAMPLE:
 ;;
 
 (defun leaf-process-keywords (name plist)
+  "Process keywords for NAME.
+
+NOTE:
+Not check PLIST, PLIST has already been carefully checked 
+parent funcitons.
+Don't call this function directory."
+
   (when plist
     (let* ((key         (pop plist))
 	   (value       (pop plist))
