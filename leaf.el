@@ -199,7 +199,7 @@ This handler return value with progn form."
 (defmacro leaf-core (name args)
   (let ((args* (leaf-sort-values-plist
 		(leaf-normalize-plist args t))))
-    (leaf-process-keywords name* args*)))
+    (leaf-process-keywords name args*)))
 
 (defmacro leaf (name &rest args)
   (declare (indent 1))
