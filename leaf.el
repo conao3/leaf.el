@@ -57,8 +57,7 @@ EXAMPLE:
 
       (if (plist-member retplist key)
 	  (plist-put retplist key `(,@(plist-get retplist key) ,@value))
-	(setq retplist `(,@retplist ,key ,value)))
-      (princ (format "%s, %s, %s, %s\n" retplist (plist-get retplist key) key value)))
+	(setq retplist `(,@retplist ,key ,value))))
     retplist))
 
 (defun leaf-normalize-plist (plist mergep)
@@ -84,7 +83,6 @@ EXAMPLE:
   ;; using reverse list, push (:keyword worklist) when find :keyword
   (let ((retplist) (worklist) (rlist (reverse plist)))
     (dolist (target rlist)
-      (princ (format "%s, %s, %s\n" target retplist worklist))
       (if (keywordp target)
 	  (progn
 	    (push worklist retplist)
