@@ -103,7 +103,13 @@ EXAMPLE:
 ;;
 
 (defun leaf-process-keywords (name plist)
-  )
+  (when plist
+    (let* ((key         (pop plist))
+	   (value       (pop plist))
+	   (rest        plist)
+	   (handler     (format "leaf-handler/%s" key))
+	   (handler-sym (intern handler)))
+      (funcall hander-sym name key value rest))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
