@@ -161,12 +161,12 @@ This handler return value with progn form."
 
 (defmacro leaf-core (name args)
   (let ((args* (leaf-normalize-plist args t)))
-    (leaf-process-keywords name args*)))
+    (leaf-process-keywords name* args*)))
 
 (defmacro leaf (name &rest args)
   (declare (indent 1))
   "leaf macro"
-  `(leaf-core ,name ,args))
+  `(leaf-core ',name ,args))
 
 (provide 'leaf)
 ;;; leaf.el ends here
