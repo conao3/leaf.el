@@ -88,64 +88,69 @@
      (leaf foo :if t)
      `(if t
 	  (progn
-	    (require 'foo nil nil)))))
+	    (require (quote foo) nil nil)))))
 
   (ert-deftest leaf-test/:if-2 ()
     (match-expansion
      (leaf foo :if (and t t))
      `(if (and t t)
 	  (progn
-	    (require 'foo nil nil)))))
+	    (require (quote foo) nil nil)))))
 
   (ert-deftest leaf-test/:if-3 ()
     (match-expansion
      (leaf foo :if nil)
      `(if nil
 	  (progn
-	    (require 'foo nil nil)))))
+	    (require (quote foo) nil nil)))))
 
   (ert-deftest leaf-test/:when-1 ()
     (match-expansion
      (leaf foo :when t)
-     `(when t
-	(progn
-	  (require 'foo nil nil)))))
+     `(if t
+	  (progn
+	    (progn
+	      (require (quote foo) nil nil))))))
 
   (ert-deftest leaf-test/:when-2 ()
     (match-expansion
      (leaf foo :when (and t t))
-     `(when (and t t)
-	(progn
-	  (require 'foo nil nil)))))
+     `(if (and t t)
+	  (progn
+	    (progn
+	      (require (quote foo) nil nil))))))
 
   (ert-deftest leaf-test/:when-3 ()
     (match-expansion
      (leaf foo :when nil)
-     `(when nil
-	(progn
-	  (require 'foo nil nil)))))
+     `(if nil
+	  (progn
+	    (progn
+	      (require (quote foo) nil nil))))))
 
   (ert-deftest leaf-test/:unless-1 ()
     (match-expansion
      (leaf foo :unless t)
-     `(unless t
+     `(if t
+	  nil
 	(progn
-	  (require 'foo nil nil)))))
+	  (require (quote foo) nil nil)))))
 
   (ert-deftest leaf-test/:unless-2 ()
     (match-expansion
      (leaf foo :unless (and t t))
-     `(unless (and t t)
+     `(if (and t t)
+	  nil
 	(progn
-	  (require 'foo nil nil)))))
+	  (require (quote foo) nil nil)))))
 
   (ert-deftest leaf-test/:unless-3 ()
     (match-expansion
-
      (leaf foo :unless nil)
-     `(unless nil
+     `(if nil
+	  nil
 	(progn
-	  (require 'foo nil nil)))))
+	  (require (quote foo) nil nil)))))
 
   ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
   ;;
