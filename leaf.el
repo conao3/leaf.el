@@ -216,16 +216,23 @@ This handler return value with progn form."
 ;;  main macros
 ;;
 
+(defun leaf-macroexp-progn (exps)
+  "Return an expression equivalent to \\=`(progn ,@EXPS).
+Copy code from `macroexp-progn' for old Emacs."
+  
+  (if (cdr exps) `(progn ,@exps) (car exps)))
+
 (defmacro leaf-core (name args)
-  (let ((args* (leaf-sort-values-plist
-		(leaf-normalize-plist
-		 (leaf-apply-defaults args) t))))
-    (leaf-process-keywords name args*)))
+  `(let* ((args* (leaf-sort-values-plist
+		  (leaf-normalize-plist
+		   (leaf-apply-defaults ,args) t))))
+     (leaf-process-keywords `',name args*)))
 
 (defmacro leaf (name &rest args)
   (declare (indent 1))
   "leaf macro"
-  `(leaf-core ',name ,args))
+  (macroexp-progn
+   `(,(leaf-core name args))))
 
 (provide 'leaf)
 ;;; leaf.el ends here
