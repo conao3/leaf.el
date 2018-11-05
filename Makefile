@@ -33,6 +33,11 @@ localtest:
 	EMACS=emacs-22.1 make test
 
 	@echo "\n"
+	$(call ECHO_MAGENTA, "test by emacs-24.5")
+	make clean
+	EMACS=emacs-24.5 make test
+
+	@echo "\n"
 	$(call ECHO_MAGENTA, "test by emacs-26.1")
 	make clean
 	EMACS=emacs-26.1 make test
