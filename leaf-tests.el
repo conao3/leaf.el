@@ -69,9 +69,9 @@
            (leaf-expand-minimally nil))
        (macroexpand ',form)))
   
-  (defmacro match-expansion (form &rest value)
-    `(should (pcase (expand-minimally ,form)
-               ,@(mapcar #'(lambda (x) (list x t)) value))))
+  (defmacro match-expansion (form value)
+    `(should
+      (equal (expand-minimally ,form) ,value)))
 
   ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
   ;;
@@ -81,7 +81,7 @@
   (ert-deftest leaf-test:/disabled-1 ()
     (match-expansion
      (leaf foo :disabled t)
-     '()))
+     'nil))
   
   (ert-deftest leaf-test/:if-1 ()
     (match-expansion
