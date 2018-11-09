@@ -222,17 +222,15 @@ Copy code from `macroexp-progn' for old Emacs."
   
   (if (cdr exps) `(progn ,@exps) (car exps)))
 
-(defmacro leaf-core (name args)
-  `(let* ((args* (leaf-sort-values-plist
-		  (leaf-normalize-plist
-		   (leaf-apply-defaults ,args) t))))
-     (leaf-process-keywords `',name args*)))
+(defun leaf-core (name args)
+  `(,(let* ((args* (leaf-sort-values-plist
+		    (leaf-normalize-plist
+		     (leaf-apply-defaults args) t))))
+       (leaf-process-keywords name args*))))
 
 (defmacro leaf (name &rest args)
-  (declare (indent 1))
-  "leaf macro"
-  (macroexp-progn
-   `(,(leaf-core name args))))
+  (leaf-macroexp-progn
+   (leaf-core `',name args)))
 
 (provide 'leaf)
 ;;; leaf.el ends here
