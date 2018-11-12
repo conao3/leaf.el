@@ -1,6 +1,5 @@
 #+author: conao
 #+date: <2018-10-25 Thu>
-# readme.org
 
 * [WIP]leaf.el
 [[https://github.com/conao3/leaf.el][https://img.shields.io/github/tag/conao3/leaf.el.svg?style=flat-square]]
