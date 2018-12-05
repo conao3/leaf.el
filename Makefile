@@ -1,3 +1,7 @@
+all:
+
+include Makefunc.mk
+
 TOP       := $(dir $(lastword $(MAKEFILE_LIST)))
 EMACS_RAW  := $(filter-out emacs-undumped, $(shell compgen -c emacs- | xargs))
 ALL_EMACS  := $(strip $(sort $(EMACS_RAW)))
@@ -43,6 +47,3 @@ localtest: $(ALL_EMACS:%=.make-debug-%)
 
 clean:
 	-find . -type f -name "*.elc" | xargs rm
-
-include Makefunc.mk
-
