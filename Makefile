@@ -1,12 +1,19 @@
 TOP       := $(dir $(lastword $(MAKEFILE_LIST)))
+EMACS_RAW  := $(filter-out emacs-undumped, $(shell compgen -c emacs- | xargs))
+ALL_EMACS  := $(strip $(sort $(EMACS_RAW)))
 
 EMACS     ?= emacs
 
 LOAD_PATH := -L $(TOP)
-BATCH     := $(EMACS) -Q --batch $(LOAD_PATH)
+ARGS       := -Q --batch $(LOAD_PATH)
+BATCH      := $(EMACS) $(ARGS)
 
 ELS   := leaf.el
-ELCS  := $(ELS:.el=.elc)
+ELCS  := $(ELS:%.el=%.elc)
+
+LOGFILE    := .make-debug.log
+
+##################################################
 
 all: git-hook build
 
@@ -20,31 +27,19 @@ build: $(ELCS)
 	@printf "Compiling $<\n"
 	-@$(BATCH) -f batch-byte-compile $<
 
-test: build
+test: # build
 # If byte compile for specific emacs,
-# set EMACS such as `EMACS=26.1 make`.
-	$(BATCH) -l leaf-tests.el -f srt-run-tests-batch-and-exit
+# set specify EMACS such as `EMACS=emacs-26.1 make test`.
+	$(MAKE) clean --no-print-directory
+	$(BATCH) -l cort-tests.el -f cort-run-tests
 
-localtest:
-# Clean all of .elc, compile .el, and run test.
+localtest: $(ALL_EMACS:%=.make-debug-%)
+	@echo ""
+	@cat $(LOGFILE) | grep =====
+	@rm $(LOGFILE)
 
-	$(call ECHO_MAGENTA, "test by emacs-22.1")
-	make clean
-	EMACS=emacs-22.1 make test
-
-	@echo "\n"
-	$(call ECHO_MAGENTA, "test by emacs-24.5")
-	make clean
-	EMACS=emacs-24.5 make test
-
-	@echo "\n"
-	$(call ECHO_MAGENTA, "test by emacs-26.1")
-	make clean
-	EMACS=emacs-26.1 make test
-
-	@echo "\n"
-	$(call ECHO_CYAN, "localtest completed!!")
-	@echo "\n"
+.make-debug-%:
+	EMACS=$* $(MAKE) test --no-print-directory | tee $(LOGFILE) -a
 
 clean:
 	-find . -type f -name "*.elc" | xargs rm
