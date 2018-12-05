@@ -35,7 +35,7 @@ test: # build
 # If byte compile for specific emacs,
 # set specify EMACS such as `EMACS=emacs-26.1 make test`.
 	$(MAKE) clean --no-print-directory
-	$(BATCH) -l cort-tests.el -f cort-run-tests
+	$(BATCH) -l leaf-tests.el -f cort-run-tests
 
 localtest: $(ALL_EMACS:%=.make-debug-%)
 	@echo ""
@@ -43,7 +43,7 @@ localtest: $(ALL_EMACS:%=.make-debug-%)
 	@rm $(LOGFILE)
 
 .make-debug-%:
-	EMACS=$* $(MAKE) test --no-print-directory | tee $(LOGFILE) -a
+	EMACS=$* $(MAKE) test --no-print-directory | tee -a $(LOGFILE)
 
 clean:
 	-find . -type f -name "*.elc" | xargs rm
