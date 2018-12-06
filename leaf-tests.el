@@ -66,7 +66,7 @@
 (defmacro leaf-match (form expect)
   "Return testcase for cort.
 
-Since `macroexpand-1' is not defined in Emacs below 24.0, use this macro.
+Since `macroexpand-1' is not defined in Emacs below 23.0, use this macro.
 EXPECT is (expect-default expect-24)"
   `(match-expansion
     ,form
@@ -96,6 +96,139 @@ EXPECT is (expect-default expect-24)"
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
+;;  simple test
+;;
+
+(cort-deftest leaf-test:/simple-none
+  (match-expansion
+   (leaf foo)
+   '(progn
+      (require 'foo))))
+
+(cort-deftest leaf-test:/simple-disabled-t
+  (match-expansion
+   (leaf foo :disabled t)
+   'nil))
+
+(cort-deftest leaf-test:/simple-disabled-nil
+  (match-expansion
+   (leaf foo :disabled nil)
+   '(progn
+      (require 'foo))))
+
+(cort-deftest leaf-test:/simple-if
+  (match-expansion
+   (leaf foo :if t)
+   '(if t
+        (progn
+          (require 'foo)))))
+
+(cort-deftest leaf-test/:simple-when
+  (leaf-match
+   (leaf foo :when t)
+   ('(when t
+       (progn
+         (require 'foo)))
+    '(if t
+         (progn
+           (progn
+             (require 'foo)))))))
+
+(cort-deftest leaf-test/:simple-unless
+  (leaf-match
+   (leaf foo :unless t)
+   ('(unless t
+       (progn
+         (require 'foo)))
+    '(if t
+         nil
+       (progn
+         (require 'foo))))))
+
+(cort-deftest leaf-test/:simple-multi-if
+  (match-expansion
+   (leaf foo :if (rt) :if (rnil) (mt))
+   '(if (and (rt) (rnil) (mt))
+        (progn
+          (require 'foo)))))
+
+(cort-deftest leaf-test/:simple-multi-conds
+  (match-expansion
+   (leaf foo :if (rt) :when (rnil) (mt) :unless (rt) :if (rnil))
+   '(if (and (rt) (rnil))
+        (when (and (rnil) (mt))
+          (unless (rt)
+            (progn
+              (require 'foo)))))))
+
+(cort-deftest leaf-test/:simple-init
+  (match-expansion
+   (leaf foo
+         :init
+         (setq bar1 'baz)
+         (setq bar2 'baz))
+   '(progn
+      (progn
+        (setq bar1 'baz)
+        (setq bar2 'baz))
+      (progn
+        (require 'foo)))))
+
+(cort-deftest leaf-test/:simple-init-config
+  (match-expansion
+   (leaf foo :require foo-hoge foo-piyo
+         :init
+         (setq bar1 'baz)
+         (setq bar2 'baz)
+         :config
+         (setq bar3 'baz)
+         (setq bar4 'baz))
+   '(progn
+      (progn
+        (setq bar1 'baz)
+        (setq bar2 'baz))
+      (progn
+        (require foo-hoge)
+        (require foo-piyo)
+        (setq bar3 'baz)
+        (setq bar4 'baz)))))
+
+(cort-deftest leaf-test/:simple-config
+  (match-expansion
+   (leaf foo :config (setq bar 'baz))
+   '(progn
+      (require 'foo)
+      (setq bar 'baz))))
+
+(cort-deftest leaf-test/:simple-require
+  (match-expansion
+   (leaf foo
+         :require t
+         :config (setq bar 'baz))
+   '(progn
+      (require 'foo)
+      (setq bar 'baz))))
+
+(cort-deftest leaf-test/:simple-require-nil
+  (match-expansion
+   (leaf foo
+         :require nil
+         :config (setq bar 'baz))
+   '(progn
+      (setq bar 'baz))))
+
+(cort-deftest leaf-test/:simple-multi-require
+  (match-expansion
+   (leaf foo
+         :require foo-hoge foo-piyo
+         :config (setq bar 'baz))
+   '(progn
+      (require foo-hoge)
+      (require foo-piyo)
+      (setq bar 'baz))))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;
 ;;  :disabled keyword
 ;;
 
@@ -117,12 +250,12 @@ EXPECT is (expect-default expect-24)"
 
 (cort-deftest leaf-test:/disabled-4-
   (match-expansion
-   (leaf foo :disabled t :config (message "bar") :disable nil)
+   (leaf foo :disabled t nil :config (message "bar"))
    'nil))
 
 (cort-deftest leaf-test:/disabled-5-
   (match-expansion
-   (leaf foo :disabled t nil :config (message "bar") :disabled nil)
+   (leaf foo :disabled t nil :config (message "bar") :disabled t)
    'nil))
 
 (cort-deftest leaf-test:/disabled-6-
@@ -135,13 +268,13 @@ EXPECT is (expect-default expect-24)"
   (match-expansion
    (leaf foo :disabled nil)
    '(progn
-      (require 'foo nil nil))))
+      (require 'foo))))
 
 (cort-deftest leaf-test:/disabled-2+
   (match-expansion
    (leaf foo :disabled nil :config (message "bar"))
    '(progn
-      (require 'foo nil nil)
+      (require 'foo)
       (message "bar"))))
 
 (cort-deftest laef-test:/disabled-3+
@@ -151,28 +284,28 @@ EXPECT is (expect-default expect-24)"
       (progn
         (message "bar"))
       (progn
-        (require 'foo nil nil)
+        (require 'foo)
         (message "baz")))))
 
 (cort-deftest leaf-test:/disabled-4+
   (match-expansion
-   (leaf foo :disabled nil :config (message "bar") :disable nil)
+   (leaf foo :disabled nil t :config (message "bar"))
    '(progn
-      (require 'foo nil nil)
+      (require 'foo)
       (message "bar"))))
 
 (cort-deftest leaf-test:/disabled-5+
   (match-expansion
-   (leaf foo :disabled nil t :config (message "bar") :disabled nil)
+   (leaf foo :disabled nil t :config (message "bar") :disabled t)
    '(progn
-      (require 'foo nil nil)
+      (require 'foo)
       (message "bar"))))
 
 (cort-deftest leaf-test:/disabled-6+
   (match-expansion
    (leaf foo :disabled nil :disabled t nil nil :config (message "bar"))
    '(progn
-      (require 'foo nil nil)
+      (require 'foo)
       (message "bar"))))
 
 ;; :disabled with boolean reterns funciton patterns, Finaly `t' will be adopted.
@@ -193,12 +326,12 @@ EXPECT is (expect-default expect-24)"
 
 (cort-deftest leaf-test:/disabled-4--
   (match-expansion
-   (leaf foo :disabled (rt) :config (message "bar") :disable (rnil))
+   (leaf foo :disabled (rt) (rnil) :config (message "bar"))
    'nil))
 
 (cort-deftest leaf-test:/disabled-5--
   (match-expansion
-   (leaf foo :disabled (rt) (rnil) :config (message "bar") :disabled (rnil))
+   (leaf foo :disabled (rt) (rnil) :config (message "bar") :disabled (rt))
    'nil))
 
 (cort-deftest leaf-test:/disabled-6--
@@ -211,13 +344,13 @@ EXPECT is (expect-default expect-24)"
   (match-expansion
    (leaf foo :disabled (rnil))
    '(progn
-      (require 'foo nil nil))))
+      (require 'foo))))
 
 (cort-deftest leaf-test:/disabled-2++
   (match-expansion
    (leaf foo :disabled (rnil) :config (message "bar"))
    '(progn
-      (require 'foo nil nil)
+      (require 'foo)
       (message "bar"))))
 
 (cort-deftest laef-test:/disabled-3++
@@ -227,28 +360,28 @@ EXPECT is (expect-default expect-24)"
       (progn
         (message "bar"))
       (progn
-        (require 'foo nil nil)
+        (require 'foo)
         (message "baz")))))
 
 (cort-deftest leaf-test:/disabled-4++
   (match-expansion
-   (leaf foo :disabled (rnil) :config (message "bar") :disable (rnil))
+   (leaf foo :disabled (rnil) (rt) :config (message "bar"))
    '(progn
-      (require 'foo nil nil)
+      (require 'foo)
       (message "bar"))))
 
 (cort-deftest leaf-test:/disabled-5++
   (match-expansion
-   (leaf foo :disabled (rnil) (rt) :config (message "bar") :disabled (rnil))
+   (leaf foo :disabled (rnil) (rt) :config (message "bar") :disabled (rt))
    '(progn
-      (require 'foo nil nil)
+      (require 'foo)
       (message "bar"))))
 
 (cort-deftest leaf-test:/disabled-6++
   (match-expansion
    (leaf foo :disabled (rnil) :disabled (rt) (rnil) (rnil) :config (message "bar"))
    '(progn
-      (require 'foo nil nil)
+      (require 'foo)
       (message "bar"))))
 
 ;; :disabled with boolean reterns funciton patterns, Finaly `t' will be adopted.
@@ -269,12 +402,12 @@ EXPECT is (expect-default expect-24)"
 
 (cort-deftest leaf-test:/disabled-4---
   (match-expansion
-   (leaf foo :disabled (mt) :config (message "bar") :disable (mnil))
+   (leaf foo :disabled (mt) (mnil) :config (message "bar"))
    'nil))
 
 (cort-deftest leaf-test:/disabled-5---
   (match-expansion
-   (leaf foo :disabled (mt) (mnil) :config (message "bar") :disabled (mnil))
+   (leaf foo :disabled (mt) (mnil) :config (message "bar") :disabled (mt))
    'nil))
 
 (cort-deftest leaf-test:/disabled-6---
@@ -287,13 +420,13 @@ EXPECT is (expect-default expect-24)"
   (match-expansion
    (leaf foo :disabled (mnil))
    '(progn
-      (require 'foo nil nil))))
+      (require 'foo))))
 
 (cort-deftest leaf-test:/disabled-2+++
   (match-expansion
    (leaf foo :disabled (mnil) :config (message "bar"))
    '(progn
-      (require 'foo nil nil)
+      (require 'foo)
       (message "bar"))))
 
 (cort-deftest laef-test:/disabled-3+++
@@ -303,28 +436,28 @@ EXPECT is (expect-default expect-24)"
       (progn
         (message "bar"))
       (progn
-        (require 'foo nil nil)
+        (require 'foo)
         (message "baz")))))
 
 (cort-deftest leaf-test:/disabled-4+++
   (match-expansion
-   (leaf foo :disabled (mnil) :config (message "bar") :disable (mnil))
+   (leaf foo :disabled (mnil) (mt) :config (message "bar"))
    '(progn
-      (require 'foo nil nil)
+      (require 'foo)
       (message "bar"))))
 
 (cort-deftest leaf-test:/disabled-5+++
   (match-expansion
-   (leaf foo :disabled (mnil) (mt) :config (message "bar") :disabled (mnil))
+   (leaf foo :disabled (mnil) (mt) :config (message "bar") :disabled (mt))
    '(progn
-      (require 'foo nil nil)
+      (require 'foo)
       (message "bar"))))
 
 (cort-deftest leaf-test:/disabled-6+++
   (match-expansion
    (leaf foo :disabled (mnil) :disabled (mt) (mnil) (mnil) :config (message "bar"))
    '(progn
-      (require 'foo nil nil)
+      (require 'foo)
       (message "bar"))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -337,86 +470,86 @@ EXPECT is (expect-default expect-24)"
    (leaf foo :if t)
    '(if t
         (progn
-          (require 'foo nil nil)))))
+          (require 'foo)))))
 
 (cort-deftest leaf-test/:if-2
   (match-expansion
-   (leaf foo :if (and t t))
-   '(if (and t t)
+   (leaf foo :if (or (rt) (rnil)))
+   '(if (or (rt) (rnil))
         (progn
-          (require 'foo nil nil)))))
+          (require 'foo)))))
 
 (cort-deftest leaf-test/:if-3
   (match-expansion
    (leaf foo :if nil)
    '(if nil
         (progn
-          (require 'foo nil nil)))))
+          (require 'foo)))))
 
 (cort-deftest leaf-test/:when-1
   (leaf-match
    (leaf foo :when t)
    ('(when t
        (progn
-         (require 'foo nil nil)))
+         (require 'foo)))
     '(if t
          (progn
            (progn
-             (require 'foo nil nil)))))))
+             (require 'foo)))))))
 
 (cort-deftest leaf-test/:when-2
   (leaf-match
-   (leaf foo :when (and t t))
-   ('(when (and t t)
+   (leaf foo :when (or (rt) (rnil)))
+   ('(when (or (rt) (rnil))
        (progn
-         (require 'foo nil nil)))
-    '(if (and t t)
+         (require 'foo)))
+    '(if (or (rt) (rnil))
          (progn
            (progn
-             (require 'foo nil nil)))))))
+             (require 'foo)))))))
 
 (cort-deftest leaf-test/:when-3
   (leaf-match
    (leaf foo :when nil)
    ('(when nil
        (progn
-         (require 'foo nil nil)))
+         (require 'foo)))
     '(if nil
          (progn
            (progn
-             (require 'foo nil nil)))))))
+             (require 'foo)))))))
 
 (cort-deftest leaf-test/:unless-1
   (leaf-match
    (leaf foo :unless t)
    ('(unless t
        (progn
-         (require 'foo nil nil)))
+         (require 'foo)))
     '(if t
          nil
        (progn
-         (require 'foo nil nil))))))
+         (require 'foo))))))
 
 (cort-deftest leaf-test/:unless-2
   (leaf-match
-   (leaf foo :unless (and t t))
-   ('(unless (and t t)
+   (leaf foo :unless (or (rt) (rnil)))
+   ('(unless (or (rt) (rnil))
        (progn
-         (require 'foo nil nil)))
-    '(if (and t t)
+         (require 'foo)))
+    '(if (or (rt) (rnil))
          nil
        (progn
-         (require 'foo nil nil))))))
+         (require 'foo))))))
 
 (cort-deftest leaf-test/:unless-3
   (leaf-match
    (leaf foo :unless nil)
    ('(unless nil
        (progn
-         (require 'foo nil nil)))
+         (require 'foo)))
     '(if nil nil
        (progn
-         (require 'foo nil nil))))))
+         (require 'foo))))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
@@ -427,13 +560,13 @@ EXPECT is (expect-default expect-24)"
   (match-expansion
    (leaf foo)
    '(progn
-      (require 'foo nil nil))))
+      (require 'foo))))
 
 (cort-deftest leaf-test/:require-1
   (match-expansion
    (leaf foo :require t)
    '(progn
-      (require 'foo nil nil))))
+      (require 'foo))))
 
 (cort-deftest leaf-test/:require-2
   (match-expansion

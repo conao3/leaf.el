@@ -273,7 +273,7 @@ This handler add require comamnd for name."
      ((eq (car value) nil)
       `(,@body))
      ((eq (car value) t)
-      `((require ,name nil nil)
+      `((require ,name)
         ,@body))
      (t
       `(;; remove last `t' symbol from VALUE
