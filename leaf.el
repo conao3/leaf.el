@@ -25,7 +25,7 @@
 ;;; Code:
 
 (defgroup leaf nil
-  "leaf"
+  "Symplifying your `.emacs' configuration."
   :group 'lisp)
 
 (defcustom leaf-keywords
