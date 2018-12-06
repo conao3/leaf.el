@@ -78,10 +78,29 @@ EXPECT is (expect-default expect-24)"
 ;;  test definition
 ;;
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;
+;;  disabled keyword
+;;
+
 (cort-deftest leaf-test:/disabled-1
-  (:equal
+  (match-expansion
    (leaf foo :disabled t)
    'nil))
+
+(cort-deftest leaf-test:/disabled-2
+  (match-expansion
+   (leaf foo :disabled t :if t)
+   'nil))
+
+(cort-deftest leaf-test:/disabled-3
+  (match-expansion
+   (leaf foo :disabled nil :init (message "foo"))
+   '(progn
+      (progn
+        (message "foo"))
+      (progn
+        (require 'foo nil nil)))))
 
 (cort-deftest leaf-test/:if-1
   (leaf-match

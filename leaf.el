@@ -188,7 +188,16 @@ Don't call this function directory."
 
 This handler always return nil, and interrupt processing of
 remaining arguments"
-  nil)
+  (let ((body (leaf-process-keywords name rest)))
+    (cond
+     ((eq (car value) t)
+      nil)
+     ((eq (car value) nil)
+      `(,@body))
+     (t
+      (if (eval (car value))
+          nil
+        `(,@body))))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
