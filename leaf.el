@@ -210,7 +210,11 @@ remaining arguments"
 This handler surround the processing of the remaining arguments
 with an if block"
   (let ((body (leaf-process-keywords name rest)))
-    `(if ,(car value) ,body)))
+    (cond
+     ((= 1 (length value))
+      `(if ,@value ,body))
+     (t
+      `(if (and ,@value) ,body)))))
 
 (defun leaf-handler/:when (name value rest)
   "Process :when.
@@ -218,7 +222,11 @@ with an if block"
 This handler surround the processing of the remaining arguments
 with an when block"
   (let ((body (leaf-process-keywords name rest)))
-    `(when ,(car value) ,body)))
+    (cond
+     ((= 1 (length value))
+      `(when ,@value ,body))
+     (t
+      `(when (and ,@value) ,body)))))
 
 (defun leaf-handler/:unless (name value rest)
   "Process :unless.
@@ -226,7 +234,11 @@ with an when block"
 This handler surround the processing of the remaining arguments
 with an unless block"
   (let ((body (leaf-process-keywords name rest)))
-    `(unless ,(car value) ,body)))
+    (cond
+     ((= 1 (length value))
+      `(unless ,@value ,body))
+     (t
+      `(unless (and ,@value) ,body)))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
