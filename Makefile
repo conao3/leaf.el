@@ -31,19 +31,31 @@ build: $(ELCS)
 	@printf "Compiling $<\n"
 	-@$(BATCH) -f batch-byte-compile $<
 
-test: # build
+check: # build
 # If byte compile for specific emacs,
-# set specify EMACS such as `EMACS=emacs-26.1 make test`.
+# set specify EMACS such as `EMACS=emacs-26.1 make check`.
 	$(MAKE) clean --no-print-directory
 	$(BATCH) -l leaf-tests.el -f cort-run-tests
 
-localtest: $(ALL_EMACS:%=.make-debug-%)
+allcheck: $(ALL_EMACS:%=.make-check-%)
 	@echo ""
 	@cat $(LOGFILE) | grep =====
 	@rm $(LOGFILE)
 
-.make-debug-%:
-	EMACS=$* $(MAKE) test --no-print-directory 2>&1 | tee -a $(LOGFILE)
+.make-check-%:
+	EMACS=$* $(MAKE) check --no-print-directory 2>&1 | tee -a $(LOGFILE)
+
+# silent `allcheck' job
+test: $(ALL_EMACS:%=.make-test-%)
+	@echo ""
+	@cat $(LOGFILE) | grep =====
+	@rm $(LOGFILE)
+
+.make-test-%:
+	EMACS=$* $(MAKE) check --no-print-directory 2>&1 >> $(LOGFILE)
+
+updatecort:
+	-cp -f ../cort.el/cort.el ./
 
 clean:
 	-find . -type f -name "*.elc" | xargs rm

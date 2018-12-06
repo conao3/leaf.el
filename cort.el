@@ -31,7 +31,7 @@
   "Simplify elisp test framework."
   :group 'lisp)
 
-(defconst cort-version "3.0.1"
+(defconst cort-version "3.0.5"
   "cort.el version")
 
 (defconst cort-env-symbols '(:cort-emacs<
@@ -57,10 +57,10 @@
   :type 'boolean
   :group 'cort)
 
-(defcustom cort-enable-color (null window-system)
+(defcustom cort-enable-color noninteractive
   "If non nil, enable color message to output with meta character.
 Default, enable color if run test on CUI.
-`window-system' returns nil on CUI"
+`noninteractive' returns t on --batch mode"
   :type 'boolean
   :group 'cort)
 
@@ -98,16 +98,16 @@ Default, enable color if run test on CUI.
 
 (defcustom cort-error-message
   (if cort-enable-color
-      "\e[31m===== Run %d Tests, %d Expected, %d Failed, %d Errored on Emacs-%s =====\n\e[m"
-    "===== Run %d Tests, %d Expected, %d Failed, %d Errored on Emacs-%s =====\n")
+      "\e[31m===== Run %2d Tests, %2d Expected, %2d Failed, %2d Errored on Emacs-%s =====\e[m\n\n"
+    "===== Run %2d Tests, %2d Expected, %2d Failed, %2d Errored on Emacs-%s =====\n\n")
   "Error message"
   :type 'string
   :group 'cort)
 
 (defcustom cort-passed-message
   (if cort-enable-color
-      "\e[34m===== Run %d Tests, %d Expected, %d Failed, %d Errored on Emacs-%s =====\n\n\e[m"
-    "===== Run %d Tests, %d Expected, %d Failed, %d Errored on Emacs-%s =====\n\n")
+      "\e[34m===== Run %2d Tests, %2d Expected, %2d Failed, %2d Errored on Emacs-%s =====\e[m\n\n"
+    "===== Run %2d Tests, %2d Expected, %2d Failed, %2d Errored on Emacs-%s =====\n\n")
   "Error message"
   :type 'string
   :group 'cort)

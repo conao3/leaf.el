@@ -1,4 +1,4 @@
 #!/bin/sh
 #
 
-make localtest
+make test
