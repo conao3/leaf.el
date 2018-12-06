@@ -186,9 +186,19 @@ remaining arguments"
 
 This handler add require comamnd for name."
   (let ((body (leaf-process-keywords name rest)))
-    `(progn
-       (require ,name nil nil)
-       ,@body)))
+    (cond
+     ((eq (car value) nil)
+      `(progn
+         ,@body))
+     ((eq (car value) t)
+      `(progn
+         (require ,name nil nil)
+         ,@body))
+     (t
+      `(progn
+         ;; remove last `t' symbol from VALUE
+         ,@(mapcar (lambda (x) `(require ,x)) (butlast value))
+         ,@body)))))
 
 (defun leaf-handler/:if (name value rest)
   "Process :if.

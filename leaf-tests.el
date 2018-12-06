@@ -178,5 +178,38 @@ EXPECT is (expect-default expect-24)"
        (progn
          (require 'foo nil nil))))))
 
+(cort-deftest leaf-test/:require-0
+  (leaf-match
+   (leaf foo)
+   ('(progn
+       (require 'foo nil nil))
+    '(progn
+       (require 'foo nil nil)))))
+
+(cort-deftest leaf-test/:require-1
+  (leaf-match
+   (leaf foo :require t)
+   ('(progn
+       (require 'foo nil nil))
+    '(progn
+       (require 'foo nil nil)))))
+
+(cort-deftest leaf-test/:require-2
+  (leaf-match
+   (leaf foo :require nil)
+   ('(progn)
+    '(progn))))
+
+(cort-deftest leaf-test/:require-3
+  (leaf-match
+   (leaf foo :require bar baz)
+   ('(progn
+       (require bar)
+       (require baz))
+    '(progn
+       (require bar)
+       (require baz)))))
+  
+              
 (provide 'leaf-tests)
 ;;; leaf-tests.el ends here
