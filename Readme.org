@@ -1,12 +1,292 @@
 #+author: conao
 #+date: <2018-10-25 Thu>
 
-* [WIP]leaf.el
+* leaf.el
 [[https://github.com/conao3/leaf.el][https://img.shields.io/github/tag/conao3/leaf.el.svg?style=flat-square]]
 [[https://travis-ci.org/conao3/leaf.el][https://img.shields.io/travis/conao3/leaf.el/master.svg?style=flat-square]]
-[[https://github.com/conao3/leaf.el][https://img.shields.io/github/license/mashape/apistatus.svg?style=flat-square]]
+[[https://github.com/conao3/leaf.el][https://img.shields.io/github/license/conao3/leaf.el.svg?style=flat-square]]
 
+- [[What is it?]]
+- [[How to use?]]
+- [[Syntaxes]]
+  - [[Basic keywords]]
+    - [[none (keyword)]]
+    - [[:require keyword]]
+  - [[Configuration keywords]]
+    - [[:init keyword]]
+    - [[:config keyword]]
+  - [[Condition keywords]]
+    - [[:disabled keyword]]
+    - [[:if, :when, :unless keyword]]
+- [[Why We support Emacs-22?]]
+- [[Welcome PR]]
+- [[Special Thanks]]
 
-** What is it?
-~leaf.el~ support your setting init.el.
+* What is it?
+~leaf.el~ is yet another [[https://github.com/jwiegley/use-package][use-package]].
 
+~leaf.el~ has strong conditional branching symbols, 
+making your Emacs configuration simpler.
+
+It operates from Emacs-22, obtains partner [[https://github.com/conao3/feather.el][feather]] and 
+realizes Emacs packages and configurationswhich can be regenerated. 
+
+You do not have to worry about errors due to reinstallation or environmental differences.
+
+* How to use?
+Put ~leaf.el~ at any folder added ~load-path~.
+Then ~(require 'leaf)~ and use like ~use-pacakge~
+
+* Syntaxes
+All below examples are excerpts from ~leaf-tests.el~.
+
+These examples are defined in the following format.
+We expect FORM will be expanded to EXPECT.
+#+begin_src emacs-lisp
+  (cort-deftest TESTCASE-NAME
+    (match-expansion
+     FORM                  ; will be expand by `macroexpand-1'
+     'EXPECT))             ; expect FORM's expansion will be EXPECT (test `equal')
+
+  ;; Emacs-22, Emacs-23 can't define `macroexpand-1', branch EXPECT form.
+  (cort-deftest TESTCASE-NAME
+    (leaf-match
+     FORM
+     ('EXPECT              ; (macroexpand-1 FORM) will be EXPECT
+      'EXPECT-23)))        ; (macroexpand FORM) will be EXPECT-23
+
+  ;; test functions, macros return boolean value
+  (defun rt () t)
+  (defun rnil () nil)
+  (defmacro mt () `(rt))
+  (defmacro mnil () `(rnil))
+#+end_src
+
+** Basic keywords
+*** none (keyword)
+If ~leaf~ use without specifying any symbol, it simply works as a substitute for ~require~.
+#+begin_src emacs-lisp
+  (cort-deftest leaf-test:/simple-none
+    (match-expansion
+     (leaf foo)
+     '(progn
+        (require 'foo))))
+#+end_src
+
+*** :require keyword
+~leaf~ interprets that it is given default by ~:require t~.
+
+~leaf~ do not ~require~ anything when ~nil~ is given, 
+and if give multiple values it ~require~ each package.
+
+#+begin_src emacs-lisp
+  (cort-deftest leaf-test/:simple-require
+    (match-expansion
+     (leaf foo
+           :require t     ; not necessary to declare this specifically (default)
+           :config (setq bar 'baz))
+     '(progn
+        (require 'foo)
+        (setq bar 'baz))))
+
+  (cort-deftest leaf-test/:simple-require-nil
+    (match-expansion
+     (leaf foo
+           :require nil
+           :config (setq bar 'baz))
+     '(progn
+        (setq bar 'baz))))
+
+  (cort-deftest leaf-test/:simple-multi-require
+    (match-expansion
+     (leaf foo
+           :require foo-hoge foo-piyo
+           :config (setq bar 'baz))
+     '(progn
+        (require foo-hoge)
+        (require foo-piyo)
+        (setq bar 'baz))))
+#+end_src
+
+** Configuration keywords
+*** :init keyword
+~:init~ keyword expect sexp will evaluated before ~require~ package.
+
+#+begin_src emacs-lisp
+  (cort-deftest leaf-test/:simple-init
+    (match-expansion
+     (leaf foo
+           :init
+           (setq bar1 'baz)
+           (setq bar2 'baz))
+     '(progn
+        (progn
+          (setq bar1 'baz)
+          (setq bar2 'baz))
+        (progn
+          (require 'foo)))))
+#+end_src
+
+*** :config keyword
+~:config~ keyword expect sexp will evaluated after ~require~ package.
+
+#+BEGIN_SRC emacs-lisp
+  (cort-deftest leaf-test/:simple-config
+    (match-expansion
+     (leaf foo :config (setq bar 'baz))
+     '(progn
+        (require 'foo)
+        (setq bar 'baz))))
+
+  (cort-deftest leaf-test/:simple-init-config
+    (match-expansion
+     (leaf foo :require foo-hoge foo-piyo
+           :init
+           (setq bar1 'baz)
+           (setq bar2 'baz)
+           :config
+           (setq bar3 'baz)
+           (setq bar4 'baz))
+     '(progn
+        (progn
+          (setq bar1 'baz)
+          (setq bar2 'baz))
+        (progn
+          (require foo-hoge)
+          (require foo-piyo)
+          (setq bar3 'baz)
+          (setq bar4 'baz)))))
+#+END_SRC
+
+** Condition keywords
+*** :disabled keyword
+~:disabled~ keyword expect boolean.
+
+If you put ~:disabled t~ keyword, that ~leaf~ block just converting to nil.
+
+Ignore the specification of ~:disabled~ by setting ~t~ to ~nil~.
+
+~:disabled~ will adopt the value of value declared first.
+#+begin_src emacs-lisp
+  ;; simple :disabled t pattern
+  ;; :disabled t => disable block (convert to just nil)
+  (cort-deftest leaf-test:/simple-disabled-t
+    (match-expansion
+     (leaf foo :disabled t)
+     'nil))
+
+  ;; simple :disabled nil pattern
+  ;; :disabled nil => ignore :disabled
+  (cort-deftest leaf-test:/simple-disabled-nil
+    (match-expansion
+     (leaf foo :disabled nil)
+     '(progn
+        (require 'foo))))
+
+  ;; multiple :disabled value is ok, adoped first value.
+  ;; :disabled t nil => :disabled t => disable block
+  (cort-deftest leaf-test:/disabled-4-
+    (match-expansion
+     (leaf foo :disabled t nil :config (message "bar"))
+     'nil))
+
+  ;; multiple :disabled keyword is ok, adoped first value.
+  ;; :disabled nil t t => :disabled nil => ignore :disabled
+  (cort-deftest leaf-test:/disabled-5+
+    (match-expansion
+     (leaf foo :disabled nil t :config (message "bar") :disabled t)
+     '(progn
+        (require 'foo)
+        (message "bar"))))
+
+  ;; :disabled keyword value allowed functions and macros returns boolean value.
+  ;; :disable (rt) (rnil) (rt) => :disable t nil t => :disable t
+  (cort-deftest leaf-test:/disabled-5++
+    (match-expansion
+     (leaf foo :disabled (rnil) (rt) :config (message "bar") :disabled (rt))
+     '(progn
+        (require 'foo)
+        (message "bar"))))
+#+end_src
+
+*** :if, :when, :unless keyword
+~:if~, ~:when~, ~:unless~ keywords expect sexp return boolean or just boolean value
+and wrap converted sexp specified function.
+
+If specified multiple those keyword, evaluate sexp in ~and~.
+#+begin_src emacs-lisp
+  ;; simple :if pattern
+  (cort-deftest leaf-test:/simple-if
+    (match-expansion
+     (leaf foo :if t)
+     '(if t
+          (progn
+            (require 'foo)))))
+
+  ;; simple :when pattern
+  (cort-deftest leaf-test/:simple-when
+    (leaf-match
+     (leaf foo :when t)
+     ('(when t
+         (progn
+           (require 'foo)))
+      '(if t
+           (progn
+             (progn
+               (require 'foo)))))))
+
+  ;; simple :unless pattern
+  (cort-deftest leaf-test/:simple-unless
+    (leaf-match
+     (leaf foo :unless t)
+     ('(unless t
+         (progn
+           (require 'foo)))
+      '(if t
+           nil
+         (progn
+           (require 'foo))))))
+
+  ;; multiple :if pattern
+  (cort-deftest leaf-test/:simple-multi-if
+    (match-expansion
+     (leaf foo :if (rt) :if (rnil) (mt))
+     '(if (and (rt) (rnil) (mt))
+          (progn
+            (require 'foo)))))
+
+  ;; multiple condition pattern
+  ;; sorted in the order :if, :when, :unless and merge.
+  (cort-deftest leaf-test/:simple-multi-conds
+    (match-expansion
+     (leaf foo :if (rt) :when (rnil) (mt) :unless (rt) :if (rnil))
+     '(if (and (rt) (rnil))
+          (when (and (rnil) (mt))
+            (unless (rt)
+              (progn
+                (require 'foo)))))))
+
+  ;; if you want evaluate sexp in `or', just specify that sexp.
+  (cort-deftest leaf-test/:if-2
+    (match-expansion
+     (leaf foo :if (or (rt) (rnil)))
+     '(if (or (rt) (rnil))
+          (progn
+            (require 'foo)))))
+#+end_src
+* Why We support Emacs-22?
+Bundling Emacs-22.1 on macOS 10.13 (High Sierra), we support this.
+
+* Welcome PR
+We welcome PR!
+Travis Cl test ~leaf-test.el~ with oll Emacs version 23 or above.
+
+I think that it is difficult to prepare the environment locally, 
+so I think that it is good to throw PR and test travis for the time being!
+Feel free throw PR!
+
+* Special Thanks
+Advice and comments given by [[http://emacs-jp.github.io/][Emacs-JP]]'s forum member has been a great help
+in developing ~leaf.el~.
+
+Thanks you very much!!

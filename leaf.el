@@ -28,6 +28,9 @@
   "Symplifying your `.emacs' configuration."
   :group 'lisp)
 
+(defconst leaf-version "1.0.0"
+  "leaf.el version")
+
 (defcustom leaf-keywords
   '(;; if specified this keyword, leaf block convert to nil.
     :disabled
