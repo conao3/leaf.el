@@ -224,6 +224,13 @@ with an unless block"
 ;;  init keyword
 ;;
 
+(defun leaf-handler/:init (name value rest)
+  "Process :init.
+
+This value is evaled before `require'."
+  (let ((body (leaf-process-keywords name rest)))
+    `(progn ,@value ,body)))
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
 ;;  require keyword
@@ -258,7 +265,7 @@ This handler add require comamnd for name."
 
 This handler return value with progn form."
   (let ((body (leaf-process-keywords name rest)))
-    `(progn ,@value)))
+    `(,@value ,@body)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
