@@ -50,7 +50,7 @@ Each symbol must has handle function named as `leaf-handler/_:symbol_'."
   :group 'leaf)
 
 (defcustom leaf-defaults
-  '(:require t)
+  '(:init nil :require t)
   "Default values for each leaf packages."
   :type 'sexp
   :group 'leaf)
@@ -229,7 +229,14 @@ with an unless block"
 
 This value is evaled before `require'."
   (let ((body (leaf-process-keywords name rest)))
-    `(progn ,@value ,body)))
+    (cond
+     ((eq (car value) nil)
+      `(progn ,@body))
+     (t
+      ;; remove last `nil' symbol from VALUE
+      `(progn
+         (progn ,@(butlast value))
+         (progn ,@body))))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
@@ -243,17 +250,14 @@ This handler add require comamnd for name."
   (let ((body (leaf-process-keywords name rest)))
     (cond
      ((eq (car value) nil)
-      `(progn
-         ,@body))
+      `(,@body))
      ((eq (car value) t)
-      `(progn
-         (require ,name nil nil)
-         ,@body))
+      `((require ,name nil nil)
+        ,@body))
      (t
-      `(progn
-         ;; remove last `t' symbol from VALUE
-         ,@(mapcar (lambda (x) `(require ,x)) (butlast value))
-         ,@body)))))
+      `(;; remove last `t' symbol from VALUE
+        ,@(mapcar (lambda (x) `(require ,x)) (butlast value))
+        ,@body)))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
