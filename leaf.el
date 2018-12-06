@@ -32,7 +32,7 @@
   '(;; if specified this keyword, leaf block convert to nil.
     :disabled
     
-    ;; conditions wrap below keyword.
+    ;; condition sexp wrap below keyword.
     :if :when :unless
 
     ;; init process before `require'.
@@ -178,6 +178,11 @@ Don't call this function directory."
            (handler-sym (intern handler)))
       (funcall handler-sym name value rest))))
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;
+;;  disabled keyword
+;;
+
 (defun leaf-handler/:disabled (name value rest)
   "Process :disabled.
 
@@ -185,24 +190,10 @@ This handler always return nil, and interrupt processing of
 remaining arguments"
   nil)
 
-(defun leaf-handler/:require (name value rest)
-  "Process :require.
-
-This handler add require comamnd for name."
-  (let ((body (leaf-process-keywords name rest)))
-    (cond
-     ((eq (car value) nil)
-      `(progn
-         ,@body))
-     ((eq (car value) t)
-      `(progn
-         (require ,name nil nil)
-         ,@body))
-     (t
-      `(progn
-         ;; remove last `t' symbol from VALUE
-         ,@(mapcar (lambda (x) `(require ,x)) (butlast value))
-         ,@body)))))
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;
+;;  condition keywords
+;;
 
 (defun leaf-handler/:if (name value rest)
   "Process :if.
@@ -227,6 +218,40 @@ This handler surround the processing of the remaining arguments
 with an unless block"
   (let ((body (leaf-process-keywords name rest)))
     `(unless ,(car value) ,body)))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;
+;;  init keyword
+;;
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;
+;;  require keyword
+;;
+
+(defun leaf-handler/:require (name value rest)
+  "Process :require.
+
+This handler add require comamnd for name."
+  (let ((body (leaf-process-keywords name rest)))
+    (cond
+     ((eq (car value) nil)
+      `(progn
+         ,@body))
+     ((eq (car value) t)
+      `(progn
+         (require ,name nil nil)
+         ,@body))
+     (t
+      `(progn
+         ;; remove last `t' symbol from VALUE
+         ,@(mapcar (lambda (x) `(require ,x)) (butlast value))
+         ,@body)))))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;
+;;  config keyword
+;;
 
 (defun leaf-handler/:config (name value rest)
   "Process :config.
