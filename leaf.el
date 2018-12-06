@@ -28,7 +28,7 @@
   "Symplifying your `.emacs' configuration."
   :group 'lisp)
 
-(defconst leaf-version "1.0.0"
+(defconst leaf-version "1.0.1"
   "leaf.el version")
 
 (defcustom leaf-keywords
@@ -307,12 +307,15 @@ Copy code from `macroexp-progn' for old Emacs."
   (if (cdr exps) `(progn ,@exps) (car exps)))
 
 (defun leaf-core (name args)
+  "leaf core process."
   `(,(let* ((args* (leaf-sort-values-plist
                     (leaf-normalize-plist
                      (leaf-append-defaults args) t))))
        (leaf-process-keywords name args*))))
 
 (defmacro leaf (name &rest args)
+  "Symplifying your `.emacs' configuration."
+  (declare (indent 1))
   (leaf-macroexp-progn
    (leaf-core `',name args)))
 
