@@ -66,7 +66,7 @@
 ;;   such as (:if (t) :config ((prin1 "a") (prin1 "b)))
 ;;
 
-(defun leaf-apply-defaults (plist)
+(defun leaf-append-defaults (plist)
   "Add leaf default values to plist."
 
   `(,@plist ,@leaf-defaults))
@@ -225,7 +225,7 @@ Copy code from `macroexp-progn' for old Emacs."
 (defun leaf-core (name args)
   `(,(let* ((args* (leaf-sort-values-plist
 		    (leaf-normalize-plist
-		     (leaf-apply-defaults args) t))))
+		     (leaf-append-defaults args) t))))
        (leaf-process-keywords name args*))))
 
 (defmacro leaf (name &rest args)
