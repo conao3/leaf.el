@@ -29,15 +29,19 @@
   :group 'lisp)
 
 (defcustom leaf-keywords
-  '(:disabled
+  '(;; if specified this keyword, leaf block convert to nil.
+    :disabled
     
+    ;; conditions wrap below keyword.
     :if :when :unless
-    :require
-    ;; Any other keyword that also declares commands to be autoloaded
-    ;; (such as :bind) must appear before this keyword.
+
+    ;; init process before `require'.
     :init
-    ;; This must occur almost last; the only forms which should appear after
-    ;; are those that must happen directly after the config forms.
+
+    ;; require packages.
+    :require
+    
+    ;; general configure sexp.
     :config)
   "Special keywords to be processed by `leaf'.
 Sort by `leaf-sort-values-plist' in this order.
