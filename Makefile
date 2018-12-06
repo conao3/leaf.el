@@ -2,20 +2,20 @@ all:
 
 include Makefunc.mk
 
-TOP       := $(dir $(lastword $(MAKEFILE_LIST)))
+TOP        := $(dir $(lastword $(MAKEFILE_LIST)))
 EMACS_RAW  := $(filter-out emacs-undumped, $(shell compgen -c emacs- | xargs))
 ALL_EMACS  := $(strip $(sort $(EMACS_RAW)))
 
-EMACS     ?= emacs
+EMACS      ?= emacs
 
-LOAD_PATH := -L $(TOP)
+LOAD_PATH  := -L $(TOP)
 ARGS       := -Q --batch $(LOAD_PATH)
 BATCH      := $(EMACS) $(ARGS)
 
-ELS   := leaf.el
-ELCS  := $(ELS:%.el=%.elc)
+ELS        := leaf.el
+ELCS       := $(ELS:%.el=%.elc)
 
-LOGFILE    := .make-debug.log
+LOGFILE    := .make-test.log
 
 ##################################################
 
