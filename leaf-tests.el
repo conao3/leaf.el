@@ -32,7 +32,8 @@
 ;;  test settings
 ;;
 
-(unless (fboundp 'macroexpand-1)
+(when (and (not (fboundp 'macroexpand-1))
+           (fboundp 'autoload-do-load))
   (defun macroexpand-1 (form &optional environment)
     "Perform (at most) one step of macroexpansion."
     (cond
@@ -42,97 +43,140 @@
         (if env-expander
             (if (cdr env-expander)
                 (apply (cdr env-expander) (cdr form))
-	      form)
+              form)
           (if (not (and (symbolp head) (fboundp head)))
-	      form
+              form
             (let ((def (autoload-do-load (symbol-function head) head 'macro)))
-	      (cond
-	       ;; Follow alias, but only for macros, otherwise we may end up
-	       ;; skipping an important compiler-macro (e.g. cl--block-wrapper).
-	       ((and (symbolp def) (macrop def)) (cons def (cdr form)))
-	       ((not (consp def)) form)
-	       (t
+              (cond
+               ;; Follow alias, but only for macros, otherwise we may end up
+               ;; skipping an important compiler-macro (e.g. cl--block-wrapper).
+               ((and (symbolp def) (macrop def)) (cons def (cdr form)))
+               ((not (consp def)) form)
+               (t
                 (if (eq 'macro (car def))
                     (apply (cdr def) (cdr form))
                   form))))))))
      (t form))))
 
-(defmacro match-expansion (form value)
-  `(should
-    (equal (macroexpand-1 ',form) ,value)))
+(defmacro match-expansion (form expect)
+  (if (fboundp 'macroexpand-1)
+      `(:equal (macroexpand-1 ',form) ,expect)
+    `(:equal (macroexpand ',form) ,expect)))
+
+(defmacro leaf-match (form expect)
+  "Return testcase for cort.
+
+Since `macroexpand-1' is not defined in Emacs below 24.0, use this macro.
+EXPECT is (expect-default expect-24)"
+  `(match-expansion
+    ,form
+    (,(car expect)
+     :cort-if ((not (fboundp 'macroexpand-1)) ,(cadr expect)))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
 ;;  test definition
 ;;
 
-;; (srt-deftest leaf-test:/disabled-1
-;;   (:equal
-;;    (leaf foo :disabled t)
-;;    'nil))
-;; 
-;; (srt-deftest leaf-test/:if-1 ()
-;;   (match-expansion
-;;    (leaf foo :if t)
-;;    '(if t
-;; 	(progn
-;; 	  (require (quote foo) nil nil)))))
-;; 
-;; (srt-deftest leaf-test/:if-2 ()
-;;   (match-expansion
-;;    (leaf foo :if (and t t))
-;;    '(if (and t t)
-;; 	(progn
-;; 	  (require (quote foo) nil nil)))))
-;; 
-;; (srt-deftest leaf-test/:if-3 ()
-;;   (match-expansion
-;;    (leaf foo :if nil)
-;;    '(if nil
-;; 	(progn
-;; 	  (require (quote foo) nil nil)))))
-;; 
-;; (srt-deftest leaf-test/:when-1 ()
-;;   (match-expansion
-;;    (leaf foo :when t)
-;;    '(when t
-;;       (progn
-;; 	(require 'foo nil nil)))))
-;; 
-;; (srt-deftest leaf-test/:when-2 ()
-;;   (match-expansion
-;;    (leaf foo :when (and t t))
-;;    '(when (and t t)
-;;       (progn
-;; 	(require 'foo nil nil)))))
-;; 
-;; (srt-deftest leaf-test/:when-3 ()
-;;   (match-expansion
-;;    (leaf foo :when nil)
-;;    '(when nil
-;;       (progn
-;; 	(require 'foo nil nil)))))
-;; 
-;; (srt-deftest leaf-test/:unless-1 ()
-;;   (match-expansion
-;;    (leaf foo :unless t)
-;;    '(unless t
-;;       (progn
-;; 	(require 'foo nil nil)))))
-;; 
-;; (srt-deftest leaf-test/:unless-2 ()
-;;   (match-expansion
-;;    (leaf foo :unless (and t t))
-;;    '(unless (and t t)
-;;       (progn
-;; 	(require 'foo nil nil)))))
-;; 
-;; (srt-deftest leaf-test/:unless-3 ()
-;;   (match-expansion
-;;    (leaf foo :unless nil)
-;;    '(unless nil
-;;       (progn
-;; 	(require 'foo nil nil)))))
+(cort-deftest leaf-test:/disabled-1
+  (:equal
+   (leaf foo :disabled t)
+   'nil))
+
+(cort-deftest leaf-test/:if-1
+  (leaf-match
+   (leaf foo :if t)
+   ('(if t
+         (progn
+           (require 'foo nil nil)))
+    '(if t
+         (progn
+	   (require 'foo nil nil))))))
+
+(cort-deftest leaf-test/:if-2
+  (leaf-match
+   (leaf foo :if (and t t))
+   ('(if (and t t)
+         (progn
+           (require 'foo nil nil)))
+    '(if (and t t)
+         (progn
+           (require 'foo nil nil))))))
+
+(cort-deftest leaf-test/:if-3
+  (leaf-match
+   (leaf foo :if nil)
+   ('(if nil
+         (progn
+           (require 'foo nil nil)))
+    '(if nil
+         (progn
+           (require 'foo nil nil))))))
+
+(cort-deftest leaf-test/:when-1
+  (leaf-match
+   (leaf foo :when t)
+   ('(when t
+       (progn
+         (require 'foo nil nil)))
+    '(if t
+         (progn
+           (progn
+             (require 'foo nil nil)))))))
+
+(cort-deftest leaf-test/:when-2
+  (leaf-match
+   (leaf foo :when (and t t))
+   ('(when (and t t)
+       (progn
+         (require 'foo nil nil)))
+    '(if (and t t)
+         (progn
+           (progn
+             (require 'foo nil nil)))))))
+
+(cort-deftest leaf-test/:when-3
+  (leaf-match
+   (leaf foo :when nil)
+   ('(when nil
+       (progn
+         (require 'foo nil nil)))
+    '(if nil
+         (progn
+           (progn
+             (require 'foo nil nil)))))))
+
+(cort-deftest leaf-test/:unless-1
+  (leaf-match
+   (leaf foo :unless t)
+   ('(unless t
+       (progn
+         (require 'foo nil nil)))
+    '(if t
+         nil
+       (progn
+         (require 'foo nil nil))))))
+
+(cort-deftest leaf-test/:unless-2
+  (leaf-match
+   (leaf foo :unless (and t t))
+   ('(unless (and t t)
+       (progn
+         (require 'foo nil nil)))
+    '(if (and t t)
+         nil
+       (progn
+         (require 'foo nil nil))))))
+
+(cort-deftest leaf-test/:unless-3
+  (leaf-match
+   (leaf foo :unless nil)
+   ('(unless nil
+       (progn
+         (require 'foo nil nil)))
+    '(if nil nil
+       (progn
+         (require 'foo nil nil))))))
 
 (provide 'leaf-tests)
 ;;; leaf-tests.el ends here

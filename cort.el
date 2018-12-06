@@ -487,7 +487,7 @@ error: (:cort-error EXPECTED-ERROR-TYPE FORM)"
         (if cort-debug
             (princ "Test failed!!\n")
           (error (format cort-error-message
-                         testc (- testc failc errorc) failc errorc)))
+                         testc (- testc failc errorc) failc errorc emacs-version)))
       (princ (format cort-passed-message
                      testc (- testc failc errorc) failc errorc emacs-version)))))
 

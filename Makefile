@@ -43,7 +43,7 @@ localtest: $(ALL_EMACS:%=.make-debug-%)
 	@rm $(LOGFILE)
 
 .make-debug-%:
-	EMACS=$* $(MAKE) test --no-print-directory | tee -a $(LOGFILE)
+	EMACS=$* $(MAKE) test --no-print-directory 2>&1 | tee -a $(LOGFILE)
 
 clean:
 	-find . -type f -name "*.elc" | xargs rm
