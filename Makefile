@@ -29,7 +29,7 @@ build: $(ELCS)
 
 %.elc: %.el
 	@printf "Compiling $<\n"
-	-@$(BATCH) -f batch-byte-compile $<
+	@$(BATCH) -f batch-byte-compile $<
 
 check: # build
 # If byte compile for specific emacs,
@@ -55,7 +55,7 @@ test: $(ALL_EMACS:%=.make-test-%)
 	EMACS=$* $(MAKE) check --no-print-directory 2>&1 >> $(LOGFILE)
 
 updatecort:
-	-cp -f ../cort.el/cort.el ./
+	cp -f ../cort.el/cort.el ./
 
 clean:
 	-find . -type f -name "*.elc" | xargs rm
