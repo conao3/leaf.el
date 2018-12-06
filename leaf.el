@@ -94,7 +94,7 @@ EXAMPLE:
   (let ((retplist))
     (dolist (key leaf-keywords)
       (if (plist-member plist key)
-	  (setq retplist `(,@retplist ,key ,(plist-get plist key)))))
+          (setq retplist `(,@retplist ,key ,(plist-get plist key)))))
     retplist))
 
 (defun leaf-merge-dupkey-values-plist (plist)
@@ -114,8 +114,8 @@ EXAMPLE:
       (setq value (pop plist))
 
       (if (plist-member retplist key)
-	  (plist-put retplist key `(,@(plist-get retplist key) ,@value))
-	(setq retplist `(,@retplist ,key ,value))))
+          (plist-put retplist key `(,@(plist-get retplist key) ,@value))
+        (setq retplist `(,@retplist ,key ,value))))
     retplist))
 
 (defun leaf-normalize-plist (plist mergep)
@@ -142,13 +142,13 @@ EXAMPLE:
   (let ((retplist) (worklist) (rlist (reverse plist)))
     (dolist (target rlist)
       (if (keywordp target)
-	  (progn
-	    (push worklist retplist)
-	    (push target retplist)
+          (progn
+            (push worklist retplist)
+            (push target retplist)
 
-	    ;; clean worklist for new keyword
-	    (setq worklist nil))
-	(push target worklist)))
+            ;; clean worklist for new keyword
+            (setq worklist nil))
+        (push target worklist)))
     
     ;; merge value for duplicated key if MERGEP is t
     (if mergep (leaf-merge-dupkey-values-plist retplist) retplist)))
@@ -168,10 +168,10 @@ Don't call this function directory."
 
   (when plist
     (let* ((key         (pop plist))
-	   (value       (pop plist))
-	   (rest        plist)
-	   (handler     (format "leaf-handler/%s" key))
-	   (handler-sym (intern handler)))
+           (value       (pop plist))
+           (rest        plist)
+           (handler     (format "leaf-handler/%s" key))
+           (handler-sym (intern handler)))
       (funcall handler-sym name value rest))))
 
 (defun leaf-handler/:disabled (name value rest)
@@ -234,8 +234,8 @@ Copy code from `macroexp-progn' for old Emacs."
 
 (defun leaf-core (name args)
   `(,(let* ((args* (leaf-sort-values-plist
-		    (leaf-normalize-plist
-		     (leaf-append-defaults args) t))))
+                    (leaf-normalize-plist
+                     (leaf-append-defaults args) t))))
        (leaf-process-keywords name args*))))
 
 (defmacro leaf (name &rest args)
