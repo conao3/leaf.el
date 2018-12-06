@@ -24,6 +24,10 @@
 
 ;;; Code:
 
+(defgroup leaf nil
+  "leaf"
+  :group 'lisp)
+
 (defcustom leaf-keywords
   '(:disabled
     
@@ -35,11 +39,17 @@
     ;; This must occur almost last; the only forms which should appear after
     ;; are those that must happen directly after the config forms.
     :config)
-  "leaf-keywords")
+  "Special keywords to be processed by `leaf'.
+Sort by `leaf-sort-values-plist' in this order.
+Each symbol must has handle function named as `leaf-handler/_:symbol_'."
+  :type 'sexp
+  :group 'leaf)
 
 (defcustom leaf-defaults
   '(:require t)
-  "Default values for each leaf packages.")
+  "Default values for each leaf packages."
+  :type 'sexp
+  :group 'leaf)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
