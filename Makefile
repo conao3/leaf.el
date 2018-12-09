@@ -12,6 +12,7 @@ LOAD_PATH  := -L $(TOP)
 ARGS       := -Q --batch $(LOAD_PATH)
 BATCH      := $(EMACS) $(ARGS)
 
+CORTELS    := leaf-tests.el cort.el
 ELS        := leaf.el
 ELCS       := $(ELS:%.el=%.elc)
 
@@ -52,7 +53,11 @@ test: $(ALL_EMACS:%=.make-test-%)
 	@rm $(LOGFILE)
 
 .make-test-%:
-	EMACS=$* $(MAKE) check --no-print-directory 2>&1 >> $(LOGFILE)
+	mkdir -p .make-$*
+	cp -f $(ELS) $(CORTELS) .make-$*/
+	cd .make-$*; echo $(ELS) | xargs -n1 $* -Q --batch -L `pwd` -f batch-byte-compile
+	cd .make-$*; $* -Q --batch -L `pwd` -l leaf-tests.el -f cort-run-tests >> ../$(LOGFILE)
+	rm -rf .make-$*
 
 updatecort:
 	cp -f ../cort.el/cort.el ./
