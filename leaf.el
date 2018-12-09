@@ -28,7 +28,7 @@
   "Symplifying your `.emacs' configuration."
   :group 'lisp)
 
-(defconst leaf-version "1.0.1"
+(defconst leaf-version "1.0.2"
   "leaf.el version")
 
 (defcustom leaf-keywords
@@ -84,9 +84,8 @@ Each symbol must has handle function named as `leaf-handler/_:symbol_'."
 ;;
 
 (defun leaf-append-defaults (plist)
-  "Add leaf default values to plist."
-
-  `(,@plist ,@leaf-defaults))
+  "Append leaf default values to plist."
+  (append plist leaf-defaults))
 
 (defun leaf-sort-values-plist (plist)
   "Given a list-valued PLIST, return sorted-list PLIST.
