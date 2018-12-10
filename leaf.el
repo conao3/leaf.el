@@ -63,7 +63,31 @@ Each symbol must has handle function named as `leaf-handler/_:symbol_'."
 ;;  support functions
 ;;
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
+;;  anaphoric macros
+;;
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;
+;;  general functions
+;;
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;
+;;  general list functions
+;;
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;
+;;  general list functions for leaf
+;;
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;
+;;  psrudo-plist functions
+;;
+
 ;; pseudo-PLIST is list separated value with :keyword.
 ;;   such as (:key1 v1 v2 :key2 v3 :key3 v4 v5 v6)
 ;;

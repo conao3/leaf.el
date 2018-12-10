@@ -32,6 +32,11 @@
 ;;  test settings
 ;;
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;
+;;  support legacy Emacs
+;;
+
 (when (and (not (fboundp 'macroexpand-1))
            (fboundp 'autoload-do-load))
   (defun macroexpand-1 (form &optional environment)
@@ -58,6 +63,11 @@
                   form))))))))
      (t form))))
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;
+;;  support macros for test definition
+;;
+
 (defmacro match-expansion (form expect)
   (if (fboundp 'macroexpand-1)
       `(:equal (macroexpand-1 ',form) ,expect)
@@ -72,6 +82,16 @@ EXPECT is (expect-default expect-24)"
     ,form
     (,(car expect)
      :cort-if ((not (fboundp 'macroexpand-1)) ,(cadr expect)))))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;
+;;  sumple adding keyword(s)
+;;
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;
+;;  sumple functions
+;;
 
 (defun rt ()
   "test function every returns `t'."
