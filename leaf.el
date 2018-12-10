@@ -83,6 +83,10 @@ Each symbol must has handle function named as `leaf-handler/_:symbol_'."
 ;;  general list functions for leaf
 ;;
 
+(defun leaf-append-defaults (plist)
+  "Append leaf default values to plist."
+  (append plist leaf-defaults))
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
 ;;  psrudo-plist functions
@@ -105,11 +109,6 @@ Each symbol must has handle function named as `leaf-handler/_:symbol_'."
 ;; sorted-list PLIST is list-valued PLIST and keys are sorted by `leaf-keywords'
 ;; Duplicate keys are NOT allowed.
 ;;   such as (:if (t) :config ((prin1 "a") (prin1 "b)))
-;;
-
-(defun leaf-append-defaults (plist)
-  "Append leaf default values to plist."
-  (append plist leaf-defaults))
 
 (defun leaf-sort-values-plist (plist)
   "Given a list-valued PLIST, return sorted-list PLIST.
