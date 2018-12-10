@@ -107,38 +107,50 @@ Each symbol must has handle function named as `leaf-handler/_:symbol_'."
 
 (defun leaf-insert-before (lst target belm)
   "Insert TARGET before BELM in LST."
-  (let ((retlst))
+  (let ((retlst) (frg))
     (dolist (elm lst)
       (if (eq elm belm)
-          (setq retlst (append `(,belm ,target) retlst))
+          (setq frg t
+                retlst (append `(,belm ,target) retlst))
         (setq retlst (cons elm retlst))))
+    (unless frg
+      (warn (format "%s is not found in given list" belm)))
     (nreverse retlst)))
 
 (defun leaf-insert-after (lst target aelm)
   "Insert TARGET after aelm in LST"
-  (let ((retlst))
+  (let ((retlst) (frg))
     (dolist (elm lst)
       (if (eq elm aelm)
-          (setq retlst (append `(,target ,aelm) retlst))
+          (setq frg t
+                retlst (append `(,target ,aelm) retlst))
         (setq retlst (cons elm retlst))))
+    (unless frg
+      (warn (format "%s is not found in given list" aelm)))
     (nreverse retlst)))
 
 (defun leaf-insert-list-before (lst targetlst belm)
-  "Insert TARGET before BELM in LST."
-  (let ((retlst))
+  "Insert TARGETLST before BELM in LST."
+  (let ((retlst) (frg))
     (dolist (elm lst)
       (if (eq elm belm)
-          (setq retlst (append `(,belm ,@(reverse targetlst)) retlst))
+          (setq frg t
+                retlst (append `(,belm ,@(reverse targetlst)) retlst))
         (setq retlst (cons elm retlst))))
+    (unless frg
+      (warn (format "%s is not found in given list" belm)))
     (nreverse retlst)))
 
 (defun leaf-insert-list-after (lst targetlst aelm)
-  "Insert TARGET after aelm in LST"
-  (let ((retlst))
+  "Insert TARGETLST after aelm in LST"
+  (let ((retlst) (frg))
     (dolist (elm lst)
       (if (eq elm aelm)
-          (setq retlst (append `(,@(reverse targetlst) ,aelm) retlst))
+          (setq frg t
+                retlst (append `(,@(reverse targetlst) ,aelm) retlst))
         (setq retlst (cons elm retlst))))
+    (unless frg
+      (warn (format "%s is not found in given list" aelm)))
     (nreverse retlst)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
