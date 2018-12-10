@@ -68,15 +68,78 @@ Each symbol must has handle function named as `leaf-handler/_:symbol_'."
 ;;  anaphoric macros
 ;;
 
+(defmacro leaf-with-gensyms (syms &rest body)
+  "Create `let' block with `gensym'ed variables.
+
+\(fn (SYM...) &rest body)"
+  (declare (indent 1))
+  `(let ,(mapcar (lambda (s)
+                   `(,s (gensym)))
+                 syms)
+     ,@body))
+
+(defmacro leaf-asetq (sym* &optional body)
+  "Anaphoric setq macro.
+
+\(fn (ASYM SYM) &optional BODY)"
+  (declare (indent 1))
+  `(let ((,(car sym*) ,(cadr sym*)))
+     (setq ,(cadr sym*) ,body)))
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
 ;;  general functions
 ;;
 
+(defsubst leaf-truep (var)
+  "Return t if var is non-nil."
+  (not (not var)))
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
 ;;  general list functions
 ;;
+
+(defsubst leaf-list-memq (symlist list)
+  "Return t if LIST contained element of SYMLIST."
+  (leaf-truep
+   (delq nil (mapcar (lambda (x) (memq x list)) symlist))))
+
+(defun leaf-insert-before (lst target belm)
+  "Insert TARGET before BELM in LST."
+  (let ((retlst))
+    (dolist (elm lst)
+      (if (eq elm belm)
+          (setq retlst (append `(,belm ,target) retlst))
+        (setq retlst (cons elm retlst))))
+    (nreverse retlst)))
+
+(defun leaf-insert-after (lst target aelm)
+  "Insert TARGET after aelm in LST"
+  (let ((retlst))
+    (dolist (elm lst)
+      (if (eq elm aelm)
+          (setq retlst (append `(,target ,aelm) retlst))
+        (setq retlst (cons elm retlst))))
+    (nreverse retlst)))
+
+(defun leaf-insert-list-before (lst targetlst belm)
+  "Insert TARGET before BELM in LST."
+  (let ((retlst))
+    (dolist (elm lst)
+      (if (eq elm belm)
+          (setq retlst (append `(,belm ,@(reverse targetlst)) retlst))
+        (setq retlst (cons elm retlst))))
+    (nreverse retlst)))
+
+(defun leaf-insert-list-after (lst targetlst aelm)
+  "Insert TARGET after aelm in LST"
+  (let ((retlst))
+    (dolist (elm lst)
+      (if (eq elm aelm)
+          (setq retlst (append `(,@(reverse targetlst) ,aelm) retlst))
+        (setq retlst (cons elm retlst))))
+    (nreverse retlst)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
@@ -86,6 +149,30 @@ Each symbol must has handle function named as `leaf-handler/_:symbol_'."
 (defun leaf-append-defaults (plist)
   "Append leaf default values to plist."
   (append plist leaf-defaults))
+
+(defun leaf-add-keyword-before (target belm)
+  (if (memq target leaf-keywords)
+      (warn (format "%s already exists in `leaf-keywords'" target))
+    (leaf-asetq (it leaf-keywords)
+      (funcall #'leaf-insert-before it target belm))))
+
+(defun leaf-add-keyword-after (target aelm)
+  (if (memq target leaf-keywords)
+      (warn (format "%s already exists in `leaf-keywords'" target))
+    (leaf-asetq (it leaf-keywords)
+      (funcall #'leaf-insert-after it target aelm))))
+
+(defun leaf-add-keyword-list-before (targetlst belm)
+  (if (leaf-list-memq targetlst leaf-keywords)
+      (warn (format "%s already exists in `leaf-keywords'" targetlst))
+    (leaf-asetq (it leaf-keywords)
+      (funcall #'leaf-insert-list-before it targetlst belm))))
+
+(defun leaf-add-keyword-list-after (targetlst aelm)
+  (if (leaf-list-memq targetlst leaf-keywords)
+      (warn (format "%s already exists in `leaf-keywords'" targetlst))
+    (leaf-asetq (it leaf-keywords)
+      (funcall #'leaf-insert-list-after it targetlst aelm))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;

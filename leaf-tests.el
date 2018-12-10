@@ -65,6 +65,17 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
+;;  debug functions
+;;
+
+(defmacro p (form)
+  "Output expand given FORM."
+  `(progn
+     (pp (macroexpand-1 ',form))
+     nil))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;
 ;;  support macros for test definition
 ;;
 
@@ -87,6 +98,12 @@ EXPECT is (expect-default expect-24)"
 ;;
 ;;  sumple adding keyword(s)
 ;;
+
+(leaf-add-keyword-after :message-post-require :require)
+(defun leaf-handler/:message-post-require (name value rest)
+  "process :message."
+  (let ((body (leaf-process-keywords name rest)))
+    `((message ,value) ,@body)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
@@ -245,6 +262,16 @@ EXPECT is (expect-default expect-24)"
    '(progn
       (require foo-hoge)
       (require foo-piyo)
+      (setq bar 'baz))))
+
+(cort-deftest leaf-test/:simple-keyword-add
+  (match-expansion
+   (leaf foo
+     :require h s :message-post-require "foo!" :config (setq bar 'baz))
+   '(progn
+      (require h)
+      (require s)
+      (message ("foo!"))
       (setq bar 'baz))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
