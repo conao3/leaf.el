@@ -274,6 +274,174 @@ If specified multiple those keyword, evaluate sexp in ~and~.
           (progn
             (require 'foo)))))
 #+end_src
+
+* Developer information
+~leaf.el~ creates the intended elisp code from DSL with a simple mechanism.
+
+It is clear what internal conversion is done and it is also easy to customize it.
+** ~leaf.el~ mechanism
+*** ~leaf (name &rest args)~ macro
+This is ~leaf.el~ frontend macro. Users use only this macro.
+
+Process.
+1. Pass arguments to ~leaf-core~.
+
+*** ~leaf-core (name args)~ function
+This is core process for leaf macro expansion.
+
+Process.
+1. ~leaf-append-defaults~ to append default value (~leaf-defaults~) to ARGS
+2. ~leaf-normalize-plist~ to normalize pseudo-plist, ARGS
+3. ~leaf-sort-values-plist~ to sort ARGS
+4. pass NAME and ARGS to ~leaf-process-keywords~
+
+**** ~leaf-append-defaults (plist)~ function
+Append leaf default values to PLIST.
+See ~leaf-defaults~. You can customize this value.
+
+EXAMPLE:
+#+BEGIN_SRC emacs-lisp
+  (leaf-append-defaults nil)
+  -> (:init nil :require t)
+
+  (leaf-append-defaults '(:require foo))
+  -> (:require foo :init nil :require t)
+#+END_SRC
+
+**** ~leaf-normalize-plist (plsit mergep)~ function
+Given a pseudo-PLIST, return PLIST,
+if MERGEP is t, return well-formed PLIST.
+
+MERGEP every ~t~ in leaf.
+
+EXAMPLE:
+#+BEGIN_SRC emacs-lisp
+  (leaf-normalize-plist
+    '(:defer t
+      :config (message "a") (message "b")
+      :config (message "c")) nil)
+   -> (:defer (t)
+       :config ((message "a") (message "b"))
+       :config ((message "c")))
+
+  (leaf-normalize-plist
+    '(:defer t
+      :config (message "a") (message "b")
+      :config (message "c")) t)
+   -> (:defer (t)
+       :config ((message "a") (message "b") (message "c"))
+#+END_SRC
+
+**** ~leaf-sort-values-plist (plist)~ function
+Given a list-valued PLIST, return sorted-list PLIST by order ~leaf-keywords~.
+
+EXAMPLE:
+(leaf-sort-values-plist
+  '(:config (message "a")
+    :disabled (t)))
+ -> (:disabled (t)
+     :config (message "a"))
+
+*** ~leaf-pcocess-keywords (name plist)~ function
+Process keywords for NAME.
+The KEY and VALUE are taken from the PLIST and pass to the handler.
+
+The handler is named leaf-handler/KEY.
+
+** Adding custom keyword(s)
+~leaf.el~ can easily be expanded by adding keywords.
+
+Actually it is realized by two steps of adding keyword and adding handler.
+
+Example:
+#+BEGIN_SRC emacs-lisp
+  (cort-deftest leaf-test/:simple-keyword-add
+    (match-expansion
+     (leaf foo
+       :require h s :message-post-require "foo!" :config (setq bar 'baz))
+     '(progn
+        (require h)
+        (require s)
+        (message "foo!")
+        (setq bar 'baz))))
+
+  (cort-deftest leaf-test/:simple-keyword-add-2
+    (match-expansion
+     (leaf foo
+       :require h s
+       :message-post-require "foo!"
+       :config (setq bar 'baz)
+       :message-post-require "post!"
+       :message-pre-require "pre")
+     '(progn
+        (message "pre")
+        (require h)
+        (require s)
+        (message "foo!")
+        (message "post!")
+        (setq bar 'baz))))
+
+  (cort-deftest leaf-test/:simple-keyword-list-add
+    (match-expansion
+     (leaf foo
+       :require h s
+       :tmp-pre (message "start tmp")
+       :tmp-post (setq foo 'bar)
+       :tmp-pre (message "really start tmp!"))
+     '(progn
+        (require h)
+        (require s)
+        (message "start tmp")
+        (message "really start tmp!")
+        (setq foo 'bar))))
+#+END_SRC
+
+*** Add keyword(s)
+The keyword has an appropriate place in ~leaf-keywords~.
+
+Because the keywords are sorted in order of ~leaf-keywords~,
+and they are processed and expanded in that order.
+
+You can use these functions to add keyword(s)
+- ~leaf-add-keyword-before (target belm)~
+- ~leaf-add-keyword-after (target aelm)~
+- ~leaf-add-keyword-list-before (targetlst belm)~
+- ~leaf-add-keyword-list-after (targetlst aelm)~
+
+If you message before ~require~, you should use
+~(leaf-add-keyword-before :message-pre-require :require)~.
+
+Or if you message after ~require~, you should use
+~(leaf-add-keyword-after :message-post-require :require)~.
+
+You can add keywords like,
+~(leaf-add-keyword-list-after '(:tmp-pre :tmp-post) :config)~
+
+*** Define handler
+Then, you should define handler for new keyword(s) each.
+
+NOTE: Since VALUE is a list, be careful when implement a handler.
+#+BEGIN_SRC emacs-lisp
+  (defun leaf-handler/:message-pre-require (name value rest)
+    "process :message-pre-require."
+    (let ((body (leaf-process-keywords name rest)))
+      `(,@(mapcar (lambda (x) `(message ,x)) value) ,@body)))
+
+  (defun leaf-handler/:message-post-require (name value rest)
+    "process :message-post-require."
+    (let ((body (leaf-process-keywords name rest)))
+      `(,@(mapcar (lambda (x) `(message ,x)) value) ,@body)))
+
+  (defun leaf-handler/:tmp-pre (name value rest)
+    "process :tmp-pre."
+    (let ((body (leaf-process-keywords name rest)))
+      `(,@value ,@body)))
+
+  (defun leaf-handler/:tmp-post (name value rest)
+    "process :tmp-post."
+    (let ((body (leaf-process-keywords name rest)))
+      `(,@value ,@body)))
+#+END_SRC
 * Why We support Emacs-22?
 Bundling Emacs-22.1 on macOS 10.13 (High Sierra), we support this.
 

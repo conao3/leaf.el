@@ -28,7 +28,7 @@
   "Symplifying your `.emacs' configuration."
   :group 'lisp)
 
-(defconst leaf-version "1.0.3"
+(defconst leaf-version "1.1.0"
   "leaf.el version")
 
 (defcustom leaf-keywords
@@ -63,7 +63,134 @@ Each symbol must has handle function named as `leaf-handler/_:symbol_'."
 ;;  support functions
 ;;
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
+;;  anaphoric macros
+;;
+
+(defmacro leaf-with-gensyms (syms &rest body)
+  "Create `let' block with `gensym'ed variables.
+
+\(fn (SYM...) &rest body)"
+  (declare (indent 1))
+  `(let ,(mapcar (lambda (s)
+                   `(,s (gensym)))
+                 syms)
+     ,@body))
+
+(defmacro leaf-asetq (sym* &optional body)
+  "Anaphoric setq macro.
+
+\(fn (ASYM SYM) &optional BODY)"
+  (declare (indent 1))
+  `(let ((,(car sym*) ,(cadr sym*)))
+     (setq ,(cadr sym*) ,body)))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;
+;;  general functions
+;;
+
+(defsubst leaf-truep (var)
+  "Return t if var is non-nil."
+  (not (not var)))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;
+;;  general list functions
+;;
+
+(defsubst leaf-list-memq (symlist list)
+  "Return t if LIST contained element of SYMLIST."
+  (leaf-truep
+   (delq nil (mapcar (lambda (x) (memq x list)) symlist))))
+
+(defun leaf-insert-before (lst target belm)
+  "Insert TARGET before BELM in LST."
+  (let ((retlst) (frg))
+    (dolist (elm lst)
+      (if (eq elm belm)
+          (setq frg t
+                retlst (append `(,belm ,target) retlst))
+        (setq retlst (cons elm retlst))))
+    (unless frg
+      (warn (format "%s is not found in given list" belm)))
+    (nreverse retlst)))
+
+(defun leaf-insert-after (lst target aelm)
+  "Insert TARGET after aelm in LST"
+  (let ((retlst) (frg))
+    (dolist (elm lst)
+      (if (eq elm aelm)
+          (setq frg t
+                retlst (append `(,target ,aelm) retlst))
+        (setq retlst (cons elm retlst))))
+    (unless frg
+      (warn (format "%s is not found in given list" aelm)))
+    (nreverse retlst)))
+
+(defun leaf-insert-list-before (lst targetlst belm)
+  "Insert TARGETLST before BELM in LST."
+  (let ((retlst) (frg))
+    (dolist (elm lst)
+      (if (eq elm belm)
+          (setq frg t
+                retlst (append `(,belm ,@(reverse targetlst)) retlst))
+        (setq retlst (cons elm retlst))))
+    (unless frg
+      (warn (format "%s is not found in given list" belm)))
+    (nreverse retlst)))
+
+(defun leaf-insert-list-after (lst targetlst aelm)
+  "Insert TARGETLST after aelm in LST"
+  (let ((retlst) (frg))
+    (dolist (elm lst)
+      (if (eq elm aelm)
+          (setq frg t
+                retlst (append `(,@(reverse targetlst) ,aelm) retlst))
+        (setq retlst (cons elm retlst))))
+    (unless frg
+      (warn (format "%s is not found in given list" aelm)))
+    (nreverse retlst)))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;
+;;  general list functions for leaf
+;;
+
+(defun leaf-append-defaults (plist)
+  "Append leaf default values to plist."
+  (append plist leaf-defaults))
+
+(defun leaf-add-keyword-before (target belm)
+  (if (memq target leaf-keywords)
+      (warn (format "%s already exists in `leaf-keywords'" target))
+    (leaf-asetq (it leaf-keywords)
+      (funcall #'leaf-insert-before it target belm))))
+
+(defun leaf-add-keyword-after (target aelm)
+  (if (memq target leaf-keywords)
+      (warn (format "%s already exists in `leaf-keywords'" target))
+    (leaf-asetq (it leaf-keywords)
+      (funcall #'leaf-insert-after it target aelm))))
+
+(defun leaf-add-keyword-list-before (targetlst belm)
+  (if (leaf-list-memq targetlst leaf-keywords)
+      (warn (format "%s already exists in `leaf-keywords'" targetlst))
+    (leaf-asetq (it leaf-keywords)
+      (funcall #'leaf-insert-list-before it targetlst belm))))
+
+(defun leaf-add-keyword-list-after (targetlst aelm)
+  (if (leaf-list-memq targetlst leaf-keywords)
+      (warn (format "%s already exists in `leaf-keywords'" targetlst))
+    (leaf-asetq (it leaf-keywords)
+      (funcall #'leaf-insert-list-after it targetlst aelm))))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;
+;;  psrudo-plist functions
+;;
+
 ;; pseudo-PLIST is list separated value with :keyword.
 ;;   such as (:key1 v1 v2 :key2 v3 :key3 v4 v5 v6)
 ;;
@@ -81,11 +208,6 @@ Each symbol must has handle function named as `leaf-handler/_:symbol_'."
 ;; sorted-list PLIST is list-valued PLIST and keys are sorted by `leaf-keywords'
 ;; Duplicate keys are NOT allowed.
 ;;   such as (:if (t) :config ((prin1 "a") (prin1 "b)))
-;;
-
-(defun leaf-append-defaults (plist)
-  "Append leaf default values to plist."
-  (append plist leaf-defaults))
 
 (defun leaf-sort-values-plist (plist)
   "Given a list-valued PLIST, return sorted-list PLIST.

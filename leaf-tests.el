@@ -32,6 +32,11 @@
 ;;  test settings
 ;;
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;
+;;  support legacy Emacs
+;;
+
 (when (and (not (fboundp 'macroexpand-1))
            (fboundp 'autoload-do-load))
   (defun macroexpand-1 (form &optional environment)
@@ -58,6 +63,22 @@
                   form))))))))
      (t form))))
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;
+;;  debug functions
+;;
+
+(defmacro p (form)
+  "Output expand given FORM."
+  `(progn
+     (pp (macroexpand-1 ',form))
+     nil))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;
+;;  support macros for test definition
+;;
+
 (defmacro match-expansion (form expect)
   (if (fboundp 'macroexpand-1)
       `(:equal (macroexpand-1 ',form) ,expect)
@@ -72,6 +93,39 @@ EXPECT is (expect-default expect-24)"
     ,form
     (,(car expect)
      :cort-if ((not (fboundp 'macroexpand-1)) ,(cadr expect)))))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;
+;;  sumple adding keyword(s)
+;;
+
+(leaf-add-keyword-before :message-pre-require :require)
+(defun leaf-handler/:message-pre-require (name value rest)
+  "process :message-pre-require."
+  (let ((body (leaf-process-keywords name rest)))
+    `(,@(mapcar (lambda (x) `(message ,x)) value) ,@body)))
+
+(leaf-add-keyword-after :message-post-require :require)
+(defun leaf-handler/:message-post-require (name value rest)
+  "process :message-post-require."
+  (let ((body (leaf-process-keywords name rest)))
+    `(,@(mapcar (lambda (x) `(message ,x)) value) ,@body)))
+
+(leaf-add-keyword-list-after '(:tmp-pre :tmp-post) :config)
+(defun leaf-handler/:tmp-pre (name value rest)
+  "process :tmp-pre."
+  (let ((body (leaf-process-keywords name rest)))
+    `(,@value ,@body)))
+
+(defun leaf-handler/:tmp-post (name value rest)
+  "process :tmp-post."
+  (let ((body (leaf-process-keywords name rest)))
+    `(,@value ,@body)))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;
+;;  Sumple functions
+;;
 
 (defun rt ()
   "test function every returns `t'."
@@ -226,6 +280,46 @@ EXPECT is (expect-default expect-24)"
       (require foo-hoge)
       (require foo-piyo)
       (setq bar 'baz))))
+
+(cort-deftest leaf-test/:simple-keyword-add
+  (match-expansion
+   (leaf foo
+     :require h s :message-post-require "foo!" :config (setq bar 'baz))
+   '(progn
+      (require h)
+      (require s)
+      (message "foo!")
+      (setq bar 'baz))))
+
+(cort-deftest leaf-test/:simple-keyword-add-2
+  (match-expansion
+   (leaf foo
+     :require h s
+     :message-post-require "foo!"
+     :config (setq bar 'baz)
+     :message-post-require "post!"
+     :message-pre-require "pre")
+   '(progn
+      (message "pre")
+      (require h)
+      (require s)
+      (message "foo!")
+      (message "post!")
+      (setq bar 'baz))))
+
+(cort-deftest leaf-test/:simple-keyword-list-add
+  (match-expansion
+   (leaf foo
+     :require h s
+     :tmp-pre (message "start tmp")
+     :tmp-post (setq foo 'bar)
+     :tmp-pre (message "really start tmp!"))
+   '(progn
+      (require h)
+      (require s)
+      (message "start tmp")
+      (message "really start tmp!")
+      (setq foo 'bar))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
