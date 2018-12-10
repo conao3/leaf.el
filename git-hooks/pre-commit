@@ -1,4 +1,4 @@
 #!/bin/sh
 #
 
-make test
+make test -j8
