@@ -336,9 +336,9 @@ with an if block"
   (let ((body (leaf-process-keywords name rest)))
     (cond
      ((= 1 (length value))
-      `(if ,@value ,body))
+      `((if ,@value ,@body)))
      (t
-      `(if (and ,@value) ,body)))))
+      `((if (and ,@value) ,@body))))))
 
 (defun leaf-handler/:when (name value rest)
   "Process :when.
@@ -348,9 +348,9 @@ with an when block"
   (let ((body (leaf-process-keywords name rest)))
     (cond
      ((= 1 (length value))
-      `(when ,@value ,body))
+      `((when ,@value ,@body)))
      (t
-      `(when (and ,@value) ,body)))))
+      `((when (and ,@value) ,@body))))))
 
 (defun leaf-handler/:unless (name value rest)
   "Process :unless.
@@ -360,9 +360,9 @@ with an unless block"
   (let ((body (leaf-process-keywords name rest)))
     (cond
      ((= 1 (length value))
-      `(unless ,@value ,body))
+      `((unless ,@value ,@body)))
      (t
-      `(unless (and ,@value) ,body)))))
+      `((unless (and ,@value) ,@body))))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
@@ -376,12 +376,12 @@ This value is evaled before `require'."
   (let ((body (leaf-process-keywords name rest)))
     (cond
      ((eq (car value) nil)
-      `(progn ,@body))
+      `((progn ,@body)))
      (t
       ;; remove last `nil' symbol from VALUE
-      `(progn
-         (progn ,@(butlast value))
-         (progn ,@body))))))
+      `((progn
+          (progn ,@(butlast value))
+          (progn ,@body)))))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
@@ -429,10 +429,10 @@ Copy code from `macroexp-progn' for old Emacs."
 
 (defun leaf-core (name args)
   "leaf core process."
-  `(,(let* ((args* (leaf-sort-values-plist
-                    (leaf-normalize-plist
-                     (leaf-append-defaults args) t))))
-       (leaf-process-keywords name args*))))
+  (let* ((args* (leaf-sort-values-plist
+                 (leaf-normalize-plist
+                  (leaf-append-defaults args) t))))
+    (leaf-process-keywords name args*)))
 
 (defmacro leaf (name &rest args)
   "Symplifying your `.emacs' configuration."
