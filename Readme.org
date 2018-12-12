@@ -19,7 +19,7 @@
     - [[:disabled keyword]]
     - [[:if, :when, :unless keyword]]
 - [[Developer information]]
-  - [[ ~leaf.el~ mechanism]]
+  - [[leaf.el mechanism]]
   - [[Adding custom keyword(s)]]
 - [[Why We support Emacs-22?]]
 - [[Welcome PR]]
@@ -303,7 +303,7 @@ If specified multiple those keyword, evaluate sexp in ~and~.
 ~leaf.el~ creates the intended elisp code from DSL with a simple mechanism.
 
 It is clear what internal conversion is done and it is also easy to customize it.
-** ~leaf.el~ mechanism
+** leaf.el mechanism
 *** ~leaf (name &rest args)~ macro
 This is ~leaf.el~ frontend macro. Users use only this macro.
 
