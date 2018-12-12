@@ -18,6 +18,9 @@
   - [[Condition keywords]]
     - [[:disabled keyword]]
     - [[:if, :when, :unless keyword]]
+- [[Developer information]]
+  - [[ ~leaf.el~ mechanism]]
+  - [[Adding custom keyword(s)]]
 - [[Why We support Emacs-22?]]
 - [[Welcome PR]]
 - [[Special Thanks]]
@@ -108,6 +111,27 @@ and if give multiple values it ~require~ each package.
         (setq bar 'baz))))
 #+end_src
 
+*** :ensure keyword
+~:ensure~ provide package download, compile frontend for 
+package manager for example, ~feather.el~ and ~package.el~ etc...
+
+You can customize backend to process ~:ensure~ keyword.
+#+BEGIN_SRC emacs-lisp
+  ;; use package.el as :ensure backend
+  (setq leaf-backend/:ensure 'package)
+
+  ;; use feather.el as :ensure backend
+  (setq leaf-backend/:ensure 'feather)
+
+  ;; use no package as :ensure backend (disable :ensure)
+  (setq leaf-backend/:ensure nil)
+#+END_SRC
+
+~leaf.el~ provide ~feather.el~ and ~package.el~ backend,
+but it's easy to create other package manager's backend.
+
+Of course, setting and requiring of the backend itself must be
+completed before using ~:ensure~ keyword.
 ** Configuration keywords
 *** :init keyword
 ~:init~ keyword expect sexp will evaluated before ~require~ package.

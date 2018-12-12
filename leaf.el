@@ -24,11 +24,13 @@
 
 ;;; Code:
 
+(require 'leaf-backends)
+
 (defgroup leaf nil
   "Symplifying your `.emacs' configuration."
   :group 'lisp)
 
-(defconst leaf-version "1.1.3"
+(defconst leaf-version "1.1.4"
   "leaf.el version")
 
 (defcustom leaf-keywords
@@ -37,6 +39,9 @@
     
     ;; condition sexp wrap below keyword.
     :if :when :unless
+
+    ;; install package (condition is nil, not install)
+    :ensure
 
     ;; init process before `require'.
     :init
@@ -58,10 +63,48 @@ Each symbol must has handle function named as `leaf-handler/_:symbol_'."
   :type 'sexp
   :group 'leaf)
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;
+;;  customize backend
+;;
+
+(defcustom leaf-backend/:ensure (if (require 'feather nil t) 'feather
+                                  (if (require 'package nil t) 'package))
+  "Backend to process `:ensure' keyword."
+  :type '(choice (const :tag "Use `package.el'." 'package)
+                 (const :tag "Use `feather.el'." 'feather)
+                 (const :tag "No backend, disable `:ensure'." nil))
+  :group 'leaf)
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
 ;;  support functions
 ;;
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;
+;;  for legacy Emacs
+;;
+
+(unless (fboundp 'declare-function)
+  (defmacro declare-function (_fn _file &rest _args)
+    "Tell the byte-compiler that function FN is defined, in FILE."
+    nil))
+
+(defmacro leaf-case (fn var &rest conds)
+  "Switch case macro with FN.
+Emacs-22 doesn't support `pcase'."
+  (declare (indent 2))
+  (let ((lcond var))
+    `(cond
+      ,@(mapcar (lambda (x)
+                  (let ((rcond (car x))
+                        (form (cadr x)))
+                    (if (eq rcond '_)
+                        `(t ,form)
+                      `((funcall ,fn ,lcond ,rcond) ,form))))
+                conds)
+      (t nil))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
@@ -336,9 +379,9 @@ with an if block"
   (let ((body (leaf-process-keywords name rest)))
     (cond
      ((= 1 (length value))
-      `(if ,@value ,body))
+      `((if ,@value ,@body)))
      (t
-      `(if (and ,@value) ,body)))))
+      `((if (and ,@value) ,@body))))))
 
 (defun leaf-handler/:when (name value rest)
   "Process :when.
@@ -348,9 +391,9 @@ with an when block"
   (let ((body (leaf-process-keywords name rest)))
     (cond
      ((= 1 (length value))
-      `(when ,@value ,body))
+      `((when ,@value ,@body)))
      (t
-      `(when (and ,@value) ,body)))))
+      `((when (and ,@value) ,@body))))))
 
 (defun leaf-handler/:unless (name value rest)
   "Process :unless.
@@ -360,9 +403,29 @@ with an unless block"
   (let ((body (leaf-process-keywords name rest)))
     (cond
      ((= 1 (length value))
-      `(unless ,@value ,body))
+      `((unless ,@value ,@body)))
      (t
-      `(unless (and ,@value) ,body)))))
+      `((unless (and ,@value) ,@body))))))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;
+;;  ensure keyword
+;;
+
+(defun leaf-handler/:ensure (name value rest)
+  "Process :ensure.
+
+Install package(s). If conditions keywords is nil, stop installation."
+  (let ((body   (leaf-process-keywords name rest))
+        (funsym `#',(intern
+                     (format "leaf-backend/:ensure-%s" leaf-backend/:ensure)))
+        (value* (if (and (eq (car value) t) (= (length value) 1))
+                    (list (eval name))  ; unify as unquote value.
+                  value)))
+    (if leaf-backend/:ensure
+        `(,@(mapcar (lambda (x) `(funcall ,funsym ',x)) value*)
+          ,@body)
+      `(,@body))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
@@ -376,12 +439,12 @@ This value is evaled before `require'."
   (let ((body (leaf-process-keywords name rest)))
     (cond
      ((eq (car value) nil)
-      `(progn ,@body))
+      `((progn ,@body)))
      (t
       ;; remove last `nil' symbol from VALUE
-      `(progn
-         (progn ,@(butlast value))
-         (progn ,@body))))))
+      `((progn
+          (progn ,@(butlast value))
+          (progn ,@body)))))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
@@ -429,10 +492,10 @@ Copy code from `macroexp-progn' for old Emacs."
 
 (defun leaf-core (name args)
   "leaf core process."
-  `(,(let* ((args* (leaf-sort-values-plist
-                    (leaf-normalize-plist
-                     (leaf-append-defaults args) t))))
-       (leaf-process-keywords name args*))))
+  (let* ((args* (leaf-sort-values-plist
+                 (leaf-normalize-plist
+                  (leaf-append-defaults args) t))))
+    (leaf-process-keywords name args*)))
 
 (defmacro leaf (name &rest args)
   "Symplifying your `.emacs' configuration."
