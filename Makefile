@@ -50,7 +50,8 @@ allcheck: $(ALL_EMACS:%=.make-check-%)
 test: $(ALL_EMACS:%=.make-test-%)
 	@echo ""
 	@cat $(LOGFILE) | grep =====
-	@rm $(LOGFILE)
+	@rm -rf $(LOGFILE)
+	@rm -rf .make-*
 
 .make-test-%:
 	mkdir -p .make-$*
@@ -64,3 +65,4 @@ updatecort:
 
 clean:
 	-find . -type f -name "*.elc" | xargs rm
+	-rm -rf .make-*
