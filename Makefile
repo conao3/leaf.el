@@ -13,7 +13,7 @@ ARGS       := -Q --batch $(LOAD_PATH)
 BATCH      := $(EMACS) $(ARGS)
 
 CORTELS    := leaf-tests.el cort.el
-ELS        := leaf.el
+ELS        := leaf.el leaf-backends.el
 ELCS       := $(ELS:%.el=%.elc)
 
 LOGFILE    := .make-test.log
@@ -56,7 +56,9 @@ test: $(ALL_EMACS:%=.make-test-%)
 .make-test-%:
 	mkdir -p .make-$*
 	cp -f $(ELS) $(CORTELS) .make-$*/
-	cd .make-$*; echo $(ELS) | xargs -n1 $* -Q --batch -L `pwd` -f batch-byte-compile
+	$(if $(findstring 22,$(shell $* --version)),, \
+	  cd .make-$*; echo $(ELS) | xargs -n1 $* -Q --batch -L `pwd` -f batch-byte-compile)
+
 	cd .make-$*; $* -Q --batch -L `pwd` -l leaf-tests.el -f cort-run-tests 2>&1 >> ../$(LOGFILE)
 	rm -rf .make-$*
 
