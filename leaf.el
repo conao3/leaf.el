@@ -24,6 +24,8 @@
 
 ;;; Code:
 
+(require 'leaf-backends)
+
 (defgroup leaf nil
   "Symplifying your `.emacs' configuration."
   :group 'lisp)
@@ -37,6 +39,9 @@
     
     ;; condition sexp wrap below keyword.
     :if :when :unless
+
+    ;; install package (condition is nil, not install)
+    :ensure
 
     ;; init process before `require'.
     :init
@@ -58,10 +63,48 @@ Each symbol must has handle function named as `leaf-handler/_:symbol_'."
   :type 'sexp
   :group 'leaf)
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;
+;;  customize backend
+;;
+
+(defcustom leaf-backend/:ensure (if (require 'feather nil t) 'feather
+                                  (if (require 'package nil t) 'package))
+  "Backend to process `:ensure' keyword."
+  :type '(choice (const :tag "Use `package.el'." 'package)
+                 (const :tag "Use `feather.el'." 'feather)
+                 (const :tag "No backend, disable `:ensure'." nil))
+  :group 'leaf)
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
 ;;  support functions
 ;;
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;
+;;  for legacy Emacs
+;;
+
+(unless (fboundp 'declare-function)
+  (defmacro declare-function (_fn _file &rest _args)
+    "Tell the byte-compiler that function FN is defined, in FILE."
+    nil))
+
+(defmacro leaf-case (fn var &rest conds)
+  "Switch case macro with FN.
+Emacs-22 doesn't support `pcase'."
+  (declare (indent 2))
+  (let ((lcond var))
+    `(cond
+      ,@(mapcar (lambda (x)
+                  (let ((rcond (car x))
+                        (form (cadr x)))
+                    (if (eq rcond '_)
+                        `(t ,form)
+                      `((funcall ,fn ,lcond ,rcond) ,form))))
+                conds)
+      (t nil))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
@@ -363,6 +406,26 @@ with an unless block"
       `((unless ,@value ,@body)))
      (t
       `((unless (and ,@value) ,@body))))))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;
+;;  ensure keyword
+;;
+
+(defun leaf-handler/:ensure (name value rest)
+  "Process :ensure.
+
+Install package(s). If conditions keywords is nil, stop installation."
+  (let ((body   (leaf-process-keywords name rest))
+        (funsym `#',(intern
+                     (format "leaf-backend/:ensure-%s" leaf-backend/:ensure)))
+        (value* (if (and (eq (car value) t) (= (length value) 1))
+                    (list (eval name))  ; unify as unquote value.
+                  value)))
+    (if leaf-backend/:ensure
+        `(,@(mapcar (lambda (x) `(funcall ,funsym ',x)) value*)
+          ,@body)
+      `(,@body))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
