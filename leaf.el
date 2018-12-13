@@ -49,7 +49,7 @@
     :require
 
     ;; Configuration keywords.
-    :config
+    :bind :bind* :config
     )
   "Special keywords to be processed by `leaf'.
 Sort by `leaf-sort-values-plist' in this order.
@@ -74,6 +74,18 @@ Each symbol must has handle function named as `leaf-handler/_:symbol_'."
   :type '(choice (const :tag "Use `package.el'." 'package)
                  (const :tag "Use `feather.el'." 'feather)
                  (const :tag "No backend, disable `:ensure'." nil))
+  :group 'leaf)
+
+(defcustom leaf-backend/:bind (if (require 'bind-key nil t) 'bind-key)
+  "Backend to process `:bind' keyword."
+  :type '(choice (const :tag "Use `bind-key.el'." 'bind-key)
+                 (const :tag "No backend, disable `:bind'." nil))
+  :group 'leaf)
+
+(defcustom leaf-backend/:bind* (if (require 'bind-key nil t) 'bind-key)
+  "Backend to process `:bind*' keyword."
+  :type '(choice (const :tag "Use `bind-key.el'." 'bind-key)
+                 (const :tag "No backend, disable `:bind'." nil))
   :group 'leaf)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -128,6 +140,26 @@ Emacs-22 doesn't support `pcase'."
   (declare (indent 1))
   `(let ((,(car sym*) ,(cadr sym*)))
      (setq ,(cadr sym*) ,body)))
+
+(defmacro leaf-alet (varlist* &rest body)
+  "Anaphoric let macro. Return first arg value.
+CAUTION:
+`it' has first var value, it is NOT updated if var value changed.
+
+(macroexpand
+ '(leaf-alet (it ((result t)))
+  (princ it)))
+=> (let* ((result t)
+          (it result))
+     (progn (princ it))
+     result)
+
+\(fn (ASYM (VARLIST...)) &rest BODY)"
+  (declare (debug t) (indent 1))
+  `(let* (,@(cadr varlist*)
+          (,(car varlist*) ,(caar (cadr varlist*))))
+     (progn ,@body)
+     ,(caar (cadr varlist*))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
@@ -443,7 +475,7 @@ Install package(s). If conditions keywords is nil, stop installation."
                     (list (eval name))  ; unify as unquote value.
                   value)))
     (if leaf-backend/:ensure
-        `(,@(mapcar (lambda (x) `(funcall ,funsym ',x)) value*)
+        `(,@(mapcar (lambda (x) `(funcall ,funsym ,name ',x)) value*)
           ,@body)
       `(,@body))))
 
@@ -486,6 +518,32 @@ This handler add require comamnd for name."
 ;;
 ;;  Configuration keywords
 ;;
+
+(defun leaf-handler/:bind (name value rest)
+  "Process :bind
+
+This handler return bind form.
+TODO: :map keyword support."
+  (let ((body   (leaf-process-keywords name rest))
+        (funsym `#',(intern
+                     (format "leaf-backend/:bind-%s" leaf-backend/:bind))))
+    (if leaf-backend/:bind
+        `(,@(mapcar (lambda (x) `(funcall ,funsym ,name ',x)) value)
+          ,@body)
+      `(,@body))))
+
+(defun leaf-handler/:bind* (name value rest)
+  "Process :bind*
+
+This handler return bind form.
+TODO: :map keyword support."
+  (let ((body   (leaf-process-keywords name rest))
+        (funsym `#',(intern
+                     (format "leaf-backend/:bind*-%s" leaf-backend/:bind*))))
+    (if leaf-backend/:bind*
+        `(,@(mapcar (lambda (x) `(funcall ,funsym ,name ',x)) value)
+          ,@body)
+      `(,@body))))
 
 (defun leaf-handler/:config (name value rest)
   "Process :config.

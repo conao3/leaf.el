@@ -41,7 +41,7 @@
   (autoload 'package-installed-p "package")
   (autoload 'package-refresh-contents "package"))
 
-(defun leaf-backend/:ensure-package (package)
+(defun leaf-backend/:ensure-package (name package)
   ":ensure package.el backend."
   (unless (package-installed-p package)
     (condition-case err
@@ -53,6 +53,14 @@
        (display-warning
         'leaf (format "Failed to install %s: %s"
                       package (error-message-string err)))))))
+
+(defun leaf-backend/:bind-bind-key (name bind)
+  ":bind bind-key.el backend."
+  (eval `(bind-keys :package ,name ,@bind)))
+
+(defun leaf-backend/:bind*-bind-key (name bind)
+  ":bind* bind-key.el backend."
+  (eval `(bind-keys* :package ,name ,@bind)))
 
 (provide 'leaf-backends)
 ;;; leaf-keyword-backends.el ends here
