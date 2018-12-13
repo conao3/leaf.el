@@ -16,7 +16,7 @@
   - [[Configuration keywords]]
     - [[:init keyword]]
     - [[:bind, :bind* keyword]]
-    - [[:pre-setq :post-setq keyword]]
+    - [[:pre-setq :setq keyword]]
     - [[:setq-default :custom-set-variables keyword]]
     - [[:config keyword]]
   - [[Condition keywords]]
@@ -225,7 +225,7 @@ but it's easy to create other package manager's backend.
 Of course, setting and requiring of the backend itself must be
 completed before using ~:ensure~ keyword.
 
-*** :pre-setq :post-setq keyword
+*** :pre-setq :setq keyword
 ~pre-setq~, ~post-setq~ to setq before and after ~require~ package.
 #+BEGIN_SRC emacs-lisp
   (cort-deftest leaf-test/:simple-pre-setq
@@ -246,7 +246,7 @@ completed before using ~:ensure~ keyword.
   (cort-deftest leaf-test/:simple-post-setq
     (match-expansion
      (leaf foo
-       :post-setq ((bar . 'baz))
+       :setq ((bar . 'baz))
        :init (foo-pre-init)
        :config (foo-post-init))
      '(progn
@@ -264,7 +264,7 @@ completed before using ~:ensure~ keyword.
   (cort-deftest leaf-test/:simple-post-setq
     (match-expansion
      (leaf foo
-       :post-setq ((bar . 'baz))
+       :setq ((bar . 'baz))
        :init (foo-pre-init)
        :config (foo-post-init))
      '(progn
