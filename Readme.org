@@ -245,7 +245,8 @@ If specified multiple those keyword, evaluate sexp in ~and~.
      (leaf foo :if t)
      '(if t
           (progn
-            (require 'foo)))))
+            (progn
+              (require 'foo))))))
 
   ;; simple :when pattern
   (cort-deftest leaf-test/:simple-when
@@ -277,7 +278,8 @@ If specified multiple those keyword, evaluate sexp in ~and~.
      (leaf foo :if (rt) :if (rnil) (mt))
      '(if (and (rt) (rnil) (mt))
           (progn
-            (require 'foo)))))
+            (progn
+              (require 'foo))))))
 
   ;; multiple condition pattern
   ;; sorted in the order :if, :when, :unless and merge.
@@ -285,10 +287,11 @@ If specified multiple those keyword, evaluate sexp in ~and~.
     (match-expansion
      (leaf foo :if (rt) :when (rnil) (mt) :unless (rt) :if (rnil))
      '(if (and (rt) (rnil))
-          (when (and (rnil) (mt))
-            (unless (rt)
-              (progn
-                (require 'foo)))))))
+          (progn
+            (when (and (rnil) (mt))
+              (unless (rt)
+                (progn
+                  (require 'foo))))))))
 
   ;; if you want evaluate sexp in `or', just specify that sexp.
   (cort-deftest leaf-test/:if-2
@@ -296,7 +299,8 @@ If specified multiple those keyword, evaluate sexp in ~and~.
      (leaf foo :if (or (rt) (rnil)))
      '(if (or (rt) (rnil))
           (progn
-            (require 'foo)))))
+            (progn
+              (require 'foo))))))
 #+end_src
 
 * Developer information
