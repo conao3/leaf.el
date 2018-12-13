@@ -15,10 +15,12 @@
     - [[:ensure keyword]]
   - [[Configuration keywords]]
     - [[:init keyword]]
+    - [[:bind, :bind* keyword]]
     - [[:config keyword]]
   - [[Condition keywords]]
     - [[:disabled keyword]]
     - [[:if, :when, :unless keyword]]
+  - [[Documentation keywords]]
 - [[Developer information]]
   - [[leaf.el mechanism]]
   - [[Adding custom keyword(s)]]
@@ -51,6 +53,11 @@ We expect FORM will be expanded to EXPECT.
     (match-expansion
      FORM                  ; will be expand by `macroexpand-1'
      'EXPECT))             ; expect FORM's expansion will be EXPECT (test `equal')
+
+  (cort-deftest TESTCASE-NAME
+    (match-expansion-let (LET-ENV)
+      FORM                 ; will be expand by `macroexpand-1' in LET-ENV
+      'EXPECT))            ; expect FORM's expansion will be EXPECT (test `equal')
 
   ;; Emacs-22, Emacs-23 can't define `macroexpand-1', branch EXPECT form.
   (cort-deftest TESTCASE-NAME
@@ -152,6 +159,50 @@ completed before using ~:ensure~ keyword.
           (require 'foo)))))
 #+end_src
 
+*** :bind, :bind* keyword
+~:bind~ provide ~bind-key.el~ frontend.
+
+You can customize backend to process ~:ensure~ keyword.
+#+BEGIN_SRC emacs-lisp
+  ;; use package.el as :bind backend
+  (setq leaf-backend/:bind  'bind-key
+        leaf-backend/:bind* 'bind-key)
+
+  ;; use no package as :bind backend (disable :bind, bind*)
+  (setq leaf-backend/:bind  nil
+        leaf-backend/:bind* nil)
+#+END_SRC
+
+~leaf.el~ provide ~bind-key.el~ backend,
+but it's easy to create other package manager's backend.
+
+#+BEGIN_SRC emacs-lisp
+  (cort-deftest leaf-test/:simple-bind
+    (match-expansion-let ((leaf-backend/:bind 'bind-key))
+      (leaf foo
+        :bind (("M-s O" . moccur)
+               :map isearch-mode-map
+               ("M-o" . isearch-moccur)
+               ("M-O" . isearch-moccur-all))
+        :init
+        (setq isearch-lazy-highlight t)
+        :config
+        (leaf moccur-edit))
+      '(progn
+         (progn
+           (setq isearch-lazy-highlight t))
+         (progn
+           (require 'foo)
+           (funcall #'leaf-backend/:bind-bind-key 'foo
+                    '(("M-s O" . moccur)
+                      :map isearch-mode-map
+                      ("M-o" . isearch-moccur)
+                      ("M-O" . isearch-moccur-all)))
+           (leaf moccur-edit)))))
+#+END_SRC
+Of course, setting and requiring of the backend itself must be
+completed before using ~:ensure~ keyword.
+
 *** :config keyword
 ~:config~ keyword expect sexp will evaluated after ~require~ package.
 
@@ -182,7 +233,6 @@ completed before using ~:ensure~ keyword.
           (setq bar3 'baz)
           (setq bar4 'baz)))))
 #+END_SRC
-
 ** Condition keywords
 *** :disabled keyword
 ~:disabled~ keyword expect boolean.
