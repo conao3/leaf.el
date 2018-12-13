@@ -20,6 +20,8 @@ LOGFILE    := .make-test.log
 
 ##################################################
 
+# $(if $(findstring 22,$(shell $* --version)),[emacs-22],[else emacs-22])
+
 all: git-hook build
 
 git-hook:
@@ -51,14 +53,11 @@ test: $(ALL_EMACS:%=.make-test-%)
 	@echo ""
 	@cat $(LOGFILE) | grep =====
 	@rm -rf $(LOGFILE)
-	@rm -rf .make-*
 
 .make-test-%:
 	mkdir -p .make-$*
 	cp -f $(ELS) $(CORTELS) .make-$*/
-	$(if $(findstring 22,$(shell $* --version)),, \
-	  cd .make-$*; echo $(ELS) | xargs -n1 $* -Q --batch -L `pwd` -f batch-byte-compile)
-
+	cd .make-$*; $* -Q --batch -L `pwd` -f batch-byte-compile $(ELS)
 	cd .make-$*; $* -Q --batch -L `pwd` -l leaf-tests.el -f cort-run-tests 2>&1 >> ../$(LOGFILE)
 	rm -rf .make-$*
 
