@@ -12,6 +12,7 @@
   - [[Basic keywords]]
     - [[none (keyword)]]
     - [[:require keyword]]
+    - [[:ensure keyword]]
   - [[Configuration keywords]]
     - [[:init keyword]]
     - [[:config keyword]]
@@ -302,6 +303,48 @@ If specified multiple those keyword, evaluate sexp in ~and~.
             (progn
               (require 'foo))))))
 #+end_src
+
+** Documentation keywords
+~leaf.el~ can describe a document with an affinity grammar.
+By default, ~:doc~, ~:file~, ~:url~ keywords are provided.
+
+In fact, these keywords are simply ignored.
+
+#+BEGIN_SRC emacs-lisp
+  (cort-deftest leaf-test/:simple-doc-keyword
+    (match-expansion
+     (leaf foo
+       :doc "this package is awesome!!"
+       :require nil
+       :config (setq bar 'baz))
+     '(progn
+        (setq bar 'baz))))
+
+  (cort-deftest leaf-test/:simple-doc-keywords
+    (match-expansion
+     (leaf foo
+       :doc "this package is awesome!!"
+       :file "~/path/to/package/file.el"
+       :url "https://www.example.com/"
+       :require nil
+       :config (setq bar 'baz))
+     '(progn
+        (setq bar 'baz))))
+#+END_SRC
+
+I think that you can use various ways of using such as
+describing the URL you referred to, writing a brief description of the package,
+writing a file path for FFAP.
+
+If you want other keywords, you can easily add them. (see source)
+#+BEGIN_SRC emacs-lisp
+  ;; top level operation, but don't do anything when don't need it.
+  ;; (eg when loading multiple times)
+  (mapc (lambda (x)
+          (unless (memq x leaf-keywords)
+            (leaf-add-doc-keyword x)))
+        (reverse '(:doc :file :url)))
+#+END_SRC
 
 * Developer information
 ~leaf.el~ creates the intended elisp code from DSL with a simple mechanism.

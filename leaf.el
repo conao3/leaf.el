@@ -30,7 +30,7 @@
   "Symplifying your `.emacs' configuration."
   :group 'lisp)
 
-(defconst leaf-version "1.1.7"
+(defconst leaf-version "1.1.8"
   "leaf.el version")
 
 (defcustom leaf-keywords
@@ -228,6 +228,26 @@ Emacs-22 doesn't support `pcase'."
       (warn (format "%s already exists in `leaf-keywords'" targetlst))
     (leaf-asetq (it leaf-keywords)
       (funcall #'leaf-insert-list-after it targetlst aelm))))
+
+(defun leaf-add-doc-keyword (key)
+  "Add KEY to `leaf-keywords' as documentation keywords."
+  (eval
+   `(progn
+      (leaf-add-keyword-after ,key :disabled)
+      (defun ,(intern (format "leaf-handler/%s" key)) (name value rest)
+        ,(format
+          (concat "Process %s as documentation keyword.\n"
+                  "This handler just ignore this keyword.")
+          key)
+        (let ((body (leaf-process-keywords name rest)))
+          `(,@body))))))
+
+;; top level operation, but don't do anything when don't need it.
+;; (eg when loading multiple times)
+(mapc (lambda (x)
+        (unless (memq x leaf-keywords)
+          (leaf-add-doc-keyword x)))
+      (reverse '(:doc :file :url)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
