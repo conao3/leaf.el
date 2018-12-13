@@ -45,6 +45,26 @@ You do not have to worry about errors due to reinstallation or environmental dif
 Put ~leaf.el~ at any folder added ~load-path~.
 Then ~(require 'leaf)~ and use like ~use-pacakge~
 
+#+BEGIN_SRC emacs-lisp
+  ;; add to load-path
+  ;; (locate-user-emacs-file "site-lisp/leaf.el")
+  ;;  => "~/.emacs.d/local/26.1/site-lisp/leaf.el"
+
+  (add-to-list 'load-path (locate-user-emacs-file "site-lisp/leaf.el"))
+  (add-to-list 'load-path (locate-user-emacs-file "site-lisp/feather.el"))
+
+  (require 'leaf)
+
+  (leaf package
+    :config
+    (add-list-to-list 'package-archives
+      '(("org"       . "https://orgmode.org/elpa/")
+        ("melpa"     . "https://melpa.org/packages/")
+        ("marmalade" . "https://marmalade-repo.org/packages/")))
+    (package-initialize))
+
+  (leaf bind-key :ensure t)
+#+END_SRC
 * Syntaxes
 All below examples are excerpts from ~leaf-tests.el~.
 
