@@ -30,7 +30,7 @@
   "Symplifying your `.emacs' configuration."
   :group 'lisp)
 
-(defconst leaf-version "1.1.6"
+(defconst leaf-version "1.1.7"
   "leaf.el version")
 
 (defcustom leaf-keywords
@@ -379,9 +379,9 @@ with an if block"
   (let ((body (leaf-process-keywords name rest)))
     (cond
      ((= 1 (length value))
-      `((if ,@value ,@body)))
+      `((if ,@value (progn ,@body))))
      (t
-      `((if (and ,@value) ,@body))))))
+      `((if (and ,@value) (progn ,@body)))))))
 
 (defun leaf-handler/:when (name value rest)
   "Process :when.

@@ -175,7 +175,8 @@ EXPECT is (expect-default expect-24)"
    (leaf foo :if t)
    '(if t
         (progn
-          (require 'foo)))))
+          (progn
+            (require 'foo))))))
 
 (cort-deftest leaf-test/:simple-when
   (leaf-match
@@ -204,16 +205,18 @@ EXPECT is (expect-default expect-24)"
    (leaf foo :if (rt) :if (rnil) (mt))
    '(if (and (rt) (rnil) (mt))
         (progn
-          (require 'foo)))))
+          (progn
+            (require 'foo))))))
 
 (cort-deftest leaf-test/:simple-multi-conds
   (match-expansion
    (leaf foo :if (rt) :when (rnil) (mt) :unless (rt) :if (rnil))
    '(if (and (rt) (rnil))
-        (when (and (rnil) (mt))
-          (unless (rt)
-            (progn
-              (require 'foo)))))))
+        (progn
+          (when (and (rnil) (mt))
+            (unless (rt)
+              (progn
+                (require 'foo))))))))
 
 (cort-deftest leaf-test/:simple-init
   (match-expansion
@@ -564,21 +567,24 @@ EXPECT is (expect-default expect-24)"
    (leaf foo :if t)
    '(if t
         (progn
-          (require 'foo)))))
+          (progn
+            (require 'foo))))))
 
 (cort-deftest leaf-test/:if-2
   (match-expansion
    (leaf foo :if (or (rt) (rnil)))
    '(if (or (rt) (rnil))
         (progn
-          (require 'foo)))))
+          (progn
+            (require 'foo))))))
 
 (cort-deftest leaf-test/:if-3
   (match-expansion
    (leaf foo :if nil)
    '(if nil
         (progn
-          (require 'foo)))))
+          (progn
+            (require 'foo))))))
 
 (cort-deftest leaf-test/:when-1
   (leaf-match
@@ -679,8 +685,9 @@ EXPECT is (expect-default expect-24)"
    (leaf foo :require bar baz :if t)
    '(if t
         (progn
-          (require bar)
-          (require baz)))))
+          (progn
+            (require bar)
+            (require baz))))))
 
 (provide 'leaf-tests)
 ;;; leaf-tests.el ends here
