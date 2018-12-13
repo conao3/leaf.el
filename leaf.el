@@ -30,7 +30,7 @@
   "Symplifying your `.emacs' configuration."
   :group 'lisp)
 
-(defconst leaf-version "1.2.1"
+(defconst leaf-version "1.2.2"
   "leaf.el version")
 
 (defcustom leaf-keywords
@@ -51,7 +51,7 @@
 
     ;; Configuration keywords.
     :bind :bind*
-    :post-setq :setq-default :custom-set-variables
+    :setq :setq-default :custom-set-variables
     :config
     )
   "Special keywords to be processed by `leaf'.
@@ -557,8 +557,8 @@ TODO: :map keyword support."
           ,@body)
       `(,@body))))
 
-(defun leaf-handler/:post-setq (name value rest)
-  "Process :post-setq.
+(defun leaf-handler/:setq (name value rest)
+  "Process :setq.
 
 Eval `setq' after `require' package."
   (let ((body (leaf-process-keywords name rest))
