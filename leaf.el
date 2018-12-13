@@ -34,23 +34,23 @@
   "leaf.el version")
 
 (defcustom leaf-keywords
-  '(;; if specified this keyword, leaf block convert to nil.
+  '(;; Always be placed at the top-level.
+    ;; If this keyword activated, leaf block convert to nil.
     :disabled
-    
-    ;; condition sexp wrap below keyword.
+
+    ;; Condition keywards.
     :if :when :unless
 
-    ;; install package (condition is nil, not install)
-    :ensure
+    ;; Preparation keywords.
+    ;; Install package. (Condition isn't passed, not install)
+    :ensure :init
 
-    ;; init process before `require'.
-    :init
-
-    ;; require packages.
+    ;; Require package.
     :require
-    
-    ;; general configure sexp.
-    :config)
+
+    ;; Configuration keywords.
+    :config
+    )
   "Special keywords to be processed by `leaf'.
 Sort by `leaf-sort-values-plist' in this order.
 Each symbol must has handle function named as `leaf-handler/_:symbol_'."
@@ -65,7 +65,7 @@ Each symbol must has handle function named as `leaf-handler/_:symbol_'."
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
-;;  customize backend
+;;  Customize backend
 ;;
 
 (defcustom leaf-backend/:ensure (if (require 'feather nil t) 'feather
@@ -78,12 +78,12 @@ Each symbol must has handle function named as `leaf-handler/_:symbol_'."
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
-;;  support functions
+;;  Support functions
 ;;
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
-;;  for legacy Emacs
+;;  For legacy Emacs
 ;;
 
 (unless (fboundp 'declare-function)
@@ -108,7 +108,7 @@ Emacs-22 doesn't support `pcase'."
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
-;;  anaphoric macros
+;;  Anaphoric macros
 ;;
 
 (defmacro leaf-with-gensyms (syms &rest body)
@@ -131,7 +131,7 @@ Emacs-22 doesn't support `pcase'."
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
-;;  general functions
+;;  General functions
 ;;
 
 (defsubst leaf-truep (var)
@@ -140,7 +140,7 @@ Emacs-22 doesn't support `pcase'."
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
-;;  general list functions
+;;  General list functions
 ;;
 
 (defsubst leaf-list-memq (symlist list)
@@ -198,7 +198,7 @@ Emacs-22 doesn't support `pcase'."
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
-;;  general list functions for leaf
+;;  General list functions for leaf
 ;;
 
 (defun leaf-append-defaults (plist)
@@ -251,7 +251,7 @@ Emacs-22 doesn't support `pcase'."
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
-;;  psrudo-plist functions
+;;  Pseudo-plist functions
 ;;
 
 ;; pseudo-PLIST is list separated value with :keyword.
@@ -346,7 +346,7 @@ EXAMPLE:
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
-;;  keyword handlers
+;;  Keyword handlers
 ;;
 
 (defun leaf-process-keywords (name plist)
@@ -367,7 +367,7 @@ Don't call this function directory."
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
-;;  disabled keyword
+;;  :disabled keyword
 ;;
 
 (defun leaf-handler/:disabled (name value rest)
@@ -388,7 +388,7 @@ remaining arguments"
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
-;;  condition keywords
+;;  Condition keywords
 ;;
 
 (defun leaf-handler/:if (name value rest)
@@ -429,7 +429,7 @@ with an unless block"
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
-;;  ensure keyword
+;;  Preparation keywords
 ;;
 
 (defun leaf-handler/:ensure (name value rest)
@@ -447,11 +447,6 @@ Install package(s). If conditions keywords is nil, stop installation."
           ,@body)
       `(,@body))))
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;
-;;  init keyword
-;;
-
 (defun leaf-handler/:init (name value rest)
   "Process :init.
 
@@ -468,7 +463,7 @@ This value is evaled before `require'."
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
-;;  require keyword
+;;  :require keyword
 ;;
 
 (defun leaf-handler/:require (name value rest)
@@ -489,7 +484,7 @@ This handler add require comamnd for name."
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
-;;  config keyword
+;;  Configuration keywords
 ;;
 
 (defun leaf-handler/:config (name value rest)
@@ -501,7 +496,7 @@ This handler return value with progn form."
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
-;;  main macros
+;;  Main macro
 ;;
 
 (defun leaf-macroexp-progn (exps)
