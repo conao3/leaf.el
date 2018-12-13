@@ -43,13 +43,16 @@
 
     ;; Preparation keywords.
     ;; Install package. (Condition isn't passed, not install)
-    :ensure :init
+    :ensure
+    :pre-setq :init
 
     ;; Require package.
     :require
 
     ;; Configuration keywords.
-    :bind :bind* :config
+    :bind :bind*
+    :post-setq :setq-default :custom-set-variables
+    :config
     )
   "Special keywords to be processed by `leaf'.
 Sort by `leaf-sort-values-plist' in this order.
@@ -98,11 +101,6 @@ Each symbol must has handle function named as `leaf-handler/_:symbol_'."
 ;;  For legacy Emacs
 ;;
 
-(unless (fboundp 'declare-function)
-  (defmacro declare-function (_fn _file &rest _args)
-    "Tell the byte-compiler that function FN is defined, in FILE."
-    nil))
-
 (defmacro leaf-case (fn var &rest conds)
   "Switch case macro with FN.
 Emacs-22 doesn't support `pcase'."
@@ -117,6 +115,11 @@ Emacs-22 doesn't support `pcase'."
                       `((funcall ,fn ,lcond ,rcond) ,form))))
                 conds)
       (t nil))))
+
+(defun leaf-mapcaappend (func seq &rest rest)
+  "Another implementation for `mapcan'.
+`mapcan' uses `nconc', but Emacs-22 doesn't support it."
+  (apply #'append (apply #'mapcar func seq rest)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
@@ -479,6 +482,15 @@ Install package(s). If conditions keywords is nil, stop installation."
           ,@body)
       `(,@body))))
 
+(defun leaf-handler/:pre-setq (name value rest)
+  "Process :pre-setq.
+
+Eval `setq' before `require' package."
+  (let ((body (leaf-process-keywords name rest))
+        (value* (leaf-mapcaappend (lambda (x) x) value)))
+    `(,@(mapcar (lambda (x) `(setq ,(car x) ,(cdr x))) value*)
+      ,@body)))
+
 (defun leaf-handler/:init (name value rest)
   "Process :init.
 
@@ -544,6 +556,33 @@ TODO: :map keyword support."
         `(,@(mapcar (lambda (x) `(funcall ,funsym ,name ',x)) value)
           ,@body)
       `(,@body))))
+
+(defun leaf-handler/:post-setq (name value rest)
+  "Process :post-setq.
+
+Eval `setq' after `require' package."
+  (let ((body (leaf-process-keywords name rest))
+        (value* (leaf-mapcaappend (lambda (x) x) value)))
+    `(,@(mapcar (lambda (x) `(setq ,(car x) ,(cdr x))) value*)
+      ,@body)))
+
+(defun leaf-handler/:setq-default (name value rest)
+  "Process :setq-default.
+
+Eval `setq-default' before `require' package."
+  (let ((body (leaf-process-keywords name rest))
+        (value* (leaf-mapcaappend (lambda (x) x) value)))
+    `(,@(mapcar (lambda (x) `(setq-default ,(car x) ,(cdr x))) value*)
+      ,@body)))
+
+(defun leaf-handler/:custom-set-variables (name value rest)
+  "Process :custom-set-variables.
+
+Eval `custom-set-variables' before `require' package."
+  (let ((body (leaf-process-keywords name rest))
+        (value* (leaf-mapcaappend (lambda (x) x) value)))
+    `(,@(mapcar (lambda (x) `(custom-set-variables '(,(car x) ,(cdr x)))) value*)
+      ,@body)))
 
 (defun leaf-handler/:config (name value rest)
   "Process :config.

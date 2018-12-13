@@ -373,6 +373,49 @@ EXPECT is (expect-default expect-24)"
                     ("M-O" . isearch-moccur-all)))
          (leaf moccur-edit)))))
 
+(cort-deftest leaf-test/:simple-pre-setq
+  (match-expansion
+   (leaf foo
+     :pre-setq ((bar . 'baz))
+     :init (foo-pre-init)
+     :config (foo-post-init))
+   '(progn
+      (setq bar 'baz)
+      (progn
+        (progn
+          (foo-pre-init))
+        (progn
+          (require 'foo)
+          (foo-post-init))))))
+
+(cort-deftest leaf-test/:simple-post-setq
+  (match-expansion
+   (leaf foo
+     :post-setq ((bar . 'baz))
+     :init (foo-pre-init)
+     :config (foo-post-init))
+   '(progn
+      (progn
+        (foo-pre-init))
+      (progn
+        (require 'foo)
+        (setq bar 'baz)
+        (foo-post-init)))))
+
+(cort-deftest leaf-test/:simple-custom-set-variables
+  (match-expansion
+   (leaf foo
+     :custom-set-variables ((bar . 'baz))
+     :init (foo-pre-init)
+     :config (foo-post-init))
+   '(progn
+      (progn
+        (foo-pre-init))
+      (progn
+        (require 'foo)
+        (custom-set-variables '(bar 'baz))
+        (foo-post-init)))))
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
 ;;  :disabled keyword
