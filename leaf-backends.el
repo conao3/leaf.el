@@ -26,16 +26,6 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
-;;  for legacy Emacs
-;;
-
-(unless (fboundp 'declare-function)
-  (defmacro declare-function (_fn _file &rest _args)
-    "Tell the byte-compiler that function FN is defined, in FILE."
-    nil))
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;
 ;;  leaf prepared backends
 ;;
 
@@ -46,9 +36,10 @@
 
 ;; `package'
 (defvar package-archive-contents)
-(declare-function package-install "package")
-(declare-function package-installed-p "package")
-(declare-function package-refresh-contents "package")
+(eval-when-compile
+  (autoload 'package-install "package")
+  (autoload 'package-installed-p "package")
+  (autoload 'package-refresh-contents "package"))
 
 (defun leaf-backend/:ensure-package (package)
   ":ensure package.el backend."
