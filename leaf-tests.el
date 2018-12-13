@@ -391,7 +391,7 @@ EXPECT is (expect-default expect-24)"
 (cort-deftest leaf-test/:simple-post-setq
   (match-expansion
    (leaf foo
-     :post-setq ((bar . 'baz))
+     :setq ((bar . 'baz))
      :init (foo-pre-init)
      :config (foo-post-init))
    '(progn

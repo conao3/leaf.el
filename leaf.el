@@ -51,7 +51,7 @@
 
     ;; Configuration keywords.
     :bind :bind*
-    :post-setq :setq-default :custom-set-variables
+    :setq :setq-default :custom-set-variables
     :config
     )
   "Special keywords to be processed by `leaf'.
@@ -557,8 +557,8 @@ TODO: :map keyword support."
           ,@body)
       `(,@body))))
 
-(defun leaf-handler/:post-setq (name value rest)
-  "Process :post-setq.
+(defun leaf-handler/:setq (name value rest)
+  "Process :setq.
 
 Eval `setq' after `require' package."
   (let ((body (leaf-process-keywords name rest))
