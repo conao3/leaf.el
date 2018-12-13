@@ -16,6 +16,8 @@
   - [[Configuration keywords]]
     - [[:init keyword]]
     - [[:bind, :bind* keyword]]
+    - [[:pre-setq :post-setq keyword]]
+    - [[:setq-default :custom-set-variables keyword]]
     - [[:config keyword]]
   - [[Condition keywords]]
     - [[:disabled keyword]]
@@ -203,6 +205,70 @@ but it's easy to create other package manager's backend.
 Of course, setting and requiring of the backend itself must be
 completed before using ~:ensure~ keyword.
 
+*** :pre-setq :post-setq keyword
+~pre-setq~, ~post-setq~ to setq before and after ~require~ package.
+#+BEGIN_SRC emacs-lisp
+  (cort-deftest leaf-test/:simple-pre-setq
+    (match-expansion
+     (leaf foo
+       :pre-setq ((bar . 'baz))
+       :init (foo-pre-init)
+       :config (foo-post-init))
+     '(progn
+        (setq bar 'baz)
+        (progn
+          (progn
+            (foo-pre-init))
+          (progn
+            (require 'foo)
+            (foo-post-init))))))
+
+  (cort-deftest leaf-test/:simple-post-setq
+    (match-expansion
+     (leaf foo
+       :post-setq ((bar . 'baz))
+       :init (foo-pre-init)
+       :config (foo-post-init))
+     '(progn
+        (progn
+          (foo-pre-init))
+        (progn
+          (require 'foo)
+          (setq bar 'baz)
+          (foo-post-init)))))
+#+END_SRC
+
+*** :setq-default :custom-set-variables keyword
+~:setq-default~, ~:custom-set-variables~ to itself after ~require~ package
+#+BEGIN_SRC emacs-lisp
+  (cort-deftest leaf-test/:simple-post-setq
+    (match-expansion
+     (leaf foo
+       :post-setq ((bar . 'baz))
+       :init (foo-pre-init)
+       :config (foo-post-init))
+     '(progn
+        (progn
+          (foo-pre-init))
+        (progn
+          (require 'foo)
+          (setq bar 'baz)
+          (foo-post-init)))))
+
+  (cort-deftest leaf-test/:simple-custom-set-variables
+    (match-expansion
+     (leaf foo
+       :custom-set-variables ((bar . 'baz))
+       :init (foo-pre-init)
+       :config (foo-post-init))
+     '(progn
+        (progn
+          (foo-pre-init))
+        (progn
+          (require 'foo)
+          (custom-set-variables '(bar 'baz))
+          (foo-post-init)))))
+#+END_SRC
 *** :config keyword
 ~:config~ keyword expect sexp will evaluated after ~require~ package.
 
