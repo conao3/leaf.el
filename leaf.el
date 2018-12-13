@@ -30,27 +30,27 @@
   "Symplifying your `.emacs' configuration."
   :group 'lisp)
 
-(defconst leaf-version "1.1.8"
+(defconst leaf-version "1.1.9"
   "leaf.el version")
 
 (defcustom leaf-keywords
-  '(;; if specified this keyword, leaf block convert to nil.
+  '(;; Always be placed at the top-level.
+    ;; If this keyword activated, leaf block convert to nil.
     :disabled
-    
-    ;; condition sexp wrap below keyword.
+
+    ;; Condition keywards.
     :if :when :unless
 
-    ;; install package (condition is nil, not install)
-    :ensure
+    ;; Preparation keywords.
+    ;; Install package. (Condition isn't passed, not install)
+    :ensure :init
 
-    ;; init process before `require'.
-    :init
-
-    ;; require packages.
+    ;; Require package.
     :require
-    
-    ;; general configure sexp.
-    :config)
+
+    ;; Configuration keywords.
+    :bind :bind* :config
+    )
   "Special keywords to be processed by `leaf'.
 Sort by `leaf-sort-values-plist' in this order.
 Each symbol must has handle function named as `leaf-handler/_:symbol_'."
@@ -65,7 +65,7 @@ Each symbol must has handle function named as `leaf-handler/_:symbol_'."
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
-;;  customize backend
+;;  Customize backend
 ;;
 
 (defcustom leaf-backend/:ensure (if (require 'feather nil t) 'feather
@@ -76,14 +76,26 @@ Each symbol must has handle function named as `leaf-handler/_:symbol_'."
                  (const :tag "No backend, disable `:ensure'." nil))
   :group 'leaf)
 
+(defcustom leaf-backend/:bind (if (require 'bind-key nil t) 'bind-key)
+  "Backend to process `:bind' keyword."
+  :type '(choice (const :tag "Use `bind-key.el'." 'bind-key)
+                 (const :tag "No backend, disable `:bind'." nil))
+  :group 'leaf)
+
+(defcustom leaf-backend/:bind* (if (require 'bind-key nil t) 'bind-key)
+  "Backend to process `:bind*' keyword."
+  :type '(choice (const :tag "Use `bind-key.el'." 'bind-key)
+                 (const :tag "No backend, disable `:bind'." nil))
+  :group 'leaf)
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
-;;  support functions
+;;  Support functions
 ;;
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
-;;  for legacy Emacs
+;;  For legacy Emacs
 ;;
 
 (unless (fboundp 'declare-function)
@@ -108,7 +120,7 @@ Emacs-22 doesn't support `pcase'."
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
-;;  anaphoric macros
+;;  Anaphoric macros
 ;;
 
 (defmacro leaf-with-gensyms (syms &rest body)
@@ -129,9 +141,29 @@ Emacs-22 doesn't support `pcase'."
   `(let ((,(car sym*) ,(cadr sym*)))
      (setq ,(cadr sym*) ,body)))
 
+(defmacro leaf-alet (varlist* &rest body)
+  "Anaphoric let macro. Return first arg value.
+CAUTION:
+`it' has first var value, it is NOT updated if var value changed.
+
+(macroexpand
+ '(leaf-alet (it ((result t)))
+  (princ it)))
+=> (let* ((result t)
+          (it result))
+     (progn (princ it))
+     result)
+
+\(fn (ASYM (VARLIST...)) &rest BODY)"
+  (declare (debug t) (indent 1))
+  `(let* (,@(cadr varlist*)
+          (,(car varlist*) ,(caar (cadr varlist*))))
+     (progn ,@body)
+     ,(caar (cadr varlist*))))
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
-;;  general functions
+;;  General functions
 ;;
 
 (defsubst leaf-truep (var)
@@ -140,7 +172,7 @@ Emacs-22 doesn't support `pcase'."
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
-;;  general list functions
+;;  General list functions
 ;;
 
 (defsubst leaf-list-memq (symlist list)
@@ -198,7 +230,7 @@ Emacs-22 doesn't support `pcase'."
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
-;;  general list functions for leaf
+;;  General list functions for leaf
 ;;
 
 (defun leaf-append-defaults (plist)
@@ -251,7 +283,7 @@ Emacs-22 doesn't support `pcase'."
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
-;;  psrudo-plist functions
+;;  Pseudo-plist functions
 ;;
 
 ;; pseudo-PLIST is list separated value with :keyword.
@@ -346,7 +378,7 @@ EXAMPLE:
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
-;;  keyword handlers
+;;  Keyword handlers
 ;;
 
 (defun leaf-process-keywords (name plist)
@@ -367,7 +399,7 @@ Don't call this function directory."
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
-;;  disabled keyword
+;;  :disabled keyword
 ;;
 
 (defun leaf-handler/:disabled (name value rest)
@@ -388,7 +420,7 @@ remaining arguments"
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
-;;  condition keywords
+;;  Condition keywords
 ;;
 
 (defun leaf-handler/:if (name value rest)
@@ -429,7 +461,7 @@ with an unless block"
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
-;;  ensure keyword
+;;  Preparation keywords
 ;;
 
 (defun leaf-handler/:ensure (name value rest)
@@ -443,14 +475,9 @@ Install package(s). If conditions keywords is nil, stop installation."
                     (list (eval name))  ; unify as unquote value.
                   value)))
     (if leaf-backend/:ensure
-        `(,@(mapcar (lambda (x) `(funcall ,funsym ',x)) value*)
+        `(,@(mapcar (lambda (x) `(funcall ,funsym ,name ',x)) value*)
           ,@body)
       `(,@body))))
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;
-;;  init keyword
-;;
 
 (defun leaf-handler/:init (name value rest)
   "Process :init.
@@ -468,7 +495,7 @@ This value is evaled before `require'."
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
-;;  require keyword
+;;  :require keyword
 ;;
 
 (defun leaf-handler/:require (name value rest)
@@ -489,8 +516,34 @@ This handler add require comamnd for name."
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
-;;  config keyword
+;;  Configuration keywords
 ;;
+
+(defun leaf-handler/:bind (name value rest)
+  "Process :bind
+
+This handler return bind form.
+TODO: :map keyword support."
+  (let ((body   (leaf-process-keywords name rest))
+        (funsym `#',(intern
+                     (format "leaf-backend/:bind-%s" leaf-backend/:bind))))
+    (if leaf-backend/:bind
+        `(,@(mapcar (lambda (x) `(funcall ,funsym ,name ',x)) value)
+          ,@body)
+      `(,@body))))
+
+(defun leaf-handler/:bind* (name value rest)
+  "Process :bind*
+
+This handler return bind form.
+TODO: :map keyword support."
+  (let ((body   (leaf-process-keywords name rest))
+        (funsym `#',(intern
+                     (format "leaf-backend/:bind*-%s" leaf-backend/:bind*))))
+    (if leaf-backend/:bind*
+        `(,@(mapcar (lambda (x) `(funcall ,funsym ,name ',x)) value)
+          ,@body)
+      `(,@body))))
 
 (defun leaf-handler/:config (name value rest)
   "Process :config.
@@ -501,7 +554,7 @@ This handler return value with progn form."
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
-;;  main macros
+;;  Main macro
 ;;
 
 (defun leaf-macroexp-progn (exps)

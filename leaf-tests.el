@@ -84,6 +84,12 @@
       `(:equal (macroexpand-1 ',form) ,expect)
     `(:equal (macroexpand ',form) ,expect)))
 
+(defmacro match-expansion-let (letform form expect)
+  (declare (indent 1))
+  (if (fboundp 'macroexpand-1)
+      `(:equal (let ,letform (macroexpand-1 ',form)) ,expect)
+    `(:equal (let ,letform (macroexpand ',form)) ,expect)))
+
 (defmacro leaf-match (form expect)
   "Return testcase for cort.
 
@@ -343,6 +349,29 @@ EXPECT is (expect-default expect-24)"
      :config (setq bar 'baz))
    '(progn
       (setq bar 'baz))))
+
+(cort-deftest leaf-test/:simple-bind
+  (match-expansion-let ((leaf-backend/:bind 'bind-key))
+    (leaf foo
+      :bind (("M-s O" . moccur)
+             :map isearch-mode-map
+             ("M-o" . isearch-moccur)
+             ("M-O" . isearch-moccur-all))
+      :init
+      (setq isearch-lazy-highlight t)
+      :config
+      (leaf moccur-edit))
+    '(progn
+       (progn
+         (setq isearch-lazy-highlight t))
+       (progn
+         (require 'foo)
+         (funcall #'leaf-backend/:bind-bind-key 'foo
+                  '(("M-s O" . moccur)
+                    :map isearch-mode-map
+                    ("M-o" . isearch-moccur)
+                    ("M-O" . isearch-moccur-all)))
+         (leaf moccur-edit)))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
