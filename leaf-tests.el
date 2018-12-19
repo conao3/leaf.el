@@ -37,8 +37,32 @@
 ;;  support legacy Emacs
 ;;
 
-(when (and (not (fboundp 'macroexpand-1))
-           (fboundp 'autoload-do-load))
+(when (not (fboundp 'autoload-do-load))
+  (defun autoload-do-load (fundef &optional funname macro-only)
+    (if (or (not (consp fundef)) (not (eql 'autoload (car fundef))))
+        fundef
+      (let ((kind (nth 4 fundef)))
+        (if (and (eql macro-only 'macro)
+                 (not (or (eql kind t)
+                          (eql kind 'macro))))
+            fundef)
+        (if purify-flag
+            (error "Attempt to autoload %s while preparing to dump" (symbol-name funnname)))
+        (unwind-protect
+            (let ((ignore-errors (if (or (eql kind t) (eql kind 'macro)) nil macro_only)))
+              (load (cadr fundef) ignore-errors t nil t))
+          ;; FIXME: revert partially performed defuns
+          ())
+        (if (or (not funname) ignore-errors)
+            nil
+          (let ((fun (indirect-function funname, nil)))
+            (if (equal fun fundef)
+                (error "Autoloading file %s failed to define function %s"
+                       (caar load-history)
+                       (symbol-name funname))
+              fun)))))))
+
+(when (not (fboundp 'macroexpand-1))
   (defun macroexpand-1 (form &optional environment)
     "Perform (at most) one step of macroexpansion."
     (cond
@@ -80,15 +104,11 @@
 ;;
 
 (defmacro match-expansion (form expect)
-  (if (fboundp 'macroexpand-1)
-      `(:equal (macroexpand-1 ',form) ,expect)
-    `(:equal (macroexpand ',form) ,expect)))
+  `(:equal (macroexpand-1 ',form) ,expect))
 
 (defmacro match-expansion-let (letform form expect)
   (declare (indent 1))
-  (if (fboundp 'macroexpand-1)
-      `(:equal (let ,letform (macroexpand-1 ',form)) ,expect)
-    `(:equal (let ,letform (macroexpand ',form)) ,expect)))
+  `(:equal (let ,letform (macroexpand-1 ',form)) ,expect))
 
 (defmacro leaf-match (form expect)
   "Return testcase for cort.
