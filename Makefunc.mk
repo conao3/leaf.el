@@ -1,11 +1,16 @@
 #
-# Makefunk.mk
+#  Makefunc.mk
 #
-# version: v1.8
-# last update: 2018/12/04
+#  version: v1.9
+#  last update: 2018/12/20
 #
-# echo with color
 
+##################################################
+#
+#  commands
+#
+
+MAKE-ND = $(MAKE) --no-print-directory
 
 ##################################################
 #
