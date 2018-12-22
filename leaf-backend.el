@@ -1,4 +1,4 @@
-;;; leaf-backends.el ---                             -*- lexical-binding: t; -*-
+;;; leaf-backend.el ---                              -*- lexical-binding: t; -*-
 
 ;; Copyright (C) 2018  Naoya Yamashita
 
@@ -24,9 +24,11 @@
 
 ;;; Code:
 
+(require 'leaf-polyfill)
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
-;;  leaf prepared backends
+;;  leaf prepared backend
 ;;
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -62,5 +64,5 @@
   ":bind* bind-key.el backend."
   (eval `(bind-keys* :package ,name ,@bind)))
 
-(provide 'leaf-backends)
-;;; leaf-keyword-backends.el ends here
+(provide 'leaf-backend)
+;;; leaf-keyword-backend.el ends here

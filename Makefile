@@ -14,7 +14,7 @@ BATCH_LOCAL  = $* -Q --batch -L `pwd`
 TESTFILE    := leaf-tests.el
 ELS         := leaf.el
 ELS           += leaf-core.el leaf-polyfill.el
-ELS           += leaf-handler.el leaf-backends.el
+ELS           += leaf-handler.el leaf-backend.el
 
 ELCS        := $(ELS:.el=.elc)
 CORTELS     := $(TESTFILE) cort.el
@@ -39,10 +39,8 @@ git-hook:
 
 build: $(ELCS)
 
-$(ELCS): $(ELS)
-	$(EMACS) --version
-	touch -t $(TOUCH_TIME) $(ELCS)
-	$(BATCH) $(RECOMPILE_SEXP)
+%.elc: %.el
+	$(BATCH) -f batch-byte-compile $<
 
 ##############################
 #  simple test job
