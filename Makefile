@@ -12,7 +12,10 @@ BATCH       := $(EMACS) -Q --batch -L $(TOP)
 BATCH_LOCAL  = $* -Q --batch -L `pwd`
 
 TESTFILE    := leaf-tests.el
-ELS         := leaf.el leaf-backends.el
+ELS         := leaf.el
+ELS           += leaf-core.el leaf-polyfill.el
+ELS           += leaf-handler.el leaf-backends.el
+
 ELCS        := $(ELS:.el=.elc)
 CORTELS     := $(TESTFILE) cort.el
 CORT_ARGS   := -l $(TESTFILE) -f cort-run-tests
