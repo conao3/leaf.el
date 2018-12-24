@@ -36,8 +36,7 @@
 ~leaf.el~ has strong conditional branching symbols, 
 making your Emacs configuration simpler.
 
-It operates from Emacs-22, obtains partner [[https://github.com/conao3/feather.el][feather]] and 
-realizes Emacs packages and configurationswhich can be regenerated. 
+It operates from Emacs-22, obtains partner [[https://github.com/conao3/feather.el][feather]] and realizes Emacs packages and configurations which can be regenerated. 
 
 You do not have to worry about errors due to reinstallation or environmental differences.
 
@@ -78,7 +77,7 @@ We expect FORM will be expanded to EXPECT.
 
   (cort-deftest TESTCASE-NAME
     (match-expansion-let (LET-ENV)
-      FORM                 ; will be expand by `macroexpand-1' in LET-ENV
+      FORM                 ; will be expanded by `macroexpand-1' in LET-ENV
       'EXPECT))            ; expect FORM's expansion will be EXPECT (test `equal')
 
   ;; Emacs-22, Emacs-23 can't define `macroexpand-1', branch EXPECT form.
@@ -164,7 +163,7 @@ Of course, setting and requiring of the backend itself must be
 completed before using ~:ensure~ keyword.
 ** Configuration keywords
 *** :init keyword
-~:init~ keyword expect sexp will evaluated before ~require~ package.
+~:init~ keyword expect sexp will be evaluated before ~require~ package.
 
 #+begin_src emacs-lisp
   (cort-deftest leaf-test/:simple-init
@@ -374,7 +373,7 @@ Ignore the specification of ~:disabled~ by setting ~t~ to ~nil~.
 ~:if~, ~:when~, ~:unless~ keywords expect sexp return boolean or just boolean value
 and wrap converted sexp specified function.
 
-If specified multiple those keyword, evaluate sexp in ~and~.
+If specified multiple those keywords, evaluate sexp in ~and~.
 #+begin_src emacs-lisp
   ;; simple :if pattern
   (cort-deftest leaf-test:/simple-if
@@ -430,7 +429,7 @@ If specified multiple those keyword, evaluate sexp in ~and~.
                 (progn
                   (require 'foo))))))))
 
-  ;; if you want evaluate sexp in `or', just specify that sexp.
+  ;; if you want to evaluate sexp in `or', just specify that sexp.
   (cort-deftest leaf-test/:if-2
     (match-expansion
      (leaf foo :if (or (rt) (rnil)))
@@ -474,7 +473,7 @@ writing a file path for FFAP.
 
 If you want other keywords, you can easily add them. (see source)
 #+BEGIN_SRC emacs-lisp
-  ;; top level operation, but don't do anything when don't need it.
+  ;; top-level operation, but don't do anything when don't need it.
   ;; (eg when loading multiple times)
   (mapc (lambda (x)
           (unless (memq x leaf-keywords)
@@ -494,7 +493,7 @@ Process.
 1. Pass arguments to ~leaf-core~.
 
 *** ~leaf-core (name args)~ function
-This is core process for leaf macro expansion.
+This is the core process for leaf macro expansion.
 
 Process.
 1. ~leaf-append-defaults~ to append default value (~leaf-defaults~) to ARGS
@@ -558,7 +557,7 @@ The handler is named leaf-handler/KEY.
 ** Adding custom keyword(s)
 ~leaf.el~ can easily be expanded by adding keywords.
 
-Actually it is realized by two steps of adding keyword and adding handler.
+Actually, it is realized by two steps of adding keyword and adding handler.
 
 Example:
 #+BEGIN_SRC emacs-lisp
@@ -625,9 +624,9 @@ You can add keywords like,
 ~(leaf-add-keyword-list-after '(:tmp-pre :tmp-post) :config)~
 
 *** Define handler
-Then, you should define handler for new keyword(s) each.
+Then, you should define a handler for new keyword(s) each.
 
-NOTE: Since VALUE is a list, be careful when implement a handler.
+NOTE: Since VALUE is a list, be careful when implementing a handler.
 #+BEGIN_SRC emacs-lisp
   (defun leaf-handler/:message-pre-require (name value rest)
     "process :message-pre-require."
@@ -654,14 +653,14 @@ Bundling Emacs-22.1 on macOS 10.13 (High Sierra), we support this.
 
 * Welcome PR
 We welcome PR!
-Travis Cl test ~leaf-test.el~ with oll Emacs version 23 or above.
+Travis Cl test ~leaf-test.el~ with all Emacs version 23 or above.
 
 I think that it is difficult to prepare the environment locally, 
-so I think that it is good to throw PR and test travis for the time being!
+so I think that it is good to throw PR and test Travis for the time being!
 Feel free throw PR!
 
 * Special Thanks
 Advice and comments given by [[http://emacs-jp.github.io/][Emacs-JP]]'s forum member has been a great help
 in developing ~leaf.el~.
 
-Thanks you very much!!
+Thank you very much!!
