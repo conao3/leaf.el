@@ -23,9 +23,9 @@
 ;;
 
 ;;; Code:
+
 (require 'leaf)
 (require 'cort)
-
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
@@ -89,17 +89,6 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
-;;  debug functions
-;;
-
-(defmacro p (form)
-  "Output expand given FORM."
-  `(progn
-     (pp (macroexpand-1 ',form))
-     nil))
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;
 ;;  support macros for test definition
 ;;
 
@@ -109,16 +98,6 @@
 (defmacro match-expansion-let (letform form expect)
   (declare (indent 1))
   `(:equal (let ,letform (macroexpand-1 ',form)) ,expect))
-
-(defmacro leaf-match (form expect)
-  "Return testcase for cort.
-
-Since `macroexpand-1' is not defined in Emacs below 23.0, use this macro.
-EXPECT is (expect-default expect-24)"
-  `(match-expansion
-    ,form
-    (,(car expect)
-     :cort-if ((not (fboundp 'macroexpand-1)) ,(cadr expect)))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
@@ -205,26 +184,18 @@ EXPECT is (expect-default expect-24)"
             (require 'foo))))))
 
 (cort-deftest leaf-test/:simple-when
-  (leaf-match
+  (match-expansion
    (leaf foo :when t)
-   ('(when t
+   '(when t
        (progn
-         (require 'foo)))
-    '(if t
-         (progn
-           (progn
-             (require 'foo)))))))
+         (require 'foo)))))
 
 (cort-deftest leaf-test/:simple-unless
-  (leaf-match
+  (match-expansion
    (leaf foo :unless t)
-   ('(unless t
+   '(unless t
        (progn
-         (require 'foo)))
-    '(if t
-         nil
-       (progn
-         (require 'foo))))))
+         (require 'foo)))))
 
 (cort-deftest leaf-test/:simple-multi-if
   (match-expansion
@@ -699,69 +670,46 @@ EXPECT is (expect-default expect-24)"
             (require 'foo))))))
 
 (cort-deftest leaf-test/:when-1
-  (leaf-match
+  (match-expansion
    (leaf foo :when t)
-   ('(when t
+   '(when t
        (progn
-         (require 'foo)))
-    '(if t
-         (progn
-           (progn
-             (require 'foo)))))))
+         (require 'foo)))))
 
 (cort-deftest leaf-test/:when-2
-  (leaf-match
+  (match-expansion
    (leaf foo :when (or (rt) (rnil)))
-   ('(when (or (rt) (rnil))
+   '(when (or (rt) (rnil))
        (progn
-         (require 'foo)))
-    '(if (or (rt) (rnil))
-         (progn
-           (progn
-             (require 'foo)))))))
+         (require 'foo)))))
 
 (cort-deftest leaf-test/:when-3
-  (leaf-match
+  (match-expansion
    (leaf foo :when nil)
-   ('(when nil
+   '(when nil
        (progn
-         (require 'foo)))
-    '(if nil
-         (progn
-           (progn
-             (require 'foo)))))))
+         (require 'foo)))))
 
 (cort-deftest leaf-test/:unless-1
-  (leaf-match
+  (match-expansion
    (leaf foo :unless t)
-   ('(unless t
+   '(unless t
        (progn
-         (require 'foo)))
-    '(if t
-         nil
-       (progn
-         (require 'foo))))))
+         (require 'foo)))))
 
 (cort-deftest leaf-test/:unless-2
-  (leaf-match
+  (match-expansion
    (leaf foo :unless (or (rt) (rnil)))
-   ('(unless (or (rt) (rnil))
+   '(unless (or (rt) (rnil))
        (progn
-         (require 'foo)))
-    '(if (or (rt) (rnil))
-         nil
-       (progn
-         (require 'foo))))))
+         (require 'foo)))))
 
 (cort-deftest leaf-test/:unless-3
-  (leaf-match
+  (match-expansion
    (leaf foo :unless nil)
-   ('(unless nil
+   '(unless nil
        (progn
-         (require 'foo)))
-    '(if nil nil
-       (progn
-         (require 'foo))))))
+         (require 'foo)))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
