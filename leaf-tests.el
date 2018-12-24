@@ -396,7 +396,7 @@
 (cort-deftest leaf-test/:simple-custom-set-variables
   (match-expansion
    (leaf foo
-     :custom-set-variables ((bar . 'baz))
+     :custom ((bar . 'baz))
      :init (foo-pre-init)
      :config (foo-post-init))
    '(progn
