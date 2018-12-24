@@ -2,8 +2,12 @@
 
 ;; Copyright (C) 2018  Naoya Yamashita
 
-;; Author: Naoya Yamashita
+;; Author: Naoya Yamashita <conao3@gmail.com>
+;; Maintainer: Naoya Yamashita <conao3@gmail.com>
 ;; Keywords: settings
+;; Version: 1.2.0
+;; URL: https://github.com/conao3/leaf.el
+;; Package-Requires: ((emacs "22.0"))
 
 ;; This program is free software; you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by
@@ -33,7 +37,7 @@
   "Symplifying your `.emacs' configuration."
   :group 'lisp)
 
-(defconst leaf-version "1.2.8"
+(defconst leaf-version "1.2.9"
   "leaf.el version")
 
 (defcustom leaf-keywords
