@@ -1,16 +1,21 @@
 #
 #  Makefunc.mk
 #
-#  version: v1.9
-#  last update: 2018/12/20
+#  version: v2.0
+#  last update: 2018/12/24
 #
 
 ##################################################
 #
-#  commands
+#  make support
 #
 
 MAKE-ND = $(MAKE) --no-print-directory
+
+# export variables to add definition top of Makefile.
+# use such as $(call EXPORT,EMACS ELS,Makefile-check.mk,.make-emacs-23.4)
+EXPORT = printf ' $(foreach var,$1,$(var):=$($(var))\n)' > .make-$$$$;\
+	  cat .make-$$$$ $2 > $3/Makefile; rm .make-$$$$
 
 ##################################################
 #
