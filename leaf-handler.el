@@ -223,8 +223,8 @@ Eval `setq-default' before `require' package."
     `(,@(mapcar (lambda (x) `(setq-default ,(car x) ,(cdr x))) value*)
       ,@body)))
 
-(defun leaf-handler/:custom-set-variables (name value rest)
-  "Process :custom-set-variables.
+(defun leaf-handler/:custom (name value rest)
+  "Process :custom.
 
 Eval `custom-set-variables' before `require' package."
   (let ((body (leaf-process-keywords name rest))
