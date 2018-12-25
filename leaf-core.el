@@ -5,7 +5,7 @@
 ;; Author: Naoya Yamashita <conao3@gmail.com>
 ;; Maintainer: Naoya Yamashita <conao3@gmail.com>
 ;; Keywords: settings
-;; Version: 1.2.0
+;; Version: 1.3.0
 ;; URL: https://github.com/conao3/leaf.el
 ;; Package-Requires: ((emacs "22.0"))
 
@@ -37,7 +37,7 @@
   "Symplifying your `.emacs' configuration."
   :group 'lisp)
 
-(defconst leaf-version "1.2.9"
+(defconst leaf-version "1.3.0"
   "leaf.el version")
 
 (defcustom leaf-keywords
