@@ -12,10 +12,13 @@
 
 MAKE-ND = $(MAKE) --no-print-directory
 
-# export variables to add definition top of Makefile.
-# use such as $(call EXPORT,EMACS ELS,Makefile-check.mk,.make-emacs-23.4)
-EXPORT = printf ' $(foreach var,$1,$(var):=$($(var))\n)' > .make-$$$$;\
-	  cat .make-$$$$ $2 > $3/Makefile; rm .make-$$$$
+# export variables
+# $(call EXPORT,ELS CORT_ARGS) \
+#   EMACS=$* $(MAKE) -C .make-$* check 2>&1 | tee -a $(LOGFILE)
+#
+# => ELS='leaf.el leaf-core.el' CORT_ARGS='-l leaf-tests.el -f cort-run-tests' \
+#      EMACS=emacs-26.1 make -C .make-emacs-26.1 check 2>&1 | tee -a .make-check.log
+EXPORT = $(foreach var,$1,$(var)='$($(var))')
 
 ##################################################
 #
