@@ -37,7 +37,7 @@
   "Symplifying your `.emacs' configuration."
   :group 'lisp)
 
-(defconst leaf-version "1.3.4"
+(defconst leaf-version "1.3.6"
   "leaf.el version")
 
 (defcustom leaf-keywords
@@ -61,7 +61,8 @@
 
     ;; Configuration keywords.
     :bind :bind*
-    :setq :setq-default :custom
+    :setq :setq-default
+    :custom :custom-face
     :config
     )
   "Special keywords to be processed by `leaf'.
