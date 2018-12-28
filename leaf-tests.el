@@ -489,6 +489,24 @@
       (add-hook 'prog-mode-hook #'ace-jump-mode)
       (require 'ace-jump-mode))))
 
+(cort-deftest leaf-test/:simple-commands
+  (match-expansion
+   (leaf ace-jump-mode
+     :commands ace-jump-mode)
+   '(progn
+      (add-hook #'ace-jump-mode "ace-jump-mode" nil t)
+      (require 'ace-jump-mode))))
+
+(cort-deftest leaf-test/:simple-multi-commands
+  (match-expansion
+   (leaf ace-jump-mode
+     :commands ace-jump-mode command1 command2)
+   '(progn
+      (add-hook #'ace-jump-mode "ace-jump-mode" nil t)
+      (add-hook #'command1 "ace-jump-mode" nil t)
+      (add-hook #'command2 "ace-jump-mode" nil t)
+      (require 'ace-jump-mode))))
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
 ;;  :disabled keyword

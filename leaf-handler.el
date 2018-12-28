@@ -184,6 +184,15 @@ This value is evaled before `require'."
           (progn ,@(butlast value))
           (progn ,@body)))))))
 
+(defun leaf-handler/:commands (name value rest)
+  "Process :commands
+
+see `autoload'."
+  (let ((body (leaf-process-keywords name rest)))
+    `(,@(mapcar (lambda (x) `(add-hook #',x ,(symbol-name (eval name)) nil t))
+                value)
+      ,@body)))
+
 (defun leaf-handler/:hook (name value rest)
   "Process :hook
 
