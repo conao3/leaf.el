@@ -45,6 +45,9 @@
     ;; If this keyword activated, leaf block convert to nil.
     :disabled
 
+    ;; Add loadpath
+    :load-path
+
     ;; Condition keywards.
     :if :when :unless
 
