@@ -318,6 +318,14 @@ Eval `custom-set-variables' before `require' package."
     `(,@(mapcar (lambda (x) `(custom-set-variables '(,(car x) ,(cdr x)))) value*)
       ,@body)))
 
+(defun leaf-handler/:custom-face (name value rest)
+  "Process :custom-face.
+
+see `custom-set-faces'."
+  (let ((body (leaf-process-keywords name rest)))
+    `(,@(mapcar (lambda (x) `(custom-set-faces ',x)) value)
+      ,@body)))
+
 (defun leaf-handler/:config (name value rest)
   "Process :config.
 

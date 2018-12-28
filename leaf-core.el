@@ -61,7 +61,8 @@
 
     ;; Configuration keywords.
     :bind :bind*
-    :setq :setq-default :custom
+    :setq :setq-default
+    :custom :custom-face
     :config
     )
   "Special keywords to be processed by `leaf'.

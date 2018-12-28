@@ -507,6 +507,35 @@
       (add-hook #'command2 "ace-jump-mode" nil t)
       (require 'ace-jump-mode))))
 
+(cort-deftest leaf-test/:simple-custom-face
+  (match-expansion
+   (leaf eruby-mode
+     :custom-face
+     (eruby-standard-face ((t (:slant italic)))))
+   '(progn
+      (require 'eruby-mode)
+      (custom-set-faces
+       '(eruby-standard-face
+         ((t
+           (:slant italic))))))))
+
+(cort-deftest leaf-test/:simple-multi-custom-face
+  (match-expansion
+   (leaf eruby-mode
+     :custom-face
+     (eruby-standard-face ((t (:slant italic))))
+     (eruby-standard-face2 ((t (:slant italic)))))
+   '(progn
+      (require 'eruby-mode)
+      (custom-set-faces
+       '(eruby-standard-face
+         ((t
+           (:slant italic)))))
+      (custom-set-faces
+       '(eruby-standard-face2
+         ((t
+           (:slant italic))))))))
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
 ;;  :disabled keyword
