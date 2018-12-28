@@ -536,6 +536,49 @@
          ((t
            (:slant italic))))))))
 
+(cort-deftest leaf-test/:simple-byte-compile-vars
+  (match-expansion
+   (leaf for
+     :byte-compile-vars for-var1)
+   '(progn
+      (eval-when-compile
+        (defvar for-var1))
+      (progn
+        (require 'for)))))
+
+(cort-deftest leaf-test/:simple-multi-byte-compile-vars
+  (match-expansion
+   (leaf for
+     :byte-compile-vars for-var1 for-var2)
+   '(progn
+      (eval-when-compile
+        (defvar for-var1)
+        (defvar for-var2))
+      (progn
+        (require 'for)))))
+
+(cort-deftest leaf-test/:simple-byte-compile-funcs
+  (match-expansion
+   (leaf for
+     :byte-compile-funcs ((hoge-fn1 . hoge)))
+   '(progn
+  (eval-when-compile
+    (autoload #'hoge-fn1 "hoge" nil t))
+  (progn
+    (require 'for)))))
+
+(cort-deftest leaf-test/:simple-multi-byte-compile-funcs
+  (match-expansion
+   (leaf for
+     :byte-compile-funcs ((hoge-fn1 . hoge)
+                          (hoge-fn2 . hoge)))
+   '(progn
+      (eval-when-compile
+        (autoload #'hoge-fn1 "hoge" nil t)
+        (autoload #'hoge-fn2 "hoge" nil t))
+      (progn
+        (require 'for)))))
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
 ;;  :disabled keyword

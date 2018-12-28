@@ -37,7 +37,7 @@
   "Symplifying your `.emacs' configuration."
   :group 'lisp)
 
-(defconst leaf-version "1.3.7"
+(defconst leaf-version "1.3.8"
   "leaf.el version")
 
 (defcustom leaf-keywords
@@ -45,8 +45,9 @@
     ;; If this keyword activated, leaf block convert to nil.
     :disabled
 
-    ;; Add loadpath
+    ;; Initialize phase
     :load-path
+    :byte-compile-funcs :byte-compile-vars
 
     ;; Condition keywards.
     :if :when :unless
