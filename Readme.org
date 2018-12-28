@@ -16,7 +16,7 @@
     - [[:defaults keyword]]
   - [[Configuration keywords]]
     - [[:init keyword]]
-    - [[:commands keywards]]
+    - [[:commands keyward]]
     - [[:hook keyword]]
     - [[:mode, :interpreter keyword]]
     - [[:magic :magic-fallback keyword]]
@@ -164,6 +164,15 @@ but it's easy to create other package manager's backend.
 Of course, setting and requiring of the backend itself must be
 completed before using ~:ensure~ keyword.
 
+#+BEGIN_SRC emacs-lisp
+  (cort-deftest leaf-test/:simple-ensure
+    (match-expansion-let ((leaf-backend/:ensure 'package))
+     (leaf foo :ensure t)
+     '(progn
+        (funcall #'leaf-backend/:ensure-package 'foo 'foo)
+        (progn
+          (require 'foo)))))
+#+END_SRC
 *** :defaults keyword
 ~:defalts~ provide to download default settings for specified package.
 For more detail, see [[https://github.com/conao3/leaf-defaults.git][leaf-defaults]].
