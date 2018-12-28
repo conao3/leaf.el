@@ -52,6 +52,7 @@
     ;; Install package. (Condition isn't passed, not install)
     :ensure
     :pre-setq :init
+    :hook
     :mode :interpreter
     :magic :magic-fallback
 
