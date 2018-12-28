@@ -53,6 +53,7 @@
     :ensure
     :pre-setq :init
     :mode :interpreter
+    :magic :magic-fallback
 
     ;; Require package.
     :require

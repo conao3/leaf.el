@@ -442,6 +442,34 @@
                              '(("ruby" . ruby-mode)))
       (require 'ruby-mode))))
 
+(cort-deftest leaf-test/:simple-magic
+  (match-expansion
+   (leaf pdf-tools
+     :magic ("%PDF" . pdf-view-mode)
+     :config
+     (pdf-tools-install))
+   '(progn
+      (autoload #'pdf-tools "pdf-tools" nil t)
+      (autoload #'pdf-view-mode "pdf-tools" nil t)
+      (leaf-list-add-to-list 'magic-mode-alist
+                             '(("%PDF" . pdf-view-mode)))
+      (require 'pdf-tools)
+      (pdf-tools-install))))
+
+(cort-deftest leaf-test/:simple-magic-fallback
+  (match-expansion
+   (leaf pdf-tools
+     :magic-fallback ("%PDF" . pdf-view-mode)
+     :config
+     (pdf-tools-install))
+   '(progn
+      (autoload #'pdf-tools "pdf-tools" nil t)
+      (autoload #'pdf-view-mode "pdf-tools" nil t)
+      (leaf-list-add-to-list 'magic-fallback-mode-alist
+                             '(("%PDF" . pdf-view-mode)))
+      (require 'pdf-tools)
+      (pdf-tools-install))))
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
 ;;  :disabled keyword

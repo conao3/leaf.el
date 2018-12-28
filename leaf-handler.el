@@ -54,6 +54,28 @@ Don't call this function directory."
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
+;;  meta handler
+;;
+
+(defun leaf-meta-handler/:mode (name value destlist)
+  "Meta handler to handle similar :mode."
+  (let* ((namesym (eval name))
+         (namestr (symbol-name namesym))
+         (fnsym   (delq nil
+                        (delete-dups
+                         (cons namesym
+                               (mapcar (lambda (x)
+                                         (when (leaf-pairp x) (cdr x)))
+                                       value))))))
+    `(,@(mapcar (lambda (x) `(autoload #',x ,namestr nil t)) fnsym)
+
+      (leaf-list-add-to-list ',destlist
+                             ',(mapcar (lambda (x)
+                                         (if (listp x) x `(,x . ,namesym)))
+                                       value)))))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;
 ;;  :disabled keyword
 ;;
 
@@ -162,42 +184,33 @@ This value is evaled before `require'."
 
 Add `auto-mode-alist' following value."
   (let ((body (leaf-process-keywords name rest)))
-    (let* ((namesym (eval name))
-           (namestr (symbol-name namesym))
-           (fnsym   (delq nil
-                          (delete-dups
-                           (cons namesym
-                                 (mapcar (lambda (x)
-                                           (when (leaf-pairp x) (cdr x)))
-                                         value))))))
-      `(,@(mapcar (lambda (x) `(autoload #',x ,namestr nil t)) fnsym)
-
-        (leaf-list-add-to-list 'auto-mode-alist
-                               ',(mapcar (lambda (x)
-                                           (if (listp x) x `(,x . ,namesym)))
-                                         value))
-        ,@body))))
+    `(,@(leaf-meta-handler/:mode name value 'auto-mode-alist)
+      ,@body)))
 
 (defun leaf-handler/:interpreter (name value rest)
   "Process :interpreter
 
 Add `interpreter-mode-alist' following value."
   (let ((body (leaf-process-keywords name rest)))
-    (let* ((namesym (eval name))
-           (namestr (symbol-name namesym))
-           (fnsym   (delq nil
-                          (delete-dups
-                           (cons namesym
-                                 (mapcar (lambda (x)
-                                           (when (leaf-pairp x) (cdr x)))
-                                         value))))))
-      `(,@(mapcar (lambda (x) `(autoload #',x ,namestr nil t)) fnsym)
+    `(,@(leaf-meta-handler/:mode name value 'interpreter-mode-alist)
+      ,@body)))
 
-        (leaf-list-add-to-list 'interpreter-mode-alist
-                               ',(mapcar (lambda (x)
-                                           (if (listp x) x `(,x . ,namesym)))
-                                         value))
-        ,@body))))
+(defun leaf-handler/:magic (name value rest)
+  "Process :magic
+
+Add `magic-mode-alist' following value."
+  (let ((body (leaf-process-keywords name rest)))
+    `(,@(leaf-meta-handler/:mode name value 'magic-mode-alist)
+      ,@body)))
+
+
+(defun leaf-handler/:magic-fallback (name value rest)
+  "Process :interpreter
+
+Add `interpreter-mode-alist' following value."
+  (let ((body (leaf-process-keywords name rest)))
+    `(,@(leaf-meta-handler/:mode name value 'magic-fallback-mode-alist)
+      ,@body)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
