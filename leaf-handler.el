@@ -157,6 +157,48 @@ This value is evaled before `require'."
           (progn ,@(butlast value))
           (progn ,@body)))))))
 
+(defun leaf-handler/:mode (name value rest)
+  "Process :mode
+
+Add `auto-mode-alist' following value."
+  (let ((body (leaf-process-keywords name rest)))
+    (let* ((namesym (eval name))
+           (namestr (symbol-name namesym))
+           (fnsym   (delq nil
+                          (delete-dups
+                           (cons namesym
+                                 (mapcar (lambda (x)
+                                           (when (leaf-pairp x) (cdr x)))
+                                         value))))))
+      `(,@(mapcar (lambda (x) `(autoload #',x ,namestr nil t)) fnsym)
+
+        (leaf-list-add-to-list 'auto-mode-alist
+                               ',(mapcar (lambda (x)
+                                           (if (listp x) x `(,x . ,namesym)))
+                                         value))
+        ,@body))))
+
+(defun leaf-handler/:interpreter (name value rest)
+  "Process :interpreter
+
+Add `interpreter-mode-alist' following value."
+  (let ((body (leaf-process-keywords name rest)))
+    (let* ((namesym (eval name))
+           (namestr (symbol-name namesym))
+           (fnsym   (delq nil
+                          (delete-dups
+                           (cons namesym
+                                 (mapcar (lambda (x)
+                                           (when (leaf-pairp x) (cdr x)))
+                                         value))))))
+      `(,@(mapcar (lambda (x) `(autoload #',x ,namestr nil t)) fnsym)
+
+        (leaf-list-add-to-list 'interpreter-mode-alist
+                               ',(mapcar (lambda (x)
+                                           (if (listp x) x `(,x . ,namesym)))
+                                         value))
+        ,@body))))
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
 ;;  :require keyword

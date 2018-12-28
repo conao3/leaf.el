@@ -106,6 +106,10 @@ CAUTION:
   "Return t if var is non-nil."
   (not (not var)))
 
+(defsubst leaf-pairp (var)
+  "Return t if var is pair."
+  (and (listp var) (atom (cdr var))))
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
 ;;  General list functions
@@ -115,6 +119,16 @@ CAUTION:
   "Return t if LIST contained element of SYMLIST."
   (leaf-truep
    (delq nil (mapcar (lambda (x) (memq x list)) symlist))))
+
+(defsubst leaf-list-add-to-list (destlst fromlst &optional append)
+  "Add FROMLST to DESTLST with `add-to-list'.
+Defaltly, add at the beginning of the list, but when APPEND is non-nil,
+SOURCE-LST is added at the end.
+this function is minor change from `add-to-list'."
+  (mapc (lambda (x)
+          (add-to-list destlst x append))
+        (if append fromlst (reverse fromlst)))
+  destlst)
 
 (defun leaf-insert-before (lst target belm)
   "Insert TARGET before BELM in LST."

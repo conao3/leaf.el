@@ -411,6 +411,37 @@
         (custom-set-variables '(bar 'baz))
         (foo-post-init)))))
 
+(cort-deftest leaf-test/:simple-mode
+  (match-expansion
+   (leaf ruby-mode
+     :mode "\\.rb\\'"
+     :interpreter "ruby")
+   '(progn
+      (autoload #'ruby-mode "ruby-mode" nil t)
+      (leaf-list-add-to-list 'auto-mode-alist
+                             '(("\\.rb\\'" . ruby-mode)))
+      (autoload #'ruby-mode "ruby-mode" nil t)
+      (leaf-list-add-to-list 'interpreter-mode-alist
+                             '(("ruby" . ruby-mode)))
+      (require 'ruby-mode))))
+
+(cort-deftest leaf-test/:simple-multi-mode
+  (match-expansion
+   (leaf ruby-mode
+     :mode "\\.rb\\'" "\\.rb2\\'" ("\\.rbg\\'" . rb-mode)
+     :interpreter "ruby")
+   '(progn
+      (autoload #'ruby-mode "ruby-mode" nil t)
+      (autoload #'rb-mode "ruby-mode" nil t)
+      (leaf-list-add-to-list 'auto-mode-alist
+                             '(("\\.rb\\'" . ruby-mode)
+                               ("\\.rb2\\'" . ruby-mode)
+                               ("\\.rbg\\'" . rb-mode)))
+      (autoload #'ruby-mode "ruby-mode" nil t)
+      (leaf-list-add-to-list 'interpreter-mode-alist
+                             '(("ruby" . ruby-mode)))
+      (require 'ruby-mode))))
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
 ;;  :disabled keyword

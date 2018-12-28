@@ -52,6 +52,7 @@
     ;; Install package. (Condition isn't passed, not install)
     :ensure
     :pre-setq :init
+    :mode :interpreter
 
     ;; Require package.
     :require
