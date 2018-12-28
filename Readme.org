@@ -15,9 +15,10 @@
     - [[:ensure keyword]]
   - [[Configuration keywords]]
     - [[:init keyword]]
+    - [[:mode, :interpreter keyword]]
     - [[:bind, :bind* keyword]]
     - [[:pre-setq :setq keyword]]
-    - [[:setq-default :custom-set-variables keyword]]
+    - [[:setq-default :custom keyword]]
     - [[:config keyword]]
   - [[Condition keywords]]
     - [[:disabled keyword]]
@@ -173,6 +174,45 @@ completed before using ~:ensure~ keyword.
           (require 'foo)))))
 #+end_src
 
+*** :mode, :interpreter keyword
+~:mode~ keyword define ~auto-mode-alist~. When open file, enable major-mode.
+~:interpreter~ keyword define ~interpreter-mode-alist~. enable major-mode by shebang.
+
+If you pass symbol to these keyword, adopd package name.
+If you want to specify major-mode, pass dotted pair value.
+
+#+BEGIN_SRC emacs-lisp
+  (cort-deftest leaf-test/:simple-mode
+    (match-expansion
+     (leaf ruby-mode
+       :mode "\\.rb\\'"
+       :interpreter "ruby")
+     '(progn
+        (autoload #'ruby-mode "ruby-mode" nil t)
+        (leaf-list-add-to-list 'auto-mode-alist
+                               '(("\\.rb\\'" . ruby-mode)))
+        (autoload #'ruby-mode "ruby-mode" nil t)
+        (leaf-list-add-to-list 'interpreter-mode-alist
+                               '(("ruby" . ruby-mode)))
+        (require 'ruby-mode))))
+
+  (cort-deftest leaf-test/:simple-multi-mode
+    (match-expansion
+     (leaf ruby-mode
+       :mode "\\.rb\\'" "\\.rb2\\'" ("\\.rbg\\'" . rb-mode)
+       :interpreter "ruby")
+     '(progn
+        (autoload #'ruby-mode "ruby-mode" nil t)
+        (autoload #'rb-mode "ruby-mode" nil t)
+        (leaf-list-add-to-list 'auto-mode-alist
+                               '(("\\.rb\\'" . ruby-mode)
+                                 ("\\.rb2\\'" . ruby-mode)
+                                 ("\\.rbg\\'" . rb-mode)))
+        (autoload #'ruby-mode "ruby-mode" nil t)
+        (leaf-list-add-to-list 'interpreter-mode-alist
+                               '(("ruby" . ruby-mode)))
+        (require 'ruby-mode))))
+#+END_SRC
 *** :bind, :bind* keyword
 ~:bind~ provide ~bind-key.el~ frontend.
 
@@ -250,8 +290,8 @@ completed before using ~:ensure~ keyword.
           (foo-post-init)))))
 #+END_SRC
 
-*** :setq-default :custom-set-variables keyword
-~:setq-default~, ~:custom-set-variables~ to itself after ~require~ package
+*** :setq-default :custom keyword
+~:setq-default~, ~:custom~ to itself after ~require~ package
 #+BEGIN_SRC emacs-lisp
   (cort-deftest leaf-test/:simple-post-setq
     (match-expansion
