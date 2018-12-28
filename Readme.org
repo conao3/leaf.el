@@ -15,6 +15,7 @@
     - [[:ensure keyword]]
   - [[Configuration keywords]]
     - [[:init keyword]]
+    - [[:hook keyword]]
     - [[:mode, :interpreter keyword]]
     - [[:magic :magic-fallback keyword]]
     - [[:bind, :bind* keyword]]
@@ -175,6 +176,29 @@ completed before using ~:ensure~ keyword.
           (require 'foo)))))
 #+end_src
 
+*** :hook keyword
+~:hook~ keyword define ~add-hook~.
+
+#+BEGIN_SRC emacs-lisp
+  (cort-deftest leaf-test/:simple-hook
+    (match-expansion
+     (leaf ace-jump-mode
+       :hook cc-mode-hook)
+     '(progn
+    (autoload #'ace-jump-mode "ace-jump-mode" nil t)
+    (add-hook 'cc-mode-hook #'ace-jump-mode)
+    (require 'ace-jump-mode))))
+
+  (cort-deftest leaf-test/:simple-multi-hook
+    (match-expansion
+     (leaf ace-jump-mode
+       :hook cc-mode-hook (prog-mode-hook . ace-jump-mode))
+     '(progn
+        (autoload #'ace-jump-mode "ace-jump-mode" nil t)
+        (add-hook 'cc-mode-hook #'ace-jump-mode)
+        (add-hook 'prog-mode-hook #'ace-jump-mode)
+        (require 'ace-jump-mode))))
+#+END_SRC
 *** :mode, :interpreter keyword
 ~:mode~ keyword define ~auto-mode-alist~. When open file, enable major-mode.
 ~:interpreter~ keyword define ~interpreter-mode-alist~. enable major-mode by shebang.
