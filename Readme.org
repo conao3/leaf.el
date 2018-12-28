@@ -22,6 +22,7 @@
     - [[:bind, :bind* keyword]]
     - [[:pre-setq :setq keyword]]
     - [[:setq-default :custom keyword]]
+    - [[:custom-face keyword]]
     - [[:config keyword]]
   - [[Condition keywords]]
     - [[:disabled keyword]]
@@ -405,6 +406,41 @@ completed before using ~:ensure~ keyword.
           (custom-set-variables '(bar 'baz))
           (foo-post-init)))))
 #+END_SRC
+
+*** :custom-face keyword
+~:custom-face~ keyword define custom-face by ~custom-set-faces~.
+
+#+BEGIN_SRC emacs-lisp
+  (cort-deftest leaf-test/:simple-custom-face
+    (match-expansion
+     (leaf eruby-mode
+       :custom-face
+       (eruby-standard-face ((t (:slant italic)))))
+     '(progn
+        (require 'eruby-mode)
+        (custom-set-faces
+         '(eruby-standard-face
+           ((t
+             (:slant italic))))))))
+
+  (cort-deftest leaf-test/:simple-multi-custom-face
+    (match-expansion
+     (leaf eruby-mode
+       :custom-face
+       (eruby-standard-face ((t (:slant italic))))
+       (eruby-standard-face2 ((t (:slant italic)))))
+     '(progn
+        (require 'eruby-mode)
+        (custom-set-faces
+         '(eruby-standard-face
+           ((t
+             (:slant italic)))))
+        (custom-set-faces
+         '(eruby-standard-face2
+           ((t
+             (:slant italic))))))))
+#+END_SRC
+
 *** :config keyword
 ~:config~ keyword expect sexp will evaluated after ~require~ package.
 
