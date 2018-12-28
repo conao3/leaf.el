@@ -28,6 +28,8 @@
   - [[Condition keywords]]
     - [[:disabled keyword]]
     - [[:if, :when, :unless keyword]]
+  - [[Byte compile keywords]]
+    - [[:byte-compile-funcs, vars keywords]]
   - [[Documentation keywords]]
 - [[Developer information]]
   - [[leaf.el mechanism]]
@@ -607,6 +609,35 @@ If specified multiple those keywords, evaluate sexp in ~and~.
             (progn
               (require 'foo))))))
 #+end_src
+
+** Byte compile keywords
+*** :byte-compile-funcs, vars keywords
+~:byte-compile-funcs~ and ~:byte-compile-vars~ to tell bytecompiler.
+
+#+BEGIN_SRC emacs-lisp
+  (cort-deftest leaf-test/:simple-multi-byte-compile-vars
+    (match-expansion
+     (leaf for
+       :byte-compile-vars for-var1 for-var2)
+     '(progn
+        (eval-when-compile
+          (defvar for-var1)
+          (defvar for-var2))
+        (progn
+          (require 'for)))))
+
+  (cort-deftest leaf-test/:simple-multi-byte-compile-funcs
+    (match-expansion
+     (leaf for
+       :byte-compile-funcs ((hoge-fn1 . hoge)
+                            (hoge-fn2 . hoge)))
+     '(progn
+        (eval-when-compile
+          (autoload #'hoge-fn1 "hoge" nil t)
+          (autoload #'hoge-fn2 "hoge" nil t))
+        (progn
+          (require 'for)))))
+#+END_SRC
 
 ** Documentation keywords
 ~leaf.el~ can describe a document with an affinity grammar.
