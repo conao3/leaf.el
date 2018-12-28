@@ -73,19 +73,12 @@ We expect FORM will be expanded to EXPECT.
   (cort-deftest TESTCASE-NAME
     (match-expansion
      FORM                  ; will be expand by `macroexpand-1'
-     'EXPECT))             ; expect FORM's expansion will be EXPECT (test `equal')
+     'EXPECT))             ; expect FORM's expansion will be EXPECT (test by `equal')
 
   (cort-deftest TESTCASE-NAME
     (match-expansion-let (LET-ENV)
       FORM                 ; will be expanded by `macroexpand-1' in LET-ENV
-      'EXPECT))            ; expect FORM's expansion will be EXPECT (test `equal')
-
-  ;; Emacs-22, Emacs-23 can't define `macroexpand-1', branch EXPECT form.
-  (cort-deftest TESTCASE-NAME
-    (leaf-match
-     FORM
-     ('EXPECT              ; (macroexpand-1 FORM) will be EXPECT
-      'EXPECT-23)))        ; (macroexpand FORM) will be EXPECT-23
+      'EXPECT))            ; expect FORM's expansion will be EXPECT (test by `equal')
 
   ;; test functions, macros return boolean value
   (defun rt () t)
@@ -386,27 +379,19 @@ If specified multiple those keywords, evaluate sexp in ~and~.
 
   ;; simple :when pattern
   (cort-deftest leaf-test/:simple-when
-    (leaf-match
+    (match-expansion
      (leaf foo :when t)
-     ('(when t
+     '(when t
          (progn
-           (require 'foo)))
-      '(if t
-           (progn
-             (progn
-               (require 'foo)))))))
+           (require 'foo)))))
 
   ;; simple :unless pattern
   (cort-deftest leaf-test/:simple-unless
-    (leaf-match
+    (match-expansion
      (leaf foo :unless t)
-     ('(unless t
+     '(unless t
          (progn
-           (require 'foo)))
-      '(if t
-           nil
-         (progn
-           (require 'foo))))))
+           (require 'foo)))))
 
   ;; multiple :if pattern
   (cort-deftest leaf-test/:simple-multi-if
