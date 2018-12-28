@@ -213,6 +213,41 @@ If you want to specify major-mode, pass dotted pair value.
                                '(("ruby" . ruby-mode)))
         (require 'ruby-mode))))
 #+END_SRC
+
+*** :magic :magic-fallback keyword
+~:magic~ keyword define ~magic-mode-alist~. It is used to determine major-mode by
+binary header byte.
+~:magic-fallback~  keyward also define ~magic-fallback-alist~
+
+#+BEGIN_SRC emacs-lisp
+(cort-deftest leaf-test/:simple-magic
+  (match-expansion
+   (leaf pdf-tools
+     :magic ("%PDF" . pdf-view-mode)
+     :config
+     (pdf-tools-install))
+   '(progn
+      (autoload #'pdf-tools "pdf-tools" nil t)
+      (autoload #'pdf-view-mode "pdf-tools" nil t)
+      (leaf-list-add-to-list 'magic-mode-alist
+                             '(("%PDF" . pdf-view-mode)))
+      (require 'pdf-tools)
+      (pdf-tools-install))))
+
+(cort-deftest leaf-test/:simple-magic-fallback
+  (match-expansion
+   (leaf pdf-tools
+     :magic-fallback ("%PDF" . pdf-view-mode)
+     :config
+     (pdf-tools-install))
+   '(progn
+      (autoload #'pdf-tools "pdf-tools" nil t)
+      (autoload #'pdf-view-mode "pdf-tools" nil t)
+      (leaf-list-add-to-list 'magic-fallback-mode-alist
+                             '(("%PDF" . pdf-view-mode)))
+      (require 'pdf-tools)
+      (pdf-tools-install))))
+#+END_SRC
 *** :bind, :bind* keyword
 ~:bind~ provide ~bind-key.el~ frontend.
 
