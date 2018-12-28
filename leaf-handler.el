@@ -102,6 +102,21 @@ remaining arguments"
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
+;;  :laodpath keyword
+;;
+
+(defun leaf-handler/:load-path (name value rest)
+  "Process :loadpath.
+
+add loadpath located on `user-emacs-directory'"
+  (let ((body (leaf-process-keywords name rest)))
+    `((leaf-list-add-to-list 'load-path
+                             ,(mapcar (lambda (x) (locate-user-emacs-file x))
+                                      value))
+      ,@body)))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;
 ;;  Condition keywords
 ;;
 

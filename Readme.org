@@ -23,6 +23,7 @@
     - [[:pre-setq :setq keyword]]
     - [[:setq-default :custom keyword]]
     - [[:custom-face keyword]]
+    - [[:load-path keyword]]
     - [[:config keyword]]
   - [[Condition keywords]]
     - [[:disabled keyword]]
@@ -441,6 +442,29 @@ completed before using ~:ensure~ keyword.
              (:slant italic))))))))
 #+END_SRC
 
+*** :load-path keyword
+~:load-path~ keyword add loadpath located on ~user-setting-directory~.
+
+#+BEGIN_SRC emacs-lisp
+  (match-expansion
+   (leaf ivy
+     :load-path "site-lisp/swiper" "site-lisp/ivy")
+   '(progn
+      (leaf-list-add-to-list 'load-path
+                             ("~/.emacs.d/local/26.1/site-lisp/swiper"
+                              "~/.emacs.d/local/26.1/site-lisp/ivy"))
+      (progn
+        (require 'ivy))))
+
+  (match-expansion
+   (leaf ivy
+     :load-path "site-lisp/swiper")
+   '(progn
+      (leaf-list-add-to-list 'load-path
+                             ("~/.emacs.d/local/26.1/site-lisp/swiper"))
+      (progn
+        (require 'ivy))))
+#+END_SRC
 *** :config keyword
 ~:config~ keyword expect sexp will evaluated after ~require~ package.
 

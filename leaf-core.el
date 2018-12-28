@@ -37,13 +37,16 @@
   "Symplifying your `.emacs' configuration."
   :group 'lisp)
 
-(defconst leaf-version "1.3.6"
+(defconst leaf-version "1.3.7"
   "leaf.el version")
 
 (defcustom leaf-keywords
   '(;; Always be placed at the top-level.
     ;; If this keyword activated, leaf block convert to nil.
     :disabled
+
+    ;; Add loadpath
+    :load-path
 
     ;; Condition keywards.
     :if :when :unless
