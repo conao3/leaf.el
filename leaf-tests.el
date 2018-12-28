@@ -165,8 +165,7 @@
 (cort-deftest leaf-test:/simple-none
   (match-expansion
    (leaf foo)
-   '(progn
-      (require 'foo))))
+   '(progn)))
 
 (cort-deftest leaf-test:/simple-disabled-t
   (match-expansion
@@ -176,38 +175,33 @@
 (cort-deftest leaf-test:/simple-disabled-nil
   (match-expansion
    (leaf foo :disabled nil)
-   '(progn
-      (require 'foo))))
+   '(progn)))
 
 (cort-deftest leaf-test:/simple-if
   (match-expansion
    (leaf foo :if t)
    '(if t
         (progn
-          (progn
-            (require 'foo))))))
+          (progn)))))
 
 (cort-deftest leaf-test/:simple-when
   (match-expansion
    (leaf foo :when t)
    '(when t
-       (progn
-         (require 'foo)))))
+      (progn))))
 
 (cort-deftest leaf-test/:simple-unless
   (match-expansion
    (leaf foo :unless t)
    '(unless t
-       (progn
-         (require 'foo)))))
+       (progn))))
 
 (cort-deftest leaf-test/:simple-multi-if
   (match-expansion
    (leaf foo :if (rt) :if (rnil) (mt))
    '(if (and (rt) (rnil) (mt))
         (progn
-          (progn
-            (require 'foo))))))
+          (progn)))))
 
 (cort-deftest leaf-test/:simple-multi-conds
   (match-expansion
@@ -216,8 +210,7 @@
         (progn
           (when (and (rnil) (mt))
             (unless (rt)
-              (progn
-                (require 'foo))))))))
+              (progn)))))))
 
 (cort-deftest leaf-test/:simple-init
   (match-expansion
@@ -229,8 +222,7 @@
       (progn
         (setq bar1 'baz)
         (setq bar2 'baz))
-      (progn
-        (require 'foo)))))
+      (progn))))
 
 (cort-deftest leaf-test/:simple-init-config
   (match-expansion
@@ -255,7 +247,6 @@
   (match-expansion
    (leaf foo :config (setq bar 'baz))
    '(progn
-      (require 'foo)
       (setq bar 'baz))))
 
 (cort-deftest leaf-test/:simple-require
@@ -360,7 +351,6 @@
        (progn
          (setq isearch-lazy-highlight t))
        (progn
-         (require 'foo)
          (funcall #'leaf-backend/:bind-bind-key 'foo
                   '(("M-s O" . moccur)
                     :map isearch-mode-map
@@ -380,7 +370,6 @@
         (progn
           (foo-pre-init))
         (progn
-          (require 'foo)
           (foo-post-init))))))
 
 (cort-deftest leaf-test/:simple-post-setq
@@ -393,7 +382,6 @@
       (progn
         (foo-pre-init))
       (progn
-        (require 'foo)
         (setq bar 'baz)
         (foo-post-init)))))
 
@@ -407,7 +395,6 @@
       (progn
         (foo-pre-init))
       (progn
-        (require 'foo)
         (custom-set-variables '(bar 'baz))
         (foo-post-init)))))
 
@@ -422,8 +409,7 @@
                              '(("\\.rb\\'" . ruby-mode)))
       (autoload #'ruby-mode "ruby-mode" nil t)
       (leaf-list-add-to-list 'interpreter-mode-alist
-                             '(("ruby" . ruby-mode)))
-      (require 'ruby-mode))))
+                             '(("ruby" . ruby-mode))))))
 
 (cort-deftest leaf-test/:simple-multi-mode
   (match-expansion
@@ -439,8 +425,7 @@
                                ("\\.rbg\\'" . rb-mode)))
       (autoload #'ruby-mode "ruby-mode" nil t)
       (leaf-list-add-to-list 'interpreter-mode-alist
-                             '(("ruby" . ruby-mode)))
-      (require 'ruby-mode))))
+                             '(("ruby" . ruby-mode))))))
 
 (cort-deftest leaf-test/:simple-magic
   (match-expansion
@@ -453,7 +438,6 @@
       (autoload #'pdf-view-mode "pdf-tools" nil t)
       (leaf-list-add-to-list 'magic-mode-alist
                              '(("%PDF" . pdf-view-mode)))
-      (require 'pdf-tools)
       (pdf-tools-install))))
 
 (cort-deftest leaf-test/:simple-magic-fallback
@@ -467,7 +451,6 @@
       (autoload #'pdf-view-mode "pdf-tools" nil t)
       (leaf-list-add-to-list 'magic-fallback-mode-alist
                              '(("%PDF" . pdf-view-mode)))
-      (require 'pdf-tools)
       (pdf-tools-install))))
 
 (cort-deftest leaf-test/:simple-hook
@@ -476,8 +459,7 @@
      :hook cc-mode-hook)
    '(progn
   (autoload #'ace-jump-mode "ace-jump-mode" nil t)
-  (add-hook 'cc-mode-hook #'ace-jump-mode)
-  (require 'ace-jump-mode))))
+  (add-hook 'cc-mode-hook #'ace-jump-mode))))
 
 (cort-deftest leaf-test/:simple-multi-hook
   (match-expansion
@@ -486,16 +468,14 @@
    '(progn
       (autoload #'ace-jump-mode "ace-jump-mode" nil t)
       (add-hook 'cc-mode-hook #'ace-jump-mode)
-      (add-hook 'prog-mode-hook #'ace-jump-mode)
-      (require 'ace-jump-mode))))
+      (add-hook 'prog-mode-hook #'ace-jump-mode))))
 
 (cort-deftest leaf-test/:simple-commands
   (match-expansion
    (leaf ace-jump-mode
      :commands ace-jump-mode)
    '(progn
-      (add-hook #'ace-jump-mode "ace-jump-mode" nil t)
-      (require 'ace-jump-mode))))
+      (add-hook #'ace-jump-mode "ace-jump-mode" nil t))))
 
 (cort-deftest leaf-test/:simple-multi-commands
   (match-expansion
@@ -504,8 +484,7 @@
    '(progn
       (add-hook #'ace-jump-mode "ace-jump-mode" nil t)
       (add-hook #'command1 "ace-jump-mode" nil t)
-      (add-hook #'command2 "ace-jump-mode" nil t)
-      (require 'ace-jump-mode))))
+      (add-hook #'command2 "ace-jump-mode" nil t))))
 
 (cort-deftest leaf-test/:simple-custom-face
   (match-expansion
@@ -513,7 +492,6 @@
      :custom-face
      (eruby-standard-face ((t (:slant italic)))))
    '(progn
-      (require 'eruby-mode)
       (custom-set-faces
        '(eruby-standard-face
          ((t
@@ -526,7 +504,6 @@
      (eruby-standard-face ((t (:slant italic))))
      (eruby-standard-face2 ((t (:slant italic)))))
    '(progn
-      (require 'eruby-mode)
       (custom-set-faces
        '(eruby-standard-face
          ((t
@@ -543,8 +520,7 @@
    '(progn
       (eval-when-compile
         (defvar for-var1))
-      (progn
-        (require 'for)))))
+      (progn))))
 
 (cort-deftest leaf-test/:simple-multi-byte-compile-vars
   (match-expansion
@@ -554,8 +530,7 @@
       (eval-when-compile
         (defvar for-var1)
         (defvar for-var2))
-      (progn
-        (require 'for)))))
+      (progn))))
 
 (cort-deftest leaf-test/:simple-byte-compile-funcs
   (match-expansion
@@ -564,8 +539,7 @@
    '(progn
   (eval-when-compile
     (autoload #'hoge-fn1 "hoge" nil t))
-  (progn
-    (require 'for)))))
+  (progn))))
 
 (cort-deftest leaf-test/:simple-multi-byte-compile-funcs
   (match-expansion
@@ -576,16 +550,14 @@
       (eval-when-compile
         (autoload #'hoge-fn1 "hoge" nil t)
         (autoload #'hoge-fn2 "hoge" nil t))
-      (progn
-        (require 'for)))))
+      (progn))))
 
 (cort-deftest leaf-test/:simple-ensure
   (match-expansion-let ((leaf-backend/:ensure 'package))
    (leaf foo :ensure t)
    '(progn
       (funcall #'leaf-backend/:ensure-package 'foo 'foo)
-      (progn
-        (require 'foo)))))
+      (progn))))
 
 (cort-deftest leaf-test/:simple-defaults
   (match-expansion-let ((leaf-backend/:ensure 'package))
@@ -593,8 +565,7 @@
    '(progn
       (funcall #'leaf-backend/:ensure-package 'foo 'foo)
       (feather-install-defaults 'foo)
-      (progn
-        (require 'foo)))))
+      (progn))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
@@ -636,14 +607,12 @@
 (cort-deftest leaf-test:/disabled-1+
   (match-expansion
    (leaf foo :disabled nil)
-   '(progn
-      (require 'foo))))
+   '(progn)))
 
 (cort-deftest leaf-test:/disabled-2+
   (match-expansion
    (leaf foo :disabled nil :config (message "bar"))
    '(progn
-      (require 'foo)
       (message "bar"))))
 
 (cort-deftest laef-test:/disabled-3+
@@ -653,28 +622,24 @@
       (progn
         (message "bar"))
       (progn
-        (require 'foo)
         (message "baz")))))
 
 (cort-deftest leaf-test:/disabled-4+
   (match-expansion
    (leaf foo :disabled nil t :config (message "bar"))
    '(progn
-      (require 'foo)
       (message "bar"))))
 
 (cort-deftest leaf-test:/disabled-5+
   (match-expansion
    (leaf foo :disabled nil t :config (message "bar") :disabled t)
    '(progn
-      (require 'foo)
       (message "bar"))))
 
 (cort-deftest leaf-test:/disabled-6+
   (match-expansion
    (leaf foo :disabled nil :disabled t nil nil :config (message "bar"))
    '(progn
-      (require 'foo)
       (message "bar"))))
 
 ;; :disabled with boolean reterns funciton patterns, Finaly `t' will be adopted.
@@ -712,14 +677,12 @@
 (cort-deftest leaf-test:/disabled-1++
   (match-expansion
    (leaf foo :disabled (rnil))
-   '(progn
-      (require 'foo))))
+   '(progn)))
 
 (cort-deftest leaf-test:/disabled-2++
   (match-expansion
    (leaf foo :disabled (rnil) :config (message "bar"))
    '(progn
-      (require 'foo)
       (message "bar"))))
 
 (cort-deftest laef-test:/disabled-3++
@@ -729,28 +692,24 @@
       (progn
         (message "bar"))
       (progn
-        (require 'foo)
         (message "baz")))))
 
 (cort-deftest leaf-test:/disabled-4++
   (match-expansion
    (leaf foo :disabled (rnil) (rt) :config (message "bar"))
    '(progn
-      (require 'foo)
       (message "bar"))))
 
 (cort-deftest leaf-test:/disabled-5++
   (match-expansion
    (leaf foo :disabled (rnil) (rt) :config (message "bar") :disabled (rt))
    '(progn
-      (require 'foo)
       (message "bar"))))
 
 (cort-deftest leaf-test:/disabled-6++
   (match-expansion
    (leaf foo :disabled (rnil) :disabled (rt) (rnil) (rnil) :config (message "bar"))
    '(progn
-      (require 'foo)
       (message "bar"))))
 
 ;; :disabled with boolean reterns funciton patterns, Finaly `t' will be adopted.
@@ -788,14 +747,12 @@
 (cort-deftest leaf-test:/disabled-1+++
   (match-expansion
    (leaf foo :disabled (mnil))
-   '(progn
-      (require 'foo))))
+   '(progn)))
 
 (cort-deftest leaf-test:/disabled-2+++
   (match-expansion
    (leaf foo :disabled (mnil) :config (message "bar"))
    '(progn
-      (require 'foo)
       (message "bar"))))
 
 (cort-deftest laef-test:/disabled-3+++
@@ -805,28 +762,24 @@
       (progn
         (message "bar"))
       (progn
-        (require 'foo)
         (message "baz")))))
 
 (cort-deftest leaf-test:/disabled-4+++
   (match-expansion
    (leaf foo :disabled (mnil) (mt) :config (message "bar"))
    '(progn
-      (require 'foo)
       (message "bar"))))
 
 (cort-deftest leaf-test:/disabled-5+++
   (match-expansion
    (leaf foo :disabled (mnil) (mt) :config (message "bar") :disabled (mt))
    '(progn
-      (require 'foo)
       (message "bar"))))
 
 (cort-deftest leaf-test:/disabled-6+++
   (match-expansion
    (leaf foo :disabled (mnil) :disabled (mt) (mnil) (mnil) :config (message "bar"))
    '(progn
-      (require 'foo)
       (message "bar"))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -839,66 +792,57 @@
    (leaf foo :if t)
    '(if t
         (progn
-          (progn
-            (require 'foo))))))
+          (progn)))))
 
 (cort-deftest leaf-test/:if-2
   (match-expansion
    (leaf foo :if (or (rt) (rnil)))
    '(if (or (rt) (rnil))
         (progn
-          (progn
-            (require 'foo))))))
+          (progn)))))
 
 (cort-deftest leaf-test/:if-3
   (match-expansion
    (leaf foo :if nil)
    '(if nil
         (progn
-          (progn
-            (require 'foo))))))
+          (progn)))))
 
 (cort-deftest leaf-test/:when-1
   (match-expansion
    (leaf foo :when t)
    '(when t
-       (progn
-         (require 'foo)))))
+       (progn))))
 
 (cort-deftest leaf-test/:when-2
   (match-expansion
    (leaf foo :when (or (rt) (rnil)))
    '(when (or (rt) (rnil))
-       (progn
-         (require 'foo)))))
+       (progn))))
 
 (cort-deftest leaf-test/:when-3
   (match-expansion
    (leaf foo :when nil)
    '(when nil
-       (progn
-         (require 'foo)))))
+       (progn))))
 
 (cort-deftest leaf-test/:unless-1
   (match-expansion
    (leaf foo :unless t)
    '(unless t
-       (progn
-         (require 'foo)))))
+       (progn))))
 
 (cort-deftest leaf-test/:unless-2
   (match-expansion
    (leaf foo :unless (or (rt) (rnil)))
    '(unless (or (rt) (rnil))
-       (progn
-         (require 'foo)))))
+       (progn))))
 
 (cort-deftest leaf-test/:unless-3
   (match-expansion
    (leaf foo :unless nil)
    '(unless nil
-       (progn
-         (require 'foo)))))
+       (progn))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
@@ -908,8 +852,7 @@
 (cort-deftest leaf-test/:require-0
   (match-expansion
    (leaf foo)
-   '(progn
-      (require 'foo))))
+   '(progn)))
 
 (cort-deftest leaf-test/:require-1
   (match-expansion

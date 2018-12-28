@@ -302,8 +302,7 @@ This handler add require comamnd for name."
       `((require ,name)
         ,@body))
      (t
-      `(;; remove last `t' symbol from VALUE
-        ,@(mapcar (lambda (x) `(require ,x)) (butlast value))
+      `(,@(mapcar (lambda (x) `(require ,x)) value)
         ,@body)))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;

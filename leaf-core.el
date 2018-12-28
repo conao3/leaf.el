@@ -76,7 +76,7 @@ Each symbol must has handle function named as `leaf-handler/_:symbol_'."
   :group 'leaf)
 
 (defcustom leaf-defaults
-  '(:init nil :require t)
+  '(:init nil)
   "Default values for each leaf packages."
   :type 'sexp
   :group 'leaf)
