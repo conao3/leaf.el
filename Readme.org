@@ -16,6 +16,7 @@
   - [[Configuration keywords]]
     - [[:init keyword]]
     - [[:mode, :interpreter keyword]]
+    - [[:magic :magic-fallback keyword]]
     - [[:bind, :bind* keyword]]
     - [[:pre-setq :setq keyword]]
     - [[:setq-default :custom keyword]]
