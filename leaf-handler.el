@@ -196,6 +196,17 @@ Install package(s). If conditions keywords is nil, stop installation."
           ,@body)
       `(,@body))))
 
+(defun leaf-handler/:defaults (name value rest)
+  "Process :defaults.
+
+If you pass non-nil, tell feather.el to download and evaluate
+the standard settings for that package."
+  (let ((body   (leaf-process-keywords name rest)))
+    (if (car value)
+        `((feather-install-defaults ,name)
+          ,@body)
+      `(,@body))))
+
 (defun leaf-handler/:pre-setq (name value rest)
   "Process :pre-setq.
 
