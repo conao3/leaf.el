@@ -37,7 +37,7 @@
   "Symplifying your `.emacs' configuration."
   :group 'lisp)
 
-(defconst leaf-version "1.3.3"
+(defconst leaf-version "1.3.4"
   "leaf.el version")
 
 (defcustom leaf-keywords
@@ -52,6 +52,7 @@
     ;; Install package. (Condition isn't passed, not install)
     :ensure
     :pre-setq :init
+    :hook
     :mode :interpreter
     :magic :magic-fallback
 

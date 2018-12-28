@@ -57,7 +57,7 @@ Don't call this function directory."
 ;;  meta handler
 ;;
 
-(defun leaf-meta-handler/:mode (name value destlist)
+(defun leaf-meta-handler/:mode-autoload (name value)
   "Meta handler to handle similar :mode."
   (let* ((namesym (eval name))
          (namestr (symbol-name namesym))
@@ -67,8 +67,13 @@ Don't call this function directory."
                                (mapcar (lambda (x)
                                          (when (leaf-pairp x) (cdr x)))
                                        value))))))
-    `(,@(mapcar (lambda (x) `(autoload #',x ,namestr nil t)) fnsym)
+    `(,@(mapcar (lambda (x) `(autoload #',x ,namestr nil t)) fnsym))))
 
+(defun leaf-meta-handler/:mode (name value destlist)
+  "Meta handler to handle similar :mode."
+  (let* ((namesym (eval name))
+         (namestr (symbol-name namesym)))
+    `(,@(leaf-meta-handler/:mode-autoload name value)
       (leaf-list-add-to-list ',destlist
                              ',(mapcar (lambda (x)
                                          (if (listp x) x `(,x . ,namesym)))
@@ -178,6 +183,19 @@ This value is evaled before `require'."
       `((progn
           (progn ,@(butlast value))
           (progn ,@body)))))))
+
+(defun leaf-handler/:hook (name value rest)
+  "Process :hook
+
+Add `auto-mode-alist' following value."
+  (let ((body (leaf-process-keywords name rest)))
+    `(,@(leaf-meta-handler/:mode-autoload name value)
+      ,@(mapcar (lambda (x)
+                  `(add-hook ,@(if (leaf-pairp x)
+                                   `(',(car x) #',(cdr x))
+                                 `(',x #',(eval name)))))
+                value)
+      ,@body)))
 
 (defun leaf-handler/:mode (name value rest)
   "Process :mode
