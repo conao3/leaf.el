@@ -17,7 +17,7 @@
     - [[:init keyword]]
     - [[:bind, :bind* keyword]]
     - [[:pre-setq :setq keyword]]
-    - [[:setq-default :custom-set-variables keyword]]
+    - [[:setq-default :custom keyword]]
     - [[:config keyword]]
   - [[Condition keywords]]
     - [[:disabled keyword]]
@@ -250,8 +250,8 @@ completed before using ~:ensure~ keyword.
           (foo-post-init)))))
 #+END_SRC
 
-*** :setq-default :custom-set-variables keyword
-~:setq-default~, ~:custom-set-variables~ to itself after ~require~ package
+*** :setq-default :custom keyword
+~:setq-default~, ~:custom~ to itself after ~require~ package
 #+BEGIN_SRC emacs-lisp
   (cort-deftest leaf-test/:simple-post-setq
     (match-expansion
