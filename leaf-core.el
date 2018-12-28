@@ -54,7 +54,7 @@
 
     ;; Preparation keywords.
     ;; Install package. (Condition isn't passed, not install)
-    :ensure
+    :ensure :defaults
     :pre-setq :init
     :commands :hook
     :mode :interpreter

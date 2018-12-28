@@ -579,6 +579,23 @@
       (progn
         (require 'for)))))
 
+(cort-deftest leaf-test/:simple-ensure
+  (match-expansion-let ((leaf-backend/:ensure 'package))
+   (leaf foo :ensure t)
+   '(progn
+      (funcall #'leaf-backend/:ensure-package 'foo 'foo)
+      (progn
+        (require 'foo)))))
+
+(cort-deftest leaf-test/:simple-defaults
+  (match-expansion-let ((leaf-backend/:ensure 'package))
+   (leaf foo :ensure t :defaults t)
+   '(progn
+      (funcall #'leaf-backend/:ensure-package 'foo 'foo)
+      (feather-install-defaults 'foo)
+      (progn
+        (require 'foo)))))
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
 ;;  :disabled keyword
