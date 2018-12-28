@@ -102,7 +102,7 @@ remaining arguments"
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
-;;  :laodpath keyword
+;;  Initialize keywords
 ;;
 
 (defun leaf-handler/:load-path (name value rest)
@@ -113,6 +113,26 @@ add loadpath located on `user-emacs-directory'"
     `((leaf-list-add-to-list 'load-path
                              ,(mapcar (lambda (x) (locate-user-emacs-file x))
                                       value))
+      ,@body)))
+
+(defun leaf-handler/:byte-compile-funcs (name value rest)
+  "Process :commands
+
+see `autoload'."
+  (let ((body (leaf-process-keywords name rest))
+        (value* (leaf-mapcaappend #'identity value)))
+    `((eval-when-compile
+        ,@(mapcar (lambda (x) `(autoload #',(car x) ,(symbol-name (cdr x)) nil t))
+                value*))
+      ,@body)))
+
+(defun leaf-handler/:byte-compile-vars (name value rest)
+  "Process :loadpath.
+
+add loadpath located on `user-emacs-directory'"
+  (let ((body (leaf-process-keywords name rest)))
+    `((eval-when-compile
+        ,@(mapcar (lambda (x) `(defvar ,x)) value))
       ,@body)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;

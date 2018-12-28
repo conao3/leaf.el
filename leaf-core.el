@@ -45,8 +45,9 @@
     ;; If this keyword activated, leaf block convert to nil.
     :disabled
 
-    ;; Add loadpath
+    ;; Initialize phase
     :load-path
+    :byte-compile-funcs :byte-compile-vars
 
     ;; Condition keywards.
     :if :when :unless
