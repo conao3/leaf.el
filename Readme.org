@@ -6,38 +6,38 @@
 [[https://travis-ci.org/conao3/leaf.el][https://img.shields.io/travis/conao3/leaf.el/master.svg?style=flat-square]]
 [[https://github.com/conao3/leaf.el][https://img.shields.io/github/license/conao3/leaf.el.svg?style=flat-square]]
 
-- [[What is it?]]
-- [[How to use?]]
-- [[Syntaxes]]
-  - [[Basic keywords]]
-    - [[none (keyword)]]
-    - [[:require keyword]]
-    - [[:ensure keyword]]
-    - [[:defaults keyword]]
-  - [[Configuration keywords]]
-    - [[:init keyword]]
-    - [[:commands keyward]]
-    - [[:hook keyword]]
-    - [[:mode, :interpreter keyword]]
-    - [[:magic :magic-fallback keyword]]
-    - [[:bind, :bind* keyword]]
-    - [[:pre-setq :setq keyword]]
-    - [[:setq-default :custom keyword]]
-    - [[:custom-face keyword]]
-    - [[:load-path keyword]]
-    - [[:config keyword]]
-  - [[Condition keywords]]
-    - [[:disabled keyword]]
-    - [[:if, :when, :unless keyword]]
-  - [[Byte compile keywords]]
-    - [[:byte-compile-funcs, vars keywords]]
-  - [[Documentation keywords]]
-- [[Developer information]]
-  - [[leaf.el mechanism]]
-  - [[Adding custom keyword(s)]]
-- [[Why We support Emacs-22?]]
-- [[Welcome PR]]
-- [[Special Thanks]]
+- [[#what-is-it][What is it?]]
+- [[#how-to-use][How to use?]]
+- [[#syntaxes][Syntaxes]]
+  - [[#basic-keywords][Basic keywords]]
+    - [[#none-keyword][none (keyword)]]
+    - [[#require-keyword][:require keyword]]
+    - [[#ensure-keyword][:ensure keyword]]
+    - [[#defaults-keyword][:defaults keyword]]
+  - [[#configuration-keywords][Configuration keywords]]
+    - [[#init-keyword][:init keyword]]
+    - [[#commands-keywards][:commands keyward]]
+    - [[#hook-keyword][:hook keyword]]
+    - [[#mode-interpreter-keyword][:mode, :interpreter keyword]]
+    - [[#magic-magic-fallback-keyword][:magic, :magic-fallback keyword]]
+    - [[#bind-bind-keyword][:bind, :bind* keyword]]
+    - [[#pre-setq-setq-keyword][:pre-setq :setq keyword]]
+    - [[#setq-default-custom-keyword][:setq-default :custom keyword]]
+    - [[#custom-face-keyword][:custom-face keyword]]
+    - [[#load-path-keyword][:load-path keyword]]
+    - [[#config-keyword][:config keyword]]
+  - [[#condition-keywords][Condition keywords]]
+    - [[#disabled-keyword][:disabled keyword]]
+    - [[#if-when-unless-keyword][:if, :when, :unless keyword]]
+  - [[#byte-compile-keywords][Byte compile keywords]]
+    - [[#byte-compile-funcs-byte-compile-vars-keywords][:byte-compile-funcs, :byte-compile-vars keyword]]
+  - [[#documentation-keywords][Documentation keywords]]
+- [[#developer-information][Developer information]]
+  - [[#leafel-mechanism][leaf.el mechanism]]
+  - [[#adding-custom-keywords][Adding custom keyword(s)]]
+- [[#why-we-support-emacs-22][Why We support Emacs-22?]]
+- [[#welcome-pr][Welcome PR]]
+- [[#special-thanks][Special Thanks]]
 
 * What is it?
 ~leaf.el~ is yet another [[https://github.com/jwiegley/use-package][use-package]].
@@ -205,7 +205,7 @@ For more detail, see [[https://github.com/conao3/leaf-defaults.git][leaf-default
           (require 'foo)))))
 #+end_src
 
-*** :commands keywards
+*** :commands keyward
 ~:commands~ keyword define additional autoload commands.
 
 #+BEGIN_SRC emacs-lisp
@@ -635,7 +635,7 @@ If specified multiple those keywords, evaluate sexp in ~and~.
 #+end_src
 
 ** Byte compile keywords
-*** :byte-compile-funcs, vars keywords
+*** :byte-compile-funcs, :byte-compile-vars keyword
 ~:byte-compile-funcs~ and ~:byte-compile-vars~ to tell bytecompiler.
 
 #+BEGIN_SRC emacs-lisp
