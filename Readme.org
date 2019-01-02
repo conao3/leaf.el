@@ -32,9 +32,20 @@
   - [[#byte-compile-keywords][Byte compile keywords]]
     - [[#byte-compile-funcs-byte-compile-vars-keywords][:byte-compile-funcs, :byte-compile-vars keyword]]
   - [[#documentation-keywords][Documentation keywords]]
+    - [[#doc-file-url-keyword][:doc, :file, :url keyword]]
 - [[#developer-information][Developer information]]
   - [[#leafel-mechanism][leaf.el mechanism]]
+    - [[#leaf-name-rest-args-macro][leaf (name &rest args) macro]]
+    - [[#leaf-core-name-args-function][leaf-core (name args) function]]
+      - [[#leaf-append-defaults-plist-function][leaf-append-defaults (plist) function]]
+      - [[#leaf-normalize-plist-plsit-mergep-function][leaf-normalize-plist (plsit mergep) function]]
+      - [[#leaf-sort-values-plist-plist-function][leaf-sort-values-plist (plist) function]]
+    - [[#leaf-pcocess-keywords-name-plist-function][leaf-pcocess-keywords (name plist) function]]
   - [[#adding-custom-keywords][Adding custom keyword(s)]]
+    - [[#add-leaf-keywords][Add leaf keyword(s)]]
+    - [[#define-leaf-handler][Define leaf handler]]
+- [[#migration][Migration]]
+  - [[leaf-v10-to-v20][leaf v1.0 to v2.0]]
 - [[#why-we-support-emacs-22][Why We support Emacs-22?]]
 - [[#welcome-pr][Welcome PR]]
 - [[#special-thanks][Special Thanks]]
@@ -73,6 +84,7 @@ Then ~(require 'leaf)~ and use like ~use-pacakge~
 
   (leaf bind-key :ensure t)
 #+END_SRC
+
 * Syntaxes
 All below examples are excerpts from ~leaf-tests.el~.
 
@@ -98,27 +110,25 @@ We expect FORM will be expanded to EXPECT.
 
 ** Basic keywords
 *** none (keyword)
-If ~leaf~ use without specifying any symbol, it simply works as a substitute for ~require~.
+If ~leaf~ use without specifying any symbol, it transform just ~nil~
 #+begin_src emacs-lisp
   (cort-deftest leaf-test:/simple-none
     (match-expansion
      (leaf foo)
-     '(progn
-        (require 'foo))))
+     '(progn)))
 #+end_src
 
 *** :require keyword
-~leaf~ interprets that it is given default by ~:require t~.
-
-~leaf~ do not ~require~ anything when ~nil~ is given, 
-and if give multiple values it ~require~ each package.
+~leaf~ do not ~require~ package when ~nil~ is given.
+If ~t~ is given, ~require~ it.
+If give multiple values it ~require~ each package.
 
 #+begin_src emacs-lisp
   (cort-deftest leaf-test/:simple-require
     (match-expansion
      (leaf foo
-           :require t     ; not necessary to declare this specifically (default)
-           :config (setq bar 'baz))
+       :require t
+       :config (setq bar 'baz))
      '(progn
         (require 'foo)
         (setq bar 'baz))))
@@ -126,16 +136,16 @@ and if give multiple values it ~require~ each package.
   (cort-deftest leaf-test/:simple-require-nil
     (match-expansion
      (leaf foo
-           :require nil
-           :config (setq bar 'baz))
+       :require nil
+       :config (setq bar 'baz))
      '(progn
         (setq bar 'baz))))
 
   (cort-deftest leaf-test/:simple-multi-require
     (match-expansion
      (leaf foo
-           :require foo-hoge foo-piyo
-           :config (setq bar 'baz))
+       :require foo-hoge foo-piyo
+       :config (setq bar 'baz))
      '(progn
         (require foo-hoge)
         (require foo-piyo)
@@ -143,8 +153,8 @@ and if give multiple values it ~require~ each package.
 #+end_src
 
 *** :ensure keyword
-~:ensure~ provide package download, compile frontend for 
-package manager for example, ~feather.el~ and ~package.el~ etc...
+~:ensure~ provide package manager frontend
+for example, ~feather.el~ and ~package.el~ etc...
 
 You can customize backend to process ~:ensure~ keyword.
 #+BEGIN_SRC emacs-lisp
@@ -158,23 +168,23 @@ You can customize backend to process ~:ensure~ keyword.
   (setq leaf-backend/:ensure nil)
 #+END_SRC
 
-~leaf.el~ provide ~feather.el~ and ~package.el~ backend,
+~leaf.el~ prepared ~feather.el~ and ~package.el~ backend,
 but it's easy to create other package manager's backend.
 
-Of course, setting and requiring of the backend itself must be
+Of course, loading and setting of the package manager itself must be
 completed before using ~:ensure~ keyword.
 
 #+BEGIN_SRC emacs-lisp
   (cort-deftest leaf-test/:simple-ensure
     (match-expansion-let ((leaf-backend/:ensure 'package))
-     (leaf foo :ensure t)
-     '(progn
-        (funcall #'leaf-backend/:ensure-package 'foo 'foo)
-        (progn
-          (require 'foo)))))
+      (leaf foo :ensure t)
+      '(progn
+         (funcall #'leaf-backend/:ensure-package 'foo 'foo)
+         (progn))))
 #+END_SRC
+
 *** :defaults keyword
-~:defalts~ provide to download default settings for specified package.
+~:defalts~ provide to download recommended settings for specified package.
 For more detail, see [[https://github.com/conao3/leaf-defaults.git][leaf-defaults]].
 #+BEGIN_SRC emacs-lisp
   (cort-deftest leaf-test/:simple-defaults
@@ -183,13 +193,13 @@ For more detail, see [[https://github.com/conao3/leaf-defaults.git][leaf-default
      '(progn
         (funcall #'leaf-backend/:ensure-package 'foo 'foo)
         (feather-install-defaults 'foo)
-        (progn
-          (require 'foo)))))
+        (progn))))
 #+END_SRC
+
 ** Configuration keywords
 *** :init keyword
 ~:init~ keyword expect sexp will be evaluated before ~require~ package.
-
+(Not wait package autoload)
 #+begin_src emacs-lisp
   (cort-deftest leaf-test/:simple-init
     (match-expansion
@@ -201,8 +211,7 @@ For more detail, see [[https://github.com/conao3/leaf-defaults.git][leaf-default
         (progn
           (setq bar1 'baz)
           (setq bar2 'baz))
-        (progn
-          (require 'foo)))))
+        (progn))))
 #+end_src
 
 *** :commands keyward
@@ -214,8 +223,7 @@ For more detail, see [[https://github.com/conao3/leaf-defaults.git][leaf-default
      (leaf ace-jump-mode
        :commands ace-jump-mode)
      '(progn
-        (add-hook #'ace-jump-mode "ace-jump-mode" nil t)
-        (require 'ace-jump-mode))))
+        (add-hook #'ace-jump-mode "ace-jump-mode" nil t))))
 
   (cort-deftest leaf-test/:simple-multi-commands
     (match-expansion
@@ -224,8 +232,7 @@ For more detail, see [[https://github.com/conao3/leaf-defaults.git][leaf-default
      '(progn
         (add-hook #'ace-jump-mode "ace-jump-mode" nil t)
         (add-hook #'command1 "ace-jump-mode" nil t)
-        (add-hook #'command2 "ace-jump-mode" nil t)
-        (require 'ace-jump-mode))))
+        (add-hook #'command2 "ace-jump-mode" nil t))))
 #+END_SRC
 
 *** :hook keyword
@@ -238,8 +245,7 @@ For more detail, see [[https://github.com/conao3/leaf-defaults.git][leaf-default
        :hook cc-mode-hook)
      '(progn
     (autoload #'ace-jump-mode "ace-jump-mode" nil t)
-    (add-hook 'cc-mode-hook #'ace-jump-mode)
-    (require 'ace-jump-mode))))
+    (add-hook 'cc-mode-hook #'ace-jump-mode))))
 
   (cort-deftest leaf-test/:simple-multi-hook
     (match-expansion
@@ -248,9 +254,9 @@ For more detail, see [[https://github.com/conao3/leaf-defaults.git][leaf-default
      '(progn
         (autoload #'ace-jump-mode "ace-jump-mode" nil t)
         (add-hook 'cc-mode-hook #'ace-jump-mode)
-        (add-hook 'prog-mode-hook #'ace-jump-mode)
-        (require 'ace-jump-mode))))
+        (add-hook 'prog-mode-hook #'ace-jump-mode))))
 #+END_SRC
+
 *** :mode, :interpreter keyword
 ~:mode~ keyword define ~auto-mode-alist~. When open file, enable major-mode.
 ~:interpreter~ keyword define ~interpreter-mode-alist~. enable major-mode by shebang.
@@ -270,8 +276,7 @@ If you want to specify major-mode, pass dotted pair value.
                                '(("\\.rb\\'" . ruby-mode)))
         (autoload #'ruby-mode "ruby-mode" nil t)
         (leaf-list-add-to-list 'interpreter-mode-alist
-                               '(("ruby" . ruby-mode)))
-        (require 'ruby-mode))))
+                               '(("ruby" . ruby-mode))))))
 
   (cort-deftest leaf-test/:simple-multi-mode
     (match-expansion
@@ -287,8 +292,7 @@ If you want to specify major-mode, pass dotted pair value.
                                  ("\\.rbg\\'" . rb-mode)))
         (autoload #'ruby-mode "ruby-mode" nil t)
         (leaf-list-add-to-list 'interpreter-mode-alist
-                               '(("ruby" . ruby-mode)))
-        (require 'ruby-mode))))
+                               '(("ruby" . ruby-mode))))))
 #+END_SRC
 
 *** :magic :magic-fallback keyword
@@ -308,7 +312,6 @@ binary header byte.
       (autoload #'pdf-view-mode "pdf-tools" nil t)
       (leaf-list-add-to-list 'magic-mode-alist
                              '(("%PDF" . pdf-view-mode)))
-      (require 'pdf-tools)
       (pdf-tools-install))))
 
 (cort-deftest leaf-test/:simple-magic-fallback
@@ -322,9 +325,9 @@ binary header byte.
       (autoload #'pdf-view-mode "pdf-tools" nil t)
       (leaf-list-add-to-list 'magic-fallback-mode-alist
                              '(("%PDF" . pdf-view-mode)))
-      (require 'pdf-tools)
       (pdf-tools-install))))
 #+END_SRC
+
 *** :bind, :bind* keyword
 ~:bind~ provide ~bind-key.el~ frontend.
 
@@ -358,7 +361,6 @@ but it's easy to create other package manager's backend.
          (progn
            (setq isearch-lazy-highlight t))
          (progn
-           (require 'foo)
            (funcall #'leaf-backend/:bind-bind-key 'foo
                     '(("M-s O" . moccur)
                       :map isearch-mode-map
@@ -384,7 +386,6 @@ completed before using ~:ensure~ keyword.
           (progn
             (foo-pre-init))
           (progn
-            (require 'foo)
             (foo-post-init))))))
 
   (cort-deftest leaf-test/:simple-post-setq
@@ -397,7 +398,6 @@ completed before using ~:ensure~ keyword.
         (progn
           (foo-pre-init))
         (progn
-          (require 'foo)
           (setq bar 'baz)
           (foo-post-init)))))
 #+END_SRC
@@ -415,7 +415,6 @@ completed before using ~:ensure~ keyword.
         (progn
           (foo-pre-init))
         (progn
-          (require 'foo)
           (setq bar 'baz)
           (foo-post-init)))))
 
@@ -429,7 +428,6 @@ completed before using ~:ensure~ keyword.
         (progn
           (foo-pre-init))
         (progn
-          (require 'foo)
           (custom-set-variables '(bar 'baz))
           (foo-post-init)))))
 #+END_SRC
@@ -444,7 +442,6 @@ completed before using ~:ensure~ keyword.
        :custom-face
        (eruby-standard-face ((t (:slant italic)))))
      '(progn
-        (require 'eruby-mode)
         (custom-set-faces
          '(eruby-standard-face
            ((t
@@ -457,7 +454,6 @@ completed before using ~:ensure~ keyword.
        (eruby-standard-face ((t (:slant italic))))
        (eruby-standard-face2 ((t (:slant italic)))))
      '(progn
-        (require 'eruby-mode)
         (custom-set-faces
          '(eruby-standard-face
            ((t
@@ -479,8 +475,7 @@ completed before using ~:ensure~ keyword.
       (leaf-list-add-to-list 'load-path
                              ("~/.emacs.d/local/26.1/site-lisp/swiper"
                               "~/.emacs.d/local/26.1/site-lisp/ivy"))
-      (progn
-        (require 'ivy))))
+      (progn)))
 
   (match-expansion
    (leaf ivy
@@ -488,8 +483,7 @@ completed before using ~:ensure~ keyword.
    '(progn
       (leaf-list-add-to-list 'load-path
                              ("~/.emacs.d/local/26.1/site-lisp/swiper"))
-      (progn
-        (require 'ivy))))
+      (progn)))
 #+END_SRC
 *** :config keyword
 ~:config~ keyword expect sexp will evaluated after ~require~ package.
@@ -499,7 +493,6 @@ completed before using ~:ensure~ keyword.
     (match-expansion
      (leaf foo :config (setq bar 'baz))
      '(progn
-        (require 'foo)
         (setq bar 'baz))))
 
   (cort-deftest leaf-test/:simple-init-config
@@ -543,8 +536,7 @@ Ignore the specification of ~:disabled~ by setting ~t~ to ~nil~.
   (cort-deftest leaf-test:/simple-disabled-nil
     (match-expansion
      (leaf foo :disabled nil)
-     '(progn
-        (require 'foo))))
+     '(progn)))
 
   ;; multiple :disabled value is ok, adoped first value.
   ;; :disabled t nil => :disabled t => disable block
@@ -559,7 +551,6 @@ Ignore the specification of ~:disabled~ by setting ~t~ to ~nil~.
     (match-expansion
      (leaf foo :disabled nil t :config (message "bar") :disabled t)
      '(progn
-        (require 'foo)
         (message "bar"))))
 
   ;; :disabled keyword value allowed functions and macros returns boolean value.
@@ -568,7 +559,6 @@ Ignore the specification of ~:disabled~ by setting ~t~ to ~nil~.
     (match-expansion
      (leaf foo :disabled (rnil) (rt) :config (message "bar") :disabled (rt))
      '(progn
-        (require 'foo)
         (message "bar"))))
 #+end_src
 
@@ -584,24 +574,21 @@ If specified multiple those keywords, evaluate sexp in ~and~.
      (leaf foo :if t)
      '(if t
           (progn
-            (progn
-              (require 'foo))))))
+            (progn)))))
 
   ;; simple :when pattern
   (cort-deftest leaf-test/:simple-when
     (match-expansion
      (leaf foo :when t)
      '(when t
-         (progn
-           (require 'foo)))))
+         (progn))))
 
   ;; simple :unless pattern
   (cort-deftest leaf-test/:simple-unless
     (match-expansion
      (leaf foo :unless t)
      '(unless t
-         (progn
-           (require 'foo)))))
+         (progn))))
 
   ;; multiple :if pattern
   (cort-deftest leaf-test/:simple-multi-if
@@ -609,8 +596,7 @@ If specified multiple those keywords, evaluate sexp in ~and~.
      (leaf foo :if (rt) :if (rnil) (mt))
      '(if (and (rt) (rnil) (mt))
           (progn
-            (progn
-              (require 'foo))))))
+            (progn)))))
 
   ;; multiple condition pattern
   ;; sorted in the order :if, :when, :unless and merge.
@@ -621,8 +607,7 @@ If specified multiple those keywords, evaluate sexp in ~and~.
           (progn
             (when (and (rnil) (mt))
               (unless (rt)
-                (progn
-                  (require 'foo))))))))
+                (progn)))))))
 
   ;; if you want to evaluate sexp in `or', just specify that sexp.
   (cort-deftest leaf-test/:if-2
@@ -630,8 +615,7 @@ If specified multiple those keywords, evaluate sexp in ~and~.
      (leaf foo :if (or (rt) (rnil)))
      '(if (or (rt) (rnil))
           (progn
-            (progn
-              (require 'foo))))))
+            (progn)))))
 #+end_src
 
 ** Byte compile keywords
@@ -647,8 +631,7 @@ If specified multiple those keywords, evaluate sexp in ~and~.
         (eval-when-compile
           (defvar for-var1)
           (defvar for-var2))
-        (progn
-          (require 'for)))))
+        (progn))))
 
   (cort-deftest leaf-test/:simple-multi-byte-compile-funcs
     (match-expansion
@@ -659,11 +642,11 @@ If specified multiple those keywords, evaluate sexp in ~and~.
         (eval-when-compile
           (autoload #'hoge-fn1 "hoge" nil t)
           (autoload #'hoge-fn2 "hoge" nil t))
-        (progn
-          (require 'for)))))
+        (progn))))
 #+END_SRC
 
 ** Documentation keywords
+*** :doc, :file, :url keyword
 ~leaf.el~ can describe a document with an affinity grammar.
 By default, ~:doc~, ~:file~, ~:url~ keywords are provided.
 
@@ -732,10 +715,10 @@ See ~leaf-defaults~. You can customize this value.
 EXAMPLE:
 #+BEGIN_SRC emacs-lisp
   (leaf-append-defaults nil)
-  -> (:init nil :require t)
+  -> (:init nil)
 
   (leaf-append-defaults '(:require foo))
-  -> (:require foo :init nil :require t)
+  -> (:require foo :init nil)
 #+END_SRC
 
 **** ~leaf-normalize-plist (plsit mergep)~ function
@@ -826,7 +809,7 @@ Example:
         (setq foo 'bar))))
 #+END_SRC
 
-*** Add keyword(s)
+*** Add leaf keyword(s)
 The keyword has an appropriate place in ~leaf-keywords~.
 
 Because the keywords are sorted in order of ~leaf-keywords~,
@@ -847,7 +830,7 @@ Or if you message after ~require~, you should use
 You can add keywords like,
 ~(leaf-add-keyword-list-after '(:tmp-pre :tmp-post) :config)~
 
-*** Define handler
+*** Define leaf handler
 Then, you should define a handler for new keyword(s) each.
 
 NOTE: Since VALUE is a list, be careful when implementing a handler.
@@ -872,6 +855,32 @@ NOTE: Since VALUE is a list, be careful when implementing a handler.
     (let ((body (leaf-process-keywords name rest)))
       `(,@value ,@body)))
 #+END_SRC
+
+* Migration
+** leaf v1.0 to v2.0
+*** Change not to ~require~ by default
+In order to realize the philosophy of "Leaf of setting",
+we changed it so as not to ~require~ by default.
+
+If you want to request explicitly use the ~:require t~ flag.
+#+begin_src emacs-lisp
+  ;; behavior of leaf v2.0
+  (leaf foo)
+  => (progn)
+
+  (leaf foo :require t)
+  => (progn
+       (require 'foo))
+
+  ;; behavior of leaf v1.0
+  (leaf foo)
+  => (progn
+       (require 'foo))
+
+  (leaf foo :require t)
+  => (progn
+       (require 'foo))
+#+end_src
 * Why We support Emacs-22?
 Bundling Emacs-22.1 on macOS 10.13 (High Sierra), we support this.
 
