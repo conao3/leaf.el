@@ -45,7 +45,7 @@
     - [[#add-leaf-keywords][Add leaf keyword(s)]]
     - [[#define-leaf-handler][Define leaf handler]]
 - [[#migration][Migration]]
-  - [[leaf-v10-to-v20][leaf v1.0 to v2.0]]
+  - [[#leaf-v10-to-v20][leaf v1.0 to v2.0]]
 - [[#why-we-support-emacs-22][Why We support Emacs-22?]]
 - [[#welcome-pr][Welcome PR]]
 - [[#special-thanks][Special Thanks]]
