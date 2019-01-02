@@ -351,11 +351,11 @@
        (progn
          (setq isearch-lazy-highlight t))
        (progn
-         (funcall #'leaf-backend/:bind-bind-key 'foo
-                  '(("M-s O" . moccur)
-                    :map isearch-mode-map
-                    ("M-o" . isearch-moccur)
-                    ("M-O" . isearch-moccur-all)))
+         (leaf-meta-backend/:bind 'foo
+			          '((("M-s O" . moccur)
+				     :map isearch-mode-map
+				     ("M-o" . isearch-moccur)
+				     ("M-O" . isearch-moccur-all))))
          (leaf moccur-edit)))))
 
 (cort-deftest leaf-test/:simple-pre-setq
@@ -556,14 +556,14 @@
   (match-expansion-let ((leaf-backend/:ensure 'package))
    (leaf foo :ensure t)
    '(progn
-      (funcall #'leaf-backend/:ensure-package 'foo 'foo)
+      (leaf-meta-backend/:ensure 'foo '(t))
       (progn))))
 
 (cort-deftest leaf-test/:simple-defaults
   (match-expansion-let ((leaf-backend/:ensure 'package))
    (leaf foo :ensure t :defaults t)
    '(progn
-      (funcall #'leaf-backend/:ensure-package 'foo 'foo)
+      (leaf-meta-backend/:ensure 'foo '(t))
       (feather-install-defaults 'foo)
       (progn))))
 

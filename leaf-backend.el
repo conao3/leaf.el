@@ -30,6 +30,34 @@
 
 (require 'leaf-polyfill)
 
+;; `leaf-core'
+(defvar leaf-backend/:ensure)
+(defvar leaf-backend/:bind)
+(defvar leaf-backend/:bind*)
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;
+;;  leaf meta handler
+;;
+
+(defun leaf-meta-backend/:ensure (name value)
+  ":ensure meta handler."
+  (let ((fn (intern (format "leaf-backend/:ensure-%s" leaf-backend/:ensure))))
+    (when leaf-backend/:ensure
+      (funcall `#',fn name value))))
+      
+(defun leaf-meta-backend/:bind (name value)
+  ":bind meta handler."
+  (let ((fn (intern (format "leaf-backend/:bind-%s" leaf-backend/:bind))))
+    (when leaf-backend/:bind
+      (funcall fn name value))))
+
+(defun leaf-meta-backend/:bind* (name value)
+  ":bind* meta handler."
+  (let ((fn (intern (format "leaf-backend/:bind*-%s" leaf-backend/:bind*))))
+    (when leaf-backend/:bind*
+      (funcall fn name value))))
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
 ;;  leaf prepared backend
@@ -47,26 +75,33 @@
   (autoload 'package-installed-p "package")
   (autoload 'package-refresh-contents "package"))
 
-(defun leaf-backend/:ensure-package (name package)
+(defun leaf-backend/:ensure-package (name value)
   ":ensure package.el backend."
-  (unless (package-installed-p package)
-    (condition-case err
-        (if (assoc package package-archive-contents)
-            (package-install package)
-          (package-refresh-contents)
-          (package-install package))
-      (error
-       (display-warning
-        'leaf (format "Failed to install %s: %s"
-                      package (error-message-string err)))))))
+  (mapc (lambda (package)
+          (let ((package* (if (eq package t) name package)))
+            (unless (package-installed-p package*)
+              (condition-case err
+                  (if (assoc package* package-archive-contents)
+                      (package-install package*)
+                    (package-refresh-contents)
+                    (package-install package*))
+                (error
+                 (display-warning
+                  'leaf (format "Failed to install %s: %s"
+                                package* (error-message-string err))))))))
+        value))
 
-(defun leaf-backend/:bind-bind-key (name bind)
+(defun leaf-backend/:bind-bind-key (name value)
   ":bind bind-key.el backend."
-  (eval `(bind-keys :package ,name ,@bind)))
+  (mapc (lambda (bind)
+          (eval `(bind-keys :package ,name ,@bind)))
+        value))
 
-(defun leaf-backend/:bind*-bind-key (name bind)
+(defun leaf-backend/:bind*-bind-key (name value)
   ":bind* bind-key.el backend."
-  (eval `(bind-keys* :package ,name ,@bind)))
+  (mapc (lambda (bind)
+          (eval `(bind-keys* :package ,name ,@bind)))
+        value))
 
 (provide 'leaf-backend)
 ;;; leaf-keyword-backend.el ends here
