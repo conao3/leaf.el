@@ -12,7 +12,7 @@ BATCH       := $(EMACS) -Q --batch -L $(TOP)
 
 TESTFILE    := leaf-tests.el
 ELS         := leaf.el
-ELS           += leaf-core.el leaf-polyfill.el
+ELS           += leaf-polyfill.el
 ELS           += leaf-handler.el leaf-backend.el
 
 CORTELS     := $(TESTFILE) cort.el
