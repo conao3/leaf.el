@@ -30,11 +30,6 @@
 
 (require 'leaf-polyfill)
 
-;; `leaf-core'
-(defvar leaf-backend/:ensure)
-(defvar leaf-backend/:bind)
-(defvar leaf-backend/:bind*)
-
 
 (defun leaf-process-keywords (name plist)
   "Process keywords for NAME.
@@ -185,16 +180,9 @@ with an unless block"
   "Process :ensure.
 
 Install package(s). If conditions keywords is nil, stop installation."
-  (let ((body   (leaf-process-keywords name rest))
-        (funsym `#',(intern
-                     (format "leaf-backend/:ensure-%s" leaf-backend/:ensure)))
-        (value* (if (and (eq (car value) t) (= (length value) 1))
-                    (list (eval name))  ; unify as unquote value.
-                  value)))
-    (if leaf-backend/:ensure
-        `(,@(mapcar (lambda (x) `(funcall ,funsym ,name ',x)) value*)
-          ,@body)
-      `(,@body))))
+  (let ((body (leaf-process-keywords name rest)))
+    `((leaf-meta-backend/:ensure ,name ',value)
+      ,@body)))
 
 (defun leaf-handler/:defaults (name value rest)
   "Process :defaults.
@@ -315,26 +303,18 @@ This handler add require comamnd for name."
 
 This handler return bind form.
 TODO: :map keyword support."
-  (let ((body   (leaf-process-keywords name rest))
-        (funsym `#',(intern
-                     (format "leaf-backend/:bind-%s" leaf-backend/:bind))))
-    (if leaf-backend/:bind
-        `(,@(mapcar (lambda (x) `(funcall ,funsym ,name ',x)) value)
-          ,@body)
-      `(,@body))))
+  (let ((body (leaf-process-keywords name rest)))
+    `((leaf-meta-backend/:bind ,name ',value)
+      ,@body)))
 
 (defun leaf-handler/:bind* (name value rest)
   "Process :bind*
 
 This handler return bind form.
 TODO: :map keyword support."
-  (let ((body   (leaf-process-keywords name rest))
-        (funsym `#',(intern
-                     (format "leaf-backend/:bind*-%s" leaf-backend/:bind*))))
-    (if leaf-backend/:bind*
-        `(,@(mapcar (lambda (x) `(funcall ,funsym ,name ',x)) value)
-          ,@body)
-      `(,@body))))
+  (let ((body (leaf-process-keywords name rest)))
+    `((leaf-meta-backend/:bind* ,name ',value)
+      ,@body)))
 
 (defun leaf-handler/:setq (name value rest)
   "Process :setq.
