@@ -165,7 +165,7 @@
 (cort-deftest leaf-test:/simple-none
   (match-expansion
    (leaf foo)
-   '(progn)))
+   'nil))
 
 (cort-deftest leaf-test:/simple-disabled-t
   (match-expansion
@@ -175,54 +175,42 @@
 (cort-deftest leaf-test:/simple-disabled-nil
   (match-expansion
    (leaf foo :disabled nil)
-   '(progn)))
+   'nil))
 
 (cort-deftest leaf-test:/simple-if
   (match-expansion
    (leaf foo :if t)
-   '(if t
-        (progn
-          (progn)))))
+   'nil))
 
 (cort-deftest leaf-test/:simple-when
   (match-expansion
    (leaf foo :when t)
-   '(when t
-      (progn))))
+   'nil))
 
 (cort-deftest leaf-test/:simple-unless
   (match-expansion
    (leaf foo :unless t)
-   '(unless t
-       (progn))))
+   'nil))
 
 (cort-deftest leaf-test/:simple-multi-if
   (match-expansion
    (leaf foo :if (rt) :if (rnil) (mt))
-   '(if (and (rt) (rnil) (mt))
-        (progn
-          (progn)))))
+   'nil))
 
 (cort-deftest leaf-test/:simple-multi-conds
   (match-expansion
    (leaf foo :if (rt) :when (rnil) (mt) :unless (rt) :if (rnil))
-   '(if (and (rt) (rnil))
-        (progn
-          (when (and (rnil) (mt))
-            (unless (rt)
-              (progn)))))))
+   'nil))
 
 (cort-deftest leaf-test/:simple-init
   (match-expansion
    (leaf foo
-         :init
-         (setq bar1 'baz)
-         (setq bar2 'baz))
+     :init
+     (setq bar1 'baz)
+     (setq bar2 'baz))
    '(progn
-      (progn
-        (setq bar1 'baz)
-        (setq bar2 'baz))
-      (progn))))
+      (setq bar1 'baz)
+      (setq bar2 'baz))))
 
 (cort-deftest leaf-test/:simple-init-config
   (match-expansion
@@ -234,14 +222,12 @@
          (setq bar3 'baz)
          (setq bar4 'baz))
    '(progn
-      (progn
-        (setq bar1 'baz)
-        (setq bar2 'baz))
-      (progn
-        (require foo-hoge)
-        (require foo-piyo)
-        (setq bar3 'baz)
-        (setq bar4 'baz)))))
+      (setq bar1 'baz)
+      (setq bar2 'baz)
+      (require foo-hoge)
+      (require foo-piyo)
+      (setq bar3 'baz)
+      (setq bar4 'baz))))
 
 (cort-deftest leaf-test/:simple-config
   (match-expansion
@@ -252,8 +238,8 @@
 (cort-deftest leaf-test/:simple-require
   (match-expansion
    (leaf foo
-         :require t
-         :config (setq bar 'baz))
+     :require t
+     :config (setq bar 'baz))
    '(progn
       (require 'foo)
       (setq bar 'baz))))
@@ -261,16 +247,16 @@
 (cort-deftest leaf-test/:simple-require-nil
   (match-expansion
    (leaf foo
-         :require nil
-         :config (setq bar 'baz))
+     :require nil
+     :config (setq bar 'baz))
    '(progn
       (setq bar 'baz))))
 
 (cort-deftest leaf-test/:simple-multi-require
   (match-expansion
    (leaf foo
-         :require foo-hoge foo-piyo
-         :config (setq bar 'baz))
+     :require foo-hoge foo-piyo
+     :config (setq bar 'baz))
    '(progn
       (require foo-hoge)
       (require foo-piyo)
@@ -348,15 +334,13 @@
      :config
      (leaf moccur-edit))
    '(progn
-      (progn
-        (setq isearch-lazy-highlight t))
-      (progn
-        (leaf-meta-backend/:bind 'foo
-			         '((("M-s O" . moccur)
-				    :map isearch-mode-map
-				    ("M-o" . isearch-moccur)
-				    ("M-O" . isearch-moccur-all))))
-        (leaf moccur-edit)))))
+      (setq isearch-lazy-highlight t)
+      (leaf-meta-backend/:bind 'foo
+			       '((("M-s O" . moccur)
+			          :map isearch-mode-map
+			          ("M-o" . isearch-moccur)
+			          ("M-O" . isearch-moccur-all))))
+      (leaf moccur-edit))))
 
 (cort-deftest leaf-test/:simple-pre-setq
   (match-expansion
@@ -366,11 +350,8 @@
      :config (foo-post-init))
    '(progn
       (setq bar 'baz)
-      (progn
-        (progn
-          (foo-pre-init))
-        (progn
-          (foo-post-init))))))
+      (foo-pre-init)
+      (foo-post-init))))
 
 (cort-deftest leaf-test/:simple-post-setq
   (match-expansion
@@ -379,11 +360,9 @@
      :init (foo-pre-init)
      :config (foo-post-init))
    '(progn
-      (progn
-        (foo-pre-init))
-      (progn
-        (setq bar 'baz)
-        (foo-post-init)))))
+      (foo-pre-init)
+      (setq bar 'baz)
+      (foo-post-init))))
 
 (cort-deftest leaf-test/:simple-custom-set-variables
   (match-expansion
@@ -392,11 +371,10 @@
      :init (foo-pre-init)
      :config (foo-post-init))
    '(progn
-      (progn
-        (foo-pre-init))
-      (progn
-        (custom-set-variables '(bar 'baz))
-        (foo-post-init)))))
+      (foo-pre-init)
+      (custom-set-variables
+       '(bar 'baz))
+      (foo-post-init))))
 
 (cort-deftest leaf-test/:simple-mode
   (match-expansion
@@ -458,8 +436,8 @@
    (leaf ace-jump-mode
      :hook cc-mode-hook)
    '(progn
-  (autoload #'ace-jump-mode "ace-jump-mode" nil t)
-  (add-hook 'cc-mode-hook #'ace-jump-mode))))
+      (autoload #'ace-jump-mode "ace-jump-mode" nil t)
+      (add-hook 'cc-mode-hook #'ace-jump-mode))))
 
 (cort-deftest leaf-test/:simple-multi-hook
   (match-expansion
@@ -519,8 +497,7 @@
      :byte-compile-vars for-var1)
    '(progn
       (eval-when-compile
-        (defvar for-var1))
-      (progn))))
+        (defvar for-var1)))))
 
 (cort-deftest leaf-test/:simple-multi-byte-compile-vars
   (match-expansion
@@ -529,17 +506,15 @@
    '(progn
       (eval-when-compile
         (defvar for-var1)
-        (defvar for-var2))
-      (progn))))
+        (defvar for-var2)))))
 
 (cort-deftest leaf-test/:simple-byte-compile-funcs
   (match-expansion
    (leaf for
      :byte-compile-funcs ((hoge-fn1 . hoge)))
    '(progn
-  (eval-when-compile
-    (autoload #'hoge-fn1 "hoge" nil t))
-  (progn))))
+      (eval-when-compile
+        (autoload #'hoge-fn1 "hoge" nil t)))))
 
 (cort-deftest leaf-test/:simple-multi-byte-compile-funcs
   (match-expansion
@@ -549,23 +524,20 @@
    '(progn
       (eval-when-compile
         (autoload #'hoge-fn1 "hoge" nil t)
-        (autoload #'hoge-fn2 "hoge" nil t))
-      (progn))))
+        (autoload #'hoge-fn2 "hoge" nil t)))))
 
 (cort-deftest leaf-test/:simple-ensure
   (match-expansion
    (leaf foo :ensure t)
    '(progn
-      (leaf-meta-backend/:ensure 'foo '(t))
-      (progn))))
+      (leaf-meta-backend/:ensure 'foo '(t)))))
 
 (cort-deftest leaf-test/:simple-defaults
   (match-expansion
    (leaf foo :ensure t :defaults t)
    '(progn
       (leaf-meta-backend/:ensure 'foo '(t))
-      (feather-install-defaults 'foo)
-      (progn))))
+      (feather-install-defaults 'foo))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
@@ -607,7 +579,7 @@
 (cort-deftest leaf-test:/disabled-1+
   (match-expansion
    (leaf foo :disabled nil)
-   '(progn)))
+   'nil))
 
 (cort-deftest leaf-test:/disabled-2+
   (match-expansion
@@ -619,10 +591,8 @@
   (match-expansion
    (leaf foo :disabled nil :init (message "bar") :config (message "baz"))
    '(progn
-      (progn
-        (message "bar"))
-      (progn
-        (message "baz")))))
+      (message "bar")
+      (message "baz"))))
 
 (cort-deftest leaf-test:/disabled-4+
   (match-expansion
@@ -677,7 +647,7 @@
 (cort-deftest leaf-test:/disabled-1++
   (match-expansion
    (leaf foo :disabled (rnil))
-   '(progn)))
+   'nil))
 
 (cort-deftest leaf-test:/disabled-2++
   (match-expansion
@@ -689,10 +659,8 @@
   (match-expansion
    (leaf foo :disabled (rnil) :init (message "bar") :config (message "baz"))
    '(progn
-      (progn
-        (message "bar"))
-      (progn
-        (message "baz")))))
+      (message "bar")
+      (message "baz"))))
 
 (cort-deftest leaf-test:/disabled-4++
   (match-expansion
@@ -747,7 +715,7 @@
 (cort-deftest leaf-test:/disabled-1+++
   (match-expansion
    (leaf foo :disabled (mnil))
-   '(progn)))
+   'nil))
 
 (cort-deftest leaf-test:/disabled-2+++
   (match-expansion
@@ -759,10 +727,8 @@
   (match-expansion
    (leaf foo :disabled (mnil) :init (message "bar") :config (message "baz"))
    '(progn
-      (progn
-        (message "bar"))
-      (progn
-        (message "baz")))))
+      (message "bar")
+      (message "baz"))))
 
 (cort-deftest leaf-test:/disabled-4+++
   (match-expansion
@@ -790,59 +756,47 @@
 (cort-deftest leaf-test/:if-1
   (match-expansion
    (leaf foo :if t)
-   '(if t
-        (progn
-          (progn)))))
+   'nil))
 
 (cort-deftest leaf-test/:if-2
   (match-expansion
    (leaf foo :if (or (rt) (rnil)))
-   '(if (or (rt) (rnil))
-        (progn
-          (progn)))))
+   'nil))
 
 (cort-deftest leaf-test/:if-3
   (match-expansion
    (leaf foo :if nil)
-   '(if nil
-        (progn
-          (progn)))))
+   'nil))
 
 (cort-deftest leaf-test/:when-1
   (match-expansion
    (leaf foo :when t)
-   '(when t
-       (progn))))
+   'nil))
 
 (cort-deftest leaf-test/:when-2
   (match-expansion
    (leaf foo :when (or (rt) (rnil)))
-   '(when (or (rt) (rnil))
-       (progn))))
+   'nil))
 
 (cort-deftest leaf-test/:when-3
   (match-expansion
    (leaf foo :when nil)
-   '(when nil
-       (progn))))
+   'nil))
 
 (cort-deftest leaf-test/:unless-1
   (match-expansion
    (leaf foo :unless t)
-   '(unless t
-       (progn))))
+   'nil))
 
 (cort-deftest leaf-test/:unless-2
   (match-expansion
    (leaf foo :unless (or (rt) (rnil)))
-   '(unless (or (rt) (rnil))
-       (progn))))
+   'nil))
 
 (cort-deftest leaf-test/:unless-3
   (match-expansion
    (leaf foo :unless nil)
-   '(unless nil
-       (progn))))
+   'nil))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
@@ -852,7 +806,7 @@
 (cort-deftest leaf-test/:require-0
   (match-expansion
    (leaf foo)
-   '(progn)))
+   'nil))
 
 (cort-deftest leaf-test/:require-1
   (match-expansion
@@ -863,7 +817,7 @@
 (cort-deftest leaf-test/:require-2
   (match-expansion
    (leaf foo :require nil)
-   '(progn)))
+   'nil))
 
 (cort-deftest leaf-test/:require-3
   (match-expansion
@@ -875,11 +829,11 @@
 (cort-deftest leaf-test/:require-4
   (match-expansion
    (leaf foo :require bar baz :if t)
-   '(if t
-        (progn
+   '(progn
+      (if t
           (progn
-            (require bar)
-            (require baz))))))
+	    (require bar)
+	    (require baz))))))
 
 (provide 'leaf-tests)
 ;;; leaf-tests.el ends here
