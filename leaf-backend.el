@@ -44,7 +44,7 @@
   ":ensure meta handler."
   (let ((fn (intern (format "leaf-backend/:ensure-%s" leaf-backend/:ensure))))
     (when leaf-backend/:ensure
-      (funcall `#',fn name value))))
+      (funcall fn name value))))
       
 (defun leaf-meta-backend/:bind (name value)
   ":bind meta handler."
