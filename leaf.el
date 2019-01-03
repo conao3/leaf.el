@@ -75,8 +75,7 @@ Each symbol must has handle function named as `leaf-handler/_:symbol_'."
   :type 'sexp
   :group 'leaf)
 
-(defcustom leaf-defaults
-  '(:init nil)
+(defcustom leaf-defaults '()
   "Default values for each leaf packages."
   :type 'sexp
   :group 'leaf)
@@ -270,7 +269,7 @@ EXAMPLE:
   "Return an expression equivalent to \\=`(progn ,@EXPS).
 Copy code from `macroexp-progn' for old Emacs."
 
-  (if (cdr exps) `(progn ,@exps) (car exps)))
+  (when exps `(progn ,@exps)))
 
 (defun leaf-core (name args)
   "leaf core process."
