@@ -159,6 +159,24 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
+;;  utility functions
+;;
+
+(cort-deftest leaf-test:/simple-format
+  (:string= (leaf-to-string
+             '(leaf real-auto-save
+                :ensure t
+                :custom ((real-auto-save-interval . 0.3))
+                :commands real-auto-save-mode
+                :hook (find-file-hook . real-auto-save-mode)))
+            "(leaf real-auto-save
+  :ensure t
+  :custom ((real-auto-save-interval . 0.3))
+  :commands real-auto-save-mode
+  :hook (find-file-hook . real-auto-save-mode))"))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;
 ;;  simple test
 ;;
 

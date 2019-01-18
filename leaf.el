@@ -113,6 +113,26 @@ Each symbol must has handle function named as `leaf-handler/_:symbol_'."
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
+;;  Formatting leaf
+;;
+
+;;;###autoload
+(defun leaf-to-string (sexp)
+  "Return format string of `leaf' SEXP like `pp-to-string'."
+  (with-temp-buffer
+    (insert (replace-regexp-in-string
+             (eval
+              `(rx (group
+                    (or ,@(mapcar #'symbol-name leaf-keywords)))))
+             "\n\\1"
+             (prin1-to-string sexp)))
+    (delete-trailing-whitespace)
+    (emacs-lisp-mode)
+    (indent-region (point-min) (point-max))
+    (buffer-substring-no-properties (point-min) (point-max))))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;
 ;;  General list functions for leaf
 ;;
 
