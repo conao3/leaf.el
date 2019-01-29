@@ -242,8 +242,8 @@
    '(progn
       (setq bar1 'baz)
       (setq bar2 'baz)
-      (require foo-hoge)
-      (require foo-piyo)
+      (require 'foo-hoge)
+      (require 'foo-piyo)
       (setq bar3 'baz)
       (setq bar4 'baz))))
 
@@ -276,8 +276,8 @@
      :require foo-hoge foo-piyo
      :config (setq bar 'baz))
    '(progn
-      (require foo-hoge)
-      (require foo-piyo)
+      (require 'foo-hoge)
+      (require 'foo-piyo)
       (setq bar 'baz))))
 
 (cort-deftest leaf-test/:simple-keyword-add
@@ -285,8 +285,8 @@
    (leaf foo
      :require h s :message-post-require "foo!" :config (setq bar 'baz))
    '(progn
-      (require h)
-      (require s)
+      (require 'h)
+      (require 's)
       (message "foo!")
       (setq bar 'baz))))
 
@@ -300,8 +300,8 @@
      :message-pre-require "pre")
    '(progn
       (message "pre")
-      (require h)
-      (require s)
+      (require 'h)
+      (require 's)
       (message "foo!")
       (message "post!")
       (setq bar 'baz))))
@@ -314,8 +314,8 @@
      :tmp-post (setq foo 'bar)
      :tmp-pre (message "really start tmp!"))
    '(progn
-      (require h)
-      (require s)
+      (require 'h)
+      (require 's)
       (message "start tmp")
       (message "really start tmp!")
       (setq foo 'bar))))
@@ -841,8 +841,8 @@
   (match-expansion
    (leaf foo :require bar baz)
    '(progn
-      (require bar)
-      (require baz))))
+      (require 'bar)
+      (require 'baz))))
 
 (cort-deftest leaf-test/:require-4
   (match-expansion
@@ -850,8 +850,8 @@
    '(progn
       (if t
           (progn
-	    (require bar)
-	    (require baz))))))
+	    (require 'bar)
+	    (require 'baz))))))
 
 (provide 'leaf-tests)
 ;;; leaf-tests.el ends here
