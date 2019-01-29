@@ -286,7 +286,7 @@ This handler add require comamnd for name."
       `((require ,name)
         ,@body))
      (t
-      `(,@(mapcar (lambda (x) `(require ,x)) value)
+      `(,@(mapcar (lambda (x) `(require ',x)) value)
         ,@body)))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;

@@ -37,7 +37,7 @@
   "Symplifying your `.emacs' configuration."
   :group 'lisp)
 
-(defconst leaf-version "2.0.7"
+(defconst leaf-version "2.0.8"
   "leaf.el version")
 
 (defcustom leaf-keywords
