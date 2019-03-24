@@ -51,6 +51,9 @@
 - [[#special-thanks][Special Thanks]]
 
 * What is it?
+
+  #+ATTR_HTML: title="Join the chat at https://gitter.im/leaf-el/community"
+  [[https://gitter.im/leaf-el/community?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge][file:https://badges.gitter.im/leaf-el/community.svg]]
 ~leaf.el~ is yet another [[https://github.com/jwiegley/use-package][use-package]].
 
 ~leaf.el~ has strong conditional branching symbols, 
