@@ -37,7 +37,7 @@
   "Symplifying your `.emacs' configuration."
   :group 'lisp)
 
-(defconst leaf-version "2.0.8"
+(defconst leaf-version "2.1.0"
   "leaf.el version")
 
 (defcustom leaf-keywords
@@ -153,20 +153,6 @@ Each symbol must has handle function named as `leaf-handler/_:symbol_'."
       (warn (format "%s already exists in `leaf-keywords'" target))
     (setq leaf-keywords
           (leaf-insert-after leaf-keywords target aelm))))
-
-(defun leaf-add-keyword-list-before (targetlst belm)
-  "Add leaf keyword list as TARGETLST before BELM."
-  (if (leaf-list-memq targetlst leaf-keywords)
-      (warn (format "%s already exists in `leaf-keywords'" targetlst))
-    (setq leaf-keywords
-          (leaf-insert-list-before leaf-keywords targetlst belm))))
-
-(defun leaf-add-keyword-list-after (targetlst aelm)
-  "Add leaf keyword list as TARGETLST after AELM."
-  (if (leaf-list-memq targetlst leaf-keywords)
-      (warn (format "%s already exists in `leaf-keywords'" targetlst))
-    (setq leaf-keywords
-          (leaf-insert-list-after leaf-keywords targetlst aelm))))
 
 (defun leaf-add-doc-keyword (key)
   "Add KEY to `leaf-keywords' as documentation keywords."
