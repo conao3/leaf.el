@@ -1,13 +1,19 @@
 #+author: conao
 #+date: <2018-10-25 Thu>
 
-[[https://github.com/conao3/leaf.el][https://img.shields.io/github/tag/conao3/leaf.el.svg?style=flat-square]]
+[[https://github.com/conao3/leaf.el][https://raw.githubusercontent.com/conao3/files/master/header/png/leaf.el.png]]
+[[https://github.com/conao3/leaf.el/blob/master/LICENSE][https://img.shields.io/github/license/conao3/leaf.el.svg?style=flat-square]]
+[[https://github.com/conao3/leaf.el/releases][https://img.shields.io/github/tag/conao3/leaf.el.svg?style=flat-square]]
 [[https://travis-ci.org/conao3/leaf.el][https://img.shields.io/travis/conao3/leaf.el/master.svg?style=flat-square]]
-[[https://github.com/conao3/leaf.el][https://img.shields.io/github/license/conao3/leaf.el.svg?style=flat-square]]
-[[https://github.com/conao3/github-header][https://files.conao3.com/github-header/gif/leaf.el.gif]]
+[[https://app.codacy.com/project/conao3/leaf.el/dashboard][https://img.shields.io/codacy/grade/1a6befcbdfdb4b1fb37a6f7f040a75b2.svg?logo=codacy&style=flat-square]]
+[[https://www.patreon.com/conao3][https://img.shields.io/badge/patreon-@conao3-orange.svg?logo=patreon&style=flat-square]]
+[[https://twitter.com/conao_3][https://img.shields.io/badge/twitter-@conao__3-blue.svg?logo=twitter&style=flat-square]]
+[[https://join.slack.com/t/conao3-support/shared_invite/enQtNTg2MTY0MjkzOTU0LTFjOTdhOTFiNTM2NmY5YTE5MTNlYzNiOTE2MTZlZWZkNDEzZmRhN2E0NjkwMWViZTZiYjA4MDUxYTUzNDZiNjY][https://img.shields.io/badge/chat-on_slack-blue.svg?logo=slack&style=flat-square]]
 
-- [[#what-is-it][What is it?]]
-- [[#how-to-use][How to use?]]
+* Table of Contents
+- [[#background][Background]]
+- [[#install][Install]]
+- [[#usage][Usage]]
 - [[#syntaxes][Syntaxes]]
   - [[#basic-keywords][Basic keywords]]
     - [[#none-keyword][none (keyword)]]
@@ -33,24 +39,30 @@
     - [[#byte-compile-funcs-byte-compile-vars-keywords][:byte-compile-funcs, :byte-compile-vars keyword]]
   - [[#documentation-keywords][Documentation keywords]]
     - [[#doc-file-url-keyword][:doc, :file, :url keyword]]
-- [[#developer-information][Developer information]]
-  - [[#leafel-mechanism][leaf.el mechanism]]
-    - [[#leaf-name-rest-args-macro][leaf (name &rest args) macro]]
-    - [[#leaf-core-name-args-function][leaf-core (name args) function]]
-      - [[#leaf-append-defaults-plist-function][leaf-append-defaults (plist) function]]
-      - [[#leaf-normalize-plist-plsit-mergep-function][leaf-normalize-plist (plsit mergep) function]]
-      - [[#leaf-sort-values-plist-plist-function][leaf-sort-values-plist (plist) function]]
-    - [[#leaf-pcocess-keywords-name-plist-function][leaf-pcocess-keywords (name plist) function]]
-  - [[#adding-custom-keywords][Adding custom keyword(s)]]
-    - [[#add-leaf-keywords][Add leaf keyword(s)]]
-    - [[#define-leaf-handler][Define leaf handler]]
-- [[#migration][Migration]]
-  - [[#leaf-v10-to-v20][leaf v1.0 to v2.0]]
-- [[#why-we-support-emacs-22][Why We support Emacs-22?]]
-- [[#welcome-pr][Welcome PR]]
-- [[#special-thanks][Special Thanks]]
+- [[#information][Information]]
+  - [[#donation][Donation]]
+  - [[#community][Community]]
+  - [[#contribution][Contribution]]
+    - [[#leafel-mechanism][leaf.el mechanism]]
+      - [[#leaf-name-rest-args-macro][leaf (name &rest args) macro]]
+      - [[#leaf-core-name-args-function][leaf-core (name args) function]]
+        - [[#leaf-append-defaults-plist-function][leaf-append-defaults (plist) function]]
+        - [[#leaf-normalize-plist-plsit-mergep-function][leaf-normalize-plist (plsit mergep) function]]
+        - [[#leaf-sort-values-plist-plist-function][leaf-sort-values-plist (plist) function]]
+      - [[#leaf-pcocess-keywords-name-plist-function][leaf-pcocess-keywords (name plist) function]]
+    - [[#adding-custom-keyword][Adding custom keyword]]
+      - [[#add-leaf-keywords][Add leaf keyword(s)]]
+      - [[#define-leaf-handler][Define leaf handler]]
+    - [[#why-we-support-emacs-22][Why We support Emacs-22?]]
+  - [[#migration][Migration]]
+    - [[#leaf-v10-to-v20][leaf v1.0 to v2.0]]
+  - [[#license][License]]
+  - [[#author][Author]]
+  - [[#contributors][Contributors]]
+  - [[#welcome-pr][Welcome PR]]
+  - [[#special-thanks][Special Thanks]]
 
-* What is it?
+* Background
 ~leaf.el~ is yet another [[https://github.com/jwiegley/use-package][use-package]].
 
 ~leaf.el~ has strong conditional branching symbols, 
@@ -60,10 +72,11 @@ It operates from Emacs-22, obtains partner [[https://github.com/conao3/feather.e
 
 You do not have to worry about errors due to reinstallation or environmental differences.
 
-* How to use?
+* Install
 Put ~leaf.el~ at any folder added ~load-path~.
 Then ~(require 'leaf)~ and use like ~use-pacakge~
 
+* Usage
 #+BEGIN_SRC emacs-lisp
   ;; add to load-path
   ;; (locate-user-emacs-file "site-lisp/leaf.el")
@@ -684,18 +697,39 @@ If you want other keywords, you can easily add them.
   (leaf-add-doc-keyword :source)
 #+END_SRC
 
-* Developer information
+* Information
+** Donation
+I love OSS and I am dreaming of working on it as *full-time* job.
+
+*With your support*, I will be able to spend more time at OSS!
+
+[[https://www.patreon.com/conao3][https://c5.patreon.com/external/logo/become_a_patron_button.png]]
+
+** Community
+All feedback and suggestions are welcome!
+
+You can use github issues, but you can also use [[https://join.slack.com/t/conao3-support/shared_invite/enQtNTg2MTY0MjkzOTU0LTFjOTdhOTFiNTM2NmY5YTE5MTNlYzNiOTE2MTZlZWZkNDEzZmRhN2E0NjkwMWViZTZiYjA4MDUxYTUzNDZiNjY][Slack]]
+if you want a more casual conversation.
+
+** Contribution
+We welcome PR!
+Travis Cl test ~leaf-test.el~ with all Emacs version 23 or above.
+
+I think that it is difficult to prepare the environment locally, 
+so I think that it is good to throw PR and test Travis for the time being!
+Feel free throw PR!
+
 ~leaf.el~ creates the intended elisp code from DSL with a simple mechanism.
 
 It is clear what internal conversion is done and it is also easy to customize it.
-** leaf.el mechanism
-*** ~leaf (name &rest args)~ macro
+*** leaf.el mechanism
+**** ~leaf (name &rest args)~ macro
 This is ~leaf.el~ frontend macro. Users use only this macro.
 
 Process.
 1. Pass arguments to ~leaf-core~.
 
-*** ~leaf-core (name args)~ function
+**** ~leaf-core (name args)~ function
 This is the core process for leaf macro expansion.
 
 Process.
@@ -704,7 +738,7 @@ Process.
 3. ~leaf-sort-values-plist~ to sort ARGS
 4. pass NAME and ARGS to ~leaf-process-keywords~
 
-**** ~leaf-append-defaults (plist)~ function
+***** ~leaf-append-defaults (plist)~ function
 Append leaf default values to PLIST.
 See ~leaf-defaults~. You can customize this value.
 
@@ -717,7 +751,7 @@ EXAMPLE:
   -> (:require foo :init nil)
 #+END_SRC
 
-**** ~leaf-normalize-plist (plsit mergep)~ function
+***** ~leaf-normalize-plist (plsit mergep)~ function
 Given a pseudo-PLIST, return PLIST,
 if MERGEP is t, return well-formed PLIST.
 
@@ -741,7 +775,7 @@ EXAMPLE:
        :config ((message "a") (message "b") (message "c"))
 #+END_SRC
 
-**** ~leaf-sort-values-plist (plist)~ function
+***** ~leaf-sort-values-plist (plist)~ function
 Given a list-valued PLIST, return sorted-list PLIST by order ~leaf-keywords~.
 
 EXAMPLE:
@@ -751,13 +785,13 @@ EXAMPLE:
  -> (:disabled (t)
      :config (message "a"))
 
-*** ~leaf-pcocess-keywords (name plist)~ function
+**** ~leaf-pcocess-keywords (name plist)~ function
 Process keywords for NAME.
 The KEY and VALUE are taken from the PLIST and pass to the handler.
 
 The handler is named leaf-handler/KEY.
 
-** Adding custom keyword(s)
+*** Adding custom keyword
 ~leaf.el~ can easily be expanded by adding keywords.
 
 Actually, it is realized by two steps of adding keyword and adding handler.
@@ -805,7 +839,7 @@ Example:
         (setq foo 'bar))))
 #+END_SRC
 
-*** Add leaf keyword
+**** Add leaf keyword
 The keyword has an appropriate place in ~leaf-keywords~.
 
 Because the keywords are sorted in order of ~leaf-keywords~,
@@ -821,7 +855,7 @@ If you message before ~require~, you should use
 Or if you message after ~require~, you should use
 ~(leaf-add-keyword-after :message-post-require :require)~.
 
-*** Define leaf handler
+**** Define leaf handler
 Then, you should define a handler for new keyword(s) each.
 
 NOTE: Since VALUE is a list, be careful when implementing a handler.
@@ -837,9 +871,12 @@ NOTE: Since VALUE is a list, be careful when implementing a handler.
       `(,@(mapcar (lambda (x) `(message ,x)) value) ,@body)))
 #+END_SRC
 
-* Migration
-** leaf v1.0 to v2.0
-*** Change not to ~require~ by default
+*** Why We support Emacs-22?
+Bundling Emacs-22.1 on macOS 10.13 (High Sierra), we support this.
+
+** Migration
+*** leaf v1.0 to v2.0
+**** Change not to ~require~ by default
 In order to realize the philosophy of "Leaf of setting",
 we changed it so as not to ~require~ by default.
 
@@ -862,18 +899,22 @@ If you want to request explicitly use the ~:require t~ flag.
   => (progn
        (require 'foo))
 #+end_src
-* Why We support Emacs-22?
-Bundling Emacs-22.1 on macOS 10.13 (High Sierra), we support this.
 
-* Welcome PR
-We welcome PR!
-Travis Cl test ~leaf-test.el~ with all Emacs version 23 or above.
+** License
+#+begin_example
+  Affero General Public License Version 3 (AGPLv3)
+  Copyright (c) Naoya Yamashita - https://conao3.com
+  https://github.com/conao3/orglyth.el/blob/master/LICENSE
+#+end_example
 
-I think that it is difficult to prepare the environment locally, 
-so I think that it is good to throw PR and test Travis for the time being!
-Feel free throw PR!
+** Author
+- Naoya Yamashita ([[https://github.com/conao3][conao3]])
 
-* Special Thanks
+** Contributors
+- Kzflute ([[https://github.com/Kzflute][Kzflute]])
+- KeenS ([[https://github.com/KeenS][κeen]])
+
+** Special Thanks
 Advice and comments given by [[http://emacs-jp.github.io/][Emacs-JP]]'s forum member has been a great help
 in developing ~leaf.el~.
 
