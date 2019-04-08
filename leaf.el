@@ -52,6 +52,9 @@
     ;; Condition keywards.
     :if :when :unless
 
+    ;; Documentation keywords
+    :doc :file :url
+
     ;; Preparation keywords.
     ;; Install package. (Condition isn't passed, not install)
     :ensure :defaults
@@ -166,13 +169,6 @@ Each symbol must has handle function named as `leaf-handler/_:symbol_'."
           key)
         (let ((body (leaf-process-keywords name rest)))
           `(,@body))))))
-
-;; top level operation, but don't do anything when don't need it.
-;; (eg when loading multiple times)
-(mapc (lambda (x)
-        (unless (memq x leaf-keywords)
-          (leaf-add-doc-keyword x)))
-      (reverse '(:doc :file :url)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;

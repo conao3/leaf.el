@@ -678,14 +678,10 @@ I think that you can use various ways of using such as
 describing the URL you referred to, writing a brief description of the package,
 writing a file path for FFAP.
 
-If you want other keywords, you can easily add them. (see source)
+If you want other keywords, you can easily add them.
 #+BEGIN_SRC emacs-lisp
-  ;; top-level operation, but don't do anything when don't need it.
-  ;; (eg when loading multiple times)
-  (mapc (lambda (x)
-          (unless (memq x leaf-keywords)
-            (leaf-add-doc-keyword x)))
-        (reverse '(:doc :file :url)))
+  (leaf-add-doc-keyword :author)
+  (leaf-add-doc-keyword :source)
 #+END_SRC
 
 * Developer information
