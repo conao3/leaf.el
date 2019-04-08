@@ -809,26 +809,21 @@ Example:
         (setq foo 'bar))))
 #+END_SRC
 
-*** Add leaf keyword(s)
+*** Add leaf keyword
 The keyword has an appropriate place in ~leaf-keywords~.
 
 Because the keywords are sorted in order of ~leaf-keywords~,
 and they are processed and expanded in that order.
 
-You can use these functions to add keyword(s)
+You can use these functions to add keyword
 - ~leaf-add-keyword-before (target belm)~
 - ~leaf-add-keyword-after (target aelm)~
-- ~leaf-add-keyword-list-before (targetlst belm)~
-- ~leaf-add-keyword-list-after (targetlst aelm)~
 
 If you message before ~require~, you should use
 ~(leaf-add-keyword-before :message-pre-require :require)~.
 
 Or if you message after ~require~, you should use
 ~(leaf-add-keyword-after :message-post-require :require)~.
-
-You can add keywords like,
-~(leaf-add-keyword-list-after '(:tmp-pre :tmp-post) :config)~
 
 *** Define leaf handler
 Then, you should define a handler for new keyword(s) each.
@@ -844,16 +839,6 @@ NOTE: Since VALUE is a list, be careful when implementing a handler.
     "process :message-post-require."
     (let ((body (leaf-process-keywords name rest)))
       `(,@(mapcar (lambda (x) `(message ,x)) value) ,@body)))
-
-  (defun leaf-handler/:tmp-pre (name value rest)
-    "process :tmp-pre."
-    (let ((body (leaf-process-keywords name rest)))
-      `(,@value ,@body)))
-
-  (defun leaf-handler/:tmp-post (name value rest)
-    "process :tmp-post."
-    (let ((body (leaf-process-keywords name rest)))
-      `(,@value ,@body)))
 #+END_SRC
 
 * Migration
