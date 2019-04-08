@@ -137,28 +137,32 @@ Each symbol must has handle function named as `leaf-handler/_:symbol_'."
 ;;
 
 (defun leaf-append-defaults (plist)
-  "Append leaf default values to plist."
+  "Append leaf default values to PLIST."
   (append plist leaf-defaults))
 
 (defun leaf-add-keyword-before (target belm)
+  "Add leaf keyword as name TARGET before BELM."
   (if (memq target leaf-keywords)
       (warn (format "%s already exists in `leaf-keywords'" target))
     (setq leaf-keywords
           (leaf-insert-before leaf-keywords target belm))))
 
 (defun leaf-add-keyword-after (target aelm)
+  "Add leaf keyword as name TARGET after AELM."
   (if (memq target leaf-keywords)
       (warn (format "%s already exists in `leaf-keywords'" target))
     (setq leaf-keywords
           (leaf-insert-after leaf-keywords target aelm))))
 
 (defun leaf-add-keyword-list-before (targetlst belm)
+  "Add leaf keyword list as TARGETLST before BELM."
   (if (leaf-list-memq targetlst leaf-keywords)
       (warn (format "%s already exists in `leaf-keywords'" targetlst))
     (setq leaf-keywords
           (leaf-insert-list-before leaf-keywords targetlst belm))))
 
 (defun leaf-add-keyword-list-after (targetlst aelm)
+  "Add leaf keyword list as TARGETLST after AELM."
   (if (leaf-list-memq targetlst leaf-keywords)
       (warn (format "%s already exists in `leaf-keywords'" targetlst))
     (setq leaf-keywords

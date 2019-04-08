@@ -100,7 +100,7 @@ this function is minor change from `add-to-list'."
     (nreverse retlst)))
 
 (defun leaf-insert-after (lst target aelm)
-  "Insert TARGET after aelm in LST"
+  "Insert TARGET after AELM in LST."
   (let ((retlst) (frg))
     (dolist (elm lst)
       (if (eq elm aelm)
@@ -124,7 +124,7 @@ this function is minor change from `add-to-list'."
     (nreverse retlst)))
 
 (defun leaf-insert-list-after (lst targetlst aelm)
-  "Insert TARGETLST after aelm in LST"
+  "Insert TARGETLST after AELM in LST."
   (let ((retlst) (frg))
     (dolist (elm lst)
       (if (eq elm aelm)
