@@ -120,17 +120,6 @@
   (let ((body (leaf-process-keywords name rest)))
     `(,@(mapcar (lambda (x) `(message ,x)) value) ,@body)))
 
-(leaf-add-keyword-list-after '(:tmp-pre :tmp-post) :config)
-(defun leaf-handler/:tmp-pre (name value rest)
-  "process :tmp-pre."
-  (let ((body (leaf-process-keywords name rest)))
-    `(,@value ,@body)))
-
-(defun leaf-handler/:tmp-post (name value rest)
-  "process :tmp-post."
-  (let ((body (leaf-process-keywords name rest)))
-    `(,@value ,@body)))
-
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
 ;;  Sumple functions
@@ -305,20 +294,6 @@
       (message "foo!")
       (message "post!")
       (setq bar 'baz))))
-
-(cort-deftest leaf-test/:simple-keyword-list-add
-  (match-expansion
-   (leaf foo
-     :require h s
-     :tmp-pre (message "start tmp")
-     :tmp-post (setq foo 'bar)
-     :tmp-pre (message "really start tmp!"))
-   '(progn
-      (require 'h)
-      (require 's)
-      (message "start tmp")
-      (message "really start tmp!")
-      (setq foo 'bar))))
 
 (cort-deftest leaf-test/:simple-doc-keyword
   (match-expansion

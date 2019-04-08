@@ -154,20 +154,6 @@ Each symbol must has handle function named as `leaf-handler/_:symbol_'."
     (setq leaf-keywords
           (leaf-insert-after leaf-keywords target aelm))))
 
-(defun leaf-add-keyword-list-before (targetlst belm)
-  "Add leaf keyword list as TARGETLST before BELM."
-  (if (leaf-list-memq targetlst leaf-keywords)
-      (warn (format "%s already exists in `leaf-keywords'" targetlst))
-    (setq leaf-keywords
-          (leaf-insert-list-before leaf-keywords targetlst belm))))
-
-(defun leaf-add-keyword-list-after (targetlst aelm)
-  "Add leaf keyword list as TARGETLST after AELM."
-  (if (leaf-list-memq targetlst leaf-keywords)
-      (warn (format "%s already exists in `leaf-keywords'" targetlst))
-    (setq leaf-keywords
-          (leaf-insert-list-after leaf-keywords targetlst aelm))))
-
 (defun leaf-add-doc-keyword (key)
   "Add KEY to `leaf-keywords' as documentation keywords."
   (eval
