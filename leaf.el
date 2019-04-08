@@ -143,26 +143,26 @@ Each symbol must has handle function named as `leaf-handler/_:symbol_'."
 (defun leaf-add-keyword-before (target belm)
   (if (memq target leaf-keywords)
       (warn (format "%s already exists in `leaf-keywords'" target))
-    (leaf-asetq (it leaf-keywords)
-      (funcall #'leaf-insert-before it target belm))))
+    (setq leaf-keywords
+          (leaf-insert-before leaf-keywords target belm))))
 
 (defun leaf-add-keyword-after (target aelm)
   (if (memq target leaf-keywords)
       (warn (format "%s already exists in `leaf-keywords'" target))
-    (leaf-asetq (it leaf-keywords)
-      (funcall #'leaf-insert-after it target aelm))))
+    (setq leaf-keywords
+          (leaf-insert-after leaf-keywords target aelm))))
 
 (defun leaf-add-keyword-list-before (targetlst belm)
   (if (leaf-list-memq targetlst leaf-keywords)
       (warn (format "%s already exists in `leaf-keywords'" targetlst))
-    (leaf-asetq (it leaf-keywords)
-      (funcall #'leaf-insert-list-before it targetlst belm))))
+    (setq leaf-keywords
+          (leaf-insert-list-before leaf-keywords targetlst belm))))
 
 (defun leaf-add-keyword-list-after (targetlst aelm)
   (if (leaf-list-memq targetlst leaf-keywords)
       (warn (format "%s already exists in `leaf-keywords'" targetlst))
-    (leaf-asetq (it leaf-keywords)
-      (funcall #'leaf-insert-list-after it targetlst aelm))))
+    (setq leaf-keywords
+          (leaf-insert-list-after leaf-keywords targetlst aelm))))
 
 (defun leaf-add-doc-keyword (key)
   "Add KEY to `leaf-keywords' as documentation keywords."
