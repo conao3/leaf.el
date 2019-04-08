@@ -176,6 +176,32 @@ with an unless block"
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
+;;  Documentation keywords
+;;
+
+(defun leaf-handler/:doc (name value rest)
+  "Process :doc as documentation keyword.
+
+This handler just ignore this keyword. "
+  (let ((body (leaf-process-keywords name rest)))
+    `(,@body)))
+
+(defun leaf-handler/:file (name value rest)
+  "Process :file as documentation keyword.
+
+This handler just ignore this keyword. "
+  (let ((body (leaf-process-keywords name rest)))
+    `(,@body)))
+
+(defun leaf-handler/:url (name value rest)
+  "Process :url as documentation keyword.
+
+This handler just ignore this keyword. "
+  (let ((body (leaf-process-keywords name rest)))
+    `(,@body)))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;
 ;;  Preparation keywords
 ;;
 
