@@ -56,49 +56,6 @@ Emacs-22 doesn't support `pcase'."
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
-;;  Anaphoric macros
-;;
-
-(defmacro leaf-with-gensyms (syms &rest body)
-  "Create `let' block with `gensym'ed variables.
-
-\(fn (SYM...) &rest body)"
-  (declare (indent 1))
-  `(let ,(mapcar (lambda (s)
-                   `(,s (gensym)))
-                 syms)
-     ,@body))
-
-(defmacro leaf-asetq (sym* &optional body)
-  "Anaphoric setq macro.
-
-\(fn (ASYM SYM) &optional BODY)"
-  (declare (indent 1))
-  `(let ((,(car sym*) ,(cadr sym*)))
-     (setq ,(cadr sym*) ,body)))
-
-(defmacro leaf-alet (varlist* &rest body)
-  "Anaphoric let macro. Return first arg value.
-CAUTION:
-`it' has first var value, it is NOT updated if var value changed.
-
-(macroexpand
- '(leaf-alet (it ((result t)))
-  (princ it)))
-=> (let* ((result t)
-          (it result))
-     (progn (princ it))
-     result)
-
-\(fn (ASYM (VARLIST...)) &rest BODY)"
-  (declare (debug t) (indent 1))
-  `(let* (,@(cadr varlist*)
-          (,(car varlist*) ,(caar (cadr varlist*))))
-     (progn ,@body)
-     ,(caar (cadr varlist*))))
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;
 ;;  General functions
 ;;
 
@@ -143,7 +100,7 @@ this function is minor change from `add-to-list'."
     (nreverse retlst)))
 
 (defun leaf-insert-after (lst target aelm)
-  "Insert TARGET after aelm in LST"
+  "Insert TARGET after AELM in LST."
   (let ((retlst) (frg))
     (dolist (elm lst)
       (if (eq elm aelm)
@@ -167,7 +124,7 @@ this function is minor change from `add-to-list'."
     (nreverse retlst)))
 
 (defun leaf-insert-list-after (lst targetlst aelm)
-  "Insert TARGETLST after aelm in LST"
+  "Insert TARGETLST after AELM in LST."
   (let ((retlst) (frg))
     (dolist (elm lst)
       (if (eq elm aelm)
