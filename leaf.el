@@ -47,6 +47,24 @@
 ;;  leaf keywords definition
 ;;
 
+(defun leaf-process-keywords (name plist)
+  "Process keywords for NAME.
+NOTE:
+Not check PLIST, PLIST has already been carefully checked
+parent funcitons.
+Don't call this function directory."
+  (when plist
+    (let* ((key   (pop plist))
+           (value (pop plist))
+           (body  (leaf-process-keywords key plist)))
+      (eval
+       `(let ((name  ',name)
+              (key   ',key)
+              (value ',value)
+              (body  ',body)
+              (rest  ',plist))
+          ,(plist-get leaf-keywords key))))))
+
 (defvar leaf-keywords
   '(:disabled (unless (eval (car value)) `(,@body))
     :if
@@ -230,24 +248,6 @@ EXAMPLE:
 ;;
 ;;  Main macro
 ;;
-
-(defun leaf-process-keywords (name plist)
-  "Process keywords for NAME.
-NOTE:
-Not check PLIST, PLIST has already been carefully checked
-parent funcitons.
-Don't call this function directory."
-  (when plist
-    (let* ((key   (pop plist))
-           (value (pop plist))
-           (body  (leaf-process-keywords key plist)))
-      (eval
-       `(let ((name  ',name)
-              (key   ',key)
-              (value ',value)
-              (body  ',body)
-              (rest  ',plist))
-          ,(plist-get leaf-keywords key))))))
 
 (defmacro leaf (name &rest args)
   "Symplify your `.emacs' configuration for package NAME with ARGS."
