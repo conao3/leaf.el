@@ -5,7 +5,7 @@
 ;; Author: Naoya Yamashita <conao3@gmail.com>
 ;; Maintainer: Naoya Yamashita <conao3@gmail.com>
 ;; Keywords: lisp settings
-;; Version: 2.0.0
+;; Version: 2.1.4
 ;; URL: https://github.com/conao3/leaf.el
 ;; Package-Requires: ((emacs "24.0"))
 
@@ -39,9 +39,6 @@
 (defgroup leaf nil
   "Symplifying your `.emacs' configuration."
   :group 'lisp)
-
-(defconst leaf-version "2.1.3"
-  "The leaf.el version.")
 
 (defcustom leaf-keywords
   '(;; Always be placed at the top-level.
