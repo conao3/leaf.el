@@ -49,45 +49,45 @@
 
 (defvar leaf-keywords
   '(:disabled
-    (if (eval (car leaf-VALUE))
+    (if (eval (car value))
         nil
-      `(,@leaf-BODY))
+      `(,@body))
     :if
-    (when leaf-BODY
-      (if (= 1 (length leaf-VALUE))
-          `((if ,@leaf-VALUE (progn ,@leaf-BODY)))
-        `((if (and ,@leaf-VALUE) (progn ,@leaf-BODY)))))
+    (when body
+      (if (= 1 (length value))
+          `((if ,@value (progn ,@body)))
+        `((if (and ,@value) (progn ,@body)))))
     :when
-    (when leaf-BODY
-      (if (= 1 (length leaf-VALUE))
-          `((when ,@leaf-VALUE ,@leaf-BODY))
-        `((when (and ,@leaf-VALUE) ,@leaf-BODY))))
+    (when body
+      (if (= 1 (length value))
+          `((when ,@value ,@body))
+        `((when (and ,@value) ,@body))))
     :unless
-    (when leaf-BODY
-      (if (= 1 (length leaf-VALUE))
-          `((unless ,@leaf-VALUE ,@leaf-BODY))
-        `((unless (and ,@leaf-VALUE) ,@leaf-BODY))))
+    (when body
+      (if (= 1 (length value))
+          `((unless ,@value ,@body))
+        `((unless (and ,@value) ,@body))))
     :init
-    `(,@leaf-VALUE ,@leaf-BODY)
+    `(,@value ,@body)
     :require
     (cond
      ((delq nil
             (mapcar (lambda (x)
                       (not (or (eq t x) (eq nil x))))
-                    leaf-VALUE))
+                    value))
       `(,@(mapcar (lambda (x)
                     `(require ',x))
                   (delq nil
                         (mapcar (lambda (x)
                                   (unless (or (eq t x) (eq nil x)) x))
-                                leaf-VALUE)))
-        ,@leaf-BODY))
-     ((car leaf-VALUE)
-      `((require ',leaf-NAME) ,@leaf-BODY))
+                                value)))
+        ,@body))
+     ((car value)
+      `((require ',name) ,@body))
      (t
-      `(,@leaf-BODY)))
+      `(,@body)))
     :config
-    `(,@leaf-VALUE ,@leaf-BODY)
+    `(,@value ,@body)
     )
   "Special keywords and conversion rule to be processed by `leaf'.
 Sort by `leaf-sort-values-plist' in this order.")
@@ -249,11 +249,11 @@ Don't call this function directory."
            (value (pop plist))
            (body  (leaf-process-keywords key plist)))
       (eval
-       `(let ((leaf-NAME  ',name)
-              (leaf-KEY   ',key)
-              (leaf-VALUE ',value)
-              (leaf-BODY  ',body)
-              (leaf-REST  ',plist))
+       `(let ((name  ',name)
+              (key   ',key)
+              (value ',value)
+              (body  ',body)
+              (rest  ',plist))
           ,(plist-get leaf-keywords key))))))
 
 (defmacro leaf (name &rest args)
