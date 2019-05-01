@@ -33,48 +33,15 @@
 
 (require 'leaf-polyfill)
 
-(require 'leaf-handler)
-(require 'leaf-backend)
-
 (defgroup leaf nil
   "Symplifying your `.emacs' configuration."
   :group 'lisp)
 
 (defcustom leaf-keywords
-  '(;; Always be placed at the top-level.
-    ;; If this keyword activated, leaf block convert to nil.
-    :disabled
-
-    ;; Initialize phase
-    :load-path
-    :byte-compile-funcs :byte-compile-vars
-
-    ;; Condition keywards.
-    :if :when :unless
-
-    ;; Documentation keywords
-    :doc :file :url
-
-    ;; Preparation keywords.
-    ;; Install package. (Condition isn't passed, not install)
-    :ensure :defaults
-    :pre-setq :init
-    :commands :hook
-    :mode :interpreter
-    :magic :magic-fallback
-
-    ;; Require package.
-    :require
-
-    ;; Configuration keywords.
-    :bind :bind*
-    :setq :setq-default
-    :custom :custom-face
-    :config
-    )
+  '()
   "Special keywords to be processed by `leaf'.
 Sort by `leaf-sort-values-plist' in this order.
-Each symbol must has handle function named as `leaf-handler/_:symbol_'."
+Each symbol must has handle function named as `leaf-handler--{{:symbol}}'."
   :type 'sexp
   :group 'leaf)
 
@@ -82,32 +49,6 @@ Each symbol must has handle function named as `leaf-handler/_:symbol_'."
   "Default values for each leaf packages."
   :type 'sexp
   :group 'leaf)
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;
-;;  Customize backend
-;;
-
-(defcustom leaf-backend/:ensure (if (require 'feather nil t) 'feather
-                                  (if (require 'package nil t) 'package))
-  "Backend to process `:ensure' keyword."
-  :type '(choice (const :tag "Use `package.el'." 'package)
-                 (const :tag "Use `feather.el'." 'feather)
-                 (const :tag "No backend, disable `:ensure'." nil))
-  :group 'leaf)
-
-(defcustom leaf-backend/:bind (if (require 'bind-key nil t) 'bind-key)
-  "Backend to process `:bind' keyword."
-  :type '(choice (const :tag "Use `bind-key.el'." 'bind-key)
-                 (const :tag "No backend, disable `:bind'." nil))
-  :group 'leaf)
-
-(defcustom leaf-backend/:bind* (if (require 'bind-key nil t) 'bind-key)
-  "Backend to process `:bind*' keyword."
-  :type '(choice (const :tag "Use `bind-key.el'." 'bind-key)
-                 (const :tag "No backend, disable `:bind'." nil))
-  :group 'leaf)
-
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
@@ -156,19 +97,6 @@ Each symbol must has handle function named as `leaf-handler/_:symbol_'."
       (warn (format "%s already exists in `leaf-keywords'" target))
     (setq leaf-keywords
           (leaf-insert-after leaf-keywords target aelm))))
-
-(defun leaf-add-doc-keyword (key)
-  "Add KEY to `leaf-keywords' as documentation keywords."
-  (eval
-   `(progn
-      (leaf-add-keyword-after ,key :disabled)
-      (defun ,(intern (format "leaf-handler/%s" key)) (name value rest)
-        ,(format
-          (concat "Process %s as documentation keyword.\n"
-                  "This handler just ignore this keyword.")
-          key)
-        (let ((body (leaf-process-keywords name rest)))
-          `(,@body))))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
@@ -228,7 +156,7 @@ EXAMPLE:
         (setq retplist `(,@retplist ,key ,value))))
     retplist))
 
-(defun leaf-normalize-plist (plist mergep)
+(defun leaf-normalize-plist (plist &optional mergep)
   "Given a pseudo-PLIST, return PLIST.
 if MERGEP is t, return well-formed PLIST.
 
@@ -263,44 +191,18 @@ EXAMPLE:
     ;; merge value for duplicated key if MERGEP is t
     (if mergep (leaf-merge-dupkey-values-plist retplist) retplist)))
 
-(defun leaf-process-keywords (name plist)
-  "Process keywords for NAME.
-
-NOTE:
-Not check PLIST, PLIST has already been carefully checked
-parent funcitons.
-Don't call this function directory."
-
-  (when plist
-    (let* ((key         (pop plist))
-           (value       (pop plist))
-           (rest        plist)
-           (handler     (format "leaf-handler/%s" key))
-           (handler-sym (intern handler)))
-      (funcall handler-sym name value rest))))
-
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
 ;;  Main macro
 ;;
 
-(defun leaf-macroexp-progn (exps)
-  "Return an expression equivalent to \\=`(progn ,@EXPS).
-Copy code from `macroexp-progn' for old Emacs."
-  (when exps `(progn ,@exps)))
-
-(defun leaf-core (name args)
-  "The leaf core process for NAME with ARGS."
+(defmacro leaf (name &rest args)
+  "Symplify your `.emacs' configuration for package NAME with ARGS."
+  (declare (indent defun))
   (let* ((args* (leaf-sort-values-plist
                  (leaf-normalize-plist
                   (leaf-append-defaults args) t))))
     (leaf-process-keywords name args*)))
-
-(defmacro leaf (name &rest args)
-  "Symplify your `.emacs' configuration for package NAME with ARGS."
-  (declare (indent 1))
-  (leaf-macroexp-progn
-   (leaf-core `',name args)))
 
 (provide 'leaf)
 ;;; leaf.el ends here

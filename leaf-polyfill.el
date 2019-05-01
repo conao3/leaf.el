@@ -31,21 +31,6 @@
 ;;  For legacy Emacs
 ;;
 
-(defmacro leaf-case (fn var &rest conds)
-  "Switch case macro with FN for VAR and CONDS.
-Emacs-22 doesn't support `pcase'."
-  (declare (indent 2))
-  (let ((lcond var))
-    `(cond
-      ,@(mapcar (lambda (x)
-                  (let ((rcond (car x))
-                        (form (cadr x)))
-                    (if (eq rcond '_)
-                        `(t ,form)
-                      `((funcall ,fn ,lcond ,rcond) ,form))))
-                conds)
-      (t nil))))
-
 (defun leaf-mapcaappend (func seq &rest rest)
   "Another implementation for `mapcan' for FUNC SEQ REST.
 `mapcan' uses `nconc', but Emacs-22 doesn't support it."
