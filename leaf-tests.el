@@ -93,12 +93,12 @@
 ;;  support macros for test definition
 ;;
 
-;; (defmacro match-expansion (form expect)
-;;   `(:equal (macroexpand-1 ',form) ,expect))
+(defmacro match-expansion (form expect)
+  `(:equal (macroexpand-1 ',form) ,expect))
 
-;; (defmacro match-expansion-let (letform form expect)
-;;   (declare (indent 1))
-;;   `(:equal (let ,letform (macroexpand-1 ',form)) ,expect))
+(defmacro match-expansion-let (letform form expect)
+  (declare (indent 1))
+  `(:equal (let ,letform (macroexpand-1 ',form)) ,expect))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
@@ -122,21 +122,21 @@
 ;; ;;  Sumple functions
 ;; ;;
 
-;; (defun rt ()
-;;   "test function every returns `t'."
-;;   t)
+(defun rt ()
+  "test function every returns `t'."
+  t)
 
-;; (defun rnil ()
-;;   "test function every returns `nil'."
-;;   nil)
+(defun rnil ()
+  "test function every returns `nil'."
+  nil)
 
-;; (defmacro mt ()
-;;   "test macro every returns `rt'."
-;;   `(rt))
+(defmacro mt ()
+  "test macro every returns `rt'."
+  `(rt))
 
-;; (defmacro mnil ()
-;;   "test macro every returns `rnil'"
-;;   `(rnil))
+(defmacro mnil ()
+  "test macro every returns `rnil'"
+  `(rnil))
 
 ;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; ;;
@@ -166,10 +166,10 @@
 ;; ;;  simple test
 ;; ;;
 
-;; (cort-deftest leaf-test:/simple-none
-;;   (match-expansion
-;;    (leaf foo)
-;;    'nil))
+(cort-deftest leaf-test:/simple-none
+  (match-expansion
+   (leaf foo)
+   'nil))
 
 ;; (cort-deftest leaf-test:/simple-disabled-t
 ;;   (match-expansion
@@ -239,32 +239,32 @@
 ;;    '(progn
 ;;       (setq bar 'baz))))
 
-;; (cort-deftest leaf-test/:simple-require
-;;   (match-expansion
-;;    (leaf foo
-;;      :require t
-;;      :config (setq bar 'baz))
-;;    '(progn
-;;       (require 'foo)
-;;       (setq bar 'baz))))
+(cort-deftest leaf-test/:simple-require
+  (match-expansion
+   (leaf foo
+     :require t
+     :config (setq bar 'baz))
+   '(progn
+      (require 'foo)
+      (setq bar 'baz))))
 
-;; (cort-deftest leaf-test/:simple-require-nil
-;;   (match-expansion
-;;    (leaf foo
-;;      :require nil
-;;      :config (setq bar 'baz))
-;;    '(progn
-;;       (setq bar 'baz))))
+(cort-deftest leaf-test/:simple-require-nil
+  (match-expansion
+   (leaf foo
+     :require nil
+     :config (setq bar 'baz))
+   '(progn
+      (setq bar 'baz))))
 
-;; (cort-deftest leaf-test/:simple-multi-require
-;;   (match-expansion
-;;    (leaf foo
-;;      :require foo-hoge foo-piyo
-;;      :config (setq bar 'baz))
-;;    '(progn
-;;       (require 'foo-hoge)
-;;       (require 'foo-piyo)
-;;       (setq bar 'baz))))
+(cort-deftest leaf-test/:simple-multi-require
+  (match-expansion
+   (leaf foo
+     :require foo-hoge foo-piyo
+     :config (setq bar 'baz))
+   '(progn
+      (require 'foo-hoge)
+      (require 'foo-piyo)
+      (setq bar 'baz))))
 
 ;; (cort-deftest leaf-test/:simple-keyword-add
 ;;   (match-expansion
@@ -793,21 +793,21 @@
 ;; ;;  :require keyword
 ;; ;;
 
-;; (cort-deftest leaf-test/:require-0
-;;   (match-expansion
-;;    (leaf foo)
-;;    'nil))
+(cort-deftest leaf-test/:require-0
+  (match-expansion
+   (leaf foo)
+   'nil))
 
-;; (cort-deftest leaf-test/:require-1
-;;   (match-expansion
-;;    (leaf foo :require t)
-;;    '(progn
-;;       (require 'foo))))
+(cort-deftest leaf-test/:require-1
+  (match-expansion
+   (leaf foo :require t)
+   '(progn
+      (require 'foo))))
 
-;; (cort-deftest leaf-test/:require-2
-;;   (match-expansion
-;;    (leaf foo :require nil)
-;;    'nil))
+(cort-deftest leaf-test/:require-2
+  (match-expansion
+   (leaf foo :require nil)
+   'nil))
 
 ;; (cort-deftest leaf-test/:require-3
 ;;   (match-expansion

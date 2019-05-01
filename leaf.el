@@ -37,18 +37,39 @@
   "Symplifying your `.emacs' configuration."
   :group 'lisp)
 
-(defcustom leaf-keywords
-  '()
-  "Special keywords to be processed by `leaf'.
-Sort by `leaf-sort-values-plist' in this order.
-Each symbol must has handle function named as `leaf-handler--{{:symbol}}'."
-  :type 'sexp
-  :group 'leaf)
-
 (defcustom leaf-defaults '()
   "Default values for each leaf packages."
   :type 'sexp
   :group 'leaf)
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;
+;;  leaf keywords definition
+;;
+
+(defvar leaf-keywords
+  '(:require
+    (cond
+     ((delq nil
+            (mapcar (lambda (x)
+                      (not (or (eq t x) (eq nil x))))
+                    leaf-VALUE))
+      `(,@(mapcar (lambda (x)
+                    `(require ',x))
+                  (delq nil
+                        (mapcar (lambda (x)
+                                  (unless (or (eq t x) (eq nil x)) x))
+                                leaf-VALUE)))
+        ,@leaf-BODY))
+     ((car leaf-VALUE)
+      `((require ',leaf-NAME) ,@leaf-BODY))
+     (t
+      `(,@leaf-BODY)))
+    :config
+    `(,@leaf-VALUE ,@leaf-BODY)
+    )
+  "Special keywords and conversion rule to be processed by `leaf'.
+Sort by `leaf-sort-values-plist' in this order.")
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
@@ -196,13 +217,32 @@ EXAMPLE:
 ;;  Main macro
 ;;
 
+(defun leaf-process-keywords (name plist)
+  "Process keywords for NAME.
+NOTE:
+Not check PLIST, PLIST has already been carefully checked
+parent funcitons.
+Don't call this function directory."
+  (when plist
+    (let* ((key   (pop plist))
+           (value (pop plist))
+           (body  (leaf-process-keywords key plist)))
+      (eval
+       `(let ((leaf-NAME  ',name)
+              (leaf-KEY   ',key)
+              (leaf-VALUE ',value)
+              (leaf-BODY  ',body)
+              (leaf-REST  ',plist))
+          ,(plist-get leaf-keywords key))))))
+
 (defmacro leaf (name &rest args)
   "Symplify your `.emacs' configuration for package NAME with ARGS."
   (declare (indent defun))
   (let* ((args* (leaf-sort-values-plist
                  (leaf-normalize-plist
-                  (leaf-append-defaults args) t))))
-    (leaf-process-keywords name args*)))
+                  (leaf-append-defaults args) t)))
+         (body (leaf-process-keywords name args*)))
+    (when body `(progn ,@body))))
 
 (provide 'leaf)
 ;;; leaf.el ends here
