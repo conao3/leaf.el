@@ -52,6 +52,8 @@
     (if (eval (car leaf-VALUE))
         nil
       `(,@leaf-BODY))
+    :init
+    `(,@leaf-VALUE ,@leaf-BODY)
     :require
     (cond
      ((delq nil

@@ -545,10 +545,10 @@
    (leaf foo :disabled t :config (message "bar"))
    'nil))
 
-;; (cort-deftest laef-test:/disabled-3-
-;;   (match-expansion
-;;    (leaf foo :disabled t :init (message "bar") :config (message "baz"))
-;;    'nil))
+(cort-deftest laef-test:/disabled-3-
+  (match-expansion
+   (leaf foo :disabled t :init (message "bar") :config (message "baz"))
+   'nil))
 
 (cort-deftest leaf-test:/disabled-4-
   (match-expansion
@@ -577,12 +577,12 @@
    '(progn
       (message "bar"))))
 
-;; (cort-deftest laef-test:/disabled-3+
-;;   (match-expansion
-;;    (leaf foo :disabled nil :init (message "bar") :config (message "baz"))
-;;    '(progn
-;;       (message "bar")
-;;       (message "baz"))))
+(cort-deftest laef-test:/disabled-3+
+  (match-expansion
+   (leaf foo :disabled nil :init (message "bar") :config (message "baz"))
+   '(progn
+      (message "bar")
+      (message "baz"))))
 
 (cort-deftest leaf-test:/disabled-4+
   (match-expansion
@@ -613,10 +613,10 @@
    (leaf foo :disabled (rt) :config (message "bar"))
    'nil))
 
-;; (cort-deftest laef-test:/disabled-3--
-;;   (match-expansion
-;;    (leaf foo :disabled (rt) :init (message "bar") :config (message "baz"))
-;;    'nil))
+(cort-deftest laef-test:/disabled-3--
+  (match-expansion
+   (leaf foo :disabled (rt) :init (message "bar") :config (message "baz"))
+   'nil))
 
 (cort-deftest leaf-test:/disabled-4--
   (match-expansion
@@ -645,12 +645,12 @@
    '(progn
       (message "bar"))))
 
-;; (cort-deftest laef-test:/disabled-3++
-;;   (match-expansion
-;;    (leaf foo :disabled (rnil) :init (message "bar") :config (message "baz"))
-;;    '(progn
-;;       (message "bar")
-;;       (message "baz"))))
+(cort-deftest laef-test:/disabled-3++
+  (match-expansion
+   (leaf foo :disabled (rnil) :init (message "bar") :config (message "baz"))
+   '(progn
+      (message "bar")
+      (message "baz"))))
 
 (cort-deftest leaf-test:/disabled-4++
   (match-expansion
@@ -681,10 +681,10 @@
    (leaf foo :disabled (mt) :config (message "bar"))
    'nil))
 
-;; (cort-deftest laef-test:/disabled-3---
-;;   (match-expansion
-;;    (leaf foo :disabled (mt) :init (message "bar") :config (message "baz"))
-;;    'nil))
+(cort-deftest laef-test:/disabled-3---
+  (match-expansion
+   (leaf foo :disabled (mt) :init (message "bar") :config (message "baz"))
+   'nil))
 
 (cort-deftest leaf-test:/disabled-4---
   (match-expansion
@@ -713,12 +713,12 @@
    '(progn
       (message "bar"))))
 
-;; (cort-deftest laef-test:/disabled-3+++
-;;   (match-expansion
-;;    (leaf foo :disabled (mnil) :init (message "bar") :config (message "baz"))
-;;    '(progn
-;;       (message "bar")
-;;       (message "baz"))))
+(cort-deftest laef-test:/disabled-3+++
+  (match-expansion
+   (leaf foo :disabled (mnil) :init (message "bar") :config (message "baz"))
+   '(progn
+      (message "bar")
+      (message "baz"))))
 
 (cort-deftest leaf-test:/disabled-4+++
   (match-expansion
