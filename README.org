@@ -1,7 +1,7 @@
 #+author: conao
 #+date: <2018-10-25 Thu>
 
-[[https://github.com/conao3/leaf.el][https://raw.githubusercontent.com/conao3/files/master/header/png/leaf.el.png]]
+[[https://github.com/conao3/leaf.el][https://raw.githubusercontent.com/conao3/files/master/blob/headers/png/leaf.el.png]]
 [[https://github.com/conao3/leaf.el/blob/master/LICENSE][https://img.shields.io/github/license/conao3/leaf.el.svg?style=flat-square]]
 [[https://github.com/conao3/leaf.el/releases][https://img.shields.io/github/tag/conao3/leaf.el.svg?style=flat-square]]
 [[https://travis-ci.org/conao3/leaf.el][https://img.shields.io/travis/conao3/leaf.el/master.svg?style=flat-square]]
