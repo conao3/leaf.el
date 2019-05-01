@@ -48,10 +48,7 @@
 ;;
 
 (defvar leaf-keywords
-  '(:disabled
-    (if (eval (car value))
-        nil
-      `(,@body))
+  '(:disabled (if (eval (car value)) nil `(,@body))
     :if
     (when body
       (if (= 1 (length value))
@@ -67,14 +64,10 @@
       (if (= 1 (length value))
           `((unless ,@value ,@body))
         `((unless (and ,@value) ,@body))))
-    :doc
-    `(,@body)
-    :file
-    `(,@body)
-    :url
-    `(,@body)
-    :init
-    `(,@value ,@body)
+    :doc `(,@body)
+    :file `(,@body)
+    :url `(,@body)
+    :init `(,@value ,@body)
     :require
     (cond
      ((delq nil
@@ -92,8 +85,7 @@
       `((require ',name) ,@body))
      (t
       `(,@body)))
-    :config
-    `(,@value ,@body)
+    :config `(,@value ,@body)
     )
   "Special keywords and conversion rule to be processed by `leaf'.
 Sort by `leaf-sort-values-plist' in this order.")
