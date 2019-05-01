@@ -61,9 +61,7 @@
     (when body
       `((unless ,@(if (= 1 (length value)) value `((and ,value)))
           ,@body)))
-    :doc `(,@body)
-    :file `(,@body)
-    :url `(,@body)
+    :doc `(,@body) :file `(,@body) :url `(,@body)
     :init `(,@value ,@body)
     :require
     (cond
