@@ -48,7 +48,7 @@
 ;;
 
 (defvar leaf-keywords
-  '(:disabled (if (eval (car value)) nil `(,@body))
+  '(:disabled (unless (eval (car value)) `(,@body))
     :if
     (when body
       (if (= 1 (length value))
