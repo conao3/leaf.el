@@ -41,19 +41,19 @@
 ;;
 
 (defun leaf-meta-backend/:ensure (name value)
-  ":ensure meta handler."
+  "The meta handler for :ensure for NAME with VALUE."
   (let ((fn (intern (format "leaf-backend/:ensure-%s" leaf-backend/:ensure))))
     (when leaf-backend/:ensure
       (funcall fn name value))))
       
 (defun leaf-meta-backend/:bind (name value)
-  ":bind meta handler."
+  "The meta handler for :bind for NAME with VALUE."
   (let ((fn (intern (format "leaf-backend/:bind-%s" leaf-backend/:bind))))
     (when leaf-backend/:bind
       (funcall fn name value))))
 
 (defun leaf-meta-backend/:bind* (name value)
-  ":bind* meta handler."
+  "The meta handler for :bind* for NAME with VALUE."
   (let ((fn (intern (format "leaf-backend/:bind*-%s" leaf-backend/:bind*))))
     (when leaf-backend/:bind*
       (funcall fn name value))))
@@ -76,7 +76,7 @@
   (autoload 'package-refresh-contents "package"))
 
 (defun leaf-backend/:ensure-package (name value)
-  ":ensure package.el backend."
+  "The backend for :ensure by package.el for NAME with VALUE."
   (mapc (lambda (package)
           (let ((package* (if (eq package t) name package)))
             (unless (package-installed-p package*)
@@ -92,16 +92,16 @@
         value))
 
 (defun leaf-backend/:bind-bind-key (name value)
-  ":bind bind-key.el backend."
+  "The backend for :bind by bind-key.el for NAME with VALUE."
   (mapc (lambda (bind)
           (eval `(bind-keys :package ,name ,@bind)))
         value))
 
 (defun leaf-backend/:bind*-bind-key (name value)
-  ":bind* bind-key.el backend."
+  "The backend for :bind* by bind-key.el for NAME with VALUE."
   (mapc (lambda (bind)
           (eval `(bind-keys* :package ,name ,@bind)))
         value))
 
 (provide 'leaf-backend)
-;;; leaf-keyword-backend.el ends here
+;;; leaf-backend.el ends here

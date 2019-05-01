@@ -38,7 +38,7 @@
   :group 'lisp)
 
 (defconst leaf-version "2.1.3"
-  "leaf.el version")
+  "The leaf.el version.")
 
 (defcustom leaf-keywords
   '(;; Always be placed at the top-level.
@@ -197,12 +197,11 @@ Each symbol must has handle function named as `leaf-handler/_:symbol_'."
   "Given a list-valued PLIST, return sorted-list PLIST.
 
 EXAMPLE:
-(leaf-sort-values-plist
-  '(:config (message \"a\")
-    :disabled (t)))
- -> (:disabled (t)
-     :config (message \"a\"))"
-
+  (leaf-sort-values-plist
+    '(:config (message \"a\")
+      :disabled (t)))
+  => (:disabled (t)
+      :config (message \"a\"))"
   (let ((retplist))
     (dolist (key leaf-keywords)
       (if (plist-member plist key)
@@ -213,14 +212,13 @@ EXAMPLE:
   "Given a PLIST, return list-valued PLIST.
 
 EXAMPLE:
-(leaf-merge-value-on-duplicate-key
-  '(:defer (t)
-    :config ((message \"a\") (message \"b\"))
-    :config ((message \"c\"))))
- -> (:defer (t)
-     :config ((message \"a\") (message \"b\") (message \"c\")))"
-
-  (let ((retplist) (existkeys) (existvalue) (key) (value))
+  (leaf-merge-value-on-duplicate-key
+    '(:defer (t)
+      :config ((message \"a\") (message \"b\"))
+      :config ((message \"c\"))))
+  => (:defer (t)
+      :config ((message \"a\") (message \"b\") (message \"c\")))"
+  (let ((retplist) (key) (value))
     (while plist
       (setq key (pop plist))
       (setq value (pop plist))
@@ -231,24 +229,24 @@ EXAMPLE:
     retplist))
 
 (defun leaf-normalize-plist (plist mergep)
-  "Given a pseudo-PLIST, return PLIST,
+  "Given a pseudo-PLIST, return PLIST.
 if MERGEP is t, return well-formed PLIST.
 
 EXAMPLE:
-(leaf-normalize-plist
-  '(:defer t
-    :config (message \"a\") (message \"b\")
-    :config (message \"c\")) nil)
- -> (:defer (t)
-     :config ((message \"a\") (message \"b\"))
-     :config ((message \"c\")))
+  (leaf-normalize-plist
+    '(:defer t
+      :config (message \"a\") (message \"b\")
+      :config (message \"c\")) nil)
+  => (:defer (t)
+      :config ((message \"a\") (message \"b\"))
+      :config ((message \"c\")))
 
-(leaf-normalize-plist
-  '(:defer t
-    :config (message \"a\") (message \"b\")
-    :config (message \"c\")) t)
- -> (:defer (t)
-     :config ((message \"a\") (message \"b\") (message \"c\"))"
+  (leaf-normalize-plist
+    '(:defer t
+      :config (message \"a\") (message \"b\")
+      :config (message \"c\")) t)
+  => (:defer (t)
+      :config ((message \"a\") (message \"b\") (message \"c\"))"
 
   ;; using reverse list, push (:keyword worklist) when find :keyword
   (let ((retplist) (worklist) (rlist (reverse plist)))
@@ -274,18 +272,17 @@ EXAMPLE:
 (defun leaf-macroexp-progn (exps)
   "Return an expression equivalent to \\=`(progn ,@EXPS).
 Copy code from `macroexp-progn' for old Emacs."
-
   (when exps `(progn ,@exps)))
 
 (defun leaf-core (name args)
-  "leaf core process."
+  "The leaf core process for NAME with ARGS."
   (let* ((args* (leaf-sort-values-plist
                  (leaf-normalize-plist
                   (leaf-append-defaults args) t))))
     (leaf-process-keywords name args*)))
 
 (defmacro leaf (name &rest args)
-  "Symplifying your `.emacs' configuration."
+  "Symplifying your `.emacs' configuration for package NAME with ARGS."
   (declare (indent 1))
   (leaf-macroexp-progn
    (leaf-core `',name args)))
