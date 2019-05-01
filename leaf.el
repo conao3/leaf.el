@@ -48,7 +48,11 @@
 ;;
 
 (defvar leaf-keywords
-  '(:require
+  '(:disabled
+    (if (eval (car leaf-VALUE))
+        nil
+      `(,@leaf-BODY))
+    :require
     (cond
      ((delq nil
             (mapcar (lambda (x)

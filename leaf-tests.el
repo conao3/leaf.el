@@ -534,48 +534,48 @@
 ;; ;;  :disabled keyword
 ;; ;;
 
-;; ;; simple :disabled patterns, Finaly `t' will be adopted.
-;; (cort-deftest leaf-test:/disabled-1-
-;;   (match-expansion
-;;    (leaf foo :disabled t)
-;;    'nil))
+;; simple :disabled patterns, Finaly `t' will be adopted.
+(cort-deftest leaf-test:/disabled-1-
+  (match-expansion
+   (leaf foo :disabled t)
+   'nil))
 
-;; (cort-deftest leaf-test:/disabled-2-
-;;   (match-expansion
-;;    (leaf foo :disabled t :config (message "bar"))
-;;    'nil))
+(cort-deftest leaf-test:/disabled-2-
+  (match-expansion
+   (leaf foo :disabled t :config (message "bar"))
+   'nil))
 
 ;; (cort-deftest laef-test:/disabled-3-
 ;;   (match-expansion
 ;;    (leaf foo :disabled t :init (message "bar") :config (message "baz"))
 ;;    'nil))
 
-;; (cort-deftest leaf-test:/disabled-4-
-;;   (match-expansion
-;;    (leaf foo :disabled t nil :config (message "bar"))
-;;    'nil))
+(cort-deftest leaf-test:/disabled-4-
+  (match-expansion
+   (leaf foo :disabled t nil :config (message "bar"))
+   'nil))
 
-;; (cort-deftest leaf-test:/disabled-5-
-;;   (match-expansion
-;;    (leaf foo :disabled t nil :config (message "bar") :disabled t)
-;;    'nil))
+(cort-deftest leaf-test:/disabled-5-
+  (match-expansion
+   (leaf foo :disabled t nil :config (message "bar") :disabled t)
+   'nil))
 
-;; (cort-deftest leaf-test:/disabled-6-
-;;   (match-expansion
-;;    (leaf foo :disabled t nil nil :config (message "bar"))
-;;    'nil))
+(cort-deftest leaf-test:/disabled-6-
+  (match-expansion
+   (leaf foo :disabled t nil nil :config (message "bar"))
+   'nil))
 
-;; ;; simple :disabled patterns, Finaly `nil' will be adopted.
-;; (cort-deftest leaf-test:/disabled-1+
-;;   (match-expansion
-;;    (leaf foo :disabled nil)
-;;    'nil))
+;; simple :disabled patterns, Finaly `nil' will be adopted.
+(cort-deftest leaf-test:/disabled-1+
+  (match-expansion
+   (leaf foo :disabled nil)
+   'nil))
 
-;; (cort-deftest leaf-test:/disabled-2+
-;;   (match-expansion
-;;    (leaf foo :disabled nil :config (message "bar"))
-;;    '(progn
-;;       (message "bar"))))
+(cort-deftest leaf-test:/disabled-2+
+  (match-expansion
+   (leaf foo :disabled nil :config (message "bar"))
+   '(progn
+      (message "bar"))))
 
 ;; (cort-deftest laef-test:/disabled-3+
 ;;   (match-expansion
@@ -584,66 +584,66 @@
 ;;       (message "bar")
 ;;       (message "baz"))))
 
-;; (cort-deftest leaf-test:/disabled-4+
-;;   (match-expansion
-;;    (leaf foo :disabled nil t :config (message "bar"))
-;;    '(progn
-;;       (message "bar"))))
+(cort-deftest leaf-test:/disabled-4+
+  (match-expansion
+   (leaf foo :disabled nil t :config (message "bar"))
+   '(progn
+      (message "bar"))))
 
-;; (cort-deftest leaf-test:/disabled-5+
-;;   (match-expansion
-;;    (leaf foo :disabled nil t :config (message "bar") :disabled t)
-;;    '(progn
-;;       (message "bar"))))
+(cort-deftest leaf-test:/disabled-5+
+  (match-expansion
+   (leaf foo :disabled nil t :config (message "bar") :disabled t)
+   '(progn
+      (message "bar"))))
 
-;; (cort-deftest leaf-test:/disabled-6+
-;;   (match-expansion
-;;    (leaf foo :disabled nil :disabled t nil nil :config (message "bar"))
-;;    '(progn
-;;       (message "bar"))))
+(cort-deftest leaf-test:/disabled-6+
+  (match-expansion
+   (leaf foo :disabled nil :disabled t nil nil :config (message "bar"))
+   '(progn
+      (message "bar"))))
 
-;; ;; :disabled with boolean reterns funciton patterns, Finaly `t' will be adopted.
-;; (cort-deftest leaf-test:/disabled-1--
-;;   (match-expansion
-;;    (leaf foo :disabled (rt))
-;;    'nil))
+;; :disabled with boolean reterns funciton patterns, Finaly `t' will be adopted.
+(cort-deftest leaf-test:/disabled-1--
+  (match-expansion
+   (leaf foo :disabled (rt))
+   'nil))
 
-;; (cort-deftest leaf-test:/disabled-2--
-;;   (match-expansion
-;;    (leaf foo :disabled (rt) :config (message "bar"))
-;;    'nil))
+(cort-deftest leaf-test:/disabled-2--
+  (match-expansion
+   (leaf foo :disabled (rt) :config (message "bar"))
+   'nil))
 
 ;; (cort-deftest laef-test:/disabled-3--
 ;;   (match-expansion
 ;;    (leaf foo :disabled (rt) :init (message "bar") :config (message "baz"))
 ;;    'nil))
 
-;; (cort-deftest leaf-test:/disabled-4--
-;;   (match-expansion
-;;    (leaf foo :disabled (rt) (rnil) :config (message "bar"))
-;;    'nil))
+(cort-deftest leaf-test:/disabled-4--
+  (match-expansion
+   (leaf foo :disabled (rt) (rnil) :config (message "bar"))
+   'nil))
 
-;; (cort-deftest leaf-test:/disabled-5--
-;;   (match-expansion
-;;    (leaf foo :disabled (rt) (rnil) :config (message "bar") :disabled (rt))
-;;    'nil))
+(cort-deftest leaf-test:/disabled-5--
+  (match-expansion
+   (leaf foo :disabled (rt) (rnil) :config (message "bar") :disabled (rt))
+   'nil))
 
-;; (cort-deftest leaf-test:/disabled-6--
-;;   (match-expansion
-;;    (leaf foo :disabled (rt) (rnil) (rnil) :config (message "bar"))
-;;    'nil))
+(cort-deftest leaf-test:/disabled-6--
+  (match-expansion
+   (leaf foo :disabled (rt) (rnil) (rnil) :config (message "bar"))
+   'nil))
 
-;; ;; :disabled with boolean returns funciton patterns, Finaly `nil' will be adopted.
-;; (cort-deftest leaf-test:/disabled-1++
-;;   (match-expansion
-;;    (leaf foo :disabled (rnil))
-;;    'nil))
+;; :disabled with boolean returns funciton patterns, Finaly `nil' will be adopted.
+(cort-deftest leaf-test:/disabled-1++
+  (match-expansion
+   (leaf foo :disabled (rnil))
+   'nil))
 
-;; (cort-deftest leaf-test:/disabled-2++
-;;   (match-expansion
-;;    (leaf foo :disabled (rnil) :config (message "bar"))
-;;    '(progn
-;;       (message "bar"))))
+(cort-deftest leaf-test:/disabled-2++
+  (match-expansion
+   (leaf foo :disabled (rnil) :config (message "bar"))
+   '(progn
+      (message "bar"))))
 
 ;; (cort-deftest laef-test:/disabled-3++
 ;;   (match-expansion
@@ -652,66 +652,66 @@
 ;;       (message "bar")
 ;;       (message "baz"))))
 
-;; (cort-deftest leaf-test:/disabled-4++
-;;   (match-expansion
-;;    (leaf foo :disabled (rnil) (rt) :config (message "bar"))
-;;    '(progn
-;;       (message "bar"))))
+(cort-deftest leaf-test:/disabled-4++
+  (match-expansion
+   (leaf foo :disabled (rnil) (rt) :config (message "bar"))
+   '(progn
+      (message "bar"))))
 
-;; (cort-deftest leaf-test:/disabled-5++
-;;   (match-expansion
-;;    (leaf foo :disabled (rnil) (rt) :config (message "bar") :disabled (rt))
-;;    '(progn
-;;       (message "bar"))))
+(cort-deftest leaf-test:/disabled-5++
+  (match-expansion
+   (leaf foo :disabled (rnil) (rt) :config (message "bar") :disabled (rt))
+   '(progn
+      (message "bar"))))
 
-;; (cort-deftest leaf-test:/disabled-6++
-;;   (match-expansion
-;;    (leaf foo :disabled (rnil) :disabled (rt) (rnil) (rnil) :config (message "bar"))
-;;    '(progn
-;;       (message "bar"))))
+(cort-deftest leaf-test:/disabled-6++
+  (match-expansion
+   (leaf foo :disabled (rnil) :disabled (rt) (rnil) (rnil) :config (message "bar"))
+   '(progn
+      (message "bar"))))
 
-;; ;; :disabled with boolean reterns funciton patterns, Finaly `t' will be adopted.
-;; (cort-deftest leaf-test:/disabled-1---
-;;   (match-expansion
-;;    (leaf foo :disabled (mt))
-;;    'nil))
+;; :disabled with boolean reterns funciton patterns, Finaly `t' will be adopted.
+(cort-deftest leaf-test:/disabled-1---
+  (match-expansion
+   (leaf foo :disabled (mt))
+   'nil))
 
-;; (cort-deftest leaf-test:/disabled-2---
-;;   (match-expansion
-;;    (leaf foo :disabled (mt) :config (message "bar"))
-;;    'nil))
+(cort-deftest leaf-test:/disabled-2---
+  (match-expansion
+   (leaf foo :disabled (mt) :config (message "bar"))
+   'nil))
 
 ;; (cort-deftest laef-test:/disabled-3---
 ;;   (match-expansion
 ;;    (leaf foo :disabled (mt) :init (message "bar") :config (message "baz"))
 ;;    'nil))
 
-;; (cort-deftest leaf-test:/disabled-4---
-;;   (match-expansion
-;;    (leaf foo :disabled (mt) (mnil) :config (message "bar"))
-;;    'nil))
+(cort-deftest leaf-test:/disabled-4---
+  (match-expansion
+   (leaf foo :disabled (mt) (mnil) :config (message "bar"))
+   'nil))
 
-;; (cort-deftest leaf-test:/disabled-5---
-;;   (match-expansion
-;;    (leaf foo :disabled (mt) (mnil) :config (message "bar") :disabled (mt))
-;;    'nil))
+(cort-deftest leaf-test:/disabled-5---
+  (match-expansion
+   (leaf foo :disabled (mt) (mnil) :config (message "bar") :disabled (mt))
+   'nil))
 
-;; (cort-deftest leaf-test:/disabled-6---
-;;   (match-expansion
-;;    (leaf foo :disabled (mt) (mnil) (mnil) :config (message "bar"))
-;;    'nil))
+(cort-deftest leaf-test:/disabled-6---
+  (match-expansion
+   (leaf foo :disabled (mt) (mnil) (mnil) :config (message "bar"))
+   'nil))
 
-;; ;; :disabled with boolean returns funciton patterns, Finaly `nil' will be adopted.
-;; (cort-deftest leaf-test:/disabled-1+++
-;;   (match-expansion
-;;    (leaf foo :disabled (mnil))
-;;    'nil))
+;; :disabled with boolean returns funciton patterns, Finaly `nil' will be adopted.
+(cort-deftest leaf-test:/disabled-1+++
+  (match-expansion
+   (leaf foo :disabled (mnil))
+   'nil))
 
-;; (cort-deftest leaf-test:/disabled-2+++
-;;   (match-expansion
-;;    (leaf foo :disabled (mnil) :config (message "bar"))
-;;    '(progn
-;;       (message "bar"))))
+(cort-deftest leaf-test:/disabled-2+++
+  (match-expansion
+   (leaf foo :disabled (mnil) :config (message "bar"))
+   '(progn
+      (message "bar"))))
 
 ;; (cort-deftest laef-test:/disabled-3+++
 ;;   (match-expansion
@@ -720,23 +720,23 @@
 ;;       (message "bar")
 ;;       (message "baz"))))
 
-;; (cort-deftest leaf-test:/disabled-4+++
-;;   (match-expansion
-;;    (leaf foo :disabled (mnil) (mt) :config (message "bar"))
-;;    '(progn
-;;       (message "bar"))))
+(cort-deftest leaf-test:/disabled-4+++
+  (match-expansion
+   (leaf foo :disabled (mnil) (mt) :config (message "bar"))
+   '(progn
+      (message "bar"))))
 
-;; (cort-deftest leaf-test:/disabled-5+++
-;;   (match-expansion
-;;    (leaf foo :disabled (mnil) (mt) :config (message "bar") :disabled (mt))
-;;    '(progn
-;;       (message "bar"))))
+(cort-deftest leaf-test:/disabled-5+++
+  (match-expansion
+   (leaf foo :disabled (mnil) (mt) :config (message "bar") :disabled (mt))
+   '(progn
+      (message "bar"))))
 
-;; (cort-deftest leaf-test:/disabled-6+++
-;;   (match-expansion
-;;    (leaf foo :disabled (mnil) :disabled (mt) (mnil) (mnil) :config (message "bar"))
-;;    '(progn
-;;       (message "bar"))))
+(cort-deftest leaf-test:/disabled-6+++
+  (match-expansion
+   (leaf foo :disabled (mnil) :disabled (mt) (mnil) (mnil) :config (message "bar"))
+   '(progn
+      (message "bar"))))
 
 ;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; ;;
