@@ -52,6 +52,21 @@
     (if (eval (car leaf-VALUE))
         nil
       `(,@leaf-BODY))
+    :if
+    (when leaf-BODY
+      (if (= 1 (length leaf-VALUE))
+          `((if ,@leaf-VALUE (progn ,@leaf-BODY)))
+        `((if (and ,@leaf-VALUE) (progn ,@leaf-BODY)))))
+    :when
+    (when leaf-BODY
+      (if (= 1 (length leaf-VALUE))
+          `((when ,@leaf-VALUE ,@leaf-BODY))
+        `((when (and ,@leaf-VALUE) ,@leaf-BODY))))
+    :unless
+    (when leaf-BODY
+      (if (= 1 (length leaf-VALUE))
+          `((unless ,@leaf-VALUE ,@leaf-BODY))
+        `((unless (and ,@leaf-VALUE) ,@leaf-BODY))))
     :init
     `(,@leaf-VALUE ,@leaf-BODY)
     :require

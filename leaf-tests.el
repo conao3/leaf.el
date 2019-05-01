@@ -171,73 +171,73 @@
    (leaf foo)
    'nil))
 
-;; (cort-deftest leaf-test:/simple-disabled-t
-;;   (match-expansion
-;;    (leaf foo :disabled t)
-;;    'nil))
+(cort-deftest leaf-test:/simple-disabled-t
+  (match-expansion
+   (leaf foo :disabled t)
+   'nil))
 
-;; (cort-deftest leaf-test:/simple-disabled-nil
-;;   (match-expansion
-;;    (leaf foo :disabled nil)
-;;    'nil))
+(cort-deftest leaf-test:/simple-disabled-nil
+  (match-expansion
+   (leaf foo :disabled nil)
+   'nil))
 
-;; (cort-deftest leaf-test:/simple-if
-;;   (match-expansion
-;;    (leaf foo :if t)
-;;    'nil))
+(cort-deftest leaf-test:/simple-if
+  (match-expansion
+   (leaf foo :if t)
+   'nil))
 
-;; (cort-deftest leaf-test/:simple-when
-;;   (match-expansion
-;;    (leaf foo :when t)
-;;    'nil))
+(cort-deftest leaf-test/:simple-when
+  (match-expansion
+   (leaf foo :when t)
+   'nil))
 
-;; (cort-deftest leaf-test/:simple-unless
-;;   (match-expansion
-;;    (leaf foo :unless t)
-;;    'nil))
+(cort-deftest leaf-test/:simple-unless
+  (match-expansion
+   (leaf foo :unless t)
+   'nil))
 
-;; (cort-deftest leaf-test/:simple-multi-if
-;;   (match-expansion
-;;    (leaf foo :if (rt) :if (rnil) (mt))
-;;    'nil))
+(cort-deftest leaf-test/:simple-multi-if
+  (match-expansion
+   (leaf foo :if (rt) :if (rnil) (mt))
+   'nil))
 
-;; (cort-deftest leaf-test/:simple-multi-conds
-;;   (match-expansion
-;;    (leaf foo :if (rt) :when (rnil) (mt) :unless (rt) :if (rnil))
-;;    'nil))
+(cort-deftest leaf-test/:simple-multi-conds
+  (match-expansion
+   (leaf foo :if (rt) :when (rnil) (mt) :unless (rt) :if (rnil))
+   'nil))
 
-;; (cort-deftest leaf-test/:simple-init
-;;   (match-expansion
-;;    (leaf foo
-;;      :init
-;;      (setq bar1 'baz)
-;;      (setq bar2 'baz))
-;;    '(progn
-;;       (setq bar1 'baz)
-;;       (setq bar2 'baz))))
+(cort-deftest leaf-test/:simple-init
+  (match-expansion
+   (leaf foo
+     :init
+     (setq bar1 'baz)
+     (setq bar2 'baz))
+   '(progn
+      (setq bar1 'baz)
+      (setq bar2 'baz))))
 
-;; (cort-deftest leaf-test/:simple-init-config
-;;   (match-expansion
-;;    (leaf foo :require foo-hoge foo-piyo
-;;          :init
-;;          (setq bar1 'baz)
-;;          (setq bar2 'baz)
-;;          :config
-;;          (setq bar3 'baz)
-;;          (setq bar4 'baz))
-;;    '(progn
-;;       (setq bar1 'baz)
-;;       (setq bar2 'baz)
-;;       (require 'foo-hoge)
-;;       (require 'foo-piyo)
-;;       (setq bar3 'baz)
-;;       (setq bar4 'baz))))
+(cort-deftest leaf-test/:simple-init-config
+  (match-expansion
+   (leaf foo :require foo-hoge foo-piyo
+         :init
+         (setq bar1 'baz)
+         (setq bar2 'baz)
+         :config
+         (setq bar3 'baz)
+         (setq bar4 'baz))
+   '(progn
+      (setq bar1 'baz)
+      (setq bar2 'baz)
+      (require 'foo-hoge)
+      (require 'foo-piyo)
+      (setq bar3 'baz)
+      (setq bar4 'baz))))
 
-;; (cort-deftest leaf-test/:simple-config
-;;   (match-expansion
-;;    (leaf foo :config (setq bar 'baz))
-;;    '(progn
-;;       (setq bar 'baz))))
+(cort-deftest leaf-test/:simple-config
+  (match-expansion
+   (leaf foo :config (setq bar 'baz))
+   '(progn
+      (setq bar 'baz))))
 
 (cort-deftest leaf-test/:simple-require
   (match-expansion
@@ -743,50 +743,50 @@
 ;; ;;  conditions
 ;; ;;
 
-;; (cort-deftest leaf-test/:if-1
-;;   (match-expansion
-;;    (leaf foo :if t)
-;;    'nil))
+(cort-deftest leaf-test/:if-1
+  (match-expansion
+   (leaf foo :if t)
+   'nil))
 
-;; (cort-deftest leaf-test/:if-2
-;;   (match-expansion
-;;    (leaf foo :if (or (rt) (rnil)))
-;;    'nil))
+(cort-deftest leaf-test/:if-2
+  (match-expansion
+   (leaf foo :if (or (rt) (rnil)))
+   'nil))
 
-;; (cort-deftest leaf-test/:if-3
-;;   (match-expansion
-;;    (leaf foo :if nil)
-;;    'nil))
+(cort-deftest leaf-test/:if-3
+  (match-expansion
+   (leaf foo :if nil)
+   'nil))
 
-;; (cort-deftest leaf-test/:when-1
-;;   (match-expansion
-;;    (leaf foo :when t)
-;;    'nil))
+(cort-deftest leaf-test/:when-1
+  (match-expansion
+   (leaf foo :when t)
+   'nil))
 
-;; (cort-deftest leaf-test/:when-2
-;;   (match-expansion
-;;    (leaf foo :when (or (rt) (rnil)))
-;;    'nil))
+(cort-deftest leaf-test/:when-2
+  (match-expansion
+   (leaf foo :when (or (rt) (rnil)))
+   'nil))
 
-;; (cort-deftest leaf-test/:when-3
-;;   (match-expansion
-;;    (leaf foo :when nil)
-;;    'nil))
+(cort-deftest leaf-test/:when-3
+  (match-expansion
+   (leaf foo :when nil)
+   'nil))
 
-;; (cort-deftest leaf-test/:unless-1
-;;   (match-expansion
-;;    (leaf foo :unless t)
-;;    'nil))
+(cort-deftest leaf-test/:unless-1
+  (match-expansion
+   (leaf foo :unless t)
+   'nil))
 
-;; (cort-deftest leaf-test/:unless-2
-;;   (match-expansion
-;;    (leaf foo :unless (or (rt) (rnil)))
-;;    'nil))
+(cort-deftest leaf-test/:unless-2
+  (match-expansion
+   (leaf foo :unless (or (rt) (rnil)))
+   'nil))
 
-;; (cort-deftest leaf-test/:unless-3
-;;   (match-expansion
-;;    (leaf foo :unless nil)
-;;    'nil))
+(cort-deftest leaf-test/:unless-3
+  (match-expansion
+   (leaf foo :unless nil)
+   'nil))
 
 ;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; ;;
@@ -809,21 +809,21 @@
    (leaf foo :require nil)
    'nil))
 
-;; (cort-deftest leaf-test/:require-3
-;;   (match-expansion
-;;    (leaf foo :require bar baz)
-;;    '(progn
-;;       (require 'bar)
-;;       (require 'baz))))
+(cort-deftest leaf-test/:require-3
+  (match-expansion
+   (leaf foo :require bar baz)
+   '(progn
+      (require 'bar)
+      (require 'baz))))
 
-;; (cort-deftest leaf-test/:require-4
-;;   (match-expansion
-;;    (leaf foo :require bar baz :if t)
-;;    '(progn
-;;       (if t
-;;           (progn
-;; 	    (require 'bar)
-;; 	    (require 'baz))))))
+(cort-deftest leaf-test/:require-4
+  (match-expansion
+   (leaf foo :require bar baz :if t)
+   '(progn
+      (if t
+          (progn
+	    (require 'bar)
+	    (require 'baz))))))
 
 (provide 'leaf-tests)
 ;;; leaf-tests.el ends here
