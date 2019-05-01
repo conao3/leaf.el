@@ -1,13 +1,16 @@
-;;; leaf.el ---                                      -*- lexical-binding: t; -*-
+;;; leaf.el --- Symplify your init.el configuration       -*- lexical-binding: t; -*-
 
 ;; Copyright (C) 2018  Naoya Yamashita
 
 ;; Author: Naoya Yamashita <conao3@gmail.com>
 ;; Maintainer: Naoya Yamashita <conao3@gmail.com>
-;; Keywords: settings
+;; Keywords: lisp settings
 ;; Version: 2.0.0
 ;; URL: https://github.com/conao3/leaf.el
-;; Package-Requires: ((emacs "22.0"))
+;; Package-Requires: ((emacs "24.0"))
+
+;;   Abobe declared this package requires Emacs-24, but it's for warning
+;;   suppression, and will actually work from Emacs-22.
 
 ;; This program is free software; you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by
@@ -24,7 +27,7 @@
 
 ;;; Commentary:
 
-;;
+;; simpify init.el
 
 ;;; Code:
 
@@ -263,6 +266,21 @@ EXAMPLE:
     ;; merge value for duplicated key if MERGEP is t
     (if mergep (leaf-merge-dupkey-values-plist retplist) retplist)))
 
+(defun leaf-process-keywords (name plist)
+  "Process keywords for NAME.
+
+NOTE:
+Not check PLIST, PLIST has already been carefully checked
+parent funcitons.
+Don't call this function directory."
+
+  (when plist
+    (let* ((key         (pop plist))
+           (value       (pop plist))
+           (rest        plist)
+           (handler     (format "leaf-handler/%s" key))
+           (handler-sym (intern handler)))
+      (funcall handler-sym name value rest))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
@@ -282,7 +300,7 @@ Copy code from `macroexp-progn' for old Emacs."
     (leaf-process-keywords name args*)))
 
 (defmacro leaf (name &rest args)
-  "Symplifying your `.emacs' configuration for package NAME with ARGS."
+  "Symplify your `.emacs' configuration for package NAME with ARGS."
   (declare (indent 1))
   (leaf-macroexp-progn
    (leaf-core `',name args)))

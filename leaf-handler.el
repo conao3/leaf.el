@@ -1,13 +1,10 @@
-;;; leaf-handler.el ---                              -*- lexical-binding: t; -*-
+;;; leaf-handler.el --- define leaf handler          -*- lexical-binding: t; -*-
 
 ;; Copyright (C) 2018  Naoya Yamashita
 
 ;; Author: Naoya Yamashita <conao3@gmail.com>
 ;; Maintainer: Naoya Yamashita <conao3@gmail.com>
-;; Keywords: settings
-;; Version: 2.0.0
 ;; URL: https://github.com/conao3/leaf.el
-;; Package-Requires: ((emacs "22.0"))
 
 ;; This program is free software; you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by
@@ -24,28 +21,11 @@
 
 ;;; Commentary:
 
-;;
+;; define leaf handler
 
 ;;; Code:
 
 (require 'leaf-polyfill)
-
-
-(defun leaf-process-keywords (name plist)
-  "Process keywords for NAME.
-
-NOTE:
-Not check PLIST, PLIST has already been carefully checked
-parent funcitons.
-Don't call this function directory."
-
-  (when plist
-    (let* ((key         (pop plist))
-           (value       (pop plist))
-           (rest        plist)
-           (handler     (format "leaf-handler/%s" key))
-           (handler-sym (intern handler)))
-      (funcall handler-sym name value rest))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
