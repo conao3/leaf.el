@@ -67,6 +67,12 @@
       (if (= 1 (length value))
           `((unless ,@value ,@body))
         `((unless (and ,@value) ,@body))))
+    :doc
+    `(,@body)
+    :file
+    `(,@body)
+    :url
+    `(,@body)
     :init
     `(,@value ,@body)
     :require

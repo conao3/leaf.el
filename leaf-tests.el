@@ -292,25 +292,25 @@
 ;;       (message "post!")
 ;;       (setq bar 'baz))))
 
-;; (cort-deftest leaf-test/:simple-doc-keyword
-;;   (match-expansion
-;;    (leaf foo
-;;      :doc "this package is awesome!!"
-;;      :require nil
-;;      :config (setq bar 'baz))
-;;    '(progn
-;;       (setq bar 'baz))))
+(cort-deftest leaf-test/:simple-doc-keyword
+  (match-expansion
+   (leaf foo
+     :doc "this package is awesome!!"
+     :require nil
+     :config (setq bar 'baz))
+   '(progn
+      (setq bar 'baz))))
 
-;; (cort-deftest leaf-test/:simple-doc-keywords
-;;   (match-expansion
-;;    (leaf foo
-;;      :doc "this package is awesome!!"
-;;      :file "~/path/to/package/file.el"
-;;      :url "https://www.example.com/"
-;;      :require nil
-;;      :config (setq bar 'baz))
-;;    '(progn
-;;       (setq bar 'baz))))
+(cort-deftest leaf-test/:simple-doc-keywords
+  (match-expansion
+   (leaf foo
+     :doc "this package is awesome!!"
+     :file "~/path/to/package/file.el"
+     :url "https://www.example.com/"
+     :require nil
+     :config (setq bar 'baz))
+   '(progn
+      (setq bar 'baz))))
 
 ;; (cort-deftest leaf-test/:simple-bind
 ;;   (match-expansion
