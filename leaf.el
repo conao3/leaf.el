@@ -51,19 +51,16 @@
   '(:disabled (unless (eval (car value)) `(,@body))
     :if
     (when body
-      (if (= 1 (length value))
-          `((if ,@value (progn ,@body)))
-        `((if (and ,@value) (progn ,@body)))))
+      `((if ,@(if (= 1 (length value)) value `((and ,@value)))
+            (progn ,@body))))
     :when
     (when body
-      (if (= 1 (length value))
-          `((when ,@value ,@body))
-        `((when (and ,@value) ,@body))))
+      `((when ,@(if (= 1 (length value)) value `((and ,@value)))
+          ,@body)))
     :unless
     (when body
-      (if (= 1 (length value))
-          `((unless ,@value ,@body))
-        `((unless (and ,@value) ,@body))))
+      `((unless ,@(if (= 1 (length value)) value `((and ,value)))
+          ,@body)))
     :doc `(,@body)
     :file `(,@body)
     :url `(,@body)
