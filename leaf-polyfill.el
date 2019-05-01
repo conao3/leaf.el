@@ -117,6 +117,18 @@ this function is minor change from `add-to-list'."
       (warn (format "%s is not found in given list" aelm)))
     (nreverse retlst)))
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;
+;;  General plist functions
+;;
+
+(defun leaf-plist-keys (plist)
+  (let ((count 1) ret)
+    (dolist (elm plist)
+      (when (= 1 (mod count 2))
+        (setq ret (cons elm ret)))
+      (setq count (1+ count)))
+    (nreverse ret)))
 
 (provide 'leaf-polyfill)
 ;;; leaf-polyfill.el ends here
