@@ -1,13 +1,10 @@
-;;; leaf-backend.el ---                              -*- lexical-binding: t; -*-
+;;; leaf-backend.el --- define leaf backend          -*- lexical-binding: t; -*-
 
 ;; Copyright (C) 2018  Naoya Yamashita
 
 ;; Author: Naoya Yamashita <conao3@gmail.com>
 ;; Maintainer: Naoya Yamashita <conao3@gmail.com>
-;; Keywords: settings
-;; Version: 2.0.0
 ;; URL: https://github.com/conao3/leaf.el
-;; Package-Requires: ((emacs "22.0"))
 
 ;; This program is free software; you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by
@@ -24,7 +21,7 @@
 
 ;;; Commentary:
 
-;;
+;; define leaf backend
 
 ;;; Code:
 
@@ -41,19 +38,19 @@
 ;;
 
 (defun leaf-meta-backend/:ensure (name value)
-  ":ensure meta handler."
+  "The meta handler for :ensure for NAME with VALUE."
   (let ((fn (intern (format "leaf-backend/:ensure-%s" leaf-backend/:ensure))))
     (when leaf-backend/:ensure
       (funcall fn name value))))
       
 (defun leaf-meta-backend/:bind (name value)
-  ":bind meta handler."
+  "The meta handler for :bind for NAME with VALUE."
   (let ((fn (intern (format "leaf-backend/:bind-%s" leaf-backend/:bind))))
     (when leaf-backend/:bind
       (funcall fn name value))))
 
 (defun leaf-meta-backend/:bind* (name value)
-  ":bind* meta handler."
+  "The meta handler for :bind* for NAME with VALUE."
   (let ((fn (intern (format "leaf-backend/:bind*-%s" leaf-backend/:bind*))))
     (when leaf-backend/:bind*
       (funcall fn name value))))
@@ -76,7 +73,7 @@
   (autoload 'package-refresh-contents "package"))
 
 (defun leaf-backend/:ensure-package (name value)
-  ":ensure package.el backend."
+  "The backend for :ensure by package.el for NAME with VALUE."
   (mapc (lambda (package)
           (let ((package* (if (eq package t) name package)))
             (unless (package-installed-p package*)
@@ -92,16 +89,16 @@
         value))
 
 (defun leaf-backend/:bind-bind-key (name value)
-  ":bind bind-key.el backend."
+  "The backend for :bind by bind-key.el for NAME with VALUE."
   (mapc (lambda (bind)
           (eval `(bind-keys :package ,name ,@bind)))
         value))
 
 (defun leaf-backend/:bind*-bind-key (name value)
-  ":bind* bind-key.el backend."
+  "The backend for :bind* by bind-key.el for NAME with VALUE."
   (mapc (lambda (bind)
           (eval `(bind-keys* :package ,name ,@bind)))
         value))
 
 (provide 'leaf-backend)
-;;; leaf-keyword-backend.el ends here
+;;; leaf-backend.el ends here

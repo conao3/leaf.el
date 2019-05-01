@@ -1,13 +1,10 @@
-;;; leaf-handler.el ---                              -*- lexical-binding: t; -*-
+;;; leaf-handler.el --- define leaf handler          -*- lexical-binding: t; -*-
 
 ;; Copyright (C) 2018  Naoya Yamashita
 
 ;; Author: Naoya Yamashita <conao3@gmail.com>
 ;; Maintainer: Naoya Yamashita <conao3@gmail.com>
-;; Keywords: settings
-;; Version: 2.0.0
 ;; URL: https://github.com/conao3/leaf.el
-;; Package-Requires: ((emacs "22.0"))
 
 ;; This program is free software; you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by
@@ -24,28 +21,11 @@
 
 ;;; Commentary:
 
-;;
+;; define leaf handler
 
 ;;; Code:
 
 (require 'leaf-polyfill)
-
-
-(defun leaf-process-keywords (name plist)
-  "Process keywords for NAME.
-
-NOTE:
-Not check PLIST, PLIST has already been carefully checked
-parent funcitons.
-Don't call this function directory."
-
-  (when plist
-    (let* ((key         (pop plist))
-           (value       (pop plist))
-           (rest        plist)
-           (handler     (format "leaf-handler/%s" key))
-           (handler-sym (intern handler)))
-      (funcall handler-sym name value rest))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
@@ -53,7 +33,7 @@ Don't call this function directory."
 ;;
 
 (defun leaf-meta-handler/:mode-autoload (name value)
-  "Meta handler to handle similar :mode."
+  "The meta handler to handle similar :mode for NAME with VALUE."
   (let* ((namesym (eval name))
          (namestr (symbol-name namesym))
          (fnsym   (delq nil
@@ -65,9 +45,9 @@ Don't call this function directory."
     `(,@(mapcar (lambda (x) `(autoload #',x ,namestr nil t)) fnsym))))
 
 (defun leaf-meta-handler/:mode (name value destlist)
-  "Meta handler to handle similar :mode."
-  (let* ((namesym (eval name))
-         (namestr (symbol-name namesym)))
+  "The meta handler to handle similar :mode for NAME with VALUE and DESTLIST."
+  (let* ((namesym  (eval name))
+         (_namestr (symbol-name namesym)))
     `(,@(leaf-meta-handler/:mode-autoload name value)
       (leaf-list-add-to-list ',destlist
                              ',(mapcar (lambda (x)
@@ -80,7 +60,7 @@ Don't call this function directory."
 ;;
 
 (defun leaf-handler/:disabled (name value rest)
-  "Process :disabled.
+  "The handler for :disabled for NAME with VALUE and REST.
 
 This handler always return nil, and interrupt processing of
 remaining arguments"
@@ -101,7 +81,7 @@ remaining arguments"
 ;;
 
 (defun leaf-handler/:load-path (name value rest)
-  "Process :loadpath.
+  "The handler for :loadpath for NAME with VALUE and REST.
 
 add loadpath located on `user-emacs-directory'"
   (let ((body (leaf-process-keywords name rest)))
@@ -111,7 +91,7 @@ add loadpath located on `user-emacs-directory'"
       ,@body)))
 
 (defun leaf-handler/:byte-compile-funcs (name value rest)
-  "Process :commands
+  "The handler for :commands for NAME with VALUE and REST.
 
 see `autoload'."
   (let ((body (leaf-process-keywords name rest))
@@ -122,7 +102,7 @@ see `autoload'."
       ,@body)))
 
 (defun leaf-handler/:byte-compile-vars (name value rest)
-  "Process :loadpath.
+  "The handler for :loadpath for NAME with VALUE and REST.
 
 add loadpath located on `user-emacs-directory'"
   (let ((body (leaf-process-keywords name rest)))
@@ -136,7 +116,7 @@ add loadpath located on `user-emacs-directory'"
 ;;
 
 (defun leaf-handler/:if (name value rest)
-  "Process :if.
+  "The handler for :if for NAME with VALUE and REST.
 
 This handler surround the processing of the remaining arguments
 with an if block"
@@ -149,7 +129,7 @@ with an if block"
         `((if (and ,@value) (progn ,@body))))))))
 
 (defun leaf-handler/:when (name value rest)
-  "Process :when.
+  "The handler for :when for NAME with VALUE and REST.
 
 This handler surround the processing of the remaining arguments
 with an when block"
@@ -162,7 +142,7 @@ with an when block"
         `((when (and ,@value) ,@body)))))))
 
 (defun leaf-handler/:unless (name value rest)
-  "Process :unless.
+  "The handler for :unless for NAME with VALUE and REST.
 
 This handler surround the processing of the remaining arguments
 with an unless block"
@@ -179,24 +159,24 @@ with an unless block"
 ;;  Documentation keywords
 ;;
 
-(defun leaf-handler/:doc (name value rest)
-  "Process :doc as documentation keyword.
+(defun leaf-handler/:doc (name _value rest)
+  "The handler for :doc for NAME with VALUE and REST.
 
-This handler just ignore this keyword. "
+This handler just ignore this keyword."
   (let ((body (leaf-process-keywords name rest)))
     `(,@body)))
 
-(defun leaf-handler/:file (name value rest)
-  "Process :file as documentation keyword.
+(defun leaf-handler/:file (name _value rest)
+  "The handler for file for NAME with VALUE and REST.
 
-This handler just ignore this keyword. "
+This handler just ignore this keyword."
   (let ((body (leaf-process-keywords name rest)))
     `(,@body)))
 
-(defun leaf-handler/:url (name value rest)
-  "Process :url as documentation keyword.
+(defun leaf-handler/:url (name _value rest)
+  "The handler for :url for NAME with VALUE and REST.
 
-This handler just ignore this keyword. "
+This handler just ignore this keyword."
   (let ((body (leaf-process-keywords name rest)))
     `(,@body)))
 
@@ -206,15 +186,15 @@ This handler just ignore this keyword. "
 ;;
 
 (defun leaf-handler/:ensure (name value rest)
-  "Process :ensure.
+  "The handler for :ensure for NAME with VALUE and REST.
 
-Install package(s). If conditions keywords is nil, stop installation."
+Install package(s) if conditions keywords is nil, stop installation."
   (let ((body (leaf-process-keywords name rest)))
     `((leaf-meta-backend/:ensure ,name ',value)
       ,@body)))
 
 (defun leaf-handler/:defaults (name value rest)
-  "Process :defaults.
+  "The handler for :defaults for NAME with VALUE and REST.
 
 If you pass non-nil, tell feather.el to download and evaluate
 the standard settings for that package."
@@ -225,7 +205,7 @@ the standard settings for that package."
       `(,@body))))
 
 (defun leaf-handler/:pre-setq (name value rest)
-  "Process :pre-setq.
+  "The handler for :pre-setq for NAME with VALUE and REST.
 
 Eval `setq' before `require' package."
   (let ((body (leaf-process-keywords name rest))
@@ -234,14 +214,14 @@ Eval `setq' before `require' package."
       ,@body)))
 
 (defun leaf-handler/:init (name value rest)
-  "Process :init.
+  "The handler for :init for NAME with VALUE and REST.
 
 This value is evaled before `require'."
   (let ((body (leaf-process-keywords name rest)))
     `(,@value ,@body)))
 
 (defun leaf-handler/:commands (name value rest)
-  "Process :commands
+  "The handler for :commands for NAME with VALUE and REST.
 
 see `autoload'."
   (let ((body (leaf-process-keywords name rest)))
@@ -250,7 +230,7 @@ see `autoload'."
       ,@body)))
 
 (defun leaf-handler/:hook (name value rest)
-  "Process :hook
+  "The handler for :hook for NAME with VALUE and REST.
 
 Add `auto-mode-alist' following value."
   (let ((body (leaf-process-keywords name rest)))
@@ -263,7 +243,7 @@ Add `auto-mode-alist' following value."
       ,@body)))
 
 (defun leaf-handler/:mode (name value rest)
-  "Process :mode
+  "The handler for :mode for NAME with VALUE and REST.
 
 Add `auto-mode-alist' following value."
   (let ((body (leaf-process-keywords name rest)))
@@ -271,7 +251,7 @@ Add `auto-mode-alist' following value."
       ,@body)))
 
 (defun leaf-handler/:interpreter (name value rest)
-  "Process :interpreter
+  "The handler for :interpreter for NAME with VALUE and REST.
 
 Add `interpreter-mode-alist' following value."
   (let ((body (leaf-process-keywords name rest)))
@@ -279,7 +259,7 @@ Add `interpreter-mode-alist' following value."
       ,@body)))
 
 (defun leaf-handler/:magic (name value rest)
-  "Process :magic
+  "The handler for :magic for NAME with VALUE and REST.
 
 Add `magic-mode-alist' following value."
   (let ((body (leaf-process-keywords name rest)))
@@ -288,7 +268,7 @@ Add `magic-mode-alist' following value."
 
 
 (defun leaf-handler/:magic-fallback (name value rest)
-  "Process :interpreter
+  "The handler for :interpreter for NAME with VALUE and REST.
 
 Add `interpreter-mode-alist' following value."
   (let ((body (leaf-process-keywords name rest)))
@@ -301,7 +281,7 @@ Add `interpreter-mode-alist' following value."
 ;;
 
 (defun leaf-handler/:require (name value rest)
-  "Process :require.
+  "The handler for :require for NAME with VALUE and REST.
 
 This handler add require comamnd for name."
   (let ((body (leaf-process-keywords name rest)))
@@ -321,7 +301,7 @@ This handler add require comamnd for name."
 ;;
 
 (defun leaf-handler/:bind (name value rest)
-  "Process :bind
+  "The handler for :bind for NAME with VALUE and REST.
 
 This handler return bind form.
 TODO: :map keyword support."
@@ -330,7 +310,7 @@ TODO: :map keyword support."
       ,@body)))
 
 (defun leaf-handler/:bind* (name value rest)
-  "Process :bind*
+  "The handler for :bind* for NAME with VALUE and REST.
 
 This handler return bind form.
 TODO: :map keyword support."
@@ -339,7 +319,7 @@ TODO: :map keyword support."
       ,@body)))
 
 (defun leaf-handler/:setq (name value rest)
-  "Process :setq.
+  "The handler for :setq for NAME with VALUE and REST.
 
 Eval `setq' after `require' package."
   (let ((body (leaf-process-keywords name rest))
@@ -348,7 +328,7 @@ Eval `setq' after `require' package."
       ,@body)))
 
 (defun leaf-handler/:setq-default (name value rest)
-  "Process :setq-default.
+  "The handler for :setq-default for NAME with VALUE and REST.
 
 Eval `setq-default' before `require' package."
   (let ((body (leaf-process-keywords name rest))
@@ -357,7 +337,7 @@ Eval `setq-default' before `require' package."
       ,@body)))
 
 (defun leaf-handler/:custom (name value rest)
-  "Process :custom.
+  "The handler for :custom for NAME with VALUE and REST.
 
 Eval `custom-set-variables' before `require' package."
   (let ((body (leaf-process-keywords name rest))
@@ -366,7 +346,7 @@ Eval `custom-set-variables' before `require' package."
       ,@body)))
 
 (defun leaf-handler/:custom-face (name value rest)
-  "Process :custom-face.
+  "The handler for :custom-face for NAME with VALUE and REST.
 
 see `custom-set-faces'."
   (let ((body (leaf-process-keywords name rest)))
@@ -374,7 +354,7 @@ see `custom-set-faces'."
       ,@body)))
 
 (defun leaf-handler/:config (name value rest)
-  "Process :config.
+  "The handler for :config for NAME with VALUE and REST.
 
 This handler return value with progn form."
   (let ((body (leaf-process-keywords name rest)))

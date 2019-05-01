@@ -1,13 +1,10 @@
-;;; leaf-polyfill.el ---                             -*- lexical-binding: t; -*-
+;;; leaf-polyfill.el --- define polyfill for leaf.el    -*- lexical-binding: t; -*-
 
 ;; Copyright (C) 2018  Naoya Yamashita
 
 ;; Author: Naoya Yamashita <conao3@gmail.com>
 ;; Maintainer: Naoya Yamashita <conao3@gmail.com>
-;; Keywords: settings
-;; Version: 2.0.0
 ;; URL: https://github.com/conao3/leaf.el
-;; Package-Requires: ((emacs "22.0"))
 
 ;; This program is free software; you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by
@@ -35,7 +32,7 @@
 ;;
 
 (defmacro leaf-case (fn var &rest conds)
-  "Switch case macro with FN.
+  "Switch case macro with FN for VAR and CONDS.
 Emacs-22 doesn't support `pcase'."
   (declare (indent 2))
   (let ((lcond var))
@@ -50,7 +47,7 @@ Emacs-22 doesn't support `pcase'."
       (t nil))))
 
 (defun leaf-mapcaappend (func seq &rest rest)
-  "Another implementation for `mapcan'.
+  "Another implementation for `mapcan' for FUNC SEQ REST.
 `mapcan' uses `nconc', but Emacs-22 doesn't support it."
   (apply #'append (apply #'mapcar func seq rest)))
 
@@ -60,11 +57,11 @@ Emacs-22 doesn't support `pcase'."
 ;;
 
 (defsubst leaf-truep (var)
-  "Return t if var is non-nil."
+  "Return t if VAR is non-nil."
   (not (not var)))
 
 (defsubst leaf-pairp (var)
-  "Return t if var is pair."
+  "Return t if VAR is pair."
   (and (listp var) (atom (cdr var))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
