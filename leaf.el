@@ -210,7 +210,7 @@ EXAMPLE:
   => (:disabled (t)
       :config (message \"a\"))"
   (let ((retplist))
-    (dolist (key leaf-keywords)
+    (dolist (key (leaf-plist-keys (cdr leaf-keywords)))
       (if (plist-member plist key)
           (setq retplist `(,@retplist ,key ,(plist-get plist key)))))
     retplist))
