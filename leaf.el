@@ -93,7 +93,7 @@ Sort by `leaf-sort-values-plist' in this order.")
 
 (defvar leaf-normarize
   '(((memq key '(:require))
-     ;; Accept: 't, 'nil, symbol and list of these
+     ;; Accept: 't, 'nil, symbol and list of these (and nested)
      ;; Return: symbol list.
      ;; Note  : 't will convert to 'name and remove duplicate element
      (let ((ret) (fn))
@@ -119,12 +119,12 @@ Sort by `leaf-sort-values-plist' in this order.")
          (setq ret (funcall fn elm ret)))
        (nreverse ret)))
     ((memq key '(:hook :mode :interpreter :magic :magic-fallback))
-     ;; Accept: func, (hook . func),
-     ;;         ((hook hook ...) . func), (hook hook ... . func) and list of these
+     ;; Accept: func, (hook . func), ((hook hook ...) . func),
+     ;;         (hook hook ... . func) and list of these (and nested)
      ;; Return: list of pair (hook . func).
-     ;; Note  : if omit hook, use {{name}}-hook as hook
+     ;; Note  : if omit hook, use name as hook
      ;;         remove duplicate configure
-     ;;         't and 'nil are just ignore
+     ;;         't and 'nil are just ignored
      (let ((ret) (fn))
        (setq fn (lambda (elm ret)
                   (cond
