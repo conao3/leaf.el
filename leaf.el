@@ -65,30 +65,40 @@
           ,@body)))
     :doc `(,@body) :file `(,@body) :url `(,@body)
     :init `(,@value ,@body)
-    :require
-    (cond
-     ((delq nil
-            (mapcar (lambda (x)
-                      (not (or (eq t x) (eq nil x))))
-                    value))
-      `(,@(mapcar (lambda (x)
-                    `(require ',x))
-                  (delq nil
-                        (mapcar (lambda (x)
-                                  (unless (or (eq t x) (eq nil x)) x))
-                                value)))
-        ,@body))
-     ((car value)
-      `((require ',name) ,@body))
-     (t
-      `(,@body)))
+    :require `(,@(mapcar (lambda (elm) `(require ',elm)) value) ,@body)
     :config `(,@value ,@body)
     )
   "Special keywords and conversion rule to be processed by `leaf'.
 Sort by `leaf-sort-values-plist' in this order.")
 
 (defvar leaf-normarize
-  '((t
+  '(((memq key '(:require))
+     ;; Accept: 't, 'nil, symbol and list of these
+     ;; Return: symbol list.
+     ;; Note  : 't will convert to 'name and remove duplicate element
+     (let ((ret) (fn))
+       (setq fn (lambda (elm ret)
+                  (cond
+                   ((eq t elm)
+                    (if (memq name ret)
+                        ret
+                      (cons name ret)))
+                   ((eq nil elm)
+                    ret)
+                   ((atom elm)
+                    (if (memq elm ret)
+                        ret
+                      (cons elm ret)))
+                   ((listp elm)
+                    (dolist (el elm)
+                      (setq ret (funcall fn el ret)))
+                    ret)
+                   (t
+                    (warn (format "Value %s is malformed." value))))))
+       (dolist (elm value)
+         (setq ret (funcall fn elm ret)))
+       (nreverse ret)))
+    (t
      value))
   "Normarize rule")
 
