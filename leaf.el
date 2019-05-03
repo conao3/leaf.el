@@ -356,7 +356,8 @@ EXAMPLE:
     (when body
       `(progn
          ,@(mapcar
-            (lambda (elm) `(autoload #',(car elm) ,(cdr elm) nil t)) leaf--autoload)
+            (lambda (elm) `(autoload #',(car elm) ,(cdr elm) nil t))
+            (nreverse leaf--autoload))
          ,@body))))
 
 (provide 'leaf)
