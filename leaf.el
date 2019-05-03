@@ -47,38 +47,6 @@
 ;;  leaf keywords definition
 ;;
 
-(defun leaf-process-keywords (name plist)
-  "Process keywords for NAME.
-NOTE:
-Not check PLIST, PLIST has already been carefully checked
-parent funcitons.
-Don't call this function directory."
-  (when plist
-    (let* ((key   (pop plist))
-           (value (leaf-normarize-args name key (pop plist)))
-           (body  (leaf-process-keywords key plist)))
-      (eval
-       `(let ((name  ',name)
-              (key   ',key)
-              (value ',value)
-              (body  ',body)
-              (rest  ',plist))
-          ,(plist-get (cdr leaf-keywords) key))))))
-
-(defun leaf-normarize-args (name key value)
-  "Normarize for NAME, KEY and VALUE."
-  (eval
-   `(let ((name  ',name)
-          (key   ',key)
-          (value ',value))
-      (cond
-       ,@leaf-normarize))))
-
-(defvar leaf-normarize
-  '((t
-     value))
-  "Normarize rule")
-
 (defvar leaf-keywords
   '(:dummy
     :disabled (unless (eval (car value)) `(,@body))
@@ -118,6 +86,38 @@ Don't call this function directory."
     )
   "Special keywords and conversion rule to be processed by `leaf'.
 Sort by `leaf-sort-values-plist' in this order.")
+
+(defvar leaf-normarize
+  '((t
+     value))
+  "Normarize rule")
+
+(defun leaf-process-keywords (name plist)
+  "Process keywords for NAME.
+NOTE:
+Not check PLIST, PLIST has already been carefully checked
+parent funcitons.
+Don't call this function directory."
+  (when plist
+    (let* ((key   (pop plist))
+           (value (leaf-normarize-args name key (pop plist)))
+           (body  (leaf-process-keywords key plist)))
+      (eval
+       `(let ((name  ',name)
+              (key   ',key)
+              (value ',value)
+              (body  ',body)
+              (rest  ',plist))
+          ,(plist-get (cdr leaf-keywords) key))))))
+
+(defun leaf-normarize-args (name key value)
+  "Normarize for NAME, KEY and VALUE."
+  (eval
+   `(let ((name  ',name)
+          (key   ',key)
+          (value ',value))
+      (cond
+       ,@leaf-normarize))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
