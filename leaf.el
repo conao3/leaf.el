@@ -70,6 +70,14 @@
     (progn
       (mapc (lambda (elm) (leaf-register-autoload (cdr elm) name)) value)
       `(,@(mapcar (lambda (elm) `(add-hook ',(car elm) #',(cdr elm))) value) ,@body))
+    :mode
+    (progn
+      (mapc (lambda (elm) (leaf-register-autoload (cdr elm) name)) value)
+      `(,@(mapcar (lambda (elm) `(add-to-list 'auto-mode-alist '(,(car elm) ,(cdr elm)))) value) ,@body))
+    :interpreter
+    (progn
+      (mapc (lambda (elm) (leaf-register-autoload (cdr elm) name)) value)
+      `(,@(mapcar (lambda (elm) `(add-to-list 'interpreter-mode-alist '(,(car elm) ,(cdr elm)))) value) ,@body))
     :config `(,@value ,@body)
     )
   "Special keywords and conversion rule to be processed by `leaf'.
@@ -102,7 +110,7 @@ Sort by `leaf-sort-values-plist' in this order.")
        (dolist (elm value)
          (setq ret (funcall fn elm ret)))
        (nreverse ret)))
-    ((memq key '(:hook))
+    ((memq key '(:hook :mode :interpreter))
      ;; Accept: func, (hook . func),
      ;;         ((hook hook ...) . func), (hook hook ... . func) and list of these
      ;; Return: list of pair (hook . func).
