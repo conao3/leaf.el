@@ -66,6 +66,10 @@
     :doc `(,@body) :file `(,@body) :url `(,@body)
     :init `(,@value ,@body)
     :require `(,@(mapcar (lambda (elm) `(require ',elm)) value) ,@body)
+    :hook
+    (progn
+      (mapc (lambda (elm) (leaf-register-autoload (cdr elm) name)) value)
+      `(,@(mapcar (lambda (elm) `(add-hook ',(car elm) #',(cdr elm))) value) ,@body))
     :config `(,@value ,@body)
     )
   "Special keywords and conversion rule to be processed by `leaf'.
@@ -89,6 +93,49 @@ Sort by `leaf-sort-values-plist' in this order.")
                     (if (memq elm ret)
                         ret
                       (cons elm ret)))
+                   ((listp elm)
+                    (dolist (el elm)
+                      (setq ret (funcall fn el ret)))
+                    ret)
+                   (t
+                    (warn (format "Value %s is malformed." value))))))
+       (dolist (elm value)
+         (setq ret (funcall fn elm ret)))
+       (nreverse ret)))
+    ((memq key '(:hook))
+     ;; Accept: func, (hook . func),
+     ;;         ((hook hook ...) . func), (hook hook ... . func) and list of these
+     ;; Return: list of pair (hook . func).
+     ;; Note  : if omit hook, use {{name}}-hook as hook
+     ;;         remove duplicate configure
+     ;;         't and 'nil are just ignore
+     (let ((ret) (fn))
+       (setq fn (lambda (elm ret)
+                  (cond
+                   ((eq t elm)
+                    ret)
+                   ((eq nil elm)
+                    ret)
+                   ((atom elm)
+                    (let ((sym `(,elm . ,name)))
+                      (if (member sym ret)
+                          ret
+                        (cons sym ret))))
+                   ((leaf-pairp elm)
+                    (if (listp (car elm))
+                        (progn
+                          (dolist (el (car elm))
+                            (setq ret (funcall fn `(,el . ,(cdr elm)) ret)))
+                          ret)
+                      (if (member elm ret)
+                          ret
+                        (cons elm ret))))
+                   ((leaf-dotlistp elm)
+                    (let ((tail (nthcdr (safe-length elm) elm)))
+                      (while (not (atom elm))
+                        (setq ret (funcall fn `(,(car elm) . ,tail) ret))
+                        (pop elm))
+                      ret))
                    ((listp elm)
                     (dolist (el elm)
                       (setq ret (funcall fn el ret)))
@@ -128,6 +175,13 @@ Don't call this function directory."
           (value ',value))
       (cond
        ,@leaf-normarize))))
+
+(defvar leaf--autoload)
+(defun leaf-register-autoload (fn pkg)
+  "Registry FN as autoload for PKG."
+  (let ((target `(,fn . ,(symbol-name pkg))))
+    (when (not (member target leaf--autoload))
+      (setq leaf--autoload (cons target leaf--autoload)))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
@@ -278,11 +332,16 @@ EXAMPLE:
 (defmacro leaf (name &rest args)
   "Symplify your `.emacs' configuration for package NAME with ARGS."
   (declare (indent defun))
-  (let* ((args* (leaf-sort-values-plist
+  (let* ((leaf--autoload)
+         (args* (leaf-sort-values-plist
                  (leaf-normalize-plist
                   (leaf-append-defaults args) t)))
          (body (leaf-process-keywords name args*)))
-    (when body `(progn ,@body))))
+    (when body
+      `(progn
+         ,@(mapcar
+            (lambda (elm) `(autoload #',(car elm) ,(cdr elm) nil t)) leaf--autoload)
+         ,@body))))
 
 (provide 'leaf)
 ;;; leaf.el ends here

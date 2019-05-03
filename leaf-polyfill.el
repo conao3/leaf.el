@@ -45,9 +45,15 @@
   "Return t if VAR is non-nil."
   (not (not var)))
 
-(defsubst leaf-pairp (var)
-  "Return t if VAR is pair."
-  (and (listp var) (atom (cdr var))))
+(defsubst leaf-pairp (var &optional allow)
+  "Return t if VAR is pair.  If ALLOW is non-nil, allow nil as last element"
+  (and (atom (car var))
+       (atom (cdr var))
+       (if allow t (not (null (cdr var))))))
+
+(defsubst leaf-dotlistp (var)
+  "Return t if VAR is doted list (last arg of list is not 'nil)."
+  (not (eq nil (cdr (last var)))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;

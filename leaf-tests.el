@@ -421,22 +421,22 @@
 ;;                              '(("%PDF" . pdf-view-mode)))
 ;;       (pdf-tools-install))))
 
-;; (cort-deftest leaf-test/:simple-hook
-;;   (match-expansion
-;;    (leaf ace-jump-mode
-;;      :hook cc-mode-hook)
-;;    '(progn
-;;       (autoload #'ace-jump-mode "ace-jump-mode" nil t)
-;;       (add-hook 'cc-mode-hook #'ace-jump-mode))))
+(cort-deftest leaf-test/:simple-hook
+  (match-expansion
+   (leaf ace-jump-mode
+     :hook cc-mode-hook)
+   '(progn
+      (autoload #'ace-jump-mode "ace-jump-mode" nil t)
+      (add-hook 'cc-mode-hook #'ace-jump-mode))))
 
-;; (cort-deftest leaf-test/:simple-multi-hook
-;;   (match-expansion
-;;    (leaf ace-jump-mode
-;;      :hook cc-mode-hook (prog-mode-hook . ace-jump-mode))
-;;    '(progn
-;;       (autoload #'ace-jump-mode "ace-jump-mode" nil t)
-;;       (add-hook 'cc-mode-hook #'ace-jump-mode)
-;;       (add-hook 'prog-mode-hook #'ace-jump-mode))))
+(cort-deftest leaf-test/:simple-multi-hook
+  (match-expansion
+   (leaf ace-jump-mode
+     :hook cc-mode-hook (prog-mode-hook . ace-jump-mode))
+   '(progn
+      (autoload #'ace-jump-mode "ace-jump-mode" nil t)
+      (add-hook 'cc-mode-hook #'ace-jump-mode)
+      (add-hook 'prog-mode-hook #'ace-jump-mode))))
 
 ;; (cort-deftest leaf-test/:simple-commands
 ;;   (match-expansion
