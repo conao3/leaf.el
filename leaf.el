@@ -67,6 +67,7 @@ Don't call this function directory."
 
 (defvar leaf-keywords
   '(:disabled (unless (eval (car value)) `(,@body))
+    :preface `(,@value ,@body)
     :if
     (when body
       `((if ,@(if (= 1 (length value)) value `((and ,@value)))
