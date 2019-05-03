@@ -55,7 +55,7 @@ parent funcitons.
 Don't call this function directory."
   (when plist
     (let* ((key   (pop plist))
-           (value (pop plist))
+           (value (leaf-normarize-args name key (pop plist)))
            (body  (leaf-process-keywords key plist)))
       (eval
        `(let ((name  ',name)
@@ -64,6 +64,20 @@ Don't call this function directory."
               (body  ',body)
               (rest  ',plist))
           ,(plist-get (cdr leaf-keywords) key))))))
+
+(defun leaf-normarize-args (name key value)
+  "Normarize for NAME, KEY and VALUE."
+  (eval
+   `(let ((name  ',name)
+          (key   ',key)
+          (value ',value))
+      (cond
+       ,@leaf-normarize))))
+
+(defvar leaf-normarize
+  '((t
+     value))
+  "Normarize rule")
 
 (defvar leaf-keywords
   '(:dummy
