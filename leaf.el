@@ -63,10 +63,11 @@ Don't call this function directory."
               (value ',value)
               (body  ',body)
               (rest  ',plist))
-          ,(plist-get leaf-keywords key))))))
+          ,(plist-get (cdr leaf-keywords) key))))))
 
 (defvar leaf-keywords
-  '(:disabled (unless (eval (car value)) `(,@body))
+  '(:dummy
+    :disabled (unless (eval (car value)) `(,@body))
     :preface `(,@value ,@body)
     :if
     (when body
