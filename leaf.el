@@ -72,6 +72,12 @@
       `((unless ,@(if (= 1 (length value)) value `((and ,value)))
           ,@body)))
 
+    :after
+    (when body
+      (let ((ret `(progn ,@body)))
+        (dolist (elm value) (setq ret `(eval-after-load ',elm ',ret)))
+        `(,ret)))
+
     :custom `((custom-set-variables ,@(mapcar (lambda (elm) `'(,(car elm) ,(cdr elm))) value)) ,@body)
     :custom-face `((custom-set-faces ,@(mapcar (lambda (elm) `'(,(car elm) ,(cdr elm))) value)) ,@body)
     :mode
@@ -117,7 +123,7 @@ Sort by `leaf-sort-values-plist' in this order.")
        (if (eq nil (car ret))
            nil
          (delete-dups (delq nil (leaf-subst t name ret))))))
-    ((memq key '(:load-path :commands :defun :defvar))
+    ((memq key '(:load-path :commands :defun :defvar :after))
      ;; Accept: 't, 'nil, symbol and list of these (and nested)
      ;; Return: symbol list.
      ;; Note  : 'nil is just ignored
