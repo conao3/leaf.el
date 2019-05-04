@@ -42,6 +42,31 @@
   :type 'sexp
   :group 'leaf)
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;
+;;  Customize backend
+;;
+
+(defcustom leaf-backend-ensure (if (require 'feather nil t) 'feather
+                                  (if (require 'package nil t) 'package))
+  "Backend to process `:ensure' keyword."
+  :type '(choice (const :tag "Use `package.el'." 'package)
+                 (const :tag "Use `feather.el'." 'feather)
+                 (const :tag "No backend, disable `:ensure'." nil))
+  :group 'leaf)
+
+(defcustom leaf-backend-bind (if (require 'bind-key nil t) 'bind-key)
+  "Backend to process `:bind' keyword."
+  :type '(choice (const :tag "Use `bind-key.el'." 'bind-key)
+                 (const :tag "No backend, disable `:bind'." nil))
+  :group 'leaf)
+
+(defcustom leaf-backend-bind* (if (require 'bind-key nil t) 'bind-key)
+  "Backend to process `:bind*' keyword."
+  :type '(choice (const :tag "Use `bind-key.el'." 'bind-key)
+                 (const :tag "No backend, disable `:bind'." nil))
+  :group 'leaf)
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
 ;;  leaf keywords definition
