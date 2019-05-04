@@ -225,6 +225,8 @@ Sort by `leaf-sort-values-plist' in this order.")
        (dolist (elm value)
          (setq ret (funcall fn elm ret)))
        (nreverse ret)))
+    ((memq key '(:disabled))
+     value)
     (t
      value))
   "Normarize rule")
