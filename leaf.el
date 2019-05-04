@@ -54,6 +54,7 @@
 
     :load-path `(,@(mapcar (lambda (elm) `(add-to-list 'load-path ,elm)) value) ,@body)
     :preface `(,@value ,@body)
+
     :if
     (when body
       `((if ,@(if (= 1 (length value)) value `((and ,@value)))
