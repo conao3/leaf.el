@@ -522,9 +522,10 @@ EXAMPLE:
         (setq retplist `(,@retplist ,key ,value))))
     retplist))
 
-(defun leaf-normalize-plist (plist &optional mergep)
+(defun leaf-normalize-plist (plist &optional mergep evalp)
   "Given a pseudo-PLIST, return PLIST.
-if MERGEP is t, return well-formed PLIST.
+If MERGEP is t, return well-formed PLIST.
+If EVALP is t, `eval' each element which have `quote' or `backquote'.
 
 EXAMPLE:
   (leaf-normalize-plist
@@ -552,7 +553,12 @@ EXAMPLE:
 
             ;; clean worklist for new keyword
             (setq worklist nil))
-        (push target worklist)))
+        (push (if (and evalp
+                       (listp target)
+                       (member `',(car target) `('quote ',backquote-backquote-symbol)))
+                  (eval target)
+                target)
+              worklist)))
 
     ;; merge value for duplicated key if MERGEP is t
     (if mergep (leaf-merge-dupkey-values-plist retplist) retplist)))
@@ -568,7 +574,7 @@ EXAMPLE:
   (let* ((leaf--autoload)
          (args* (leaf-sort-values-plist
                  (leaf-normalize-plist
-                  (leaf-append-defaults args) t)))
+                  (leaf-append-defaults args) 'merge 'eval)))
          (body (leaf-process-keywords name args*)))
     (when (or body leaf--autoload)
       `(progn
