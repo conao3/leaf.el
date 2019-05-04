@@ -50,6 +50,8 @@
 (defvar leaf-keywords
   '(:dummy
     :disabled (unless (eval (car value)) `(,@body))
+    :doc `(,@body) :file `(,@body) :url `(,@body)
+
     :load-path `(,@(mapcar (lambda (elm) `(add-to-list 'load-path ,elm)) value) ,@body)
     :preface `(,@value ,@body)
     :if
@@ -64,14 +66,9 @@
     (when body
       `((unless ,@(if (= 1 (length value)) value `((and ,value)))
           ,@body)))
-    :doc `(,@body) :file `(,@body) :url `(,@body)
-    :pre-setq `(,@(mapcar (lambda (elm) `(setq ,(car elm) ,(cdr elm))) value) ,@body)
-    :init `(,@value ,@body)
-    :require `(,@(mapcar (lambda (elm) `(require ',elm)) value) ,@body)
-    :hook
-    (progn
-      (mapc (lambda (elm) (leaf-register-autoload (cdr elm) name)) value)
-      `(,@(mapcar (lambda (elm) `(add-hook ',(car elm) #',(cdr elm))) value) ,@body))
+
+    :custom `((custom-set-variables ,@(mapcar (lambda (elm) `'(,(car elm) ,(cdr elm))) value)) ,@body)
+    :custom-face `((custom-set-faces ,@(mapcar (lambda (elm) `'(,(car elm) ,(cdr elm))) value)) ,@body)
     :mode
     (progn
       (mapc (lambda (elm) (leaf-register-autoload (cdr elm) name)) value)
@@ -88,10 +85,16 @@
     (progn
       (mapc (lambda (elm) (leaf-register-autoload (cdr elm) name)) value)
       `(,@(mapcar (lambda (elm) `(add-to-list 'magic-fallback-mode-alist '(,(car elm) ,(cdr elm)))) value) ,@body))
+    :hook
+    (progn
+      (mapc (lambda (elm) (leaf-register-autoload (cdr elm) name)) value)
+      `(,@(mapcar (lambda (elm) `(add-hook ',(car elm) #',(cdr elm))) value) ,@body))
+
+    :pre-setq `(,@(mapcar (lambda (elm) `(setq ,(car elm) ,(cdr elm))) value) ,@body)
+    :init `(,@value ,@body)
+    :require `(,@(mapcar (lambda (elm) `(require ',elm)) value) ,@body)
     :setq `(,@(mapcar (lambda (elm) `(setq ,(car elm) ,(cdr elm))) value) ,@body)
     :setq-default `(,@(mapcar (lambda (elm) `(setq-default ,(car elm) ,(cdr elm))) value) ,@body)
-    :custom `((custom-set-variables ,@(mapcar (lambda (elm) `'(,(car elm) ,(cdr elm))) value)) ,@body)
-    :custom-face `((custom-set-faces ,@(mapcar (lambda (elm) `'(,(car elm) ,(cdr elm))) value)) ,@body)
     :config `(,@value ,@body)
     )
   "Special keywords and conversion rule to be processed by `leaf'.

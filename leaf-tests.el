@@ -361,9 +361,9 @@
      :init (foo-pre-init)
      :config (foo-post-init))
    '(progn
-      (foo-pre-init)
       (custom-set-variables
        '(bar 'baz))
+      (foo-pre-init)
       (foo-post-init))))
 
 ;; (cort-deftest leaf-test/:simple-mode
