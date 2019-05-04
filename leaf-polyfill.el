@@ -31,21 +31,6 @@
 ;;  For legacy Emacs
 ;;
 
-(defmacro leaf-case (fn var &rest conds)
-  "Switch case macro with FN for VAR and CONDS.
-Emacs-22 doesn't support `pcase'."
-  (declare (indent 2))
-  (let ((lcond var))
-    `(cond
-      ,@(mapcar (lambda (x)
-                  (let ((rcond (car x))
-                        (form (cadr x)))
-                    (if (eq rcond '_)
-                        `(t ,form)
-                      `((funcall ,fn ,lcond ,rcond) ,form))))
-                conds)
-      (t nil))))
-
 (defun leaf-mapcaappend (func seq &rest rest)
   "Another implementation for `mapcan' for FUNC SEQ REST.
 `mapcan' uses `nconc', but Emacs-22 doesn't support it."
@@ -60,9 +45,16 @@ Emacs-22 doesn't support `pcase'."
   "Return t if VAR is non-nil."
   (not (not var)))
 
-(defsubst leaf-pairp (var)
-  "Return t if VAR is pair."
-  (and (listp var) (atom (cdr var))))
+(defsubst leaf-pairp (var &optional allow)
+  "Return t if VAR is pair.  If ALLOW is non-nil, allow nil as last element"
+  (and (listp var)
+       (atom (car var))
+       (atom (cdr var))
+       (if allow t (not (null (cdr var))))))
+
+(defsubst leaf-dotlistp (var)
+  "Return t if VAR is doted list (last arg of list is not 'nil)."
+  (not (eq nil (cdr (last var)))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
@@ -74,15 +66,20 @@ Emacs-22 doesn't support `pcase'."
   (leaf-truep
    (delq nil (mapcar (lambda (x) (memq x list)) symlist))))
 
-(defsubst leaf-list-add-to-list (destlst fromlst &optional append)
-  "Add FROMLST to DESTLST with `add-to-list'.
-Defaltly, add at the beginning of the list, but when APPEND is non-nil,
-SOURCE-LST is added at the end.
-this function is minor change from `add-to-list'."
-  (mapc (lambda (x)
-          (add-to-list destlst x append))
-        (if append fromlst (reverse fromlst)))
-  destlst)
+(defun leaf-flatten (lst)
+  "Return flatten list of LST."
+  (let ((fn))
+    (if (fboundp 'mapcan)
+        (setq fn (lambda (lst)
+                   (if (atom lst) `(,lst) (mapcan fn lst))))
+      (setq fn (lambda (lst)
+                 (if (atom lst) `(,lst) (apply #'append (mapcar fn lst))))))
+    (funcall fn lst)))
+
+(defun leaf-subst (old new lst)
+  "Substitute NEW for OLD in LST. "
+  (declare (indent 2))
+  (mapcar (lambda (elm) (if (eq elm old) new elm)) lst))
 
 (defun leaf-insert-before (lst target belm)
   "Insert TARGET before BELM in LST."
@@ -132,6 +129,18 @@ this function is minor change from `add-to-list'."
       (warn (format "%s is not found in given list" aelm)))
     (nreverse retlst)))
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;
+;;  General plist functions
+;;
+
+(defun leaf-plist-keys (plist)
+  (let ((count 1) ret)
+    (dolist (elm plist)
+      (when (= 1 (mod count 2))
+        (setq ret (cons elm ret)))
+      (setq count (1+ count)))
+    (nreverse ret)))
 
 (provide 'leaf-polyfill)
 ;;; leaf-polyfill.el ends here

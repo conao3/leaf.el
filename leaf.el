@@ -33,50 +33,9 @@
 
 (require 'leaf-polyfill)
 
-(require 'leaf-handler)
-(require 'leaf-backend)
-
 (defgroup leaf nil
   "Symplifying your `.emacs' configuration."
   :group 'lisp)
-
-(defcustom leaf-keywords
-  '(;; Always be placed at the top-level.
-    ;; If this keyword activated, leaf block convert to nil.
-    :disabled
-
-    ;; Initialize phase
-    :load-path
-    :byte-compile-funcs :byte-compile-vars
-
-    ;; Condition keywards.
-    :if :when :unless
-
-    ;; Documentation keywords
-    :doc :file :url
-
-    ;; Preparation keywords.
-    ;; Install package. (Condition isn't passed, not install)
-    :ensure :defaults
-    :pre-setq :init
-    :commands :hook
-    :mode :interpreter
-    :magic :magic-fallback
-
-    ;; Require package.
-    :require
-
-    ;; Configuration keywords.
-    :bind :bind*
-    :setq :setq-default
-    :custom :custom-face
-    :config
-    )
-  "Special keywords to be processed by `leaf'.
-Sort by `leaf-sort-values-plist' in this order.
-Each symbol must has handle function named as `leaf-handler/_:symbol_'."
-  :type 'sexp
-  :group 'leaf)
 
 (defcustom leaf-defaults '()
   "Default values for each leaf packages."
@@ -88,7 +47,7 @@ Each symbol must has handle function named as `leaf-handler/_:symbol_'."
 ;;  Customize backend
 ;;
 
-(defcustom leaf-backend/:ensure (if (require 'feather nil t) 'feather
+(defcustom leaf-backend-ensure (if (require 'feather nil t) 'feather
                                   (if (require 'package nil t) 'package))
   "Backend to process `:ensure' keyword."
   :type '(choice (const :tag "Use `package.el'." 'package)
@@ -96,18 +55,366 @@ Each symbol must has handle function named as `leaf-handler/_:symbol_'."
                  (const :tag "No backend, disable `:ensure'." nil))
   :group 'leaf)
 
-(defcustom leaf-backend/:bind (if (require 'bind-key nil t) 'bind-key)
+(defcustom leaf-backend-bind (if (require 'bind-key nil t) 'bind-key)
   "Backend to process `:bind' keyword."
   :type '(choice (const :tag "Use `bind-key.el'." 'bind-key)
                  (const :tag "No backend, disable `:bind'." nil))
   :group 'leaf)
 
-(defcustom leaf-backend/:bind* (if (require 'bind-key nil t) 'bind-key)
+(defcustom leaf-backend-bind* (if (require 'bind-key nil t) 'bind-key)
   "Backend to process `:bind*' keyword."
   :type '(choice (const :tag "Use `bind-key.el'." 'bind-key)
                  (const :tag "No backend, disable `:bind'." nil))
   :group 'leaf)
 
+(defcustom leaf-options-ensure-default-pin nil
+  "Option :ensure pin default.
+'nil is using package manager default."
+  :type 'sexp
+  :group 'leaf)
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;
+;;  leaf keywords definition
+;;
+
+(defvar leaf-keywords
+  '(:dummy
+    :disabled (unless (eval (car value)) `(,@body))
+    :ensure `(,@(mapcar
+                 (lambda (elm)
+                   (let ((pkg `',(car elm))
+                         (pin (cdr elm)))
+                     (cond
+                      ((eq leaf-backend-ensure 'package)
+                       `(unless (package-installed-p ,pkg)
+                          (condition-case-unless-debug err
+                              (if (assoc ,pkg package-archive-contents)
+                                  (package-install ,pkg)
+                                (package-refresh-contents)
+                                (package-install ,pkg))
+                            (error
+                             (display-warning 'leaf
+                                              (format "Failed to install %s: %s"
+                                                      ,pkg (error-message-string err))
+                                              :error))))))))
+                 value)
+              ,@body)
+    :doc `(,@body) :file `(,@body) :url `(,@body)
+
+    :load-path `(,@(mapcar (lambda (elm) `(add-to-list 'load-path ,elm)) value) ,@body)
+    :defun `(,@(mapcaar (lambda (elm) `(declare-function ,elm ,(symbol-name name))) value) ,@body)
+    :defvar `(,@(mapcaar (lambda (elm) `(defvar ,elm)) value) ,@body)
+    :preface `(,@value ,@body)
+
+    :if (when body
+          `((if ,@(if (= 1 (length value)) value `((and ,@value)))
+                (progn ,@body))))
+    :when (when body
+            `((when ,@(if (= 1 (length value)) value `((and ,@value)))
+                ,@body)))
+    :unless (when body
+              `((unless ,@(if (= 1 (length value)) value `((and ,value)))
+                  ,@body)))
+
+    :after (when body
+             (let ((ret `(progn ,@body)))
+               (dolist (elm value) (setq ret `(eval-after-load ',elm ',ret)))
+               `(,ret)))
+
+    :custom `((custom-set-variables ,@(mapcar (lambda (elm) `'(,(car elm) ,(cdr elm))) value)) ,@body)
+    :custom-face `((custom-set-faces ,@(mapcar (lambda (elm) `'(,(car elm) ,(cdr elm))) value)) ,@body)
+    :bind `(,@(mapcar (lambda (elm) `(bind-keys ,@elm)) value) ,@body)
+    :bind* `(,@(mapcar (lambda (elm) `(bind-keys* ,@elm)) value) ,@body)
+
+    :mode
+    (progn
+      (mapc (lambda (elm) (leaf-register-autoload (cdr elm) name)) value)
+      `(,@(mapcar (lambda (elm) `(add-to-list 'auto-mode-alist '(,(car elm) ,(cdr elm)))) value) ,@body))
+    :interpreter
+    (progn
+      (mapc (lambda (elm) (leaf-register-autoload (cdr elm) name)) value)
+      `(,@(mapcar (lambda (elm) `(add-to-list 'interpreter-mode-alist '(,(car elm) ,(cdr elm)))) value) ,@body))
+    :magic
+    (progn
+      (mapc (lambda (elm) (leaf-register-autoload (cdr elm) name)) value)
+      `(,@(mapcar (lambda (elm) `(add-to-list 'magic-mode-alist '(,(car elm) ,(cdr elm)))) value) ,@body))
+    :magic-fallback
+    (progn
+      (mapc (lambda (elm) (leaf-register-autoload (cdr elm) name)) value)
+      `(,@(mapcar (lambda (elm) `(add-to-list 'magic-fallback-mode-alist '(,(car elm) ,(cdr elm)))) value) ,@body))
+    :hook
+    (progn
+      (mapc (lambda (elm) (leaf-register-autoload (cdr elm) name)) value)
+      `(,@(mapcar (lambda (elm) `(add-hook ',(car elm) #',(cdr elm))) value) ,@body))
+
+    :commands (progn (mapc (lambda (elm) (leaf-register-autoload elm name)) value) `(,@body))
+    :pre-setq `(,@(mapcar (lambda (elm) `(setq ,(car elm) ,(cdr elm))) value) ,@body)
+    :init `(,@value ,@body)
+    :require `(,@(mapcar (lambda (elm) `(require ',elm)) value) ,@body)
+    :setq `(,@(mapcar (lambda (elm) `(setq ,(car elm) ,(cdr elm))) value) ,@body)
+    :setq-default `(,@(mapcar (lambda (elm) `(setq-default ,(car elm) ,(cdr elm))) value) ,@body)
+    :config `(,@value ,@body)
+    )
+  "Special keywords and conversion rule to be processed by `leaf'.
+Sort by `leaf-sort-values-plist' in this order.")
+
+(defvar leaf-normarize
+  '(((memq key '(:require))
+     ;; Accept: 't, 'nil, symbol and list of these (and nested)
+     ;; Return: symbol list.
+     ;; Note  : 't will convert to 'name
+     ;;         if 'nil placed on top, ignore all argument
+     ;;         remove duplicate element
+     (let ((ret (leaf-flatten value)))
+       (if (eq nil (car ret))
+           nil
+         (delete-dups (delq nil (leaf-subst t name ret))))))
+    ((memq key '(:load-path :commands :defun :defvar :after))
+     ;; Accept: 't, 'nil, symbol and list of these (and nested)
+     ;; Return: symbol list.
+     ;; Note  : 'nil is just ignored
+     ;;         remove duplicate element
+     (delete-dups (delq nil (leaf-flatten value))))
+    ((memq key '(:bind :bind*))
+     ;; Accept: list of pair (bind . func),
+     ;;         ([:{{hoge}}-map] [:package {{pkg}}](bind . func) (bind . func) ...)
+     ;;         optional, [:{{hoge}}-map] [:package {{pkg}}]
+     ;; Return: list of ([:{{hoge}}-map] [:package {{pkg}}] (bind . func))
+     (let ((ret) (fn))
+       (setq fn (lambda (elm ret)
+                  (cond
+                   ((leaf-pairp elm)
+                    (if (member elm ret)
+                        ret
+                      (cons `(:package ,name ,elm) ret)))
+                   ((listp elm)
+                    (if (not (atom (car elm)))
+                        (progn
+                          (dolist (el elm)
+                            (setq ret (funcall fn el ret)))
+                          ret)
+                      (let ((map        (make-symbol (substring (symbol-name (car elm)) 1)))
+                            (package    (plist-get (cdr elm) :package))
+                            (prefix     (plist-get (cdr elm) :prefix))
+                            (prefix-map (plist-get (cdr elm) :prefix-map))
+                            (menu-name  (plist-get (cdr elm) :menu-name))
+                            (filter     (plist-get (cdr elm) :filter)))
+                        (dolist (el elm)
+                          (let ((target
+                                 (cdr `(:dummy
+                                        :map ,map
+                                        ,@(if package `(:package ,package)
+                                            `(:package ,name))
+                                        ,@(when prefix `(:prefix ,prefix))
+                                        ,@(when prefix-map `(:prefix-map ,prefix-map))
+                                        ,@(when menu-name `(:manu-name ,menu-name))
+                                        ,@(when filter `(:filter ,filter))
+                                        ,el))))
+                            (cond
+                             ((leaf-pairp el)
+                              (if (member target ret)
+                                  ret
+                                (setq ret (cons target ret))))
+                             ((listp el)
+                              (setq ret (funcall fn target ret)))))))
+                      ret))
+                   (t
+                    (warn (format "Value %s is malformed." value))))))
+       (dolist (elm value)
+         (setq ret (funcall fn elm ret)))
+       (nreverse ret)))
+    ((memq key '(:ensure))
+     ;; Accept: pkg, (pkg . pin), ((pkg pkg ...) . pin),
+     ;;         (pkg pkg ... . pin) and list of these (and nested)
+     ;; Return: list of pair (pkg . pin).
+     ;; Note  : t will convert (name . nil)
+     ;;         if omit pin, use `leaf-options-ensure-default-pin'.
+     ;;         if pin is 'nil, use package manager default
+     ;;         remove duplicate configure
+     ;;         't and 'nil are just ignored
+     (let ((ret) (fn))
+       (setq fn (lambda (elm ret)
+                  (cond
+                   ((eq t elm)
+                    (cons `(,name . nil) ret))
+                   ((eq nil elm)
+                    ret)
+                   ((atom elm)
+                    (let ((sym `(,elm . ,leaf-options-ensure-default-pin)))
+                      (if (member sym ret)
+                          ret
+                        (cons sym ret))))
+                   ((leaf-pairp elm)
+                    (if (listp (car elm))
+                        (progn
+                          (dolist (el (car elm))
+                            (setq ret (funcall fn `(,el . ,(cdr elm)) ret)))
+                          ret)
+                      (if (member elm ret)
+                          ret
+                        (cons elm ret))))
+                   ((leaf-dotlistp elm)
+                    (let ((tail (nthcdr (safe-length elm) elm)))
+                      (while (not (atom elm))
+                        (setq ret (funcall fn `(,(car elm) . ,tail) ret))
+                        (pop elm))
+                      ret))
+                   ((listp elm)
+                    (dolist (el elm)
+                      (setq ret (funcall fn el ret)))
+                    ret)
+                   (t
+                    (warn (format "Value %s is malformed." value))))))
+       (dolist (elm value)
+         (setq ret (funcall fn elm ret)))
+       (nreverse ret)))
+    ((memq key '(:hook :mode :interpreter :magic :magic-fallback))
+     ;; Accept: func, (hook . func), ((hook hook ...) . func),
+     ;;         (hook hook ... . func) and list of these (and nested)
+     ;; Return: list of pair (hook . func).
+     ;; Note  : if omit hook, use name as hook
+     ;;         remove duplicate configure
+     ;;         't and 'nil are just ignored
+     (let ((ret) (fn))
+       (setq fn (lambda (elm ret)
+                  (cond
+                   ((eq t elm)
+                    ret)
+                   ((eq nil elm)
+                    ret)
+                   ((atom elm)
+                    (let ((sym `(,elm . ,name)))
+                      (if (member sym ret)
+                          ret
+                        (cons sym ret))))
+                   ((leaf-pairp elm)
+                    (if (listp (car elm))
+                        (progn
+                          (dolist (el (car elm))
+                            (setq ret (funcall fn `(,el . ,(cdr elm)) ret)))
+                          ret)
+                      (if (member elm ret)
+                          ret
+                        (cons elm ret))))
+                   ((leaf-dotlistp elm)
+                    (let ((tail (nthcdr (safe-length elm) elm)))
+                      (while (not (atom elm))
+                        (setq ret (funcall fn `(,(car elm) . ,tail) ret))
+                        (pop elm))
+                      ret))
+                   ((listp elm)
+                    (dolist (el elm)
+                      (setq ret (funcall fn el ret)))
+                    ret)
+                   (t
+                    (warn (format "Value %s is malformed." value))))))
+       (dolist (elm value)
+         (setq ret (funcall fn elm ret)))
+       (nreverse ret)))
+    ((memq key '(:setq :pre-setq :setq-default :custom :custom-face))
+     ;; Accept: (sym . val), ((sym sym ...) . val), (sym sym ... . val)
+     ;; Return: list of pair (sym . val)
+     ;; Note  : atom ('t, 'nil, symbol) is just ignored
+     ;;         remove duplicate configure
+     (let ((ret) (fn))
+       (setq fn (lambda (elm ret)
+                  (cond
+                   ((atom elm)
+                    ret)
+                   ((leaf-pairp elm)
+                    (if (listp (car elm))
+                        (progn
+                          (dolist (el (car elm))
+                            (setq ret (funcall fn `(,el . ,(cdr elm)) ret)))
+                          ret)
+                      (if (member elm ret)
+                          ret
+                        (cons elm ret))))
+                   ((and (= 2 (safe-length elm))
+                         (or (atom (car elm)) (atom (caar elm))))
+                    (let ((tail (cdr elm)))
+                      (if (listp (car elm))
+                          (progn
+                            (dolist (el (car elm))
+                              (let ((target `(,el . ,tail)))
+                                (if (member target ret)
+                                    ret
+                                  (setq ret (cons target ret)))))
+                            ret)
+                        (let ((target `(,(car elm) . ,tail)))
+                          (if (member target ret)
+                              ret
+                            (cons target ret))))))
+                   ((member `',(nth (- (safe-length elm) 2) elm) '('quote 'function))
+                    (let ((tail (nthcdr (- (safe-length elm) 2) elm)))
+                      (if (listp (car elm))
+                          (dolist (el (car elm))
+                            (let ((target `(,el . ,tail)))
+                              (if (member target ret)
+                                  ret
+                                (setq ret (cons target ret)))))
+                        (while (not (= 2 (safe-length elm)))
+                          (let ((target `(,(car elm) . ,tail)))
+                            (if (member target ret)
+                                ret
+                              (setq ret (cons target ret))))
+                          (pop elm)))
+                      ret))
+                   ((leaf-dotlistp elm)
+                    (let ((tail (nthcdr (safe-length elm) elm)))
+                      (while (not (atom elm))
+                        (setq ret (funcall fn `(,(car elm) . ,tail) ret))
+                        (pop elm))
+                      ret))
+                   ((listp elm)
+                    (dolist (el elm)
+                      (setq ret (funcall fn el ret)))
+                    ret)
+                   (t
+                    (warn (format "Value %s is malformed." value))))))
+       (dolist (elm value)
+         (setq ret (funcall fn elm ret)))
+       (nreverse ret)))
+    ((memq key '(:disabled :if :when :unless))
+     value)
+    (t
+     value))
+  "Normarize rule")
+
+(defun leaf-process-keywords (name plist)
+  "Process keywords for NAME.
+NOTE:
+Not check PLIST, PLIST has already been carefully checked
+parent funcitons.
+Don't call this function directory."
+  (when plist
+    (let* ((key   (pop plist))
+           (value (leaf-normarize-args name key (pop plist)))
+           (body  (leaf-process-keywords name plist)))
+      (eval
+       `(let ((name  ',name)
+              (key   ',key)
+              (value ',value)
+              (body  ',body)
+              (rest  ',plist))
+          ,(plist-get (cdr leaf-keywords) key))))))
+
+(defun leaf-normarize-args (name key value)
+  "Normarize for NAME, KEY and VALUE."
+  (eval
+   `(let ((name  ',name)
+          (key   ',key)
+          (value ',value))
+      (cond
+       ,@leaf-normarize))))
+
+(defvar leaf--autoload)
+(defun leaf-register-autoload (fn pkg)
+  "Registry FN as autoload for PKG."
+  (let ((target `(,fn . ,(symbol-name pkg))))
+    (when (not (member target leaf--autoload))
+      (setq leaf--autoload (cons target leaf--autoload)))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
@@ -157,19 +464,6 @@ Each symbol must has handle function named as `leaf-handler/_:symbol_'."
     (setq leaf-keywords
           (leaf-insert-after leaf-keywords target aelm))))
 
-(defun leaf-add-doc-keyword (key)
-  "Add KEY to `leaf-keywords' as documentation keywords."
-  (eval
-   `(progn
-      (leaf-add-keyword-after ,key :disabled)
-      (defun ,(intern (format "leaf-handler/%s" key)) (name value rest)
-        ,(format
-          (concat "Process %s as documentation keyword.\n"
-                  "This handler just ignore this keyword.")
-          key)
-        (let ((body (leaf-process-keywords name rest)))
-          `(,@body))))))
-
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
 ;;  Pseudo-plist functions
@@ -203,7 +497,7 @@ EXAMPLE:
   => (:disabled (t)
       :config (message \"a\"))"
   (let ((retplist))
-    (dolist (key leaf-keywords)
+    (dolist (key (leaf-plist-keys (cdr leaf-keywords)))
       (if (plist-member plist key)
           (setq retplist `(,@retplist ,key ,(plist-get plist key)))))
     retplist))
@@ -228,7 +522,7 @@ EXAMPLE:
         (setq retplist `(,@retplist ,key ,value))))
     retplist))
 
-(defun leaf-normalize-plist (plist mergep)
+(defun leaf-normalize-plist (plist &optional mergep)
   "Given a pseudo-PLIST, return PLIST.
 if MERGEP is t, return well-formed PLIST.
 
@@ -263,44 +557,25 @@ EXAMPLE:
     ;; merge value for duplicated key if MERGEP is t
     (if mergep (leaf-merge-dupkey-values-plist retplist) retplist)))
 
-(defun leaf-process-keywords (name plist)
-  "Process keywords for NAME.
-
-NOTE:
-Not check PLIST, PLIST has already been carefully checked
-parent funcitons.
-Don't call this function directory."
-
-  (when plist
-    (let* ((key         (pop plist))
-           (value       (pop plist))
-           (rest        plist)
-           (handler     (format "leaf-handler/%s" key))
-           (handler-sym (intern handler)))
-      (funcall handler-sym name value rest))))
-
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
 ;;  Main macro
 ;;
 
-(defun leaf-macroexp-progn (exps)
-  "Return an expression equivalent to \\=`(progn ,@EXPS).
-Copy code from `macroexp-progn' for old Emacs."
-  (when exps `(progn ,@exps)))
-
-(defun leaf-core (name args)
-  "The leaf core process for NAME with ARGS."
-  (let* ((args* (leaf-sort-values-plist
-                 (leaf-normalize-plist
-                  (leaf-append-defaults args) t))))
-    (leaf-process-keywords name args*)))
-
 (defmacro leaf (name &rest args)
   "Symplify your `.emacs' configuration for package NAME with ARGS."
-  (declare (indent 1))
-  (leaf-macroexp-progn
-   (leaf-core `',name args)))
+  (declare (indent defun))
+  (let* ((leaf--autoload)
+         (args* (leaf-sort-values-plist
+                 (leaf-normalize-plist
+                  (leaf-append-defaults args) t)))
+         (body (leaf-process-keywords name args*)))
+    (when (or body leaf--autoload)
+      `(progn
+         ,@(mapcar
+            (lambda (elm) `(autoload #',(car elm) ,(cdr elm) nil t))
+            (nreverse leaf--autoload))
+         ,@body))))
 
 (provide 'leaf)
 ;;; leaf.el ends here

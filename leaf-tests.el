@@ -105,22 +105,22 @@
 ;;  sumple adding keyword(s)
 ;;
 
-(leaf-add-keyword-before :message-pre-require :require)
-(defun leaf-handler/:message-pre-require (name value rest)
-  "process :message-pre-require."
-  (let ((body (leaf-process-keywords name rest)))
-    `(,@(mapcar (lambda (x) `(message ,x)) value) ,@body)))
+;; (leaf-add-keyword-before :message-pre-require :require)
+;; (defun leaf-handler/:message-pre-require (name value rest)
+;;   "process :message-pre-require."
+;;   (let ((body (leaf-process-keywords name rest)))
+;;     `(,@(mapcar (lambda (x) `(message ,x)) value) ,@body)))
 
-(leaf-add-keyword-after :message-post-require :require)
-(defun leaf-handler/:message-post-require (name value rest)
-  "process :message-post-require."
-  (let ((body (leaf-process-keywords name rest)))
-    `(,@(mapcar (lambda (x) `(message ,x)) value) ,@body)))
+;; (leaf-add-keyword-after :message-post-require :require)
+;; (defun leaf-handler/:message-post-require (name value rest)
+;;   "process :message-post-require."
+;;   (let ((body (leaf-process-keywords name rest)))
+;;     `(,@(mapcar (lambda (x) `(message ,x)) value) ,@body)))
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;
-;;  Sumple functions
-;;
+;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; ;;
+;; ;;  Sumple functions
+;; ;;
 
 (defun rt ()
   "test function every returns `t'."
@@ -138,33 +138,33 @@
   "test macro every returns `rnil'"
   `(rnil))
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;
-;;  test definition
-;;
+;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; ;;
+;; ;;  test definition
+;; ;;
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;
-;;  utility functions
-;;
+;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; ;;
+;; ;;  utility functions
+;; ;;
 
-(cort-deftest leaf-test:/simple-format
-  (:string= (leaf-to-string
-             '(leaf real-auto-save
-                :ensure t
-                :custom ((real-auto-save-interval . 0.3))
-                :commands real-auto-save-mode
-                :hook (find-file-hook . real-auto-save-mode)))
-            "(leaf real-auto-save
-  :ensure t
-  :custom ((real-auto-save-interval . 0.3))
-  :commands real-auto-save-mode
-  :hook (find-file-hook . real-auto-save-mode))"))
+;; (cort-deftest leaf-test:/simple-format
+;;   (:string= (leaf-to-string
+;;              '(leaf real-auto-save
+;;                 :ensure t
+;;                 :custom ((real-auto-save-interval . 0.3))
+;;                 :commands real-auto-save-mode
+;;                 :hook (find-file-hook . real-auto-save-mode)))
+;;             "(leaf real-auto-save
+;;   :ensure t
+;;   :custom ((real-auto-save-interval . 0.3))
+;;   :commands real-auto-save-mode
+;;   :hook (find-file-hook . real-auto-save-mode))"))
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;
-;;  simple test
-;;
+;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; ;;
+;; ;;  simple test
+;; ;;
 
 (cort-deftest leaf-test:/simple-none
   (match-expansion
@@ -266,31 +266,31 @@
       (require 'foo-piyo)
       (setq bar 'baz))))
 
-(cort-deftest leaf-test/:simple-keyword-add
-  (match-expansion
-   (leaf foo
-     :require h s :message-post-require "foo!" :config (setq bar 'baz))
-   '(progn
-      (require 'h)
-      (require 's)
-      (message "foo!")
-      (setq bar 'baz))))
+;; (cort-deftest leaf-test/:simple-keyword-add
+;;   (match-expansion
+;;    (leaf foo
+;;      :require h s :message-post-require "foo!" :config (setq bar 'baz))
+;;    '(progn
+;;       (require 'h)
+;;       (require 's)
+;;       (message "foo!")
+;;       (setq bar 'baz))))
 
-(cort-deftest leaf-test/:simple-keyword-add-2
-  (match-expansion
-   (leaf foo
-     :require h s
-     :message-post-require "foo!"
-     :config (setq bar 'baz)
-     :message-post-require "post!"
-     :message-pre-require "pre")
-   '(progn
-      (message "pre")
-      (require 'h)
-      (require 's)
-      (message "foo!")
-      (message "post!")
-      (setq bar 'baz))))
+;; (cort-deftest leaf-test/:simple-keyword-add-2
+;;   (match-expansion
+;;    (leaf foo
+;;      :require h s
+;;      :message-post-require "foo!"
+;;      :config (setq bar 'baz)
+;;      :message-post-require "post!"
+;;      :message-pre-require "pre")
+;;    '(progn
+;;       (message "pre")
+;;       (require 'h)
+;;       (require 's)
+;;       (message "foo!")
+;;       (message "post!")
+;;       (setq bar 'baz))))
 
 (cort-deftest leaf-test/:simple-doc-keyword
   (match-expansion
@@ -312,36 +312,36 @@
    '(progn
       (setq bar 'baz))))
 
-(cort-deftest leaf-test/:simple-bind
-  (match-expansion
-   (leaf foo
-     :bind (("M-s O" . moccur)
-            :map isearch-mode-map
-            ("M-o" . isearch-moccur)
-            ("M-O" . isearch-moccur-all))
-     :init
-     (setq isearch-lazy-highlight t)
-     :config
-     (leaf moccur-edit))
-   '(progn
-      (setq isearch-lazy-highlight t)
-      (leaf-meta-backend/:bind 'foo
-			       '((("M-s O" . moccur)
-			          :map isearch-mode-map
-			          ("M-o" . isearch-moccur)
-			          ("M-O" . isearch-moccur-all))))
-      (leaf moccur-edit))))
+;; (cort-deftest leaf-test/:simple-bind
+;;   (match-expansion
+;;    (leaf foo
+;;      :bind (("M-s O" . moccur)
+;;             :map isearch-mode-map
+;;             ("M-o" . isearch-moccur)
+;;             ("M-O" . isearch-moccur-all))
+;;      :init
+;;      (setq isearch-lazy-highlight t)
+;;      :config
+;;      (leaf moccur-edit))
+;;    '(progn
+;;       (setq isearch-lazy-highlight t)
+;;       (leaf-meta-backend/:bind 'foo
+;; 			       '((("M-s O" . moccur)
+;; 			          :map isearch-mode-map
+;; 			          ("M-o" . isearch-moccur)
+;; 			          ("M-O" . isearch-moccur-all))))
+;;       (leaf moccur-edit))))
 
-(cort-deftest leaf-test/:simple-pre-setq
-  (match-expansion
-   (leaf foo
-     :pre-setq ((bar . 'baz))
-     :init (foo-pre-init)
-     :config (foo-post-init))
-   '(progn
-      (setq bar 'baz)
-      (foo-pre-init)
-      (foo-post-init))))
+;; (cort-deftest leaf-test/:simple-pre-setq
+;;   (match-expansion
+;;    (leaf foo
+;;      :pre-setq ((bar . 'baz))
+;;      :init (foo-pre-init)
+;;      :config (foo-post-init))
+;;    '(progn
+;;       (setq bar 'baz)
+;;       (foo-pre-init)
+;;       (foo-post-init))))
 
 (cort-deftest leaf-test/:simple-post-setq
   (match-expansion
@@ -361,65 +361,65 @@
      :init (foo-pre-init)
      :config (foo-post-init))
    '(progn
-      (foo-pre-init)
       (custom-set-variables
        '(bar 'baz))
+      (foo-pre-init)
       (foo-post-init))))
 
-(cort-deftest leaf-test/:simple-mode
-  (match-expansion
-   (leaf ruby-mode
-     :mode "\\.rb\\'"
-     :interpreter "ruby")
-   '(progn
-      (autoload #'ruby-mode "ruby-mode" nil t)
-      (leaf-list-add-to-list 'auto-mode-alist
-                             '(("\\.rb\\'" . ruby-mode)))
-      (autoload #'ruby-mode "ruby-mode" nil t)
-      (leaf-list-add-to-list 'interpreter-mode-alist
-                             '(("ruby" . ruby-mode))))))
+;; (cort-deftest leaf-test/:simple-mode
+;;   (match-expansion
+;;    (leaf ruby-mode
+;;      :mode "\\.rb\\'"
+;;      :interpreter "ruby")
+;;    '(progn
+;;       (autoload #'ruby-mode "ruby-mode" nil t)
+;;       (leaf-list-add-to-list 'auto-mode-alist
+;;                              '(("\\.rb\\'" . ruby-mode)))
+;;       (autoload #'ruby-mode "ruby-mode" nil t)
+;;       (leaf-list-add-to-list 'interpreter-mode-alist
+;;                              '(("ruby" . ruby-mode))))))
 
-(cort-deftest leaf-test/:simple-multi-mode
-  (match-expansion
-   (leaf ruby-mode
-     :mode "\\.rb\\'" "\\.rb2\\'" ("\\.rbg\\'" . rb-mode)
-     :interpreter "ruby")
-   '(progn
-      (autoload #'ruby-mode "ruby-mode" nil t)
-      (autoload #'rb-mode "ruby-mode" nil t)
-      (leaf-list-add-to-list 'auto-mode-alist
-                             '(("\\.rb\\'" . ruby-mode)
-                               ("\\.rb2\\'" . ruby-mode)
-                               ("\\.rbg\\'" . rb-mode)))
-      (autoload #'ruby-mode "ruby-mode" nil t)
-      (leaf-list-add-to-list 'interpreter-mode-alist
-                             '(("ruby" . ruby-mode))))))
+;; (cort-deftest leaf-test/:simple-multi-mode
+;;   (match-expansion
+;;    (leaf ruby-mode
+;;      :mode "\\.rb\\'" "\\.rb2\\'" ("\\.rbg\\'" . rb-mode)
+;;      :interpreter "ruby")
+;;    '(progn
+;;       (autoload #'ruby-mode "ruby-mode" nil t)
+;;       (autoload #'rb-mode "ruby-mode" nil t)
+;;       (leaf-list-add-to-list 'auto-mode-alist
+;;                              '(("\\.rb\\'" . ruby-mode)
+;;                                ("\\.rb2\\'" . ruby-mode)
+;;                                ("\\.rbg\\'" . rb-mode)))
+;;       (autoload #'ruby-mode "ruby-mode" nil t)
+;;       (leaf-list-add-to-list 'interpreter-mode-alist
+;;                              '(("ruby" . ruby-mode))))))
 
-(cort-deftest leaf-test/:simple-magic
-  (match-expansion
-   (leaf pdf-tools
-     :magic ("%PDF" . pdf-view-mode)
-     :config
-     (pdf-tools-install))
-   '(progn
-      (autoload #'pdf-tools "pdf-tools" nil t)
-      (autoload #'pdf-view-mode "pdf-tools" nil t)
-      (leaf-list-add-to-list 'magic-mode-alist
-                             '(("%PDF" . pdf-view-mode)))
-      (pdf-tools-install))))
+;; (cort-deftest leaf-test/:simple-magic
+;;   (match-expansion
+;;    (leaf pdf-tools
+;;      :magic ("%PDF" . pdf-view-mode)
+;;      :config
+;;      (pdf-tools-install))
+;;    '(progn
+;;       (autoload #'pdf-tools "pdf-tools" nil t)
+;;       (autoload #'pdf-view-mode "pdf-tools" nil t)
+;;       (leaf-list-add-to-list 'magic-mode-alist
+;;                              '(("%PDF" . pdf-view-mode)))
+;;       (pdf-tools-install))))
 
-(cort-deftest leaf-test/:simple-magic-fallback
-  (match-expansion
-   (leaf pdf-tools
-     :magic-fallback ("%PDF" . pdf-view-mode)
-     :config
-     (pdf-tools-install))
-   '(progn
-      (autoload #'pdf-tools "pdf-tools" nil t)
-      (autoload #'pdf-view-mode "pdf-tools" nil t)
-      (leaf-list-add-to-list 'magic-fallback-mode-alist
-                             '(("%PDF" . pdf-view-mode)))
-      (pdf-tools-install))))
+;; (cort-deftest leaf-test/:simple-magic-fallback
+;;   (match-expansion
+;;    (leaf pdf-tools
+;;      :magic-fallback ("%PDF" . pdf-view-mode)
+;;      :config
+;;      (pdf-tools-install))
+;;    '(progn
+;;       (autoload #'pdf-tools "pdf-tools" nil t)
+;;       (autoload #'pdf-view-mode "pdf-tools" nil t)
+;;       (leaf-list-add-to-list 'magic-fallback-mode-alist
+;;                              '(("%PDF" . pdf-view-mode)))
+;;       (pdf-tools-install))))
 
 (cort-deftest leaf-test/:simple-hook
   (match-expansion
@@ -443,22 +443,22 @@
    (leaf ace-jump-mode
      :commands ace-jump-mode)
    '(progn
-      (add-hook #'ace-jump-mode "ace-jump-mode" nil t))))
+      (autoload #'ace-jump-mode "ace-jump-mode" nil t))))
 
 (cort-deftest leaf-test/:simple-multi-commands
   (match-expansion
    (leaf ace-jump-mode
      :commands ace-jump-mode command1 command2)
    '(progn
-      (add-hook #'ace-jump-mode "ace-jump-mode" nil t)
-      (add-hook #'command1 "ace-jump-mode" nil t)
-      (add-hook #'command2 "ace-jump-mode" nil t))))
+      (autoload #'ace-jump-mode "ace-jump-mode" nil t)
+      (autoload #'command1 "ace-jump-mode" nil t)
+      (autoload #'command2 "ace-jump-mode" nil t))))
 
 (cort-deftest leaf-test/:simple-custom-face
   (match-expansion
    (leaf eruby-mode
      :custom-face
-     (eruby-standard-face ((t (:slant italic)))))
+     (eruby-standard-face . ((t (:slant italic)))))
    '(progn
       (custom-set-faces
        '(eruby-standard-face
@@ -469,70 +469,69 @@
   (match-expansion
    (leaf eruby-mode
      :custom-face
-     (eruby-standard-face ((t (:slant italic))))
-     (eruby-standard-face2 ((t (:slant italic)))))
+     (eruby-standard-face . ((t (:slant italic))))
+     (eruby-standard-face2 . ((t (:slant italic)))))
    '(progn
       (custom-set-faces
        '(eruby-standard-face
          ((t
-           (:slant italic)))))
-      (custom-set-faces
+           (:slant italic))))
        '(eruby-standard-face2
          ((t
            (:slant italic))))))))
 
-(cort-deftest leaf-test/:simple-byte-compile-vars
-  (match-expansion
-   (leaf for
-     :byte-compile-vars for-var1)
-   '(progn
-      (eval-when-compile
-        (defvar for-var1)))))
+;; (cort-deftest leaf-test/:simple-byte-compile-vars
+;;   (match-expansion
+;;    (leaf for
+;;      :byte-compile-vars for-var1)
+;;    '(progn
+;;       (eval-when-compile
+;;         (defvar for-var1)))))
 
-(cort-deftest leaf-test/:simple-multi-byte-compile-vars
-  (match-expansion
-   (leaf for
-     :byte-compile-vars for-var1 for-var2)
-   '(progn
-      (eval-when-compile
-        (defvar for-var1)
-        (defvar for-var2)))))
+;; (cort-deftest leaf-test/:simple-multi-byte-compile-vars
+;;   (match-expansion
+;;    (leaf for
+;;      :byte-compile-vars for-var1 for-var2)
+;;    '(progn
+;;       (eval-when-compile
+;;         (defvar for-var1)
+;;         (defvar for-var2)))))
 
-(cort-deftest leaf-test/:simple-byte-compile-funcs
-  (match-expansion
-   (leaf for
-     :byte-compile-funcs ((hoge-fn1 . hoge)))
-   '(progn
-      (eval-when-compile
-        (autoload #'hoge-fn1 "hoge" nil t)))))
+;; (cort-deftest leaf-test/:simple-byte-compile-funcs
+;;   (match-expansion
+;;    (leaf for
+;;      :byte-compile-funcs ((hoge-fn1 . hoge)))
+;;    '(progn
+;;       (eval-when-compile
+;;         (autoload #'hoge-fn1 "hoge" nil t)))))
 
-(cort-deftest leaf-test/:simple-multi-byte-compile-funcs
-  (match-expansion
-   (leaf for
-     :byte-compile-funcs ((hoge-fn1 . hoge)
-                          (hoge-fn2 . hoge)))
-   '(progn
-      (eval-when-compile
-        (autoload #'hoge-fn1 "hoge" nil t)
-        (autoload #'hoge-fn2 "hoge" nil t)))))
+;; (cort-deftest leaf-test/:simple-multi-byte-compile-funcs
+;;   (match-expansion
+;;    (leaf for
+;;      :byte-compile-funcs ((hoge-fn1 . hoge)
+;;                           (hoge-fn2 . hoge)))
+;;    '(progn
+;;       (eval-when-compile
+;;         (autoload #'hoge-fn1 "hoge" nil t)
+;;         (autoload #'hoge-fn2 "hoge" nil t)))))
 
-(cort-deftest leaf-test/:simple-ensure
-  (match-expansion
-   (leaf foo :ensure t)
-   '(progn
-      (leaf-meta-backend/:ensure 'foo '(t)))))
+;; (cort-deftest leaf-test/:simple-ensure
+;;   (match-expansion
+;;    (leaf foo :ensure t)
+;;    '(progn
+;;       (leaf-meta-backend/:ensure 'foo '(t)))))
 
-(cort-deftest leaf-test/:simple-defaults
-  (match-expansion
-   (leaf foo :ensure t :defaults t)
-   '(progn
-      (leaf-meta-backend/:ensure 'foo '(t))
-      (feather-install-defaults 'foo))))
+;; (cort-deftest leaf-test/:simple-defaults
+;;   (match-expansion
+;;    (leaf foo :ensure t :defaults t)
+;;    '(progn
+;;       (leaf-meta-backend/:ensure 'foo '(t))
+;;       (feather-install-defaults 'foo))))
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;
-;;  :disabled keyword
-;;
+;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; ;;
+;; ;;  :disabled keyword
+;; ;;
 
 ;; simple :disabled patterns, Finaly `t' will be adopted.
 (cort-deftest leaf-test:/disabled-1-
@@ -738,10 +737,10 @@
    '(progn
       (message "bar"))))
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;
-;;  conditions
-;;
+;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; ;;
+;; ;;  conditions
+;; ;;
 
 (cort-deftest leaf-test/:if-1
   (match-expansion
@@ -788,10 +787,10 @@
    (leaf foo :unless nil)
    'nil))
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;
-;;  :require keyword
-;;
+;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; ;;
+;; ;;  :require keyword
+;; ;;
 
 (cort-deftest leaf-test/:require-0
   (match-expansion
