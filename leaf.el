@@ -243,7 +243,7 @@ Don't call this function directory."
   (when plist
     (let* ((key   (pop plist))
            (value (leaf-normarize-args name key (pop plist)))
-           (body  (leaf-process-keywords key plist)))
+           (body  (leaf-process-keywords name plist)))
       (eval
        `(let ((name  ',name)
               (key   ',key)
