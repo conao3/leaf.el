@@ -50,6 +50,7 @@
 (defvar leaf-keywords
   '(:dummy
     :disabled (unless (eval (car value)) `(,@body))
+    :load-path `(,@(mapcar (lambda (elm) `(add-to-list 'load-path ,elm)) value) ,@body)
     :preface `(,@value ,@body)
     :if
     (when body
@@ -97,7 +98,7 @@
 Sort by `leaf-sort-values-plist' in this order.")
 
 (defvar leaf-normarize
-  '(((memq key '(:require))
+  '(((memq key '(:require :load-path))
      ;; Accept: 't, 'nil, symbol and list of these (and nested)
      ;; Return: symbol list.
      ;; Note  : 't will convert to 'name
