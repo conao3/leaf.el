@@ -354,17 +354,17 @@
       (setq bar 'baz)
       (foo-post-init))))
 
-;; (cort-deftest leaf-test/:simple-custom-set-variables
-;;   (match-expansion
-;;    (leaf foo
-;;      :custom ((bar . 'baz))
-;;      :init (foo-pre-init)
-;;      :config (foo-post-init))
-;;    '(progn
-;;       (foo-pre-init)
-;;       (custom-set-variables
-;;        '(bar 'baz))
-;;       (foo-post-init))))
+(cort-deftest leaf-test/:simple-custom-set-variables
+  (match-expansion
+   (leaf foo
+     :custom ((bar . 'baz))
+     :init (foo-pre-init)
+     :config (foo-post-init))
+   '(progn
+      (foo-pre-init)
+      (custom-set-variables
+       '(bar 'baz))
+      (foo-post-init))))
 
 ;; (cort-deftest leaf-test/:simple-mode
 ;;   (match-expansion
@@ -454,32 +454,31 @@
 ;;       (add-hook #'command1 "ace-jump-mode" nil t)
 ;;       (add-hook #'command2 "ace-jump-mode" nil t))))
 
-;; (cort-deftest leaf-test/:simple-custom-face
-;;   (match-expansion
-;;    (leaf eruby-mode
-;;      :custom-face
-;;      (eruby-standard-face ((t (:slant italic)))))
-;;    '(progn
-;;       (custom-set-faces
-;;        '(eruby-standard-face
-;;          ((t
-;;            (:slant italic))))))))
+(cort-deftest leaf-test/:simple-custom-face
+  (match-expansion
+   (leaf eruby-mode
+     :custom-face
+     (eruby-standard-face . ((t (:slant italic)))))
+   '(progn
+      (custom-set-faces
+       '(eruby-standard-face
+         ((t
+           (:slant italic))))))))
 
-;; (cort-deftest leaf-test/:simple-multi-custom-face
-;;   (match-expansion
-;;    (leaf eruby-mode
-;;      :custom-face
-;;      (eruby-standard-face ((t (:slant italic))))
-;;      (eruby-standard-face2 ((t (:slant italic)))))
-;;    '(progn
-;;       (custom-set-faces
-;;        '(eruby-standard-face
-;;          ((t
-;;            (:slant italic)))))
-;;       (custom-set-faces
-;;        '(eruby-standard-face2
-;;          ((t
-;;            (:slant italic))))))))
+(cort-deftest leaf-test/:simple-multi-custom-face
+  (match-expansion
+   (leaf eruby-mode
+     :custom-face
+     (eruby-standard-face . ((t (:slant italic))))
+     (eruby-standard-face2 . ((t (:slant italic)))))
+   '(progn
+      (custom-set-faces
+       '(eruby-standard-face
+         ((t
+           (:slant italic))))
+       '(eruby-standard-face2
+         ((t
+           (:slant italic))))))))
 
 ;; (cort-deftest leaf-test/:simple-byte-compile-vars
 ;;   (match-expansion

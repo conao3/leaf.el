@@ -64,6 +64,7 @@
       `((unless ,@(if (= 1 (length value)) value `((and ,value)))
           ,@body)))
     :doc `(,@body) :file `(,@body) :url `(,@body)
+    :pre-setq `(,@(mapcar (lambda (elm) `(setq ,(car elm) ,(cdr elm))) value) ,@body)
     :init `(,@value ,@body)
     :require `(,@(mapcar (lambda (elm) `(require ',elm)) value) ,@body)
     :hook
@@ -87,6 +88,9 @@
       (mapc (lambda (elm) (leaf-register-autoload (cdr elm) name)) value)
       `(,@(mapcar (lambda (elm) `(add-to-list 'magic-fallback-mode-alist '(,(car elm) ,(cdr elm)))) value) ,@body))
     :setq `(,@(mapcar (lambda (elm) `(setq ,(car elm) ,(cdr elm))) value) ,@body)
+    :setq-default `(,@(mapcar (lambda (elm) `(setq-default ,(car elm) ,(cdr elm))) value) ,@body)
+    :custom `((custom-set-variables ,@(mapcar (lambda (elm) `'(,(car elm) ,(cdr elm))) value)) ,@body)
+    :custom-face `((custom-set-faces ,@(mapcar (lambda (elm) `'(,(car elm) ,(cdr elm))) value)) ,@body)
     :config `(,@value ,@body)
     )
   "Special keywords and conversion rule to be processed by `leaf'.
@@ -162,7 +166,7 @@ Sort by `leaf-sort-values-plist' in this order.")
        (dolist (elm value)
          (setq ret (funcall fn elm ret)))
        (nreverse ret)))
-    ((memq key '(:setq))
+    ((memq key '(:setq :pre-setq :setq-default :custom :custom-face))
      ;; Accept: (sym . val), ((sym sym ...) . val), (sym sym ... . val)
      ;; Return: list of pair (sym . val)
      ;; Note  : atom ('t, 'nil, symbol) is just ignored
@@ -181,6 +185,21 @@ Sort by `leaf-sort-values-plist' in this order.")
                       (if (member elm ret)
                           ret
                         (cons elm ret))))
+                   ((and (= 2 (safe-length elm))
+                         (or (atom (car elm)) (atom (caar elm))))
+                    (let ((tail (cdr elm)))
+                      (if (listp (car elm))
+                          (progn
+                            (dolist (el (car elm))
+                              (let ((target `(,el . ,tail)))
+                                (if (member target ret)
+                                    ret
+                                  (setq ret (cons target ret)))))
+                            ret)
+                        (let ((target `(,(car elm) . ,tail)))
+                          (if (member target ret)
+                              ret
+                            (cons target ret))))))
                    ((member `',(nth (- (safe-length elm) 2) elm) '('quote 'function))
                     (let ((tail (nthcdr (- (safe-length elm) 2) elm)))
                       (if (listp (car elm))
