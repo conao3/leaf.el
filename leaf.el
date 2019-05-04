@@ -107,27 +107,16 @@ Sort by `leaf-sort-values-plist' in this order.")
      ;; Note  : 't will convert to 'name
      ;;         'nil is just ignored
      ;;         remove duplicate element
-     (let ((ret) (fn))
-       (setq fn (lambda (elm ret)
-                  (cond
-                   ((eq t elm)
-                    (if (memq name ret)
-                        ret
-                      (cons name ret)))
-                   ((eq nil elm)
-                    ret)
-                   ((atom elm)
-                    (if (memq elm ret)
-                        ret
-                      (cons elm ret)))
-                   ((listp elm)
-                    (dolist (el elm)
-                      (setq ret (funcall fn el ret)))
-                    ret)
-                   (t
-                    (warn (format "Value %s is malformed." value))))))
-       (dolist (elm value)
-         (setq ret (funcall fn elm ret)))
+     (let ((ret))
+       (dolist (elm (leaf-flatten value))
+         (cond
+          ((eq nil elm))
+          ((eq t elm)
+           (when (not (memq name ret))
+             (setq ret (cons name ret))))
+          (t
+           (when (not (memq elm ret))
+             (setq ret (cons elm ret))))))
        (nreverse ret)))
     ((memq key '(:hook :mode :interpreter :magic :magic-fallback))
      ;; Accept: func, (hook . func), ((hook hook ...) . func),

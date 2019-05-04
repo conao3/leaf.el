@@ -65,6 +65,16 @@
   (leaf-truep
    (delq nil (mapcar (lambda (x) (memq x list)) symlist))))
 
+(defun leaf-flatten (lst)
+  "Return flatten list of LST."
+  (let ((fn))
+    (if (fboundp 'mapcan)
+        (setq fn (lambda (lst)
+                   (if (atom lst) `(,lst) (mapcan fn lst))))
+      (setq fn (lambda (lst)
+                 (if (atom lst) `(,lst) (apply #'append (mapcar fn lst))))))
+    (funcall fn lst)))
+
 (defun leaf-insert-before (lst target belm)
   "Insert TARGET before BELM in LST."
   (let ((retlst) (frg))
