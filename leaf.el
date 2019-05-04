@@ -116,7 +116,7 @@ Sort by `leaf-sort-values-plist' in this order.")
      ;; Return: symbol list.
      ;; Note  : 'nil is just ignored
      ;;         remove duplicate element
-     (delq nil (delete-dups (leaf-flatten value))))
+     (delete-dups (delq nil (leaf-flatten value))))
     ((memq key '(:hook :mode :interpreter :magic :magic-fallback))
      ;; Accept: func, (hook . func), ((hook hook ...) . func),
      ;;         (hook hook ... . func) and list of these (and nested)
