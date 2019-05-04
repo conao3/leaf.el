@@ -86,6 +86,7 @@
     (progn
       (mapc (lambda (elm) (leaf-register-autoload (cdr elm) name)) value)
       `(,@(mapcar (lambda (elm) `(add-to-list 'magic-fallback-mode-alist '(,(car elm) ,(cdr elm)))) value) ,@body))
+    :setq `(,@(mapcar (lambda (elm) `(setq ,(car elm) ,(cdr elm))) value) ,@body)
     :config `(,@value ,@body)
     )
   "Special keywords and conversion rule to be processed by `leaf'.
@@ -146,6 +147,55 @@ Sort by `leaf-sort-values-plist' in this order.")
                       (if (member elm ret)
                           ret
                         (cons elm ret))))
+                   ((leaf-dotlistp elm)
+                    (let ((tail (nthcdr (safe-length elm) elm)))
+                      (while (not (atom elm))
+                        (setq ret (funcall fn `(,(car elm) . ,tail) ret))
+                        (pop elm))
+                      ret))
+                   ((listp elm)
+                    (dolist (el elm)
+                      (setq ret (funcall fn el ret)))
+                    ret)
+                   (t
+                    (warn (format "Value %s is malformed." value))))))
+       (dolist (elm value)
+         (setq ret (funcall fn elm ret)))
+       (nreverse ret)))
+    ((memq key '(:setq))
+     ;; Accept: (sym . val), ((sym sym ...) . val), (sym sym ... . val)
+     ;; Return: list of pair (sym . val)
+     ;; Note  : atom ('t, 'nil, symbol) is just ignored
+     ;;         remove duplicate configure
+     (let ((ret) (fn))
+       (setq fn (lambda (elm ret)
+                  (cond
+                   ((atom elm)
+                    ret)
+                   ((leaf-pairp elm)
+                    (if (listp (car elm))
+                        (progn
+                          (dolist (el (car elm))
+                            (setq ret (funcall fn `(,el . ,(cdr elm)) ret)))
+                          ret)
+                      (if (member elm ret)
+                          ret
+                        (cons elm ret))))
+                   ((member `',(nth (- (safe-length elm) 2) elm) '('quote 'function))
+                    (let ((tail (nthcdr (- (safe-length elm) 2) elm)))
+                      (if (listp (car elm))
+                          (dolist (el (car elm))
+                            (let ((target `(,el . ,tail)))
+                              (if (member target ret)
+                                  ret
+                                (setq ret (cons target ret)))))
+                        (while (not (= 2 (safe-length elm)))
+                          (let ((target `(,(car elm) . ,tail)))
+                            (if (member target ret)
+                                ret
+                              (setq ret (cons target ret))))
+                          (pop elm)))
+                      ret))
                    ((leaf-dotlistp elm)
                     (let ((tail (nthcdr (safe-length elm) elm)))
                       (while (not (atom elm))
