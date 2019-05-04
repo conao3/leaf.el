@@ -26,7 +26,7 @@
 ;;; Code:
 
 (require 'leaf)
-(require 'cort)
+(require 'cort-test)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;

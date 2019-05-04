@@ -14,8 +14,8 @@ TESTFILE    := leaf-tests.el
 ELS         := leaf.el
 ELS           += leaf-polyfill.el
 
-CORTELS     := $(TESTFILE) cort.el
-CORT_ARGS   := -l $(TESTFILE) -f cort-run-tests
+CORTELS     := $(TESTFILE) cort-test.el
+CORT_ARGS   := -l $(TESTFILE) -f cort-test-run
 
 LOGFILE     := .make-check.log
 
