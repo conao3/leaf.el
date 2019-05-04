@@ -99,6 +99,9 @@
 
     :custom `((custom-set-variables ,@(mapcar (lambda (elm) `'(,(car elm) ,(cdr elm))) value)) ,@body)
     :custom-face `((custom-set-faces ,@(mapcar (lambda (elm) `'(,(car elm) ,(cdr elm))) value)) ,@body)
+    :bind `(,@(mapcar (lambda (elm) `(bind-keys ,@elm)) value) ,@body)
+    :bind* `(,@(mapcar (lambda (elm) `(bind-keys* ,@elm)) value) ,@body)
+
     :mode
     (progn
       (mapc (lambda (elm) (leaf-register-autoload (cdr elm) name)) value)
@@ -148,6 +151,54 @@ Sort by `leaf-sort-values-plist' in this order.")
      ;; Note  : 'nil is just ignored
      ;;         remove duplicate element
      (delete-dups (delq nil (leaf-flatten value))))
+    ((memq key '(:bind :bind*))
+     ;; Accept: list of pair (bind . func),
+     ;;         ([:{{hoge}}-map] [:package {{pkg}}](bind . func) (bind . func) ...)
+     ;;         optional, [:{{hoge}}-map] [:package {{pkg}}]
+     ;; Return: list of ([:{{hoge}}-map] [:package {{pkg}}] (bind . func))
+     (let ((ret) (fn))
+       (setq fn (lambda (elm ret)
+                  (cond
+                   ((leaf-pairp elm)
+                    (if (member elm ret)
+                        ret
+                      (cons `(:package ,name ,elm) ret)))
+                   ((listp elm)
+                    (if (not (atom (car elm)))
+                        (progn
+                          (dolist (el elm)
+                            (setq ret (funcall fn el ret)))
+                          ret)
+                      (let ((map        (make-symbol (substring (symbol-name (car elm)) 1)))
+                            (package    (plist-get (cdr elm) :package))
+                            (prefix     (plist-get (cdr elm) :prefix))
+                            (prefix-map (plist-get (cdr elm) :prefix-map))
+                            (menu-name  (plist-get (cdr elm) :menu-name))
+                            (filter     (plist-get (cdr elm) :filter)))
+                        (dolist (el elm)
+                          (let ((target
+                                 (cdr `(:dummy
+                                        :map ,map
+                                        ,@(if package `(:package ,package)
+                                            `(:package ,name))
+                                        ,@(when prefix `(:prefix ,prefix))
+                                        ,@(when prefix-map `(:prefix-map ,prefix-map))
+                                        ,@(when menu-name `(:manu-name ,menu-name))
+                                        ,@(when filter `(:filter ,filter))
+                                        ,el))))
+                            (cond
+                             ((leaf-pairp el)
+                              (if (member target ret)
+                                  ret
+                                (setq ret (cons target ret))))
+                             ((listp el)
+                              (setq ret (funcall fn target ret)))))))
+                      ret))
+                   (t
+                    (warn (format "Value %s is malformed." value))))))
+       (dolist (elm value)
+         (setq ret (funcall fn elm ret)))
+       (nreverse ret)))
     ((memq key '(:hook :mode :interpreter :magic :magic-fallback))
      ;; Accept: func, (hook . func), ((hook hook ...) . func),
      ;;         (hook hook ... . func) and list of these (and nested)
