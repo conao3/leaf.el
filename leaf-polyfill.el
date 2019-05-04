@@ -75,6 +75,11 @@
                  (if (atom lst) `(,lst) (apply #'append (mapcar fn lst))))))
     (funcall fn lst)))
 
+(defun leaf-subst (old new lst)
+  "Substitute NEW for OLD in LST. "
+  (declare (indent 2))
+  (mapcar (lambda (elm) (if (eq elm old) new elm)) lst))
+
 (defun leaf-insert-before (lst target belm)
   "Insert TARGET before BELM in LST."
   (let ((retlst) (frg))

@@ -105,19 +105,12 @@ Sort by `leaf-sort-values-plist' in this order.")
      ;; Accept: 't, 'nil, symbol and list of these (and nested)
      ;; Return: symbol list.
      ;; Note  : 't will convert to 'name
-     ;;         'nil is just ignored
+     ;;         if 'nil placed on top, ignore all argument
      ;;         remove duplicate element
-     (let ((ret))
-       (dolist (elm (leaf-flatten value))
-         (cond
-          ((eq nil elm))
-          ((eq t elm)
-           (when (not (memq name ret))
-             (setq ret (cons name ret))))
-          (t
-           (when (not (memq elm ret))
-             (setq ret (cons elm ret))))))
-       (nreverse ret)))
+     (let ((ret (leaf-flatten value)))
+       (if (eq nil (car ret))
+           nil
+         (delete-dups (delq nil (leaf-subst t name ret))))))
     ((memq key '(:load-path))
      ;; Accept: 't, 'nil, symbol and list of these (and nested)
      ;; Return: symbol list.
