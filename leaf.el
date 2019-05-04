@@ -100,7 +100,9 @@ Sort by `leaf-sort-values-plist' in this order.")
   '(((memq key '(:require))
      ;; Accept: 't, 'nil, symbol and list of these (and nested)
      ;; Return: symbol list.
-     ;; Note  : 't will convert to 'name and remove duplicate element
+     ;; Note  : 't will convert to 'name
+     ;;         'nil is just ignored
+     ;;         remove duplicate element
      (let ((ret) (fn))
        (setq fn (lambda (elm ret)
                   (cond
