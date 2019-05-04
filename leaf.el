@@ -101,7 +101,7 @@
 Sort by `leaf-sort-values-plist' in this order.")
 
 (defvar leaf-normarize
-  '(((memq key '(:require :load-path))
+  '(((memq key '(:require))
      ;; Accept: 't, 'nil, symbol and list of these (and nested)
      ;; Return: symbol list.
      ;; Note  : 't will convert to 'name
@@ -118,6 +118,12 @@ Sort by `leaf-sort-values-plist' in this order.")
            (when (not (memq elm ret))
              (setq ret (cons elm ret))))))
        (nreverse ret)))
+    ((memq key '(:load-path))
+     ;; Accept: 't, 'nil, symbol and list of these (and nested)
+     ;; Return: symbol list.
+     ;; Note  : 'nil is just ignored
+     ;;         remove duplicate element
+     (delq nil (delete-dups (leaf-flatten value))))
     ((memq key '(:hook :mode :interpreter :magic :magic-fallback))
      ;; Accept: func, (hook . func), ((hook hook ...) . func),
      ;;         (hook hook ... . func) and list of these (and nested)
