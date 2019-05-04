@@ -67,6 +67,12 @@
                  (const :tag "No backend, disable `:bind'." nil))
   :group 'leaf)
 
+(defcustom leaf-options-ensure-default-pin nil
+  "Option :ensure pin default.
+'nil is using package manager default."
+  :type 'sexp
+  :group 'leaf)
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
 ;;  leaf keywords definition
@@ -75,6 +81,25 @@
 (defvar leaf-keywords
   '(:dummy
     :disabled (unless (eval (car value)) `(,@body))
+    :ensure `(,@(mapcar
+                 (lambda (elm)
+                   (let ((pkg `',(car elm))
+                         (pin (cdr elm)))
+                     (cond
+                      ((eq leaf-backend-ensure 'package)
+                       `(unless (package-installed-p ,pkg)
+                          (condition-case-unless-debug err
+                              (if (assoc ,pkg package-archive-contents)
+                                  (package-install ,pkg)
+                                (package-refresh-contents)
+                                (package-install ,pkg))
+                            (error
+                             (display-warning 'leaf
+                                              (format "Failed to install %s: %s"
+                                                      ,pkg (error-message-string err))
+                                              :error))))))))
+                 value)
+              ,@body)
     :doc `(,@body) :file `(,@body) :url `(,@body)
 
     :load-path `(,@(mapcar (lambda (elm) `(add-to-list 'load-path ,elm)) value) ,@body)
@@ -194,6 +219,51 @@ Sort by `leaf-sort-values-plist' in this order.")
                              ((listp el)
                               (setq ret (funcall fn target ret)))))))
                       ret))
+                   (t
+                    (warn (format "Value %s is malformed." value))))))
+       (dolist (elm value)
+         (setq ret (funcall fn elm ret)))
+       (nreverse ret)))
+    ((memq key '(:ensure))
+     ;; Accept: pkg, (pkg . pin), ((pkg pkg ...) . pin),
+     ;;         (pkg pkg ... . pin) and list of these (and nested)
+     ;; Return: list of pair (pkg . pin).
+     ;; Note  : t will convert (name . nil)
+     ;;         if omit pin, use `leaf-options-ensure-default-pin'.
+     ;;         if pin is 'nil, use package manager default
+     ;;         remove duplicate configure
+     ;;         't and 'nil are just ignored
+     (let ((ret) (fn))
+       (setq fn (lambda (elm ret)
+                  (cond
+                   ((eq t elm)
+                    (cons `(,name . nil) ret))
+                   ((eq nil elm)
+                    ret)
+                   ((atom elm)
+                    (let ((sym `(,elm . ,leaf-options-ensure-default-pin)))
+                      (if (member sym ret)
+                          ret
+                        (cons sym ret))))
+                   ((leaf-pairp elm)
+                    (if (listp (car elm))
+                        (progn
+                          (dolist (el (car elm))
+                            (setq ret (funcall fn `(,el . ,(cdr elm)) ret)))
+                          ret)
+                      (if (member elm ret)
+                          ret
+                        (cons elm ret))))
+                   ((leaf-dotlistp elm)
+                    (let ((tail (nthcdr (safe-length elm) elm)))
+                      (while (not (atom elm))
+                        (setq ret (funcall fn `(,(car elm) . ,tail) ret))
+                        (pop elm))
+                      ret))
+                   ((listp elm)
+                    (dolist (el elm)
+                      (setq ret (funcall fn el ret)))
+                    ret)
                    (t
                     (warn (format "Value %s is malformed." value))))))
        (dolist (elm value)
