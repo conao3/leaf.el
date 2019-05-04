@@ -438,21 +438,21 @@
       (add-hook 'cc-mode-hook #'ace-jump-mode)
       (add-hook 'prog-mode-hook #'ace-jump-mode))))
 
-;; (cort-deftest leaf-test/:simple-commands
-;;   (match-expansion
-;;    (leaf ace-jump-mode
-;;      :commands ace-jump-mode)
-;;    '(progn
-;;       (add-hook #'ace-jump-mode "ace-jump-mode" nil t))))
+(cort-deftest leaf-test/:simple-commands
+  (match-expansion
+   (leaf ace-jump-mode
+     :commands ace-jump-mode)
+   '(progn
+      (autoload #'ace-jump-mode "ace-jump-mode" nil t))))
 
-;; (cort-deftest leaf-test/:simple-multi-commands
-;;   (match-expansion
-;;    (leaf ace-jump-mode
-;;      :commands ace-jump-mode command1 command2)
-;;    '(progn
-;;       (add-hook #'ace-jump-mode "ace-jump-mode" nil t)
-;;       (add-hook #'command1 "ace-jump-mode" nil t)
-;;       (add-hook #'command2 "ace-jump-mode" nil t))))
+(cort-deftest leaf-test/:simple-multi-commands
+  (match-expansion
+   (leaf ace-jump-mode
+     :commands ace-jump-mode command1 command2)
+   '(progn
+      (autoload #'ace-jump-mode "ace-jump-mode" nil t)
+      (autoload #'command1 "ace-jump-mode" nil t)
+      (autoload #'command2 "ace-jump-mode" nil t))))
 
 (cort-deftest leaf-test/:simple-custom-face
   (match-expansion

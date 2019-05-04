@@ -90,6 +90,7 @@
       (mapc (lambda (elm) (leaf-register-autoload (cdr elm) name)) value)
       `(,@(mapcar (lambda (elm) `(add-hook ',(car elm) #',(cdr elm))) value) ,@body))
 
+    :commands (progn (mapc (lambda (elm) (leaf-register-autoload elm name)) value) `(,@body))
     :pre-setq `(,@(mapcar (lambda (elm) `(setq ,(car elm) ,(cdr elm))) value) ,@body)
     :init `(,@value ,@body)
     :require `(,@(mapcar (lambda (elm) `(require ',elm)) value) ,@body)
@@ -111,7 +112,7 @@ Sort by `leaf-sort-values-plist' in this order.")
        (if (eq nil (car ret))
            nil
          (delete-dups (delq nil (leaf-subst t name ret))))))
-    ((memq key '(:load-path))
+    ((memq key '(:load-path :commands))
      ;; Accept: 't, 'nil, symbol and list of these (and nested)
      ;; Return: symbol list.
      ;; Note  : 'nil is just ignored
@@ -416,7 +417,7 @@ EXAMPLE:
                  (leaf-normalize-plist
                   (leaf-append-defaults args) t)))
          (body (leaf-process-keywords name args*)))
-    (when body
+    (when (or body leaf--autoload)
       `(progn
          ,@(mapcar
             (lambda (elm) `(autoload #',(car elm) ,(cdr elm) nil t))
