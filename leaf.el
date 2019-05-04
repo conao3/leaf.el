@@ -53,30 +53,24 @@
     :doc `(,@body) :file `(,@body) :url `(,@body)
 
     :load-path `(,@(mapcar (lambda (elm) `(add-to-list 'load-path ,elm)) value) ,@body)
-    :defun
-    `(,@(mapcaar (lambda (elm) `(declare-function ,elm ,(symbol-name name))) value) ,@body)
-    :defvar
-    `(,@(mapcaar (lambda (elm) `(defvar ,elm)) value) ,@body)
+    :defun `(,@(mapcaar (lambda (elm) `(declare-function ,elm ,(symbol-name name))) value) ,@body)
+    :defvar `(,@(mapcaar (lambda (elm) `(defvar ,elm)) value) ,@body)
     :preface `(,@value ,@body)
 
-    :if
-    (when body
-      `((if ,@(if (= 1 (length value)) value `((and ,@value)))
-            (progn ,@body))))
-    :when
-    (when body
-      `((when ,@(if (= 1 (length value)) value `((and ,@value)))
-          ,@body)))
-    :unless
-    (when body
-      `((unless ,@(if (= 1 (length value)) value `((and ,value)))
-          ,@body)))
+    :if (when body
+          `((if ,@(if (= 1 (length value)) value `((and ,@value)))
+                (progn ,@body))))
+    :when (when body
+            `((when ,@(if (= 1 (length value)) value `((and ,@value)))
+                ,@body)))
+    :unless (when body
+              `((unless ,@(if (= 1 (length value)) value `((and ,value)))
+                  ,@body)))
 
-    :after
-    (when body
-      (let ((ret `(progn ,@body)))
-        (dolist (elm value) (setq ret `(eval-after-load ',elm ',ret)))
-        `(,ret)))
+    :after (when body
+             (let ((ret `(progn ,@body)))
+               (dolist (elm value) (setq ret `(eval-after-load ',elm ',ret)))
+               `(,ret)))
 
     :custom `((custom-set-variables ,@(mapcar (lambda (elm) `'(,(car elm) ,(cdr elm))) value)) ,@body)
     :custom-face `((custom-set-faces ,@(mapcar (lambda (elm) `'(,(car elm) ,(cdr elm))) value)) ,@body)
