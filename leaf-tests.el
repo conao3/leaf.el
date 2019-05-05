@@ -93,13 +93,114 @@
 ;;  support macros for test definition
 ;;
 
-(defmacro match-expansion (form expect)
-  `(:equal (macroexpand-1 ',form) ,expect))
+(defmacro cort-deftest-with-macroexpand (name form)
+  "Return `cort-deftest' compare by `equal' for NAME, FORM.
+
+Example
+  (p (cort-deftest-with-equal leaf/disabled
+       '((asdf asdf)
+         (uiop uiop))))
+   => (cort-deftest leaf/disabled
+        '((:equal asdf asdf)
+          (:equal uiop uiop)))
+"
+  (declare (indent 1))
+  `(cort-deftest ,name
+     ',(mapcar (lambda (elm)
+                 `(:equal
+                   ',(cadr elm)
+                   (macroexpand-1 ',(car elm))))
+               (cadr form))))
 
 (defmacro match-expansion-let (letform form expect)
   (declare (indent 1))
   `(:equal (let ,letform (macroexpand-1 ',form)) ,expect))
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;
+;;  test definition
+;;
+
+(cort-deftest-with-macroexpand leaf/disabled
+  '(((leaf leaf :disabled t       :config (leaf-init))
+     nil)
+    ((leaf leaf :disabled nil     :config (leaf-init))
+     (progn
+        (leaf-init)))
+    ((leaf leaf :disabled t t     :config (leaf-init))
+     nil)
+    ((leaf leaf :disabled t nil   :config (leaf-init))
+     nil)
+    ((leaf leaf :disabled nil t   :config (leaf-init))
+     (progn
+        (leaf-init)))
+    ((leaf leaf :disabled nil nil :config (leaf-init))
+     (progn
+        (leaf-init)))
+
+    ((leaf leaf :disabled t :disabled t       :config (leaf-init))
+     nil)
+    ((leaf leaf :disabled t :disabled nil     :config (leaf-init))
+     nil)
+    ((leaf leaf :disabled t :disabled t t     :config (leaf-init))
+     nil)
+    ((leaf leaf :disabled t :disabled t nil   :config (leaf-init))
+     nil)
+    ((leaf leaf :disabled t :disabled nil t   :config (leaf-init))
+     nil)
+    ((leaf leaf :disabled t :disabled nil nil :config (leaf-init))
+     nil)
+
+    ((leaf leaf :disabled nil :disabled t       :config (leaf-init))
+     (progn
+        (leaf-init)))
+    ((leaf leaf :disabled nil :disabled nil     :config (leaf-init))
+     (progn
+        (leaf-init)))
+    ((leaf leaf :disabled nil :disabled t t     :config (leaf-init))
+     (progn
+        (leaf-init)))
+    ((leaf leaf :disabled nil :disabled t nil   :config (leaf-init))
+     (progn
+        (leaf-init)))
+    ((leaf leaf :disabled nil :disabled nil t   :config (leaf-init))
+     (progn
+        (leaf-init)))
+    ((leaf leaf :disabled nil :disabled nil nil :config (leaf-init))
+     (progn
+        (leaf-init)))
+
+    ((leaf leaf :disabled t :disabled t       :config (leaf-init) :disabled t)
+     nil)
+    ((leaf leaf :disabled t :disabled nil     :config (leaf-init) :disabled nil)
+     nil)
+    ((leaf leaf :disabled t :disabled t t     :config (leaf-init) :disabled t t)
+     nil)
+    ((leaf leaf :disabled t :disabled t nil   :config (leaf-init) :disabled t nil)
+     nil)
+    ((leaf leaf :disabled t :disabled nil t   :config (leaf-init) :disabled nil t)
+     nil)
+    ((leaf leaf :disabled t :disabled nil nil :config (leaf-init) :disabled nil nil)
+     nil)
+
+    ((leaf leaf :disabled nil :disabled t       :config (leaf-init) :disabled t)
+     (progn
+        (leaf-init)))
+    ((leaf leaf :disabled nil :disabled nil     :config (leaf-init) :disabled nil)
+     (progn
+        (leaf-init)))
+    ((leaf leaf :disabled nil :disabled t t     :config (leaf-init) :disabled t t)
+     (progn
+        (leaf-init)))
+    ((leaf leaf :disabled nil :disabled t nil   :config (leaf-init) :disabled t nil)
+     (progn
+        (leaf-init)))
+    ((leaf leaf :disabled nil :disabled nil t   :config (leaf-init) :disabled nil t)
+     (progn
+        (leaf-init)))
+    ((leaf leaf :disabled nil :disabled nil nil :config (leaf-init) :disabled nil nil)
+     (progn
+        (leaf-init)))))
 
 (provide 'leaf-tests)
 ;;; leaf-tests.el ends here
