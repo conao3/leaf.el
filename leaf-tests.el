@@ -221,5 +221,52 @@ Example
 ;;                              :error))))
 ;;        (leaf-init)))))
 
+(cort-deftest-with-macroexpand leaf/doc
+  '(((leaf leaf
+       :doc "Symplify init.el configuration"
+       :config (leaf-init))
+     (progn
+       (leaf-init)))
+
+    ((leaf leaf
+       :file "~/.emacs.d/elpa/leaf.el/leaf.el"
+       :config (leaf-init))
+     (progn
+       (leaf-init)))
+
+    ((leaf leaf
+       :url "https://github.com/conao3/leaf.el"
+       :config (leaf-init))
+     (progn
+       (leaf-init)))
+
+    ((leaf leaf
+       :doc "Symplify init.el configuration"
+       :file "~/.emacs.d/elpa/leaf.el/leaf.el"
+       :url "https://github.com/conao3/leaf.el"
+       :config (leaf-init))
+     (progn
+       (leaf-init)))
+
+    ((leaf leaf
+       :doc "Symplify init.el configuration"
+       "
+(leaf leaf
+  :doc \"Symplify init.el configuration\"
+  :config (leaf-init))
+ => (progn
+      (leaf-init))"
+       "
+(leaf leaf
+  :disabled nil
+  :config (leaf-init))
+ => (progn
+      (leaf-init))"
+       :file "~/.emacs.d/elpa/leaf.el/leaf.el"
+       :url "https://github.com/conao3/leaf.el"
+       :config (leaf-init))
+     (progn
+       (leaf-init)))))
+
 (provide 'leaf-tests)
 ;;; leaf-tests.el ends here
