@@ -202,5 +202,23 @@ Example
      (progn
         (leaf-init)))))
 
+(cort-deftest-with-macroexpand leaf/ensure
+  '(((leaf leaf :ensure t :config (leaf-init))
+     (progn
+       (unless
+           (package-installed-p 'leaf)
+         (condition-case-unless-debug err
+             (if
+                 (assoc 'leaf package-archive-contents)
+                 (package-install 'leaf)
+               (package-refresh-contents)
+               (package-install 'leaf))
+           (error
+            (display-warning 'leaf
+                             (format "Failed to install %s: %s" 'leaf
+                                     (error-message-string err))
+                             :error))))
+       (leaf-init)))))
+
 (provide 'leaf-tests)
 ;;; leaf-tests.el ends here
