@@ -268,5 +268,77 @@ Example
      (progn
        (leaf-init)))))
 
+(cort-deftest-with-macroexpand leaf/load-path
+  '(((leaf leaf
+       :load-path "~/.emacs.d/elpa-archive/leaf.el/"
+       :require t
+       :config (leaf-init))
+     (progn
+       (add-to-list 'load-path "~/.emacs.d/elpa-archive/leaf.el/")
+       (require 'leaf)
+       (leaf-init)))
+
+    ((leaf leaf
+       :load-path
+       "~/.emacs.d/elpa-archive/leaf.el/"
+       "~/.emacs.d/elpa-archive/leaf-browser.el/"
+       :require t
+       :config (leaf-init))
+     (progn
+       (add-to-list 'load-path "~/.emacs.d/elpa-archive/leaf.el/")
+       (add-to-list 'load-path "~/.emacs.d/elpa-archive/leaf-browser.el/")
+       (require 'leaf)
+       (leaf-init)))
+
+    ((leaf leaf
+       :load-path ("~/.emacs.d/elpa-archive/leaf.el/"
+                   "~/.emacs.d/elpa-archive/leaf-browser.el/")
+       :require t
+       :config (leaf-init))
+     (progn
+       (add-to-list 'load-path "~/.emacs.d/elpa-archive/leaf.el/")
+       (add-to-list 'load-path "~/.emacs.d/elpa-archive/leaf-browser.el/")
+       (require 'leaf)
+       (leaf-init)))
+
+    ((leaf leaf
+       :load-path ("~/.emacs.d/elpa-archive/leaf.el/"
+                   ("~/.emacs.d/elpa-archive/leaf.el/"
+                    "~/.emacs.d/elpa-archive/leaf-browser.el/"))
+       :require t
+       :config (leaf-init))
+     (progn
+       (add-to-list 'load-path "~/.emacs.d/elpa-archive/leaf.el/")
+       (add-to-list 'load-path "~/.emacs.d/elpa-archive/leaf-browser.el/")
+       (require 'leaf)
+       (leaf-init)))
+
+    ((leaf leaf
+       :load-path ("~/.emacs.d/elpa-archive/leaf.el/"
+                   ("~/.emacs.d/elpa-archive/leaf.el/"
+                    ("~/.emacs.d/elpa-archive/leaf.el/"
+                     ("~/.emacs.d/elpa-archive/leaf.el/"
+                      ("~/.emacs.d/elpa-archive/leaf.el/")))))
+       :require t
+       :config (leaf-init))
+     (progn
+       (add-to-list 'load-path "~/.emacs.d/elpa-archive/leaf.el/")
+       (require 'leaf)
+       (leaf-init)))
+
+    ((leaf leaf
+       :load-path ("~/.emacs.d/elpa-archive/leaf.el/")
+       :load-path `(,(mapcar (lambda (elm)
+                               (concat "~/.emacs.d/elpa-archive/" elm "/"))
+                             '("leaf.el" "leaf-broser.el" "orglyth.el")))
+       :require t
+       :config (leaf-init))
+     (progn
+       (add-to-list 'load-path "~/.emacs.d/elpa-archive/leaf.el/")
+       (add-to-list 'load-path "~/.emacs.d/elpa-archive/leaf-broser.el/")
+       (add-to-list 'load-path "~/.emacs.d/elpa-archive/orglyth.el/")
+       (require 'leaf)
+       (leaf-init)))))
+
 (provide 'leaf-tests)
 ;;; leaf-tests.el ends here
