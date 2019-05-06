@@ -389,5 +389,29 @@ Example
        (declare-function lbrowser-close "leaf")
        (declare-function leaf-asdf "leaf-browser")))))
 
+(cort-deftest-with-macroexpand leaf/defvar
+  '(((leaf leaf
+       :defvar leaf leaf-normalize-plist leaf-merge-dupkey-values-plist)
+     (progn
+       (defvar leaf)
+       (defvar leaf-normalize-plist)
+       (defvar leaf-merge-dupkey-values-plist)))
+
+    ((leaf leaf
+       :defvar (leaf leaf-normalize-plist leaf-merge-dupkey-values-plist))
+     (progn
+       (defvar leaf)
+       (defvar leaf-normalize-plist)
+       (defvar leaf-merge-dupkey-values-plist)))
+
+    ((leaf leaf
+       :defvar (leaf
+                (leaf-normalize-plist
+                 (leaf-merge-dupkey-values-plist))))
+     (progn
+       (defvar leaf)
+       (defvar leaf-normalize-plist)
+       (defvar leaf-merge-dupkey-values-plist)))))
+
 (provide 'leaf-tests)
 ;;; leaf-tests.el ends here
