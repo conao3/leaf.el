@@ -413,5 +413,19 @@ Example
        (defvar leaf-normalize-plist)
        (defvar leaf-merge-dupkey-values-plist)))))
 
+(cort-deftest-with-macroexpand leaf/preface
+  '(((leaf leaf
+       :preface (preface-init)
+       :when (some-condition)
+       :require t
+       :init (package-preconfig)
+       :config (package-init))
+     (progn
+       (preface-init)
+       (when (some-condition)
+         (package-preconfig)
+         (require 'leaf)
+         (package-init))))))
+
 (provide 'leaf-tests)
 ;;; leaf-tests.el ends here
