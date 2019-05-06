@@ -427,5 +427,92 @@ Example
          (require 'leaf)
          (package-init))))))
 
+(cort-deftest-with-macroexpand leaf/if
+  '(((leaf leaf
+       :if leafp
+       :require t
+       :config (leaf-init))
+     (progn
+       (if leafp
+           (progn
+             (require 'leaf)
+             (leaf-init)))))
+
+    ((leaf leaf
+       :if leafp leaf-avairablep (window-system)
+       :require t
+       :config (leaf-init))
+     (progn
+       (if (and leafp leaf-avairablep (window-system))
+           (progn
+             (require 'leaf)
+             (leaf-init)))))
+
+    ((leaf leaf
+       :if leafp leaf-avairablep (window-system)
+       :when leaf-browserp
+       :require t
+       :config (leaf-init))
+     (progn
+       (when leaf-browserp
+         (if (and leafp leaf-avairablep (window-system))
+             (progn
+               (require 'leaf)
+               (leaf-init))))))
+
+    ((leaf leaf
+       :if leafp leaf-avairablep (window-system)
+       :when leaf-browserp
+       :load-path "~/.emacs.d/elpa-archive/leaf.el/"
+       :preface (leaf-load)
+       :require t
+       :config (leaf-init))
+     (progn
+       (add-to-list 'load-path "~/.emacs.d/elpa-archive/leaf.el/")
+       (leaf-load)
+       (when leaf-browserp
+         (if (and leafp leaf-avairablep (window-system))
+             (progn
+               (require 'leaf)
+               (leaf-init))))))))
+
+(cort-deftest-with-macroexpand leaf/when
+  '(((leaf leaf
+       :when leafp
+       :require t
+       :config (leaf-init))
+     (progn
+       (when leafp
+         (require 'leaf)
+         (leaf-init))))
+
+    ((leaf leaf
+       :when leafp leaf-avairablep (window-system)
+       :require t
+       :config (leaf-init))
+     (progn
+       (when (and leafp leaf-avairablep (window-system))
+         (require 'leaf)
+         (leaf-init))))))
+
+(cort-deftest-with-macroexpand leaf/unless
+  '(((leaf leaf
+       :unless leafp
+       :require t
+       :config (leaf-init))
+     (progn
+       (unless leafp
+         (require 'leaf)
+         (leaf-init))))
+
+    ((leaf leaf
+       :unless leafp leaf-avairablep (window-system)
+       :require t
+       :config (leaf-init))
+     (progn
+       (unless (and leafp leaf-avairablep (window-system))
+         (require 'leaf)
+         (leaf-init))))))
+
 (provide 'leaf-tests)
 ;;; leaf-tests.el ends here

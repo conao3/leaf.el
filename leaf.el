@@ -107,15 +107,15 @@
     :defvar `(,@(mapcar (lambda (elm) `(defvar ,elm)) value) ,@body)
     :preface `(,@value ,@body)
 
-    :if (when body
-          `((if ,@(if (= 1 (length value)) value `((and ,@value)))
-                (progn ,@body))))
     :when (when body
             `((when ,@(if (= 1 (length value)) value `((and ,@value)))
                 ,@body)))
     :unless (when body
-              `((unless ,@(if (= 1 (length value)) value `((and ,value)))
+              `((unless ,@(if (= 1 (length value)) value `((and ,@value)))
                   ,@body)))
+    :if (when body
+          `((if ,@(if (= 1 (length value)) value `((and ,@value)))
+                (progn ,@body))))
 
     :after (when body
              (let ((ret `(progn ,@body)))
