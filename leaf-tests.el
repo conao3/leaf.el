@@ -514,5 +514,56 @@ Example
          (require 'leaf)
          (leaf-init))))))
 
+(cort-deftest-with-macroexpand leaf/after
+  '(((leaf leaf-browser
+       :after leaf
+       :require t
+       :config (leaf-browser-init))
+     (progn
+       (eval-after-load 'leaf
+         '(progn
+            (require 'leaf-browser)
+            (leaf-browser-init)))))
+
+    ((leaf leaf-browser
+       :after leaf org orglyth
+       :require t
+       :config (leaf-browser-init))
+     (progn
+       (eval-after-load 'orglyth
+         '(eval-after-load 'org
+            '(eval-after-load 'leaf
+               '(progn
+                  (require 'leaf-browser)
+                  (leaf-browser-init)))))))
+
+    ((leaf leaf-browser
+       :after leaf (org orglyth)
+       :require t
+       :config (leaf-browser-init))
+     (progn
+       (eval-after-load 'orglyth
+         '(eval-after-load 'org
+            '(eval-after-load 'leaf
+               '(progn
+                  (require 'leaf-browser)
+                  (leaf-browser-init)))))))
+
+    ((leaf leaf-browser
+       :after leaf (org orglyth
+                        (org
+                         (org
+                          (org-ex))))
+       :require t
+       :config (leaf-browser-init))
+     (progn
+       (eval-after-load 'org-ex
+         '(eval-after-load 'orglyth
+            '(eval-after-load 'org
+               '(eval-after-load 'leaf
+                  '(progn
+                     (require 'leaf-browser)
+                     (leaf-browser-init))))))))))
+
 (provide 'leaf-tests)
 ;;; leaf-tests.el ends here
