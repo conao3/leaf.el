@@ -123,7 +123,7 @@
                `(,ret)))
 
     :custom `((custom-set-variables ,@(mapcar (lambda (elm) `'(,(car elm) ,(cdr elm) ,(format "Customized with leaf in %s block" name))) value)) ,@body)
-    :custom-face `((custom-set-faces ,@(mapcar (lambda (elm) `'(,(car elm) ,(cdr elm))) value)) ,@body)
+    :custom-face `((custom-set-faces ,@(mapcar (lambda (elm) `'(,(car elm) ,(cddr elm))) value)) ,@body)
     :bind `(,@(mapcar (lambda (elm) `(bind-keys ,@elm)) value) ,@body)
     :bind* `(,@(mapcar (lambda (elm) `(bind-keys* ,@elm)) value) ,@body)
 

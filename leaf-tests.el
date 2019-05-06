@@ -630,5 +630,20 @@ Example
         '(leaf-backend-bind* 'leaf-key "Customized with leaf in leaf block")
         '(leaf-backend-bind-key 'bind-key "Customized with leaf in leaf block"))))))
 
+(cort-deftest-with-macroexpand leaf/custom-face
+  '(((leaf eruby-mode
+       :custom-face
+       (eruby-standard-face . '((t (:slant italic)))))
+     (progn
+       (custom-set-faces '(eruby-standard-face (((t (:slant italic))))))))
+
+    ((leaf eruby-mode
+       :custom-face
+       ((default eruby-standard-face) . '((t (:slant italic)))))
+     (progn
+       (custom-set-faces
+        '(default (((t (:slant italic)))))
+        '(eruby-standard-face (((t (:slant italic))))))))))
+
 (provide 'leaf-tests)
 ;;; leaf-tests.el ends here
