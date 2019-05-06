@@ -565,5 +565,70 @@ Example
                      (require 'leaf-browser)
                      (leaf-browser-init))))))))))
 
+(cort-deftest-with-macroexpand leaf/custom
+  '(((leaf leaf
+       :custom ((leaf-backend-ensure . 'feather)))
+     (progn
+       (custom-set-variables
+        '(leaf-backend-ensure 'feather "Customized with leaf in leaf block"))))
+
+    ((leaf leaf
+       :custom ((leaf-backend-ensure . 'feather)
+                (leaf-backend-bind   . 'bind-key)
+                (leaf-backend-bind*  . 'bind-key)))
+     (progn
+       (custom-set-variables
+        '(leaf-backend-ensure 'feather "Customized with leaf in leaf block")
+        '(leaf-backend-bind 'bind-key "Customized with leaf in leaf block")
+        '(leaf-backend-bind* 'bind-key "Customized with leaf in leaf block"))))
+
+    ((leaf leaf
+       :custom
+       (leaf-backend-ensure . 'feather)
+       (leaf-backend-bind   . 'bind-key)
+       (leaf-backend-bind*  . 'bind-key))
+     (progn
+       (custom-set-variables
+        '(leaf-backend-ensure 'feather "Customized with leaf in leaf block")
+        '(leaf-backend-bind 'bind-key "Customized with leaf in leaf block")
+        '(leaf-backend-bind* 'bind-key "Customized with leaf in leaf block"))))
+
+    ((leaf leaf
+       :custom ((leaf-backend-bind leaf-backend-bind*) . 'bind-key))
+     (progn
+       (custom-set-variables
+        '(leaf-backend-bind 'bind-key "Customized with leaf in leaf block")
+        '(leaf-backend-bind* 'bind-key "Customized with leaf in leaf block"))))
+
+    ((leaf leaf
+       :custom
+       (leaf-backend-ensure . 'feather)
+       ((leaf-backend-bind leaf-backend-bind*) . 'bind-key))
+     (progn
+       (custom-set-variables
+        '(leaf-backend-ensure 'feather "Customized with leaf in leaf block")
+        '(leaf-backend-bind 'bind-key "Customized with leaf in leaf block")
+        '(leaf-backend-bind* 'bind-key "Customized with leaf in leaf block"))))
+
+    ((leaf leaf
+       :custom ((leaf-backend-ensure . 'feather)
+                ((leaf-backend-bind leaf-backend-bind*) . 'bind-key)))
+     (progn
+       (custom-set-variables
+        '(leaf-backend-ensure 'feather "Customized with leaf in leaf block")
+        '(leaf-backend-bind 'bind-key "Customized with leaf in leaf block")
+        '(leaf-backend-bind* 'bind-key "Customized with leaf in leaf block"))))
+
+    ((leaf leaf
+       :custom ((leaf-backend-ensure . 'feather)
+                (((leaf-backend-bind leaf-backend-bind*) . 'leaf-key)
+                 leaf-backend-bind-key . 'bind-key)))
+     (progn
+       (custom-set-variables
+        '(leaf-backend-ensure 'feather "Customized with leaf in leaf block")
+        '(leaf-backend-bind 'leaf-key "Customized with leaf in leaf block")
+        '(leaf-backend-bind* 'leaf-key "Customized with leaf in leaf block")
+        '(leaf-backend-bind-key 'bind-key "Customized with leaf in leaf block"))))))
+
 (provide 'leaf-tests)
 ;;; leaf-tests.el ends here
