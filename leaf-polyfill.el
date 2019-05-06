@@ -48,7 +48,6 @@
 (defsubst leaf-pairp (var &optional allow)
   "Return t if VAR is pair.  If ALLOW is non-nil, allow nil as last element"
   (and (listp var)
-       (atom (car var))
        (atom (cdr var))
        (if allow t (not (null (cdr var))))))
 

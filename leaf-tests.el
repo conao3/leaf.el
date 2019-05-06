@@ -340,5 +340,54 @@ Example
        (require 'leaf)
        (leaf-init)))))
 
+(cort-deftest-with-macroexpand leaf/defun
+  '(((leaf leaf
+       :defun leaf leaf-normalize-plist leaf-merge-dupkey-values-plist)
+     (progn
+       (declare-function leaf "leaf")
+       (declare-function leaf-normalize-plist "leaf")
+       (declare-function leaf-merge-dupkey-values-plist "leaf")))
+
+    ((leaf leaf
+       :defun (leaf leaf-normalize-plist leaf-merge-dupkey-values-plist))
+     (progn
+       (declare-function leaf "leaf")
+       (declare-function leaf-normalize-plist "leaf")
+       (declare-function leaf-merge-dupkey-values-plist "leaf")))
+
+    ((leaf leaf
+       :defun (leaf
+                (leaf-normalize-plist
+                 (leaf-merge-dupkey-values-plist))))
+     (progn
+       (declare-function leaf "leaf")
+       (declare-function leaf-normalize-plist "leaf")
+       (declare-function leaf-merge-dupkey-values-plist "leaf")))
+
+    ((leaf leaf
+       :defun ((lbrowser-open lbrowser-close) . leaf-browser))
+     (progn
+       (declare-function lbrowser-open "leaf-browser")
+       (declare-function lbrowser-close "leaf-browser")))
+
+    ((leaf leaf
+       :defun (lbrowser-open lbrowser-close . leaf-browser))
+     (progn
+       (declare-function lbrowser-open "leaf-browser")
+       (declare-function lbrowser-close "leaf-browser")))
+
+    ((leaf leaf
+       :defun ((lbrowser-open (lbrowser-close) . leaf) . leaf-browser))
+     (progn
+       (declare-function lbrowser-open "leaf")
+       (declare-function lbrowser-close "leaf")))
+
+    ((leaf leaf
+       :defun ((lbrowser-open (lbrowser-close) . leaf) leaf-asdf . leaf-browser))
+     (progn
+       (declare-function lbrowser-open "leaf")
+       (declare-function lbrowser-close "leaf")
+       (declare-function leaf-asdf "leaf-browser")))))
+
 (provide 'leaf-tests)
 ;;; leaf-tests.el ends here

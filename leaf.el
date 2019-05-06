@@ -103,8 +103,8 @@
     :doc `(,@body) :file `(,@body) :url `(,@body)
 
     :load-path `(,@(mapcar (lambda (elm) `(add-to-list 'load-path ,elm)) value) ,@body)
-    :defun `(,@(mapcaar (lambda (elm) `(declare-function ,elm ,(symbol-name name))) value) ,@body)
-    :defvar `(,@(mapcaar (lambda (elm) `(defvar ,elm)) value) ,@body)
+    :defun `(,@(mapcar (lambda (elm) `(declare-function ,(car elm) ,(symbol-name (cdr elm)))) value) ,@body)
+    :defvar `(,@(mapcar (lambda (elm) `(defvar ,(car elm))) value) ,@body)
     :preface `(,@value ,@body)
 
     :if (when body
@@ -170,7 +170,7 @@ Sort by `leaf-sort-values-plist' in this order.")
        (if (eq nil (car ret))
            nil
          (delete-dups (delq nil (leaf-subst t name ret))))))
-    ((memq key '(:load-path :commands :defun :defvar :after))
+    ((memq key '(:load-path :commands :after))
      ;; Accept: 't, 'nil, symbol and list of these (and nested)
      ;; Return: symbol list.
      ;; Note  : 'nil is just ignored
@@ -269,7 +269,7 @@ Sort by `leaf-sort-values-plist' in this order.")
        (dolist (elm value)
          (setq ret (funcall fn elm ret)))
        (nreverse ret)))
-    ((memq key '(:hook :mode :interpreter :magic :magic-fallback))
+    ((memq key '(:hook :mode :interpreter :magic :magic-fallback :defun :defvar))
      ;; Accept: func, (hook . func), ((hook hook ...) . func),
      ;;         (hook hook ... . func) and list of these (and nested)
      ;; Return: list of pair (hook . func).
@@ -291,8 +291,10 @@ Sort by `leaf-sort-values-plist' in this order.")
                    ((leaf-pairp elm)
                     (if (listp (car elm))
                         (progn
-                          (dolist (el (car elm))
-                            (setq ret (funcall fn `(,el . ,(cdr elm)) ret)))
+                          (if (leaf-dotlistp (car elm))
+                              (setq ret (funcall fn (car elm) ret))
+                            (dolist (el (car elm))
+                              (setq ret (funcall fn `(,el . ,(cdr elm)) ret))))
                           ret)
                       (if (member elm ret)
                           ret
