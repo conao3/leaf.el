@@ -141,5 +141,12 @@
       (setq count (1+ count)))
     (nreverse ret)))
 
+(defun leaf-plist-get (key plist &optional default)
+  "`plist-get' with DEFAULT value in PLIST search KEY."
+  (declare (indent 1))
+  (if (member key plist)
+      (plist-get plist key)
+    default))
+
 (provide 'leaf-polyfill)
 ;;; leaf-polyfill.el ends here
