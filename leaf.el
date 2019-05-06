@@ -378,7 +378,7 @@ Sort by `leaf-sort-values-plist' in this order.")
        (dolist (elm value)
          (setq ret (funcall fn elm ret)))
        (nreverse ret)))
-    ((memq key '(:disabled :if :when :unless))
+    ((memq key '(:disabled :if :when :unless :doc :file :url))
      value)
     (t
      value))
