@@ -1321,5 +1321,40 @@ Example
        (setq-default leaf-backend-bind 'bind-key)
        (setq-default leaf-backend-bind* 'bind-key)))))
 
+(cort-deftest-with-macroexpand leaf/config
+  '(((leaf leaf
+       :init (leaf-pre-init)
+       :require t
+       :config (leaf-init))
+     (progn
+       (leaf-pre-init)
+       (require 'leaf)
+       (leaf-init)))
+
+    ((leaf leaf
+       :init (leaf-init)
+       :require t
+       :config (progn
+               (leaf-pre-init)
+               (leaf-pre-init-after)))
+     (progn
+       (leaf-init)
+       (require 'leaf)
+       (progn
+         (leaf-pre-init)
+         (leaf-pre-init-after))))
+
+    ((leaf leaf
+       :init (leaf-init)
+       :require t
+       :config
+       (leaf-pre-init)
+       (leaf-pre-init-after))
+     (progn
+       (leaf-init)
+       (require 'leaf)
+       (leaf-pre-init)
+       (leaf-pre-init-after)))))
+
 (provide 'leaf-tests)
 ;;; leaf-tests.el ends here
