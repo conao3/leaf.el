@@ -1154,5 +1154,66 @@ Example
        (require 'leaf)
        (leaf-init)))))
 
+(cort-deftest-with-macroexpand leaf/require
+  '(((leaf leaf
+       :init (leaf-pre-init)
+       :require t
+       :config (leaf-init))
+     (progn
+       (leaf-pre-init)
+       (require 'leaf)
+       (leaf-init)))
+
+    ((leaf leaf
+       :init (leaf-pre-init)
+       :require nil
+       :config (leaf-init))
+     (progn
+       (leaf-pre-init)
+       (leaf-init)))
+
+    ((leaf leaf
+       :init (leaf-pre-init)
+       :require leaf leaf-polyfill
+       :config (leaf-init))
+     (progn
+       (leaf-pre-init)
+       (require 'leaf)
+       (require 'leaf-polyfill)
+       (leaf-init)))
+
+    ((leaf leaf
+       :init (leaf-pre-init)
+       :require t
+       :require leaf-polyfill
+       :config (leaf-init))
+     (progn
+       (leaf-pre-init)
+       (require 'leaf)
+       (require 'leaf-polyfill)
+       (leaf-init)))
+
+    ((leaf leaf
+       :init (leaf-pre-init)
+       :require t leaf-polyfill
+       :config (leaf-init))
+     (progn
+       (leaf-pre-init)
+       (require 'leaf)
+       (require 'leaf-polyfill)
+       (leaf-init)))
+
+    ((leaf leaf
+       :init (leaf-pre-init)
+       :require (leaf leaf-polyfill leaf-sub leaf-subsub)
+       :config (leaf-init))
+     (progn
+       (leaf-pre-init)
+       (require 'leaf)
+       (require 'leaf-polyfill)
+       (require 'leaf-sub)
+       (require 'leaf-subsub)
+       (leaf-init)))))
+
 (provide 'leaf-tests)
 ;;; leaf-tests.el ends here
