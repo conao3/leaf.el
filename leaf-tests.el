@@ -1033,5 +1033,38 @@ Example
        (add-hook 'prog-mode-hook (function ace-jump-mode))
        (add-hook 'isearch-mode (function my-ace-jump-mode))))))
 
+(cort-deftest-with-macroexpand leaf/commands
+  '(((leaf leaf
+       :commands leaf
+       :config (leaf-init))
+     (progn
+       (autoload (function leaf) "leaf" nil t)
+       (leaf-init)))
+
+    ((leaf leaf
+       :commands leaf leaf-pairp leaf-plist-get)
+     (progn
+       (autoload (function leaf) "leaf" nil t)
+       (autoload (function leaf-pairp) "leaf" nil t)
+       (autoload (function leaf-plist-get) "leaf" nil t)))
+
+    ((leaf leaf
+       :commands leaf (leaf-pairp leaf-plist-get))
+     (progn
+       (autoload (function leaf) "leaf" nil t)
+       (autoload (function leaf-pairp) "leaf" nil t)
+       (autoload (function leaf-plist-get) "leaf" nil t)))
+
+    ((leaf leaf
+       :commands leaf (leaf-pairp leaf-plist-get (leaf
+                                                   (leaf-pairp
+                                                    (leaf-pairp
+                                                     (leaf-insert-after))))))
+     (progn
+       (autoload (function leaf) "leaf" nil t)
+       (autoload (function leaf-pairp) "leaf" nil t)
+       (autoload (function leaf-plist-get) "leaf" nil t)
+       (autoload (function leaf-insert-after) "leaf" nil t)))))
+
 (provide 'leaf-tests)
 ;;; leaf-tests.el ends here
