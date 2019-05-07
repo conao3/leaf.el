@@ -126,17 +126,17 @@ Example
      nil)
     ((leaf leaf :disabled nil     :config (leaf-init))
      (progn
-        (leaf-init)))
+       (leaf-init)))
     ((leaf leaf :disabled t t     :config (leaf-init))
      nil)
     ((leaf leaf :disabled t nil   :config (leaf-init))
      nil)
     ((leaf leaf :disabled nil t   :config (leaf-init))
      (progn
-        (leaf-init)))
+       (leaf-init)))
     ((leaf leaf :disabled nil nil :config (leaf-init))
      (progn
-        (leaf-init)))
+       (leaf-init)))
 
     ((leaf leaf :disabled t :disabled t       :config (leaf-init))
      nil)
@@ -153,22 +153,22 @@ Example
 
     ((leaf leaf :disabled nil :disabled t       :config (leaf-init))
      (progn
-        (leaf-init)))
+       (leaf-init)))
     ((leaf leaf :disabled nil :disabled nil     :config (leaf-init))
      (progn
-        (leaf-init)))
+       (leaf-init)))
     ((leaf leaf :disabled nil :disabled t t     :config (leaf-init))
      (progn
-        (leaf-init)))
+       (leaf-init)))
     ((leaf leaf :disabled nil :disabled t nil   :config (leaf-init))
      (progn
-        (leaf-init)))
+       (leaf-init)))
     ((leaf leaf :disabled nil :disabled nil t   :config (leaf-init))
      (progn
-        (leaf-init)))
+       (leaf-init)))
     ((leaf leaf :disabled nil :disabled nil nil :config (leaf-init))
      (progn
-        (leaf-init)))
+       (leaf-init)))
 
     ((leaf leaf :disabled t :disabled t       :config (leaf-init) :disabled t)
      nil)
@@ -185,22 +185,22 @@ Example
 
     ((leaf leaf :disabled nil :disabled t       :config (leaf-init) :disabled t)
      (progn
-        (leaf-init)))
+       (leaf-init)))
     ((leaf leaf :disabled nil :disabled nil     :config (leaf-init) :disabled nil)
      (progn
-        (leaf-init)))
+       (leaf-init)))
     ((leaf leaf :disabled nil :disabled t t     :config (leaf-init) :disabled t t)
      (progn
-        (leaf-init)))
+       (leaf-init)))
     ((leaf leaf :disabled nil :disabled t nil   :config (leaf-init) :disabled t nil)
      (progn
-        (leaf-init)))
+       (leaf-init)))
     ((leaf leaf :disabled nil :disabled nil t   :config (leaf-init) :disabled nil t)
      (progn
-        (leaf-init)))
+       (leaf-init)))
     ((leaf leaf :disabled nil :disabled nil nil :config (leaf-init) :disabled nil nil)
      (progn
-        (leaf-init)))))
+       (leaf-init)))))
 
 ;; This test failed on Emacs-22 and Emacs-23
 ;; (cort-deftest-with-macroexpand leaf/ensure
@@ -406,8 +406,8 @@ Example
 
     ((leaf leaf
        :defvar (leaf
-                (leaf-normalize-plist
-                 (leaf-merge-dupkey-values-plist))))
+                 (leaf-normalize-plist
+                  (leaf-merge-dupkey-values-plist))))
      (progn
        (defvar leaf)
        (defvar leaf-normalize-plist)
@@ -742,8 +742,8 @@ Example
 
     ((leaf color-moccur
        :bind* (("M-s O" . moccur)
-              ("M-o" . isearch-moccur)
-              ("M-O" . isearch-moccur-all)))
+               ("M-o" . isearch-moccur)
+               ("M-O" . isearch-moccur-all)))
      (progn
        (autoload #'moccur "color-moccur" nil t)
        (autoload #'isearch-moccur "color-moccur" nil t)
@@ -754,8 +754,8 @@ Example
 
     ((leaf color-moccur
        :bind* (("M-s O" . moccur)
-              (("M-o" . isearch-moccur)
-               (("M-O" . isearch-moccur-all)))))
+               (("M-o" . isearch-moccur)
+                (("M-O" . isearch-moccur-all)))))
      (progn
        (autoload #'moccur "color-moccur" nil t)
        (autoload #'isearch-moccur "color-moccur" nil t)
@@ -766,9 +766,9 @@ Example
 
     ((leaf color-moccur
        :bind* (("M-s O" . moccur)
-              (("M-o" . isearch-moccur)
-               (("M-O" . isearch-moccur-all))
-               ("M-s" . isearch-moccur-some))))
+               (("M-o" . isearch-moccur)
+                (("M-O" . isearch-moccur-all))
+                ("M-s" . isearch-moccur-some))))
      (progn
        (autoload #'moccur "color-moccur" nil t)
        (autoload #'isearch-moccur "color-moccur" nil t)
