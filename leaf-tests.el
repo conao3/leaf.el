@@ -1066,5 +1066,57 @@ Example
        (autoload (function leaf-plist-get) "leaf" nil t)
        (autoload (function leaf-insert-after) "leaf" nil t)))))
 
+(cort-deftest-with-macroexpand leaf/pre-setq
+  '(((leaf alloc
+       :pre-setq `((gc-cons-threshold . ,(* 512 1024 1024))
+                   (garbage-collection-messages . t))
+       :require t)
+     (progn
+       (setq gc-cons-threshold 536870912)
+       (setq garbage-collection-messages t)
+       (require 'alloc)))
+
+    ((leaf alloc
+       :pre-setq ((gc-cons-threshold . 536870912)
+                  (garbage-collection-messages . t))
+       :require t)
+     (progn
+       (setq gc-cons-threshold 536870912)
+       (setq garbage-collection-messages t)
+       (require 'alloc)))
+
+    ((progn
+       (setq leaf-backend-bind 'bind-key)
+       (setq leaf-backend-bind* 'bind-key)
+       (require 'leaf))
+     (progn
+       (setq leaf-backend-bind 'bind-key)
+       (setq leaf-backend-bind* 'bind-key)
+       (require 'leaf)))
+
+    ((leaf leaf
+       :pre-setq (leaf-backend-bind leaf-backend-bind* . 'bind-key)
+       :require t)
+     (progn
+       (setq leaf-backend-bind 'bind-key)
+       (setq leaf-backend-bind* 'bind-key)
+       (require 'leaf)))
+
+    ((leaf leaf
+       :pre-setq ((leaf-backend-bind) leaf-backend-bind* . 'bind-key)
+       :require t)
+     (progn
+       (setq leaf-backend-bind 'bind-key)
+       (setq leaf-backend-bind* 'bind-key)
+       (require 'leaf)))
+
+    ((leaf leaf
+       :pre-setq ((leaf-backend-bind leaf-backend-bind*) . 'bind-key)
+       :require t)
+     (progn
+       (setq leaf-backend-bind 'bind-key)
+       (setq leaf-backend-bind* 'bind-key)
+       (require 'leaf)))))
+
 (provide 'leaf-tests)
 ;;; leaf-tests.el ends here
