@@ -1085,10 +1085,11 @@ Example
        (setq garbage-collection-messages t)
        (require 'alloc)))
 
-    ((progn
-       (setq leaf-backend-bind 'bind-key)
-       (setq leaf-backend-bind* 'bind-key)
-       (require 'leaf))
+    ((leaf leaf
+       :pre-setq
+       (leaf-backend-bind . 'bind-key)
+       (leaf-backend-bind* . 'bind-key)
+       :require t)
      (progn
        (setq leaf-backend-bind 'bind-key)
        (setq leaf-backend-bind* 'bind-key)
@@ -1117,6 +1118,41 @@ Example
        (setq leaf-backend-bind 'bind-key)
        (setq leaf-backend-bind* 'bind-key)
        (require 'leaf)))))
+
+(cort-deftest-with-macroexpand leaf/init
+  '(((leaf leaf
+       :init (leaf-pre-init)
+       :require t
+       :config (leaf-init))
+     (progn
+       (leaf-pre-init)
+       (require 'leaf)
+       (leaf-init)))
+
+    ((leaf leaf
+       :init (progn
+               (leaf-pre-init)
+               (leaf-pre-init-after))
+       :require t
+       :config (leaf-init))
+     (progn
+       (progn
+         (leaf-pre-init)
+         (leaf-pre-init-after))
+       (require 'leaf)
+       (leaf-init)))
+
+    ((leaf leaf
+       :init
+       (leaf-pre-init)
+       (leaf-pre-init-after)
+       :require t
+       :config (leaf-init))
+     (progn
+       (leaf-pre-init)
+       (leaf-pre-init-after)
+       (require 'leaf)
+       (leaf-init)))))
 
 (provide 'leaf-tests)
 ;;; leaf-tests.el ends here
