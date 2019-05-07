@@ -807,5 +807,43 @@ Example
     ;;    (bind-keys* :map isearch-mode-map :package isearch ("M-O" . isearch-moccur-all))))
     ))
 
+(cort-deftest-with-macroexpand leaf/mode
+  '(((leaf web-mode
+       :mode "\\.js\\'" "\\.p?html?\\'")
+     (progn
+       (autoload (function web-mode) "web-mode" nil t)
+       (add-to-list 'auto-mode-alist '("\\.js\\'" web-mode))
+       (add-to-list 'auto-mode-alist '("\\.p?html?\\'" web-mode))))
+
+    ((leaf web-mode
+       :mode ("\\.js\\'" "\\.p?html?\\'"))
+     (progn
+       (autoload (function web-mode) "web-mode" nil t)
+       (add-to-list 'auto-mode-alist '("\\.js\\'" web-mode))
+       (add-to-list 'auto-mode-alist '("\\.p?html?\\'" web-mode))))
+
+    ((leaf web-mode
+       :mode ("\\.js\\'" ("\\.p?html?\\'")))
+     (progn
+       (autoload (function web-mode) "web-mode" nil t)
+       (add-to-list 'auto-mode-alist '("\\.js\\'" web-mode))
+       (add-to-list 'auto-mode-alist '("\\.p?html?\\'" web-mode))))
+
+    ((leaf web-mode
+       :mode (("\\.js\\'" "\\.p?html?\\'") . web-mode))
+     (progn
+       (autoload (function web-mode) "web-mode" nil t)
+       (add-to-list 'auto-mode-alist '("\\.js\\'" web-mode))
+       (add-to-list 'auto-mode-alist '("\\.p?html?\\'" web-mode))))
+
+    ((leaf web-mode
+       :mode (("\\.phtml?\\'" "\\.html?\\'" . web-html-mode) "\\.js\\'" . web-mode))
+     (progn
+       (autoload (function web-html-mode) "web-mode" nil t)
+       (autoload (function web-mode) "web-mode" nil t)
+       (add-to-list 'auto-mode-alist '("\\.phtml?\\'" web-html-mode))
+       (add-to-list 'auto-mode-alist '("\\.html?\\'" web-html-mode))
+       (add-to-list 'auto-mode-alist '("\\.js\\'" web-mode))))))
+
 (provide 'leaf-tests)
 ;;; leaf-tests.el ends here
