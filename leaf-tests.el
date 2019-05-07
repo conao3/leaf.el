@@ -683,6 +683,21 @@ Example
        (bind-keys :package color-moccur ("M-o" . isearch-moccur))
        (bind-keys :package color-moccur ("M-O" . isearch-moccur-all))))
 
+    ((leaf color-moccur
+       :bind (("M-s O" . moccur)
+              (("M-o" . isearch-moccur)
+               (("M-O" . isearch-moccur-all))
+               ("M-s" . isearch-moccur-some))))
+     (progn
+       (autoload #'moccur "color-moccur" nil t)
+       (autoload #'isearch-moccur "color-moccur" nil t)
+       (autoload #'isearch-moccur-all "color-moccur" nil t)
+       (autoload #'isearch-moccur-some "color-moccur" nil t)
+       (bind-keys :package color-moccur ("M-s O" . moccur))
+       (bind-keys :package color-moccur ("M-o" . isearch-moccur))
+       (bind-keys :package color-moccur ("M-O" . isearch-moccur-all))
+       (bind-keys :package color-moccur ("M-s" . isearch-moccur-some))))
+
     ;; ((leaf color-moccur
     ;;    :bind (("M-s O" . moccur)
     ;;           (:isearch-mode-map
@@ -748,6 +763,21 @@ Example
        (bind-keys* :package color-moccur ("M-s O" . moccur))
        (bind-keys* :package color-moccur ("M-o" . isearch-moccur))
        (bind-keys* :package color-moccur ("M-O" . isearch-moccur-all))))
+
+    ((leaf color-moccur
+       :bind* (("M-s O" . moccur)
+              (("M-o" . isearch-moccur)
+               (("M-O" . isearch-moccur-all))
+               ("M-s" . isearch-moccur-some))))
+     (progn
+       (autoload #'moccur "color-moccur" nil t)
+       (autoload #'isearch-moccur "color-moccur" nil t)
+       (autoload #'isearch-moccur-all "color-moccur" nil t)
+       (autoload #'isearch-moccur-some "color-moccur" nil t)
+       (bind-keys* :package color-moccur ("M-s O" . moccur))
+       (bind-keys* :package color-moccur ("M-o" . isearch-moccur))
+       (bind-keys* :package color-moccur ("M-O" . isearch-moccur-all))
+       (bind-keys* :package color-moccur ("M-s" . isearch-moccur-some))))
 
     ;; ((leaf color-moccur
     ;;    :bind* (("M-s O" . moccur)
