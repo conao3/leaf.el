@@ -1268,5 +1268,58 @@ Example
        (setq leaf-backend-bind 'bind-key)
        (setq leaf-backend-bind* 'bind-key)))))
 
+(cort-deftest-with-macroexpand leaf/setq-default
+  '(((leaf alloc
+       :setq-default `((gc-cons-threshold . ,(* 512 1024 1024))
+                   (garbage-collection-messages . t))
+       :require t)
+     (progn
+       (require 'alloc)
+       (setq-default gc-cons-threshold 536870912)
+       (setq-default garbage-collection-messages t)))
+
+    ((leaf alloc
+       :setq-default ((gc-cons-threshold . 536870912)
+                  (garbage-collection-messages . t))
+       :require t)
+     (progn
+       (require 'alloc)
+       (setq-default gc-cons-threshold 536870912)
+       (setq-default garbage-collection-messages t)))
+
+    ((leaf leaf
+       :setq-default
+       (leaf-backend-bind . 'bind-key)
+       (leaf-backend-bind* . 'bind-key)
+       :require t)
+     (progn
+       (require 'leaf)
+       (setq-default leaf-backend-bind 'bind-key)
+       (setq-default leaf-backend-bind* 'bind-key)))
+
+    ((leaf leaf
+       :setq-default (leaf-backend-bind leaf-backend-bind* . 'bind-key)
+       :require t)
+     (progn
+       (require 'leaf)
+       (setq-default leaf-backend-bind 'bind-key)
+       (setq-default leaf-backend-bind* 'bind-key)))
+
+    ((leaf leaf
+       :setq-default ((leaf-backend-bind) leaf-backend-bind* . 'bind-key)
+       :require t)
+     (progn
+       (require 'leaf)
+       (setq-default leaf-backend-bind 'bind-key)
+       (setq-default leaf-backend-bind* 'bind-key)))
+
+    ((leaf leaf
+       :setq-default ((leaf-backend-bind leaf-backend-bind*) . 'bind-key)
+       :require t)
+     (progn
+       (require 'leaf)
+       (setq-default leaf-backend-bind 'bind-key)
+       (setq-default leaf-backend-bind* 'bind-key)))))
+
 (provide 'leaf-tests)
 ;;; leaf-tests.el ends here
