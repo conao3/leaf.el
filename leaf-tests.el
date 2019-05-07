@@ -845,5 +845,54 @@ Example
        (add-to-list 'auto-mode-alist '("\\.html?\\'" web-html-mode))
        (add-to-list 'auto-mode-alist '("\\.js\\'" web-mode))))))
 
+(cort-deftest-with-macroexpand leaf/interpreter
+  '(((leaf ruby-mode
+     :mode "\\.rb\\'" "\\.rb2\\'" ("\\.rbg\\'" . rb-mode)
+     :interpreter "ruby")
+     (progn
+       (autoload (function ruby-mode) "ruby-mode" nil t)
+       (autoload (function rb-mode) "ruby-mode" nil t)
+       (add-to-list 'auto-mode-alist '("\\.rb\\'" ruby-mode))
+       (add-to-list 'auto-mode-alist '("\\.rb2\\'" ruby-mode))
+       (add-to-list 'auto-mode-alist '("\\.rbg\\'" rb-mode))
+       (add-to-list 'interpreter-mode-alist '("ruby" ruby-mode))))
+
+    ((leaf web-mode
+       :interpreter "js" "p?html?")
+     (progn
+       (autoload (function web-mode) "web-mode" nil t)
+       (add-to-list 'interpreter-mode-alist '("js" web-mode))
+       (add-to-list 'interpreter-mode-alist '("p?html?" web-mode))))
+
+    ((leaf web-mode
+       :interpreter ("js" "p?html?"))
+     (progn
+       (autoload (function web-mode) "web-mode" nil t)
+       (add-to-list 'interpreter-mode-alist '("js" web-mode))
+       (add-to-list 'interpreter-mode-alist '("p?html?" web-mode))))
+
+    ((leaf web-mode
+       :interpreter ("js" ("p?html?")))
+     (progn
+       (autoload (function web-mode) "web-mode" nil t)
+       (add-to-list 'interpreter-mode-alist '("js" web-mode))
+       (add-to-list 'interpreter-mode-alist '("p?html?" web-mode))))
+
+    ((leaf web-mode
+       :interpreter (("js" "p?html?") . web-mode))
+     (progn
+       (autoload (function web-mode) "web-mode" nil t)
+       (add-to-list 'interpreter-mode-alist '("js" web-mode))
+       (add-to-list 'interpreter-mode-alist '("p?html?" web-mode))))
+
+    ((leaf web-mode
+       :interpreter (("phtml?" "html?" . web-html-mode) "js" . web-mode))
+     (progn
+       (autoload (function web-html-mode) "web-mode" nil t)
+       (autoload (function web-mode) "web-mode" nil t)
+       (add-to-list 'interpreter-mode-alist '("phtml?" web-html-mode))
+       (add-to-list 'interpreter-mode-alist '("html?" web-html-mode))
+       (add-to-list 'interpreter-mode-alist '("js" web-mode))))))
+
 (provide 'leaf-tests)
 ;;; leaf-tests.el ends here
