@@ -5,7 +5,7 @@
 ;; Author: Naoya Yamashita <conao3@gmail.com>
 ;; Maintainer: Naoya Yamashita <conao3@gmail.com>
 ;; Keywords: lisp settings
-;; Version: 2.2.0
+;; Version: 2.2.1
 ;; URL: https://github.com/conao3/leaf.el
 ;; Package-Requires: ((emacs "24.0"))
 
@@ -78,12 +78,19 @@
 ;;  leaf keywords definition
 ;;
 
+(defvar leaf--name)
+(defvar leaf--key)
+(defvar leaf--value)
+(defvar leaf--body)
+(defvar leaf--rest)
+(defvar leaf--autoload)
+
 (defvar leaf-keywords
   '(:dummy
-    :disabled (unless (eval (car value)) `(,@body))
-    :autoload `(,@(when (car value)
+    :disabled (unless (eval (car leaf--value)) `(,@leaf--body))
+    :autoload `(,@(when (car leaf--value)
                     (mapcar (lambda (elm) `(autoload #',(car elm) ,(cdr elm) nil t)) (nreverse leaf--autoload)))
-                ,@body)
+                ,@leaf--body)
     :ensure `(,@(mapcar
                  (lambda (elm)
                    (let ((pkg `',(car elm))
@@ -101,91 +108,91 @@
                                               (format "Failed to install %s: %s"
                                                       ,pkg (error-message-string err))
                                               :error))))))))
-                 value)
-              ,@body)
-    :doc `(,@body) :file `(,@body) :url `(,@body)
+                 leaf--value)
+              ,@leaf--body)
+    :doc `(,@leaf--body) :file `(,@leaf--body) :url `(,@leaf--body)
 
-    :load-path `(,@(mapcar (lambda (elm) `(add-to-list 'load-path ,elm)) value) ,@body)
-    :defun `(,@(mapcar (lambda (elm) `(declare-function ,(car elm) ,(symbol-name (cdr elm)))) value) ,@body)
-    :defvar `(,@(mapcar (lambda (elm) `(defvar ,elm)) value) ,@body)
-    :preface `(,@value ,@body)
+    :load-path `(,@(mapcar (lambda (elm) `(add-to-list 'load-path ,elm)) leaf--value) ,@leaf--body)
+    :defun `(,@(mapcar (lambda (elm) `(declare-function ,(car elm) ,(symbol-name (cdr elm)))) leaf--value) ,@leaf--body)
+    :defvar `(,@(mapcar (lambda (elm) `(defvar ,elm)) leaf--value) ,@leaf--body)
+    :preface `(,@leaf--value ,@leaf--body)
 
-    :when (when body
-            `((when ,@(if (= 1 (length value)) value `((and ,@value)))
-                ,@body)))
-    :unless (when body
-              `((unless ,@(if (= 1 (length value)) value `((and ,@value)))
-                  ,@body)))
-    :if (when body
-          `((if ,@(if (= 1 (length value)) value `((and ,@value)))
-                (progn ,@body))))
+    :when (when leaf--body
+            `((when ,@(if (= 1 (length leaf--value)) leaf--value `((and ,@leaf--value)))
+                ,@leaf--body)))
+    :unless (when leaf--body
+              `((unless ,@(if (= 1 (length leaf--value)) leaf--value `((and ,@leaf--value)))
+                  ,@leaf--body)))
+    :if (when leaf--body
+          `((if ,@(if (= 1 (length leaf--value)) leaf--value `((and ,@leaf--value)))
+                (progn ,@leaf--body))))
 
-    :after (when body
-             (let ((ret `(progn ,@body)))
-               (dolist (elm value) (setq ret `(eval-after-load ',elm ',ret)))
+    :after (when leaf--body
+             (let ((ret `(progn ,@leaf--body)))
+               (dolist (elm leaf--value) (setq ret `(eval-after-load ',elm ',ret)))
                `(,ret)))
 
-    :custom `((custom-set-variables ,@(mapcar (lambda (elm) `'(,(car elm) ,(cdr elm) ,(format "Customized with leaf in %s block" name))) value)) ,@body)
-    :custom-face `((custom-set-faces ,@(mapcar (lambda (elm) `'(,(car elm) ,(cddr elm))) value)) ,@body)
+    :custom `((custom-set-variables ,@(mapcar (lambda (elm) `'(,(car elm) ,(cdr elm) ,(format "Customized with leaf in %s block" leaf--name))) leaf--value)) ,@leaf--body)
+    :custom-face `((custom-set-faces ,@(mapcar (lambda (elm) `'(,(car elm) ,(cddr elm))) leaf--value)) ,@leaf--body)
     :bind
     (progn
-      (mapc (lambda (elm) (leaf-register-autoload (cdar (last elm)) name)) value)
-      `(,@(mapcar (lambda (elm) `(bind-keys ,@elm)) value) ,@body))
+      (mapc (lambda (elm) (leaf-register-autoload (cdar (last elm)) leaf--name)) leaf--value)
+      `(,@(mapcar (lambda (elm) `(bind-keys ,@elm)) leaf--value) ,@leaf--body))
     :bind*
     (progn
-      (mapc (lambda (elm) (leaf-register-autoload (cdar (last elm)) name)) value)
-      `(,@(mapcar (lambda (elm) `(bind-keys* ,@elm)) value) ,@body))
+      (mapc (lambda (elm) (leaf-register-autoload (cdar (last elm)) leaf--name)) leaf--value)
+      `(,@(mapcar (lambda (elm) `(bind-keys* ,@elm)) leaf--value) ,@leaf--body))
 
     :mode
     (progn
-      (mapc (lambda (elm) (leaf-register-autoload (cdr elm) name)) value)
-      `(,@(mapcar (lambda (elm) `(add-to-list 'auto-mode-alist '(,(car elm) ,(cdr elm)))) value) ,@body))
+      (mapc (lambda (elm) (leaf-register-autoload (cdr elm) leaf--name)) leaf--value)
+      `(,@(mapcar (lambda (elm) `(add-to-list 'auto-mode-alist '(,(car elm) ,(cdr elm)))) leaf--value) ,@leaf--body))
     :interpreter
     (progn
-      (mapc (lambda (elm) (leaf-register-autoload (cdr elm) name)) value)
-      `(,@(mapcar (lambda (elm) `(add-to-list 'interpreter-mode-alist '(,(car elm) ,(cdr elm)))) value) ,@body))
+      (mapc (lambda (elm) (leaf-register-autoload (cdr elm) leaf--name)) leaf--value)
+      `(,@(mapcar (lambda (elm) `(add-to-list 'interpreter-mode-alist '(,(car elm) ,(cdr elm)))) leaf--value) ,@leaf--body))
     :magic
     (progn
-      (mapc (lambda (elm) (leaf-register-autoload (cdr elm) name)) value)
-      `(,@(mapcar (lambda (elm) `(add-to-list 'magic-mode-alist '(,(car elm) ,(cdr elm)))) value) ,@body))
+      (mapc (lambda (elm) (leaf-register-autoload (cdr elm) leaf--name)) leaf--value)
+      `(,@(mapcar (lambda (elm) `(add-to-list 'magic-mode-alist '(,(car elm) ,(cdr elm)))) leaf--value) ,@leaf--body))
     :magic-fallback
     (progn
-      (mapc (lambda (elm) (leaf-register-autoload (cdr elm) name)) value)
-      `(,@(mapcar (lambda (elm) `(add-to-list 'magic-fallback-mode-alist '(,(car elm) ,(cdr elm)))) value) ,@body))
+      (mapc (lambda (elm) (leaf-register-autoload (cdr elm) leaf--name)) leaf--value)
+      `(,@(mapcar (lambda (elm) `(add-to-list 'magic-fallback-mode-alist '(,(car elm) ,(cdr elm)))) leaf--value) ,@leaf--body))
     :hook
     (progn
-      (mapc (lambda (elm) (leaf-register-autoload (cdr elm) name)) value)
-      `(,@(mapcar (lambda (elm) `(add-hook ',(car elm) #',(cdr elm))) value) ,@body))
+      (mapc (lambda (elm) (leaf-register-autoload (cdr elm) leaf--name)) leaf--value)
+      `(,@(mapcar (lambda (elm) `(add-hook ',(car elm) #',(cdr elm))) leaf--value) ,@leaf--body))
 
-    :commands (progn (mapc (lambda (elm) (leaf-register-autoload elm name)) value) `(,@body))
-    :pre-setq `(,@(mapcar (lambda (elm) `(setq ,(car elm) ,(cdr elm))) value) ,@body)
-    :init `(,@value ,@body)
-    :require `(,@(mapcar (lambda (elm) `(require ',elm)) value) ,@body)
-    :setq `(,@(mapcar (lambda (elm) `(setq ,(car elm) ,(cdr elm))) value) ,@body)
-    :setq-default `(,@(mapcar (lambda (elm) `(setq-default ,(car elm) ,(cdr elm))) value) ,@body)
-    :config `(,@value ,@body)
+    :commands (progn (mapc (lambda (elm) (leaf-register-autoload elm leaf--name)) leaf--value) `(,@leaf--body))
+    :pre-setq `(,@(mapcar (lambda (elm) `(setq ,(car elm) ,(cdr elm))) leaf--value) ,@leaf--body)
+    :init `(,@leaf--value ,@leaf--body)
+    :require `(,@(mapcar (lambda (elm) `(require ',elm)) leaf--value) ,@leaf--body)
+    :setq `(,@(mapcar (lambda (elm) `(setq ,(car elm) ,(cdr elm))) leaf--value) ,@leaf--body)
+    :setq-default `(,@(mapcar (lambda (elm) `(setq-default ,(car elm) ,(cdr elm))) leaf--value) ,@leaf--body)
+    :config `(,@leaf--value ,@leaf--body)
     )
   "Special keywords and conversion rule to be processed by `leaf'.
-Sort by `leaf-sort-values-plist' in this order.")
+Sort by `leaf-sort-leaf--values-plist' in this order.")
 
 (defvar leaf-normarize
-  '(((memq key '(:require))
+  '(((memq leaf--key '(:require))
      ;; Accept: 't, 'nil, symbol and list of these (and nested)
      ;; Return: symbol list.
-     ;; Note  : 't will convert to 'name
+     ;; Note  : 't will convert to 'leaf--name
      ;;         if 'nil placed on top, ignore all argument
      ;;         remove duplicate element
-     (let ((ret (leaf-flatten value)))
+     (let ((ret (leaf-flatten leaf--value)))
        (if (eq nil (car ret))
            nil
-         (delete-dups (delq nil (leaf-subst t name ret))))))
-    ((memq key '(:load-path :commands :after :defvar))
+         (delete-dups (delq nil (leaf-subst t leaf--name ret))))))
+    ((memq leaf--key '(:load-path :commands :after :defvar))
      ;; Accept: 't, 'nil, symbol and list of these (and nested)
      ;; Return: symbol list.
      ;; Note  : 'nil is just ignored
      ;;         remove duplicate element
-     (delete-dups (delq nil (leaf-flatten value))))
-    ((memq key '(:bind :bind*))
+     (delete-dups (delq nil (leaf-flatten leaf--value))))
+    ((memq leaf--key '(:bind :bind*))
      ;; Accept: list of pair (bind . func),
      ;;         ([:{{hoge}}-map] [:package {{pkg}}](bind . func) (bind . func) ...)
      ;;         optional, [:{{hoge}}-map] [:package {{pkg}}]
@@ -196,7 +203,7 @@ Sort by `leaf-sort-values-plist' in this order.")
                    ((leaf-pairp elm)
                     (if (member elm ret)
                         ret
-                      (cons `(:package ,name ,elm) ret)))
+                      (cons `(:package ,leaf--name ,elm) ret)))
                    ((listp elm)
                     (if (not (atom (car elm)))
                         (progn
@@ -214,7 +221,7 @@ Sort by `leaf-sort-values-plist' in this order.")
                                  (cdr `(:dummy
                                         :map ,map
                                         ,@(if package `(:package ,package)
-                                            `(:package ,name))
+                                            `(:package ,leaf--name))
                                         ,@(when prefix `(:prefix ,prefix))
                                         ,@(when prefix-map `(:prefix-map ,prefix-map))
                                         ,@(when menu-name `(:manu-name ,menu-name))
@@ -229,15 +236,15 @@ Sort by `leaf-sort-values-plist' in this order.")
                               (setq ret (funcall fn target ret)))))))
                       ret))
                    (t
-                    (warn (format "Value %s is malformed." value))))))
-       (dolist (elm value)
+                    (warn (format "Value %s is malformed." leaf--value))))))
+       (dolist (elm leaf--value)
          (setq ret (funcall fn elm ret)))
        (nreverse ret)))
-    ((memq key '(:ensure))
+    ((memq leaf--key '(:ensure))
      ;; Accept: pkg, (pkg . pin), ((pkg pkg ...) . pin),
      ;;         (pkg pkg ... . pin) and list of these (and nested)
      ;; Return: list of pair (pkg . pin).
-     ;; Note  : t will convert (name . nil)
+     ;; Note  : t will convert (leaf--name . nil)
      ;;         if omit pin, use `leaf-options-ensure-default-pin'.
      ;;         if pin is 'nil, use package manager default
      ;;         remove duplicate configure
@@ -246,7 +253,7 @@ Sort by `leaf-sort-values-plist' in this order.")
        (setq fn (lambda (elm ret)
                   (cond
                    ((eq t elm)
-                    (cons `(,name . nil) ret))
+                    (cons `(,leaf--name . nil) ret))
                    ((eq nil elm)
                     ret)
                    ((atom elm)
@@ -274,15 +281,15 @@ Sort by `leaf-sort-values-plist' in this order.")
                       (setq ret (funcall fn el ret)))
                     ret)
                    (t
-                    (warn (format "Value %s is malformed." value))))))
-       (dolist (elm value)
+                    (warn (format "Value %s is malformed." leaf--value))))))
+       (dolist (elm leaf--value)
          (setq ret (funcall fn elm ret)))
        (nreverse ret)))
-    ((memq key '(:hook :mode :interpreter :magic :magic-fallback :defun))
+    ((memq leaf--key '(:hook :mode :interpreter :magic :magic-fallback :defun))
      ;; Accept: func, (hook . func), ((hook hook ...) . func),
      ;;         (hook hook ... . func) and list of these (and nested)
      ;; Return: list of pair (hook . func).
-     ;; Note  : if omit hook, use name as hook
+     ;; Note  : if omit hook, use leaf--name as hook
      ;;         remove duplicate configure
      ;;         't and 'nil are just ignored
      (let ((ret) (fn))
@@ -293,7 +300,7 @@ Sort by `leaf-sort-values-plist' in this order.")
                    ((eq nil elm)
                     ret)
                    ((atom elm)
-                    (let ((sym `(,elm . ,name)))
+                    (let ((sym `(,elm . ,leaf--name)))
                       (if (member sym ret)
                           ret
                         (cons sym ret))))
@@ -319,11 +326,11 @@ Sort by `leaf-sort-values-plist' in this order.")
                       (setq ret (funcall fn el ret)))
                     ret)
                    (t
-                    (warn (format "Value %s is malformed." value))))))
-       (dolist (elm value)
+                    (warn (format "Value %s is malformed." leaf--value))))))
+       (dolist (elm leaf--value)
          (setq ret (funcall fn elm ret)))
        (nreverse ret)))
-    ((memq key '(:setq :pre-setq :setq-default :custom :custom-face))
+    ((memq leaf--key '(:setq :pre-setq :setq-default :custom :custom-face))
      ;; Accept: (sym . val), ((sym sym ...) . val), (sym sym ... . val)
      ;; Return: list of pair (sym . val)
      ;; Note  : atom ('t, 'nil, symbol) is just ignored
@@ -382,14 +389,14 @@ Sort by `leaf-sort-values-plist' in this order.")
                       (setq ret (funcall fn el ret)))
                     ret)
                    (t
-                    (warn (format "Value %s is malformed." value))))))
-       (dolist (elm value)
+                    (warn (format "Value %s is malformed." leaf--value))))))
+       (dolist (elm leaf--value)
          (setq ret (funcall fn elm ret)))
        (nreverse ret)))
-    ((memq key '(:disabled :if :when :unless :doc :file :url :preface :init :config))
-     value)
+    ((memq leaf--key '(:disabled :if :when :unless :doc :file :url :preface :init :config))
+     leaf--value)
     (t
-     value))
+     leaf--value))
   "Normarize rule")
 
 (defun leaf-process-keywords (name plist)
@@ -399,27 +406,23 @@ Not check PLIST, PLIST has already been carefully checked
 parent funcitons.
 Don't call this function directory."
   (when plist
-    (let* ((key   (pop plist))
-           (value (leaf-normarize-args name key (pop plist)))
-           (body  (leaf-process-keywords name plist)))
+    (let* ((leaf--name  name)
+           (leaf--key   (pop plist))
+           (leaf--value (leaf-normarize-args leaf--name leaf--key (pop plist)))
+           (leaf--body  (leaf-process-keywords leaf--name plist))
+           (leaf--rest  plist))
       (eval
-       `(let ((name  ',name)
-              (key   ',key)
-              (value ',value)
-              (body  ',body)
-              (rest  ',plist))
-          ,(plist-get (cdr leaf-keywords) key))))))
+       (plist-get (cdr leaf-keywords) leaf--key)))))
 
 (defun leaf-normarize-args (name key value)
   "Normarize for NAME, KEY and VALUE."
-  (eval
-   `(let ((name  ',name)
-          (key   ',key)
-          (value ',value))
-      (cond
+  (let ((leaf--name  name)
+        (leaf--key   key)
+        (leaf--value value))
+    (eval
+     `(cond
        ,@leaf-normarize))))
 
-(defvar leaf--autoload)
 (defun leaf-register-autoload (fn pkg)
   "Registry FN as autoload for PKG."
   (let ((target `(,fn . ,(symbol-name pkg))))
