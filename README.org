@@ -14,31 +14,31 @@
 - [[#background][Background]]
 - [[#install][Install]]
 - [[#usage][Usage]]
-- [[#syntaxes][Syntaxes]]
-  - [[#basic-keywords][Basic keywords]]
-    - [[#none-keyword][none (keyword)]]
-    - [[#require-keyword][:require keyword]]
-    - [[#ensure-keyword][:ensure keyword]]
-    - [[#defaults-keyword][:defaults keyword]]
-  - [[#configuration-keywords][Configuration keywords]]
-    - [[#init-keyword][:init keyword]]
-    - [[#commands-keywards][:commands keyward]]
-    - [[#hook-keyword][:hook keyword]]
-    - [[#mode-interpreter-keyword][:mode, :interpreter keyword]]
-    - [[#magic-magic-fallback-keyword][:magic, :magic-fallback keyword]]
-    - [[#bind-bind-keyword][:bind, :bind* keyword]]
-    - [[#pre-setq-setq-keyword][:pre-setq :setq keyword]]
-    - [[#setq-default-custom-keyword][:setq-default :custom keyword]]
-    - [[#custom-face-keyword][:custom-face keyword]]
-    - [[#load-path-keyword][:load-path keyword]]
-    - [[#config-keyword][:config keyword]]
-  - [[#condition-keywords][Condition keywords]]
-    - [[#disabled-keyword][:disabled keyword]]
-    - [[#if-when-unless-keyword][:if, :when, :unless keyword]]
-  - [[#byte-compile-keywords][Byte compile keywords]]
-    - [[#byte-compile-funcs-byte-compile-vars-keywords][:byte-compile-funcs, :byte-compile-vars keyword]]
-  - [[#documentation-keywords][Documentation keywords]]
-    - [[#doc-file-url-keyword][:doc, :file, :url keyword]]
+- [[https://github.com/conao3/leaf.el#syntaxes][Syntaxes]]
+- [[https://github.com/conao3/leaf.el#basic-keywords][Basic keywords]]
+  - [[https://github.com/conao3/leaf.el#none-keyword][none (keyword)]]
+  - [[https://github.com/conao3/leaf.el#require-keyword][:require keyword]]
+  - [[https://github.com/conao3/leaf.el#ensure-keyword][:ensure keyword]]
+  - [[https://github.com/conao3/leaf.el#preface-init-config-keywords][:preface :init :config keywords]]
+  - [[https://github.com/conao3/leaf.el#commands-keyword][:commands keyword]]
+  - [[https://github.com/conao3/leaf.el#after-keyword][:after keyword]]
+- [[https://github.com/conao3/leaf.el#configure-variables-keywords][Configure variables keywords]]
+  - [[https://github.com/conao3/leaf.el#custom-custom-face--keywords][:custom :custom-face keywords]]
+  - [[https://github.com/conao3/leaf.el#pre-setq-setq-setq-default-keywords][:pre-setq :setq :setq-default keywords]]
+- [[https://github.com/conao3/leaf.el#configure-list-keywords][Configure list keywords]]
+  - [[https://github.com/conao3/leaf.el#mode-interpreter-keywords][:mode :interpreter keywords]]
+  - [[https://github.com/conao3/leaf.el#magic-magic-fallback-keywords][:magic :magic-fallback keywords]]
+  - [[https://github.com/conao3/leaf.el#hook-keyword][:hook keyword]]
+  - [[https://github.com/conao3/leaf.el#load-path-keyword][:load-path keyword]]
+- [[https://github.com/conao3/leaf.el#condition-keywords][Condition keywords]]
+  - [[https://github.com/conao3/leaf.el#disabled-keywords][:disabled keyword]]
+  - [[https://github.com/conao3/leaf.el#if-when-unless-keywords][:if :when :unless keywords]]
+- [[https://github.com/conao3/leaf.el#byte-compile-keywords][Byte compile keywords]]
+  - [[https://github.com/conao3/leaf.el#defun-defvar-keywords][:defun, :defvar keywords]]
+- [[https://github.com/conao3/leaf.el#documentation-keywords][Documentation keywords]]
+  - [[https://github.com/conao3/leaf.el#doc-file-url-keywords][:doc, :file, :url keywords]]
+- [[https://github.com/conao3/leaf.el#configure-other-packages][Configure other packages]]
+  - [[https://github.com/conao3/leaf.el#bind-bind-keywords][:bind, :bind* keywords]]
 - [[#information][Information]]
   - [[#donation][Donation]]
   - [[#community][Community]]
@@ -144,8 +144,8 @@ We expect FORM will be expanded to EXPECT.
       ...))
 #+end_src
 
-** Basic keywords
-*** none (keyword)
+* Basic keywords
+** none (keyword)
 *Unlike use-package*, ~leaf~ will convert to ~nil~ when used without any keywords.
 #+begin_src emacs-lisp
   (cort-deftest-with-macroexpand leaf/none
@@ -153,7 +153,7 @@ We expect FORM will be expanded to EXPECT.
      nil)))
 #+end_src
 
-*** :require keyword
+** :require keyword
 If you want to ~require~, you must use the ~:require~ keyword explicitly.
 
 This is ideally the exact opposite of using the ~:no-require~ keyword in the ~use-package~ if you does not want to ~require~ it.
@@ -226,7 +226,7 @@ it is possible to assign whether to ~require~ or not by the conditional branch k
          (leaf-init)))))
 #+end_src
 
-*** :ensure keyword
+** :ensure keyword
 ~:ensure~ provide package manager frontend
 for example, ~feather.el~ and ~package.el~ etc...
 
@@ -257,7 +257,7 @@ completed before using ~:ensure~ keyword.
 #          (progn))))
 # #+END_SRC
 
-*** :preface :init :config keywords
+** :preface, :init, :config keywords
 These keywords are provided to directly describe elisp with various settings that ~leaf~ does not support.
 
 These keywords are provided to control where the arguments expand,
@@ -317,7 +317,7 @@ You don't need to put ~progn~ because ~leaf~ can receive multiple S-expressions,
            (package-init))))))
 #+end_src
 
-*** :commands keyword
+** :commands keyword
 ~commands~ keyword configures ~autoload~.
 #+begin_src emacs-lisp
   (cort-deftest-with-macroexpand leaf/commands
@@ -343,7 +343,7 @@ You don't need to put ~progn~ because ~leaf~ can receive multiple S-expressions,
          (autoload #'leaf-plist-get "leaf" nil t)))))
 #+end_src
 
-*** :after keyword
+** :after keyword
 ~:after~ keyword configure loading order.
 
 *Currently it does not support or :after like use-package.*
@@ -384,7 +384,7 @@ You don't need to put ~progn~ because ~leaf~ can receive multiple S-expressions,
                   (leaf-browser-init)))))))))
 #+end_src
 
-*** COMMENT :defaults keyword
+** COMMENT :defaults keyword
 ~:defalts~ provide to download recommended settings for specified package.
 For more detail, see [[https://github.com/conao3/leaf-defaults.git][leaf-defaults]].
 #+BEGIN_SRC emacs-lisp
@@ -397,8 +397,8 @@ For more detail, see [[https://github.com/conao3/leaf-defaults.git][leaf-default
         (progn))))
 #+END_SRC
 
-** Configure variables keywords
-*** :custom :custom-face keywords
+* Configure variables keywords
+** :custom, :custom-face keywords
 Now that the proper Elisp packaging practices have become widely known,
 it is a best practice to use ~custom-set-variables~ to customize packages.
 
@@ -455,7 +455,7 @@ The value set to ~custom-face~ should also be quoed to emphasize uniformity as ~
           '(eruby-standard-face (((t (:slant italic))))))))))
 #+end_src
 
-*** :pre-setq :setq :setq-default keywords
+** :pre-setq, :setq, :setq-default keywords
 These keywords provide a front end to just ~setq~, ~setq-default~.
 
 Because there are packages in the world that must be ~setq~ before doing ~require~ them,
@@ -532,8 +532,8 @@ or set the evaluation result of some S expression to variable.
       ))
 #+end_src
 
-** Configure alist keywords
-*** :mode :interpreter keywords
+* Configure list keywords
+** :mode, :interpreter keywords
 ~:mode~ keyword define ~auto-mode-alist~. Specifies the major-mode to enable by file extension.
 ~:interpreter~ keyword define ~interpreter-mode-alist~. Specifies the major-mode to enable by file shebang.
 
@@ -621,7 +621,7 @@ If you want to specify major-mode, pass dotted pair value.
          (add-to-list 'interpreter-mode-alist '("js" web-mode))))))
 #+end_src
 
-*** :magic :magic-fallback keywords
+** :magic, :magic-fallback keywords
 ~:magic~ keyword define ~magic-mode-alist~. It is used to determine major-mode in binary header byte.
 
 ~:magic-fallback~ keyward also define ~magic-fallback-alist~.
@@ -714,7 +714,7 @@ If you want to specify major-mode, pass dotted pair value.
          (add-to-list 'magic-fallback-mode-alist '("js" web-mode))))))
 #+end_src
 
-*** :hook keyword
+** :hook keyword
 ~:hook~ keyword define ~add-hook~ (add-to-list ~*-hook~).
 
 #+begin_src emacs-lisp
@@ -756,7 +756,7 @@ If you want to specify major-mode, pass dotted pair value.
          (add-hook 'prog-mode-hook #'ace-jump-mode)
          (add-hook 'isearch-mode #'my-ace-jump-mode)))))
 #+end_src
-*** :load-path keyword
+** :load-path keyword
 *Unlike use-package*, you must specify the full path.
 
 Use backquotes if you want the path to be relative to the current ~.emacs.d~, such as use-package.
@@ -831,8 +831,8 @@ Use backquotes if you want the path to be relative to the current ~.emacs.d~, su
          (leaf-init)))))
 #+end_src
 
-** Condition keywords
-*** :disabled keyword
+* Condition keywords
+** :disabled keyword
 The ~:disabled~ keyword provides the ability to temporarily~ nil~ the output of that ~leaf~ block.
 
 You can use multiple values for the ~:disabled~ keyword, or multiple ~:disabled~ keyword,
@@ -867,7 +867,7 @@ you do not need to pass an exact ~t~ to convert it to ~nil~ because it is compar
        nil)))
 #+end_src
 
-*** :if, :when, :unless keyword
+** :if, :when, :unless keywords
 ~:if~, ~:when~, ~:unless~ keywords expect sexp return boolean or just boolean value
 and wrap converted sexp specified function.
 
@@ -961,8 +961,8 @@ If specified multiple those keywords, evaluate sexp in ~and~.
            (leaf-init))))))
 #+end_src
 
-** Byte compile keywords
-*** :defun :defvar keywords
+* Byte compile keywords
+** :defun, :defvar keywords
 To suppress byte compilation warnings, you must make the appropriate declarations in Elisp to tell Emacs
 that you are making the appropriate calls.
 
@@ -1028,8 +1028,8 @@ This is usually done by a ~declare-function~ and an empty ~defvar~, and ~leaf~ p
          (defvar leaf-merge-dupkey-values-plist)))))
 #+END_SRC
 
-** Documentation keywords
-*** :doc, :file, :url keywords
+* Documentation keywords
+** :doc, :file, :url keywords
 The leaf can describe the document systematically.
 
 It should be possible to develop additional packages
@@ -1086,8 +1086,8 @@ The arguments specified for this keyword have no effect on the result of the con
          (leaf-init)))))
 #+END_SRC
 
-** Other packages frontend
-*** :bind :bind* keywords
+* Configure other packages
+** :bind, :bind* keywords
 ~:bind~ and ~:bind*~ provide frontend for keybind manager.
 
 When defined globally, key bindings and their corresponding functions are specified in dotted pairs.
