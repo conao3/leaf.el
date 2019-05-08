@@ -415,6 +415,40 @@ Example
 
 (cort-deftest-with-macroexpand leaf/preface
   '(((leaf leaf
+       :init (leaf-pre-init)
+       :require t
+       :config (leaf-init))
+     (progn
+       (leaf-pre-init)
+       (require 'leaf)
+       (leaf-init)))
+
+    ((leaf leaf
+       :preface (progn
+                  (leaf-pre-init)
+                  (leaf-pre-init-after))
+       :require t
+       :config (leaf-init))
+     (progn
+       (progn
+         (leaf-pre-init)
+         (leaf-pre-init-after))
+       (require 'leaf)
+       (leaf-init)))
+
+    ((leaf leaf
+       :preface
+       (leaf-pre-init)
+       (leaf-pre-init-after)
+       :require t
+       :config (leaf-init))
+     (progn
+       (leaf-pre-init)
+       (leaf-pre-init-after)
+       (require 'leaf)
+       (leaf-init)))
+
+    ((leaf leaf
        :preface (preface-init)
        :when (some-condition)
        :require t
@@ -847,8 +881,8 @@ Example
 
 (cort-deftest-with-macroexpand leaf/interpreter
   '(((leaf ruby-mode
-     :mode "\\.rb\\'" "\\.rb2\\'" ("\\.rbg\\'" . rb-mode)
-     :interpreter "ruby")
+       :mode "\\.rb\\'" "\\.rb2\\'" ("\\.rbg\\'" . rb-mode)
+       :interpreter "ruby")
      (progn
        (autoload (function ruby-mode) "ruby-mode" nil t)
        (autoload (function rb-mode) "ruby-mode" nil t)
@@ -896,9 +930,9 @@ Example
 
 (cort-deftest-with-macroexpand leaf/magic
   '(((leaf pdf-tools
-     :magic ("%PDF" . pdf-view-mode)
-     :config
-     (pdf-tools-install))
+       :magic ("%PDF" . pdf-view-mode)
+       :config
+       (pdf-tools-install))
      (progn
        (autoload (function pdf-view-mode) "pdf-tools" nil t)
        (add-to-list 'magic-mode-alist '("%PDF" pdf-view-mode))
@@ -943,9 +977,9 @@ Example
 
 (cort-deftest-with-macroexpand leaf/magic-fallback
   '(((leaf pdf-tools
-     :magic-fallback ("%PDF" . pdf-view-mode)
-     :config
-     (pdf-tools-install))
+       :magic-fallback ("%PDF" . pdf-view-mode)
+       :config
+       (pdf-tools-install))
      (progn
        (autoload (function pdf-view-mode) "pdf-tools" nil t)
        (add-to-list 'magic-fallback-mode-alist '("%PDF" pdf-view-mode))
@@ -1218,7 +1252,7 @@ Example
 (cort-deftest-with-macroexpand leaf/setq
   '(((leaf alloc
        :setq `((gc-cons-threshold . ,(* 512 1024 1024))
-                   (garbage-collection-messages . t))
+               (garbage-collection-messages . t))
        :require t)
      (progn
        (require 'alloc)
@@ -1227,7 +1261,7 @@ Example
 
     ((leaf alloc
        :setq ((gc-cons-threshold . 536870912)
-                  (garbage-collection-messages . t))
+              (garbage-collection-messages . t))
        :require t)
      (progn
        (require 'alloc)
@@ -1271,7 +1305,7 @@ Example
 (cort-deftest-with-macroexpand leaf/setq-default
   '(((leaf alloc
        :setq-default `((gc-cons-threshold . ,(* 512 1024 1024))
-                   (garbage-collection-messages . t))
+                       (garbage-collection-messages . t))
        :require t)
      (progn
        (require 'alloc)
@@ -1280,7 +1314,7 @@ Example
 
     ((leaf alloc
        :setq-default ((gc-cons-threshold . 536870912)
-                  (garbage-collection-messages . t))
+                      (garbage-collection-messages . t))
        :require t)
      (progn
        (require 'alloc)
@@ -1335,8 +1369,8 @@ Example
        :init (leaf-init)
        :require t
        :config (progn
-               (leaf-pre-init)
-               (leaf-pre-init-after)))
+                 (leaf-pre-init)
+                 (leaf-pre-init-after)))
      (progn
        (leaf-init)
        (require 'leaf)
