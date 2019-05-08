@@ -5,7 +5,7 @@
 ;; Author: Naoya Yamashita <conao3@gmail.com>
 ;; Maintainer: Naoya Yamashita <conao3@gmail.com>
 ;; Keywords: lisp settings
-;; Version: 2.1.6
+;; Version: 2.1.7
 ;; URL: https://github.com/conao3/leaf.el
 ;; Package-Requires: ((emacs "24.0"))
 
@@ -103,29 +103,35 @@
     :doc `(,@body) :file `(,@body) :url `(,@body)
 
     :load-path `(,@(mapcar (lambda (elm) `(add-to-list 'load-path ,elm)) value) ,@body)
-    :defun `(,@(mapcaar (lambda (elm) `(declare-function ,elm ,(symbol-name name))) value) ,@body)
-    :defvar `(,@(mapcaar (lambda (elm) `(defvar ,elm)) value) ,@body)
+    :defun `(,@(mapcar (lambda (elm) `(declare-function ,(car elm) ,(symbol-name (cdr elm)))) value) ,@body)
+    :defvar `(,@(mapcar (lambda (elm) `(defvar ,elm)) value) ,@body)
     :preface `(,@value ,@body)
 
-    :if (when body
-          `((if ,@(if (= 1 (length value)) value `((and ,@value)))
-                (progn ,@body))))
     :when (when body
             `((when ,@(if (= 1 (length value)) value `((and ,@value)))
                 ,@body)))
     :unless (when body
-              `((unless ,@(if (= 1 (length value)) value `((and ,value)))
+              `((unless ,@(if (= 1 (length value)) value `((and ,@value)))
                   ,@body)))
+    :if (when body
+          `((if ,@(if (= 1 (length value)) value `((and ,@value)))
+                (progn ,@body))))
 
     :after (when body
              (let ((ret `(progn ,@body)))
                (dolist (elm value) (setq ret `(eval-after-load ',elm ',ret)))
                `(,ret)))
 
-    :custom `((custom-set-variables ,@(mapcar (lambda (elm) `'(,(car elm) ,(cdr elm))) value)) ,@body)
-    :custom-face `((custom-set-faces ,@(mapcar (lambda (elm) `'(,(car elm) ,(cdr elm))) value)) ,@body)
-    :bind `(,@(mapcar (lambda (elm) `(bind-keys ,@elm)) value) ,@body)
-    :bind* `(,@(mapcar (lambda (elm) `(bind-keys* ,@elm)) value) ,@body)
+    :custom `((custom-set-variables ,@(mapcar (lambda (elm) `'(,(car elm) ,(cdr elm) ,(format "Customized with leaf in %s block" name))) value)) ,@body)
+    :custom-face `((custom-set-faces ,@(mapcar (lambda (elm) `'(,(car elm) ,(cddr elm))) value)) ,@body)
+    :bind
+    (progn
+      (mapc (lambda (elm) (leaf-register-autoload (cdar (last elm)) name)) value)
+      `(,@(mapcar (lambda (elm) `(bind-keys ,@elm)) value) ,@body))
+    :bind*
+    (progn
+      (mapc (lambda (elm) (leaf-register-autoload (cdar (last elm)) name)) value)
+      `(,@(mapcar (lambda (elm) `(bind-keys* ,@elm)) value) ,@body))
 
     :mode
     (progn
@@ -170,7 +176,7 @@ Sort by `leaf-sort-values-plist' in this order.")
        (if (eq nil (car ret))
            nil
          (delete-dups (delq nil (leaf-subst t name ret))))))
-    ((memq key '(:load-path :commands :defun :defvar :after))
+    ((memq key '(:load-path :commands :after :defvar))
      ;; Accept: 't, 'nil, symbol and list of these (and nested)
      ;; Return: symbol list.
      ;; Note  : 'nil is just ignored
@@ -269,7 +275,7 @@ Sort by `leaf-sort-values-plist' in this order.")
        (dolist (elm value)
          (setq ret (funcall fn elm ret)))
        (nreverse ret)))
-    ((memq key '(:hook :mode :interpreter :magic :magic-fallback))
+    ((memq key '(:hook :mode :interpreter :magic :magic-fallback :defun))
      ;; Accept: func, (hook . func), ((hook hook ...) . func),
      ;;         (hook hook ... . func) and list of these (and nested)
      ;; Return: list of pair (hook . func).
@@ -291,8 +297,10 @@ Sort by `leaf-sort-values-plist' in this order.")
                    ((leaf-pairp elm)
                     (if (listp (car elm))
                         (progn
-                          (dolist (el (car elm))
-                            (setq ret (funcall fn `(,el . ,(cdr elm)) ret)))
+                          (if (leaf-dotlistp (car elm))
+                              (setq ret (funcall fn (car elm) ret))
+                            (dolist (el (car elm))
+                              (setq ret (funcall fn `(,el . ,(cdr elm)) ret))))
                           ret)
                       (if (member elm ret)
                           ret
@@ -331,8 +339,7 @@ Sort by `leaf-sort-values-plist' in this order.")
                       (if (member elm ret)
                           ret
                         (cons elm ret))))
-                   ((and (= 2 (safe-length elm))
-                         (or (atom (car elm)) (atom (caar elm))))
+                   ((leaf-pairp elm)
                     (let ((tail (cdr elm)))
                       (if (listp (car elm))
                           (progn
@@ -348,18 +355,18 @@ Sort by `leaf-sort-values-plist' in this order.")
                             (cons target ret))))))
                    ((member `',(nth (- (safe-length elm) 2) elm) '('quote 'function))
                     (let ((tail (nthcdr (- (safe-length elm) 2) elm)))
-                      (if (listp (car elm))
-                          (dolist (el (car elm))
-                            (let ((target `(,el . ,tail)))
+                      (while (not (= 2 (safe-length elm)))
+                        (if (and (listp (car elm))
+                                 (or (leaf-dotlistp (car elm))
+                                     (member `',(nth (- (safe-length (car elm)) 2) (car elm)) '('quote 'function))))
+                            (setq ret (funcall fn (car elm) ret))
+                          (if (listp (car elm))
+                              (setq ret (funcall fn `(,@(car elm) . ,tail) ret))
+                            (let ((target `(,(car elm) . ,tail)))
                               (if (member target ret)
                                   ret
-                                (setq ret (cons target ret)))))
-                        (while (not (= 2 (safe-length elm)))
-                          (let ((target `(,(car elm) . ,tail)))
-                            (if (member target ret)
-                                ret
-                              (setq ret (cons target ret))))
-                          (pop elm)))
+                                (setq ret (cons target ret))))))
+                        (pop elm))
                       ret))
                    ((leaf-dotlistp elm)
                     (let ((tail (nthcdr (safe-length elm) elm)))
@@ -376,7 +383,7 @@ Sort by `leaf-sort-values-plist' in this order.")
        (dolist (elm value)
          (setq ret (funcall fn elm ret)))
        (nreverse ret)))
-    ((memq key '(:disabled :if :when :unless))
+    ((memq key '(:disabled :if :when :unless :doc :file :url :preface :init :config))
      value)
     (t
      value))

@@ -26,7 +26,7 @@
 ;;; Code:
 
 (require 'leaf)
-(require 'cort)
+(require 'cort-test)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
@@ -93,8 +93,24 @@
 ;;  support macros for test definition
 ;;
 
-(defmacro match-expansion (form expect)
-  `(:equal (macroexpand-1 ',form) ,expect))
+(defmacro cort-deftest-with-macroexpand (name form)
+  "Return `cort-deftest' compare by `equal' for NAME, FORM.
+
+Example
+  (p (cort-deftest-with-equal leaf/disabled
+       '((asdf asdf)
+         (uiop uiop))))
+   => (cort-deftest leaf/disabled
+        '((:equal asdf asdf)
+          (:equal uiop uiop)))
+"
+  (declare (indent 1))
+  `(cort-deftest ,name
+     ',(mapcar (lambda (elm)
+                 `(:equal
+                   ',(cadr elm)
+                   (macroexpand-1 ',(car elm))))
+               (cadr form))))
 
 (defmacro match-expansion-let (letform form expect)
   (declare (indent 1))
@@ -102,727 +118,1277 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
-;;  sumple adding keyword(s)
+;;  test definition
 ;;
 
-;; (leaf-add-keyword-before :message-pre-require :require)
-;; (defun leaf-handler/:message-pre-require (name value rest)
-;;   "process :message-pre-require."
-;;   (let ((body (leaf-process-keywords name rest)))
-;;     `(,@(mapcar (lambda (x) `(message ,x)) value) ,@body)))
-
-;; (leaf-add-keyword-after :message-post-require :require)
-;; (defun leaf-handler/:message-post-require (name value rest)
-;;   "process :message-post-require."
-;;   (let ((body (leaf-process-keywords name rest)))
-;;     `(,@(mapcar (lambda (x) `(message ,x)) value) ,@body)))
-
-;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; ;;
-;; ;;  Sumple functions
-;; ;;
-
-(defun rt ()
-  "test function every returns `t'."
-  t)
-
-(defun rnil ()
-  "test function every returns `nil'."
-  nil)
-
-(defmacro mt ()
-  "test macro every returns `rt'."
-  `(rt))
-
-(defmacro mnil ()
-  "test macro every returns `rnil'"
-  `(rnil))
-
-;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; ;;
-;; ;;  test definition
-;; ;;
-
-;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; ;;
-;; ;;  utility functions
-;; ;;
-
-;; (cort-deftest leaf-test:/simple-format
-;;   (:string= (leaf-to-string
-;;              '(leaf real-auto-save
-;;                 :ensure t
-;;                 :custom ((real-auto-save-interval . 0.3))
-;;                 :commands real-auto-save-mode
-;;                 :hook (find-file-hook . real-auto-save-mode)))
-;;             "(leaf real-auto-save
-;;   :ensure t
-;;   :custom ((real-auto-save-interval . 0.3))
-;;   :commands real-auto-save-mode
-;;   :hook (find-file-hook . real-auto-save-mode))"))
-
-;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; ;;
-;; ;;  simple test
-;; ;;
-
-(cort-deftest leaf-test:/simple-none
-  (match-expansion
-   (leaf foo)
-   'nil))
-
-(cort-deftest leaf-test:/simple-disabled-t
-  (match-expansion
-   (leaf foo :disabled t)
-   'nil))
-
-(cort-deftest leaf-test:/simple-disabled-nil
-  (match-expansion
-   (leaf foo :disabled nil)
-   'nil))
-
-(cort-deftest leaf-test:/simple-if
-  (match-expansion
-   (leaf foo :if t)
-   'nil))
-
-(cort-deftest leaf-test/:simple-when
-  (match-expansion
-   (leaf foo :when t)
-   'nil))
-
-(cort-deftest leaf-test/:simple-unless
-  (match-expansion
-   (leaf foo :unless t)
-   'nil))
-
-(cort-deftest leaf-test/:simple-multi-if
-  (match-expansion
-   (leaf foo :if (rt) :if (rnil) (mt))
-   'nil))
-
-(cort-deftest leaf-test/:simple-multi-conds
-  (match-expansion
-   (leaf foo :if (rt) :when (rnil) (mt) :unless (rt) :if (rnil))
-   'nil))
-
-(cort-deftest leaf-test/:simple-init
-  (match-expansion
-   (leaf foo
-     :init
-     (setq bar1 'baz)
-     (setq bar2 'baz))
-   '(progn
-      (setq bar1 'baz)
-      (setq bar2 'baz))))
-
-(cort-deftest leaf-test/:simple-init-config
-  (match-expansion
-   (leaf foo :require foo-hoge foo-piyo
-         :init
-         (setq bar1 'baz)
-         (setq bar2 'baz)
-         :config
-         (setq bar3 'baz)
-         (setq bar4 'baz))
-   '(progn
-      (setq bar1 'baz)
-      (setq bar2 'baz)
-      (require 'foo-hoge)
-      (require 'foo-piyo)
-      (setq bar3 'baz)
-      (setq bar4 'baz))))
-
-(cort-deftest leaf-test/:simple-config
-  (match-expansion
-   (leaf foo :config (setq bar 'baz))
-   '(progn
-      (setq bar 'baz))))
-
-(cort-deftest leaf-test/:simple-require
-  (match-expansion
-   (leaf foo
-     :require t
-     :config (setq bar 'baz))
-   '(progn
-      (require 'foo)
-      (setq bar 'baz))))
-
-(cort-deftest leaf-test/:simple-require-nil
-  (match-expansion
-   (leaf foo
-     :require nil
-     :config (setq bar 'baz))
-   '(progn
-      (setq bar 'baz))))
-
-(cort-deftest leaf-test/:simple-multi-require
-  (match-expansion
-   (leaf foo
-     :require foo-hoge foo-piyo
-     :config (setq bar 'baz))
-   '(progn
-      (require 'foo-hoge)
-      (require 'foo-piyo)
-      (setq bar 'baz))))
-
-;; (cort-deftest leaf-test/:simple-keyword-add
-;;   (match-expansion
-;;    (leaf foo
-;;      :require h s :message-post-require "foo!" :config (setq bar 'baz))
-;;    '(progn
-;;       (require 'h)
-;;       (require 's)
-;;       (message "foo!")
-;;       (setq bar 'baz))))
-
-;; (cort-deftest leaf-test/:simple-keyword-add-2
-;;   (match-expansion
-;;    (leaf foo
-;;      :require h s
-;;      :message-post-require "foo!"
-;;      :config (setq bar 'baz)
-;;      :message-post-require "post!"
-;;      :message-pre-require "pre")
-;;    '(progn
-;;       (message "pre")
-;;       (require 'h)
-;;       (require 's)
-;;       (message "foo!")
-;;       (message "post!")
-;;       (setq bar 'baz))))
-
-(cort-deftest leaf-test/:simple-doc-keyword
-  (match-expansion
-   (leaf foo
-     :doc "this package is awesome!!"
-     :require nil
-     :config (setq bar 'baz))
-   '(progn
-      (setq bar 'baz))))
-
-(cort-deftest leaf-test/:simple-doc-keywords
-  (match-expansion
-   (leaf foo
-     :doc "this package is awesome!!"
-     :file "~/path/to/package/file.el"
-     :url "https://www.example.com/"
-     :require nil
-     :config (setq bar 'baz))
-   '(progn
-      (setq bar 'baz))))
-
-;; (cort-deftest leaf-test/:simple-bind
-;;   (match-expansion
-;;    (leaf foo
-;;      :bind (("M-s O" . moccur)
-;;             :map isearch-mode-map
-;;             ("M-o" . isearch-moccur)
-;;             ("M-O" . isearch-moccur-all))
-;;      :init
-;;      (setq isearch-lazy-highlight t)
-;;      :config
-;;      (leaf moccur-edit))
-;;    '(progn
-;;       (setq isearch-lazy-highlight t)
-;;       (leaf-meta-backend/:bind 'foo
-;; 			       '((("M-s O" . moccur)
-;; 			          :map isearch-mode-map
-;; 			          ("M-o" . isearch-moccur)
-;; 			          ("M-O" . isearch-moccur-all))))
-;;       (leaf moccur-edit))))
-
-;; (cort-deftest leaf-test/:simple-pre-setq
-;;   (match-expansion
-;;    (leaf foo
-;;      :pre-setq ((bar . 'baz))
-;;      :init (foo-pre-init)
-;;      :config (foo-post-init))
-;;    '(progn
-;;       (setq bar 'baz)
-;;       (foo-pre-init)
-;;       (foo-post-init))))
-
-(cort-deftest leaf-test/:simple-post-setq
-  (match-expansion
-   (leaf foo
-     :setq ((bar . 'baz))
-     :init (foo-pre-init)
-     :config (foo-post-init))
-   '(progn
-      (foo-pre-init)
-      (setq bar 'baz)
-      (foo-post-init))))
-
-(cort-deftest leaf-test/:simple-custom-set-variables
-  (match-expansion
-   (leaf foo
-     :custom ((bar . 'baz))
-     :init (foo-pre-init)
-     :config (foo-post-init))
-   '(progn
-      (custom-set-variables
-       '(bar 'baz))
-      (foo-pre-init)
-      (foo-post-init))))
-
-;; (cort-deftest leaf-test/:simple-mode
-;;   (match-expansion
-;;    (leaf ruby-mode
-;;      :mode "\\.rb\\'"
-;;      :interpreter "ruby")
-;;    '(progn
-;;       (autoload #'ruby-mode "ruby-mode" nil t)
-;;       (leaf-list-add-to-list 'auto-mode-alist
-;;                              '(("\\.rb\\'" . ruby-mode)))
-;;       (autoload #'ruby-mode "ruby-mode" nil t)
-;;       (leaf-list-add-to-list 'interpreter-mode-alist
-;;                              '(("ruby" . ruby-mode))))))
-
-;; (cort-deftest leaf-test/:simple-multi-mode
-;;   (match-expansion
-;;    (leaf ruby-mode
-;;      :mode "\\.rb\\'" "\\.rb2\\'" ("\\.rbg\\'" . rb-mode)
-;;      :interpreter "ruby")
-;;    '(progn
-;;       (autoload #'ruby-mode "ruby-mode" nil t)
-;;       (autoload #'rb-mode "ruby-mode" nil t)
-;;       (leaf-list-add-to-list 'auto-mode-alist
-;;                              '(("\\.rb\\'" . ruby-mode)
-;;                                ("\\.rb2\\'" . ruby-mode)
-;;                                ("\\.rbg\\'" . rb-mode)))
-;;       (autoload #'ruby-mode "ruby-mode" nil t)
-;;       (leaf-list-add-to-list 'interpreter-mode-alist
-;;                              '(("ruby" . ruby-mode))))))
-
-;; (cort-deftest leaf-test/:simple-magic
-;;   (match-expansion
-;;    (leaf pdf-tools
-;;      :magic ("%PDF" . pdf-view-mode)
-;;      :config
-;;      (pdf-tools-install))
-;;    '(progn
-;;       (autoload #'pdf-tools "pdf-tools" nil t)
-;;       (autoload #'pdf-view-mode "pdf-tools" nil t)
-;;       (leaf-list-add-to-list 'magic-mode-alist
-;;                              '(("%PDF" . pdf-view-mode)))
-;;       (pdf-tools-install))))
-
-;; (cort-deftest leaf-test/:simple-magic-fallback
-;;   (match-expansion
-;;    (leaf pdf-tools
-;;      :magic-fallback ("%PDF" . pdf-view-mode)
-;;      :config
-;;      (pdf-tools-install))
-;;    '(progn
-;;       (autoload #'pdf-tools "pdf-tools" nil t)
-;;       (autoload #'pdf-view-mode "pdf-tools" nil t)
-;;       (leaf-list-add-to-list 'magic-fallback-mode-alist
-;;                              '(("%PDF" . pdf-view-mode)))
-;;       (pdf-tools-install))))
-
-(cort-deftest leaf-test/:simple-hook
-  (match-expansion
-   (leaf ace-jump-mode
-     :hook cc-mode-hook)
-   '(progn
-      (autoload #'ace-jump-mode "ace-jump-mode" nil t)
-      (add-hook 'cc-mode-hook #'ace-jump-mode))))
-
-(cort-deftest leaf-test/:simple-multi-hook
-  (match-expansion
-   (leaf ace-jump-mode
-     :hook cc-mode-hook (prog-mode-hook . ace-jump-mode))
-   '(progn
-      (autoload #'ace-jump-mode "ace-jump-mode" nil t)
-      (add-hook 'cc-mode-hook #'ace-jump-mode)
-      (add-hook 'prog-mode-hook #'ace-jump-mode))))
-
-(cort-deftest leaf-test/:simple-commands
-  (match-expansion
-   (leaf ace-jump-mode
-     :commands ace-jump-mode)
-   '(progn
-      (autoload #'ace-jump-mode "ace-jump-mode" nil t))))
-
-(cort-deftest leaf-test/:simple-multi-commands
-  (match-expansion
-   (leaf ace-jump-mode
-     :commands ace-jump-mode command1 command2)
-   '(progn
-      (autoload #'ace-jump-mode "ace-jump-mode" nil t)
-      (autoload #'command1 "ace-jump-mode" nil t)
-      (autoload #'command2 "ace-jump-mode" nil t))))
-
-(cort-deftest leaf-test/:simple-custom-face
-  (match-expansion
-   (leaf eruby-mode
-     :custom-face
-     (eruby-standard-face . ((t (:slant italic)))))
-   '(progn
-      (custom-set-faces
-       '(eruby-standard-face
-         ((t
-           (:slant italic))))))))
-
-(cort-deftest leaf-test/:simple-multi-custom-face
-  (match-expansion
-   (leaf eruby-mode
-     :custom-face
-     (eruby-standard-face . ((t (:slant italic))))
-     (eruby-standard-face2 . ((t (:slant italic)))))
-   '(progn
-      (custom-set-faces
-       '(eruby-standard-face
-         ((t
-           (:slant italic))))
-       '(eruby-standard-face2
-         ((t
-           (:slant italic))))))))
-
-;; (cort-deftest leaf-test/:simple-byte-compile-vars
-;;   (match-expansion
-;;    (leaf for
-;;      :byte-compile-vars for-var1)
-;;    '(progn
-;;       (eval-when-compile
-;;         (defvar for-var1)))))
-
-;; (cort-deftest leaf-test/:simple-multi-byte-compile-vars
-;;   (match-expansion
-;;    (leaf for
-;;      :byte-compile-vars for-var1 for-var2)
-;;    '(progn
-;;       (eval-when-compile
-;;         (defvar for-var1)
-;;         (defvar for-var2)))))
-
-;; (cort-deftest leaf-test/:simple-byte-compile-funcs
-;;   (match-expansion
-;;    (leaf for
-;;      :byte-compile-funcs ((hoge-fn1 . hoge)))
-;;    '(progn
-;;       (eval-when-compile
-;;         (autoload #'hoge-fn1 "hoge" nil t)))))
-
-;; (cort-deftest leaf-test/:simple-multi-byte-compile-funcs
-;;   (match-expansion
-;;    (leaf for
-;;      :byte-compile-funcs ((hoge-fn1 . hoge)
-;;                           (hoge-fn2 . hoge)))
-;;    '(progn
-;;       (eval-when-compile
-;;         (autoload #'hoge-fn1 "hoge" nil t)
-;;         (autoload #'hoge-fn2 "hoge" nil t)))))
-
-;; (cort-deftest leaf-test/:simple-ensure
-;;   (match-expansion
-;;    (leaf foo :ensure t)
-;;    '(progn
-;;       (leaf-meta-backend/:ensure 'foo '(t)))))
-
-;; (cort-deftest leaf-test/:simple-defaults
-;;   (match-expansion
-;;    (leaf foo :ensure t :defaults t)
-;;    '(progn
-;;       (leaf-meta-backend/:ensure 'foo '(t))
-;;       (feather-install-defaults 'foo))))
-
-;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; ;;
-;; ;;  :disabled keyword
-;; ;;
-
-;; simple :disabled patterns, Finaly `t' will be adopted.
-(cort-deftest leaf-test:/disabled-1-
-  (match-expansion
-   (leaf foo :disabled t)
-   'nil))
-
-(cort-deftest leaf-test:/disabled-2-
-  (match-expansion
-   (leaf foo :disabled t :config (message "bar"))
-   'nil))
-
-(cort-deftest laef-test:/disabled-3-
-  (match-expansion
-   (leaf foo :disabled t :init (message "bar") :config (message "baz"))
-   'nil))
-
-(cort-deftest leaf-test:/disabled-4-
-  (match-expansion
-   (leaf foo :disabled t nil :config (message "bar"))
-   'nil))
-
-(cort-deftest leaf-test:/disabled-5-
-  (match-expansion
-   (leaf foo :disabled t nil :config (message "bar") :disabled t)
-   'nil))
-
-(cort-deftest leaf-test:/disabled-6-
-  (match-expansion
-   (leaf foo :disabled t nil nil :config (message "bar"))
-   'nil))
-
-;; simple :disabled patterns, Finaly `nil' will be adopted.
-(cort-deftest leaf-test:/disabled-1+
-  (match-expansion
-   (leaf foo :disabled nil)
-   'nil))
-
-(cort-deftest leaf-test:/disabled-2+
-  (match-expansion
-   (leaf foo :disabled nil :config (message "bar"))
-   '(progn
-      (message "bar"))))
-
-(cort-deftest laef-test:/disabled-3+
-  (match-expansion
-   (leaf foo :disabled nil :init (message "bar") :config (message "baz"))
-   '(progn
-      (message "bar")
-      (message "baz"))))
-
-(cort-deftest leaf-test:/disabled-4+
-  (match-expansion
-   (leaf foo :disabled nil t :config (message "bar"))
-   '(progn
-      (message "bar"))))
-
-(cort-deftest leaf-test:/disabled-5+
-  (match-expansion
-   (leaf foo :disabled nil t :config (message "bar") :disabled t)
-   '(progn
-      (message "bar"))))
-
-(cort-deftest leaf-test:/disabled-6+
-  (match-expansion
-   (leaf foo :disabled nil :disabled t nil nil :config (message "bar"))
-   '(progn
-      (message "bar"))))
-
-;; :disabled with boolean reterns funciton patterns, Finaly `t' will be adopted.
-(cort-deftest leaf-test:/disabled-1--
-  (match-expansion
-   (leaf foo :disabled (rt))
-   'nil))
-
-(cort-deftest leaf-test:/disabled-2--
-  (match-expansion
-   (leaf foo :disabled (rt) :config (message "bar"))
-   'nil))
-
-(cort-deftest laef-test:/disabled-3--
-  (match-expansion
-   (leaf foo :disabled (rt) :init (message "bar") :config (message "baz"))
-   'nil))
-
-(cort-deftest leaf-test:/disabled-4--
-  (match-expansion
-   (leaf foo :disabled (rt) (rnil) :config (message "bar"))
-   'nil))
-
-(cort-deftest leaf-test:/disabled-5--
-  (match-expansion
-   (leaf foo :disabled (rt) (rnil) :config (message "bar") :disabled (rt))
-   'nil))
-
-(cort-deftest leaf-test:/disabled-6--
-  (match-expansion
-   (leaf foo :disabled (rt) (rnil) (rnil) :config (message "bar"))
-   'nil))
-
-;; :disabled with boolean returns funciton patterns, Finaly `nil' will be adopted.
-(cort-deftest leaf-test:/disabled-1++
-  (match-expansion
-   (leaf foo :disabled (rnil))
-   'nil))
-
-(cort-deftest leaf-test:/disabled-2++
-  (match-expansion
-   (leaf foo :disabled (rnil) :config (message "bar"))
-   '(progn
-      (message "bar"))))
-
-(cort-deftest laef-test:/disabled-3++
-  (match-expansion
-   (leaf foo :disabled (rnil) :init (message "bar") :config (message "baz"))
-   '(progn
-      (message "bar")
-      (message "baz"))))
-
-(cort-deftest leaf-test:/disabled-4++
-  (match-expansion
-   (leaf foo :disabled (rnil) (rt) :config (message "bar"))
-   '(progn
-      (message "bar"))))
-
-(cort-deftest leaf-test:/disabled-5++
-  (match-expansion
-   (leaf foo :disabled (rnil) (rt) :config (message "bar") :disabled (rt))
-   '(progn
-      (message "bar"))))
-
-(cort-deftest leaf-test:/disabled-6++
-  (match-expansion
-   (leaf foo :disabled (rnil) :disabled (rt) (rnil) (rnil) :config (message "bar"))
-   '(progn
-      (message "bar"))))
-
-;; :disabled with boolean reterns funciton patterns, Finaly `t' will be adopted.
-(cort-deftest leaf-test:/disabled-1---
-  (match-expansion
-   (leaf foo :disabled (mt))
-   'nil))
-
-(cort-deftest leaf-test:/disabled-2---
-  (match-expansion
-   (leaf foo :disabled (mt) :config (message "bar"))
-   'nil))
-
-(cort-deftest laef-test:/disabled-3---
-  (match-expansion
-   (leaf foo :disabled (mt) :init (message "bar") :config (message "baz"))
-   'nil))
-
-(cort-deftest leaf-test:/disabled-4---
-  (match-expansion
-   (leaf foo :disabled (mt) (mnil) :config (message "bar"))
-   'nil))
-
-(cort-deftest leaf-test:/disabled-5---
-  (match-expansion
-   (leaf foo :disabled (mt) (mnil) :config (message "bar") :disabled (mt))
-   'nil))
-
-(cort-deftest leaf-test:/disabled-6---
-  (match-expansion
-   (leaf foo :disabled (mt) (mnil) (mnil) :config (message "bar"))
-   'nil))
-
-;; :disabled with boolean returns funciton patterns, Finaly `nil' will be adopted.
-(cort-deftest leaf-test:/disabled-1+++
-  (match-expansion
-   (leaf foo :disabled (mnil))
-   'nil))
-
-(cort-deftest leaf-test:/disabled-2+++
-  (match-expansion
-   (leaf foo :disabled (mnil) :config (message "bar"))
-   '(progn
-      (message "bar"))))
-
-(cort-deftest laef-test:/disabled-3+++
-  (match-expansion
-   (leaf foo :disabled (mnil) :init (message "bar") :config (message "baz"))
-   '(progn
-      (message "bar")
-      (message "baz"))))
-
-(cort-deftest leaf-test:/disabled-4+++
-  (match-expansion
-   (leaf foo :disabled (mnil) (mt) :config (message "bar"))
-   '(progn
-      (message "bar"))))
-
-(cort-deftest leaf-test:/disabled-5+++
-  (match-expansion
-   (leaf foo :disabled (mnil) (mt) :config (message "bar") :disabled (mt))
-   '(progn
-      (message "bar"))))
-
-(cort-deftest leaf-test:/disabled-6+++
-  (match-expansion
-   (leaf foo :disabled (mnil) :disabled (mt) (mnil) (mnil) :config (message "bar"))
-   '(progn
-      (message "bar"))))
-
-;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; ;;
-;; ;;  conditions
-;; ;;
-
-(cort-deftest leaf-test/:if-1
-  (match-expansion
-   (leaf foo :if t)
-   'nil))
-
-(cort-deftest leaf-test/:if-2
-  (match-expansion
-   (leaf foo :if (or (rt) (rnil)))
-   'nil))
-
-(cort-deftest leaf-test/:if-3
-  (match-expansion
-   (leaf foo :if nil)
-   'nil))
-
-(cort-deftest leaf-test/:when-1
-  (match-expansion
-   (leaf foo :when t)
-   'nil))
-
-(cort-deftest leaf-test/:when-2
-  (match-expansion
-   (leaf foo :when (or (rt) (rnil)))
-   'nil))
-
-(cort-deftest leaf-test/:when-3
-  (match-expansion
-   (leaf foo :when nil)
-   'nil))
-
-(cort-deftest leaf-test/:unless-1
-  (match-expansion
-   (leaf foo :unless t)
-   'nil))
-
-(cort-deftest leaf-test/:unless-2
-  (match-expansion
-   (leaf foo :unless (or (rt) (rnil)))
-   'nil))
-
-(cort-deftest leaf-test/:unless-3
-  (match-expansion
-   (leaf foo :unless nil)
-   'nil))
-
-;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; ;;
-;; ;;  :require keyword
-;; ;;
-
-(cort-deftest leaf-test/:require-0
-  (match-expansion
-   (leaf foo)
-   'nil))
-
-(cort-deftest leaf-test/:require-1
-  (match-expansion
-   (leaf foo :require t)
-   '(progn
-      (require 'foo))))
-
-(cort-deftest leaf-test/:require-2
-  (match-expansion
-   (leaf foo :require nil)
-   'nil))
-
-(cort-deftest leaf-test/:require-3
-  (match-expansion
-   (leaf foo :require bar baz)
-   '(progn
-      (require 'bar)
-      (require 'baz))))
-
-(cort-deftest leaf-test/:require-4
-  (match-expansion
-   (leaf foo :require bar baz :if t)
-   '(progn
-      (if t
-          (progn
-	    (require 'bar)
-	    (require 'baz))))))
+(cort-deftest-with-macroexpand leaf/disabled
+  '(((leaf leaf :disabled t       :config (leaf-init))
+     nil)
+    ((leaf leaf :disabled nil     :config (leaf-init))
+     (progn
+       (leaf-init)))
+    ((leaf leaf :disabled t t     :config (leaf-init))
+     nil)
+    ((leaf leaf :disabled t nil   :config (leaf-init))
+     nil)
+    ((leaf leaf :disabled nil t   :config (leaf-init))
+     (progn
+       (leaf-init)))
+    ((leaf leaf :disabled nil nil :config (leaf-init))
+     (progn
+       (leaf-init)))
+
+    ((leaf leaf :disabled t :disabled t       :config (leaf-init))
+     nil)
+    ((leaf leaf :disabled t :disabled nil     :config (leaf-init))
+     nil)
+    ((leaf leaf :disabled t :disabled t t     :config (leaf-init))
+     nil)
+    ((leaf leaf :disabled t :disabled t nil   :config (leaf-init))
+     nil)
+    ((leaf leaf :disabled t :disabled nil t   :config (leaf-init))
+     nil)
+    ((leaf leaf :disabled t :disabled nil nil :config (leaf-init))
+     nil)
+
+    ((leaf leaf :disabled nil :disabled t       :config (leaf-init))
+     (progn
+       (leaf-init)))
+    ((leaf leaf :disabled nil :disabled nil     :config (leaf-init))
+     (progn
+       (leaf-init)))
+    ((leaf leaf :disabled nil :disabled t t     :config (leaf-init))
+     (progn
+       (leaf-init)))
+    ((leaf leaf :disabled nil :disabled t nil   :config (leaf-init))
+     (progn
+       (leaf-init)))
+    ((leaf leaf :disabled nil :disabled nil t   :config (leaf-init))
+     (progn
+       (leaf-init)))
+    ((leaf leaf :disabled nil :disabled nil nil :config (leaf-init))
+     (progn
+       (leaf-init)))
+
+    ((leaf leaf :disabled t :disabled t       :config (leaf-init) :disabled t)
+     nil)
+    ((leaf leaf :disabled t :disabled nil     :config (leaf-init) :disabled nil)
+     nil)
+    ((leaf leaf :disabled t :disabled t t     :config (leaf-init) :disabled t t)
+     nil)
+    ((leaf leaf :disabled t :disabled t nil   :config (leaf-init) :disabled t nil)
+     nil)
+    ((leaf leaf :disabled t :disabled nil t   :config (leaf-init) :disabled nil t)
+     nil)
+    ((leaf leaf :disabled t :disabled nil nil :config (leaf-init) :disabled nil nil)
+     nil)
+
+    ((leaf leaf :disabled nil :disabled t       :config (leaf-init) :disabled t)
+     (progn
+       (leaf-init)))
+    ((leaf leaf :disabled nil :disabled nil     :config (leaf-init) :disabled nil)
+     (progn
+       (leaf-init)))
+    ((leaf leaf :disabled nil :disabled t t     :config (leaf-init) :disabled t t)
+     (progn
+       (leaf-init)))
+    ((leaf leaf :disabled nil :disabled t nil   :config (leaf-init) :disabled t nil)
+     (progn
+       (leaf-init)))
+    ((leaf leaf :disabled nil :disabled nil t   :config (leaf-init) :disabled nil t)
+     (progn
+       (leaf-init)))
+    ((leaf leaf :disabled nil :disabled nil nil :config (leaf-init) :disabled nil nil)
+     (progn
+       (leaf-init)))))
+
+;; This test failed on Emacs-22 and Emacs-23
+;; (cort-deftest-with-macroexpand leaf/ensure
+;;   '(((leaf leaf :ensure t :config (leaf-init))
+;;      (progn
+;;        (unless
+;;            (package-installed-p 'leaf)
+;;          (condition-case-unless-debug err
+;;              (if
+;;                  (assoc 'leaf package-archive-contents)
+;;                  (package-install 'leaf)
+;;                (package-refresh-contents)
+;;                (package-install 'leaf))
+;;            (error
+;;             (display-warning 'leaf
+;;                              (format "Failed to install %s: %s" 'leaf
+;;                                      (error-message-string err))
+;;                              :error))))
+;;        (leaf-init)))))
+
+(cort-deftest-with-macroexpand leaf/doc
+  '(((leaf leaf
+       :doc "Symplify init.el configuration"
+       :config (leaf-init))
+     (progn
+       (leaf-init)))
+
+    ((leaf leaf
+       :file "~/.emacs.d/elpa/leaf.el/leaf.el"
+       :config (leaf-init))
+     (progn
+       (leaf-init)))
+
+    ((leaf leaf
+       :url "https://github.com/conao3/leaf.el"
+       :config (leaf-init))
+     (progn
+       (leaf-init)))
+
+    ((leaf leaf
+       :doc "Symplify init.el configuration"
+       :file "~/.emacs.d/elpa/leaf.el/leaf.el"
+       :url "https://github.com/conao3/leaf.el"
+       :config (leaf-init))
+     (progn
+       (leaf-init)))
+
+    ((leaf leaf
+       :doc "Symplify init.el configuration"
+       "
+(leaf leaf
+  :doc \"Symplify init.el configuration\"
+  :config (leaf-init))
+ => (progn
+      (leaf-init))"
+       "
+(leaf leaf
+  :disabled nil
+  :config (leaf-init))
+ => (progn
+      (leaf-init))"
+       :file "~/.emacs.d/elpa/leaf.el/leaf.el"
+       :url "https://github.com/conao3/leaf.el"
+       :config (leaf-init))
+     (progn
+       (leaf-init)))))
+
+(cort-deftest-with-macroexpand leaf/load-path
+  '(((leaf leaf
+       :load-path "~/.emacs.d/elpa-archive/leaf.el/"
+       :require t
+       :config (leaf-init))
+     (progn
+       (add-to-list 'load-path "~/.emacs.d/elpa-archive/leaf.el/")
+       (require 'leaf)
+       (leaf-init)))
+
+    ((leaf leaf
+       :load-path
+       "~/.emacs.d/elpa-archive/leaf.el/"
+       "~/.emacs.d/elpa-archive/leaf-browser.el/"
+       :require t
+       :config (leaf-init))
+     (progn
+       (add-to-list 'load-path "~/.emacs.d/elpa-archive/leaf.el/")
+       (add-to-list 'load-path "~/.emacs.d/elpa-archive/leaf-browser.el/")
+       (require 'leaf)
+       (leaf-init)))
+
+    ((leaf leaf
+       :load-path ("~/.emacs.d/elpa-archive/leaf.el/"
+                   "~/.emacs.d/elpa-archive/leaf-browser.el/")
+       :require t
+       :config (leaf-init))
+     (progn
+       (add-to-list 'load-path "~/.emacs.d/elpa-archive/leaf.el/")
+       (add-to-list 'load-path "~/.emacs.d/elpa-archive/leaf-browser.el/")
+       (require 'leaf)
+       (leaf-init)))
+
+    ((leaf leaf
+       :load-path ("~/.emacs.d/elpa-archive/leaf.el/"
+                   ("~/.emacs.d/elpa-archive/leaf.el/"
+                    "~/.emacs.d/elpa-archive/leaf-browser.el/"))
+       :require t
+       :config (leaf-init))
+     (progn
+       (add-to-list 'load-path "~/.emacs.d/elpa-archive/leaf.el/")
+       (add-to-list 'load-path "~/.emacs.d/elpa-archive/leaf-browser.el/")
+       (require 'leaf)
+       (leaf-init)))
+
+    ((leaf leaf
+       :load-path ("~/.emacs.d/elpa-archive/leaf.el/"
+                   ("~/.emacs.d/elpa-archive/leaf.el/"
+                    ("~/.emacs.d/elpa-archive/leaf.el/"
+                     ("~/.emacs.d/elpa-archive/leaf.el/"
+                      ("~/.emacs.d/elpa-archive/leaf.el/")))))
+       :require t
+       :config (leaf-init))
+     (progn
+       (add-to-list 'load-path "~/.emacs.d/elpa-archive/leaf.el/")
+       (require 'leaf)
+       (leaf-init)))
+
+    ((leaf leaf
+       :load-path ("~/.emacs.d/elpa-archive/leaf.el/")
+       :load-path `(,(mapcar (lambda (elm)
+                               (concat "~/.emacs.d/elpa-archive/" elm "/"))
+                             '("leaf.el" "leaf-broser.el" "orglyth.el")))
+       :require t
+       :config (leaf-init))
+     (progn
+       (add-to-list 'load-path "~/.emacs.d/elpa-archive/leaf.el/")
+       (add-to-list 'load-path "~/.emacs.d/elpa-archive/leaf-broser.el/")
+       (add-to-list 'load-path "~/.emacs.d/elpa-archive/orglyth.el/")
+       (require 'leaf)
+       (leaf-init)))))
+
+(cort-deftest-with-macroexpand leaf/defun
+  '(((leaf leaf
+       :defun leaf leaf-normalize-plist leaf-merge-dupkey-values-plist)
+     (progn
+       (declare-function leaf "leaf")
+       (declare-function leaf-normalize-plist "leaf")
+       (declare-function leaf-merge-dupkey-values-plist "leaf")))
+
+    ((leaf leaf
+       :defun (leaf leaf-normalize-plist leaf-merge-dupkey-values-plist))
+     (progn
+       (declare-function leaf "leaf")
+       (declare-function leaf-normalize-plist "leaf")
+       (declare-function leaf-merge-dupkey-values-plist "leaf")))
+
+    ((leaf leaf
+       :defun (leaf
+                (leaf-normalize-plist
+                 (leaf-merge-dupkey-values-plist))))
+     (progn
+       (declare-function leaf "leaf")
+       (declare-function leaf-normalize-plist "leaf")
+       (declare-function leaf-merge-dupkey-values-plist "leaf")))
+
+    ((leaf leaf
+       :defun ((lbrowser-open lbrowser-close) . leaf-browser))
+     (progn
+       (declare-function lbrowser-open "leaf-browser")
+       (declare-function lbrowser-close "leaf-browser")))
+
+    ((leaf leaf
+       :defun (lbrowser-open lbrowser-close . leaf-browser))
+     (progn
+       (declare-function lbrowser-open "leaf-browser")
+       (declare-function lbrowser-close "leaf-browser")))
+
+    ((leaf leaf
+       :defun ((lbrowser-open (lbrowser-close) . leaf) . leaf-browser))
+     (progn
+       (declare-function lbrowser-open "leaf")
+       (declare-function lbrowser-close "leaf")))
+
+    ((leaf leaf
+       :defun ((lbrowser-open (lbrowser-close) . leaf) leaf-asdf . leaf-browser))
+     (progn
+       (declare-function lbrowser-open "leaf")
+       (declare-function lbrowser-close "leaf")
+       (declare-function leaf-asdf "leaf-browser")))))
+
+(cort-deftest-with-macroexpand leaf/defvar
+  '(((leaf leaf
+       :defvar leaf leaf-normalize-plist leaf-merge-dupkey-values-plist)
+     (progn
+       (defvar leaf)
+       (defvar leaf-normalize-plist)
+       (defvar leaf-merge-dupkey-values-plist)))
+
+    ((leaf leaf
+       :defvar (leaf leaf-normalize-plist leaf-merge-dupkey-values-plist))
+     (progn
+       (defvar leaf)
+       (defvar leaf-normalize-plist)
+       (defvar leaf-merge-dupkey-values-plist)))
+
+    ((leaf leaf
+       :defvar (leaf
+                 (leaf-normalize-plist
+                  (leaf-merge-dupkey-values-plist))))
+     (progn
+       (defvar leaf)
+       (defvar leaf-normalize-plist)
+       (defvar leaf-merge-dupkey-values-plist)))))
+
+(cort-deftest-with-macroexpand leaf/preface
+  '(((leaf leaf
+       :init (leaf-pre-init)
+       :require t
+       :config (leaf-init))
+     (progn
+       (leaf-pre-init)
+       (require 'leaf)
+       (leaf-init)))
+
+    ((leaf leaf
+       :preface (progn
+                  (leaf-pre-init)
+                  (leaf-pre-init-after))
+       :require t
+       :config (leaf-init))
+     (progn
+       (progn
+         (leaf-pre-init)
+         (leaf-pre-init-after))
+       (require 'leaf)
+       (leaf-init)))
+
+    ((leaf leaf
+       :preface
+       (leaf-pre-init)
+       (leaf-pre-init-after)
+       :require t
+       :config (leaf-init))
+     (progn
+       (leaf-pre-init)
+       (leaf-pre-init-after)
+       (require 'leaf)
+       (leaf-init)))
+
+    ((leaf leaf
+       :preface (preface-init)
+       :when (some-condition)
+       :require t
+       :init (package-preconfig)
+       :config (package-init))
+     (progn
+       (preface-init)
+       (when (some-condition)
+         (package-preconfig)
+         (require 'leaf)
+         (package-init))))))
+
+(cort-deftest-with-macroexpand leaf/if
+  '(((leaf leaf
+       :if leafp
+       :require t
+       :config (leaf-init))
+     (progn
+       (if leafp
+           (progn
+             (require 'leaf)
+             (leaf-init)))))
+
+    ((leaf leaf
+       :if leafp leaf-avairablep (window-system)
+       :require t
+       :config (leaf-init))
+     (progn
+       (if (and leafp leaf-avairablep (window-system))
+           (progn
+             (require 'leaf)
+             (leaf-init)))))
+
+    ((leaf leaf
+       :if leafp leaf-avairablep (window-system)
+       :when leaf-browserp
+       :require t
+       :config (leaf-init))
+     (progn
+       (when leaf-browserp
+         (if (and leafp leaf-avairablep (window-system))
+             (progn
+               (require 'leaf)
+               (leaf-init))))))
+
+    ((leaf leaf
+       :if leafp leaf-avairablep (window-system)
+       :when leaf-browserp
+       :load-path "~/.emacs.d/elpa-archive/leaf.el/"
+       :preface (leaf-load)
+       :require t
+       :config (leaf-init))
+     (progn
+       (add-to-list 'load-path "~/.emacs.d/elpa-archive/leaf.el/")
+       (leaf-load)
+       (when leaf-browserp
+         (if (and leafp leaf-avairablep (window-system))
+             (progn
+               (require 'leaf)
+               (leaf-init))))))))
+
+(cort-deftest-with-macroexpand leaf/when
+  '(((leaf leaf
+       :when leafp
+       :require t
+       :config (leaf-init))
+     (progn
+       (when leafp
+         (require 'leaf)
+         (leaf-init))))
+
+    ((leaf leaf
+       :when leafp leaf-avairablep (window-system)
+       :require t
+       :config (leaf-init))
+     (progn
+       (when (and leafp leaf-avairablep (window-system))
+         (require 'leaf)
+         (leaf-init))))))
+
+(cort-deftest-with-macroexpand leaf/unless
+  '(((leaf leaf
+       :unless leafp
+       :require t
+       :config (leaf-init))
+     (progn
+       (unless leafp
+         (require 'leaf)
+         (leaf-init))))
+
+    ((leaf leaf
+       :unless leafp leaf-avairablep (window-system)
+       :require t
+       :config (leaf-init))
+     (progn
+       (unless (and leafp leaf-avairablep (window-system))
+         (require 'leaf)
+         (leaf-init))))))
+
+(cort-deftest-with-macroexpand leaf/after
+  '(((leaf leaf-browser
+       :after leaf
+       :require t
+       :config (leaf-browser-init))
+     (progn
+       (eval-after-load 'leaf
+         '(progn
+            (require 'leaf-browser)
+            (leaf-browser-init)))))
+
+    ((leaf leaf-browser
+       :after leaf org orglyth
+       :require t
+       :config (leaf-browser-init))
+     (progn
+       (eval-after-load 'orglyth
+         '(eval-after-load 'org
+            '(eval-after-load 'leaf
+               '(progn
+                  (require 'leaf-browser)
+                  (leaf-browser-init)))))))
+
+    ((leaf leaf-browser
+       :after leaf (org orglyth)
+       :require t
+       :config (leaf-browser-init))
+     (progn
+       (eval-after-load 'orglyth
+         '(eval-after-load 'org
+            '(eval-after-load 'leaf
+               '(progn
+                  (require 'leaf-browser)
+                  (leaf-browser-init)))))))
+
+    ((leaf leaf-browser
+       :after leaf (org orglyth
+                        (org
+                         (org
+                          (org-ex))))
+       :require t
+       :config (leaf-browser-init))
+     (progn
+       (eval-after-load 'org-ex
+         '(eval-after-load 'orglyth
+            '(eval-after-load 'org
+               '(eval-after-load 'leaf
+                  '(progn
+                     (require 'leaf-browser)
+                     (leaf-browser-init))))))))))
+
+(cort-deftest-with-macroexpand leaf/custom
+  '(((leaf leaf
+       :custom ((leaf-backend-ensure . 'feather)))
+     (progn
+       (custom-set-variables
+        '(leaf-backend-ensure 'feather "Customized with leaf in leaf block"))))
+
+    ((leaf leaf
+       :custom ((leaf-backend-ensure . 'feather)
+                (leaf-backend-bind   . 'bind-key)
+                (leaf-backend-bind*  . 'bind-key)))
+     (progn
+       (custom-set-variables
+        '(leaf-backend-ensure 'feather "Customized with leaf in leaf block")
+        '(leaf-backend-bind 'bind-key "Customized with leaf in leaf block")
+        '(leaf-backend-bind* 'bind-key "Customized with leaf in leaf block"))))
+
+    ((leaf leaf
+       :custom
+       (leaf-backend-ensure . 'feather)
+       (leaf-backend-bind   . 'bind-key)
+       (leaf-backend-bind*  . 'bind-key))
+     (progn
+       (custom-set-variables
+        '(leaf-backend-ensure 'feather "Customized with leaf in leaf block")
+        '(leaf-backend-bind 'bind-key "Customized with leaf in leaf block")
+        '(leaf-backend-bind* 'bind-key "Customized with leaf in leaf block"))))
+
+    ((leaf leaf
+       :custom ((leaf-backend-bind leaf-backend-bind*) . 'bind-key))
+     (progn
+       (custom-set-variables
+        '(leaf-backend-bind 'bind-key "Customized with leaf in leaf block")
+        '(leaf-backend-bind* 'bind-key "Customized with leaf in leaf block"))))
+
+    ((leaf leaf
+       :custom
+       (leaf-backend-ensure . 'feather)
+       ((leaf-backend-bind leaf-backend-bind*) . 'bind-key))
+     (progn
+       (custom-set-variables
+        '(leaf-backend-ensure 'feather "Customized with leaf in leaf block")
+        '(leaf-backend-bind 'bind-key "Customized with leaf in leaf block")
+        '(leaf-backend-bind* 'bind-key "Customized with leaf in leaf block"))))
+
+    ((leaf leaf
+       :custom ((leaf-backend-ensure . 'feather)
+                ((leaf-backend-bind leaf-backend-bind*) . 'bind-key)))
+     (progn
+       (custom-set-variables
+        '(leaf-backend-ensure 'feather "Customized with leaf in leaf block")
+        '(leaf-backend-bind 'bind-key "Customized with leaf in leaf block")
+        '(leaf-backend-bind* 'bind-key "Customized with leaf in leaf block"))))
+
+    ((leaf leaf
+       :custom ((leaf-backend-ensure . 'feather)
+                (((leaf-backend-bind leaf-backend-bind*) . 'leaf-key)
+                 leaf-backend-bind-key . 'bind-key)))
+     (progn
+       (custom-set-variables
+        '(leaf-backend-ensure 'feather "Customized with leaf in leaf block")
+        '(leaf-backend-bind 'leaf-key "Customized with leaf in leaf block")
+        '(leaf-backend-bind* 'leaf-key "Customized with leaf in leaf block")
+        '(leaf-backend-bind-key 'bind-key "Customized with leaf in leaf block"))))))
+
+(cort-deftest-with-macroexpand leaf/custom-face
+  '(((leaf eruby-mode
+       :custom-face
+       (eruby-standard-face . '((t (:slant italic)))))
+     (progn
+       (custom-set-faces '(eruby-standard-face (((t (:slant italic))))))))
+
+    ((leaf eruby-mode
+       :custom-face
+       ((default eruby-standard-face) . '((t (:slant italic)))))
+     (progn
+       (custom-set-faces
+        '(default (((t (:slant italic)))))
+        '(eruby-standard-face (((t (:slant italic))))))))))
+
+(cort-deftest-with-macroexpand leaf/bind
+  '(((leaf color-moccur
+       :bind
+       ("M-s O" . moccur)
+       ("M-o" . isearch-moccur)
+       ("M-O" . isearch-moccur-all))
+     (progn
+       (autoload #'moccur "color-moccur" nil t)
+       (autoload #'isearch-moccur "color-moccur" nil t)
+       (autoload #'isearch-moccur-all "color-moccur" nil t)
+       (bind-keys :package color-moccur ("M-s O" . moccur))
+       (bind-keys :package color-moccur ("M-o" . isearch-moccur))
+       (bind-keys :package color-moccur ("M-O" . isearch-moccur-all))))
+
+    ((leaf color-moccur
+       :bind (("M-s O" . moccur)
+              ("M-o" . isearch-moccur)
+              ("M-O" . isearch-moccur-all)))
+     (progn
+       (autoload #'moccur "color-moccur" nil t)
+       (autoload #'isearch-moccur "color-moccur" nil t)
+       (autoload #'isearch-moccur-all "color-moccur" nil t)
+       (bind-keys :package color-moccur ("M-s O" . moccur))
+       (bind-keys :package color-moccur ("M-o" . isearch-moccur))
+       (bind-keys :package color-moccur ("M-O" . isearch-moccur-all))))
+
+    ((leaf color-moccur
+       :bind (("M-s O" . moccur)
+              (("M-o" . isearch-moccur)
+               (("M-O" . isearch-moccur-all)))))
+     (progn
+       (autoload #'moccur "color-moccur" nil t)
+       (autoload #'isearch-moccur "color-moccur" nil t)
+       (autoload #'isearch-moccur-all "color-moccur" nil t)
+       (bind-keys :package color-moccur ("M-s O" . moccur))
+       (bind-keys :package color-moccur ("M-o" . isearch-moccur))
+       (bind-keys :package color-moccur ("M-O" . isearch-moccur-all))))
+
+    ((leaf color-moccur
+       :bind (("M-s O" . moccur)
+              (("M-o" . isearch-moccur)
+               (("M-O" . isearch-moccur-all))
+               ("M-s" . isearch-moccur-some))))
+     (progn
+       (autoload #'moccur "color-moccur" nil t)
+       (autoload #'isearch-moccur "color-moccur" nil t)
+       (autoload #'isearch-moccur-all "color-moccur" nil t)
+       (autoload #'isearch-moccur-some "color-moccur" nil t)
+       (bind-keys :package color-moccur ("M-s O" . moccur))
+       (bind-keys :package color-moccur ("M-o" . isearch-moccur))
+       (bind-keys :package color-moccur ("M-O" . isearch-moccur-all))
+       (bind-keys :package color-moccur ("M-s" . isearch-moccur-some))))
+
+    ;; ((leaf color-moccur
+    ;;    :bind (("M-s O" . moccur)
+    ;;           (:isearch-mode-map
+    ;;            ("M-o" . isearch-moccur)
+    ;;            ("M-O" . isearch-moccur-all))))
+    ;;  (progn
+    ;;    (autoload #'moccur "color-moccur" nil t)
+    ;;    (autoload #'isearch-moccur "color-moccur" nil t)
+    ;;    (autoload #'isearch-moccur-all "color-moccur" nil t)
+    ;;    (bind-keys :package color-moccur ("M-s O" . moccur))
+    ;;    (bind-keys :map isearch-mode-map :package color-moccur ("M-o" . isearch-moccur))
+    ;;    (bind-keys :map isearch-mode-map :package color-moccur ("M-O" . isearch-moccur-all))))
+
+    ;; ((leaf color-moccur
+    ;;    :bind (("M-s O" . moccur)
+    ;;           (:isearch-mode-map
+    ;;            :package isearch
+    ;;            ("M-o" . isearch-moccur)
+    ;;            ("M-O" . isearch-moccur-all))))
+    ;;  (progn
+    ;;    (autoload #'moccur "color-moccur" nil t)
+    ;;    (autoload #'isearch-moccur "color-moccur" nil t)
+    ;;    (autoload #'isearch-moccur-all "color-moccur" nil t)
+    ;;    (bind-keys :package color-moccur ("M-s O" . moccur))
+    ;;    (bind-keys :map isearch-mode-map :package isearch ("M-o" . isearch-moccur))
+    ;;    (bind-keys :map isearch-mode-map :package isearch ("M-O" . isearch-moccur-all))))
+    ))
+
+(cort-deftest-with-macroexpand leaf/bind*
+  '(((leaf color-moccur
+       :bind*
+       ("M-s O" . moccur)
+       ("M-o" . isearch-moccur)
+       ("M-O" . isearch-moccur-all))
+     (progn
+       (autoload #'moccur "color-moccur" nil t)
+       (autoload #'isearch-moccur "color-moccur" nil t)
+       (autoload #'isearch-moccur-all "color-moccur" nil t)
+       (bind-keys* :package color-moccur ("M-s O" . moccur))
+       (bind-keys* :package color-moccur ("M-o" . isearch-moccur))
+       (bind-keys* :package color-moccur ("M-O" . isearch-moccur-all))))
+
+    ((leaf color-moccur
+       :bind* (("M-s O" . moccur)
+               ("M-o" . isearch-moccur)
+               ("M-O" . isearch-moccur-all)))
+     (progn
+       (autoload #'moccur "color-moccur" nil t)
+       (autoload #'isearch-moccur "color-moccur" nil t)
+       (autoload #'isearch-moccur-all "color-moccur" nil t)
+       (bind-keys* :package color-moccur ("M-s O" . moccur))
+       (bind-keys* :package color-moccur ("M-o" . isearch-moccur))
+       (bind-keys* :package color-moccur ("M-O" . isearch-moccur-all))))
+
+    ((leaf color-moccur
+       :bind* (("M-s O" . moccur)
+               (("M-o" . isearch-moccur)
+                (("M-O" . isearch-moccur-all)))))
+     (progn
+       (autoload #'moccur "color-moccur" nil t)
+       (autoload #'isearch-moccur "color-moccur" nil t)
+       (autoload #'isearch-moccur-all "color-moccur" nil t)
+       (bind-keys* :package color-moccur ("M-s O" . moccur))
+       (bind-keys* :package color-moccur ("M-o" . isearch-moccur))
+       (bind-keys* :package color-moccur ("M-O" . isearch-moccur-all))))
+
+    ((leaf color-moccur
+       :bind* (("M-s O" . moccur)
+               (("M-o" . isearch-moccur)
+                (("M-O" . isearch-moccur-all))
+                ("M-s" . isearch-moccur-some))))
+     (progn
+       (autoload #'moccur "color-moccur" nil t)
+       (autoload #'isearch-moccur "color-moccur" nil t)
+       (autoload #'isearch-moccur-all "color-moccur" nil t)
+       (autoload #'isearch-moccur-some "color-moccur" nil t)
+       (bind-keys* :package color-moccur ("M-s O" . moccur))
+       (bind-keys* :package color-moccur ("M-o" . isearch-moccur))
+       (bind-keys* :package color-moccur ("M-O" . isearch-moccur-all))
+       (bind-keys* :package color-moccur ("M-s" . isearch-moccur-some))))
+
+    ;; ((leaf color-moccur
+    ;;    :bind* (("M-s O" . moccur)
+    ;;           (:isearch-mode-map
+    ;;            ("M-o" . isearch-moccur)
+    ;;            ("M-O" . isearch-moccur-all))))
+    ;;  (progn
+    ;;    (autoload #'moccur "color-moccur" nil t)
+    ;;    (autoload #'isearch-moccur "color-moccur" nil t)
+    ;;    (autoload #'isearch-moccur-all "color-moccur" nil t)
+    ;;    (bind-keys* :package color-moccur ("M-s O" . moccur))
+    ;;    (bind-keys* :map isearch-mode-map :package color-moccur ("M-o" . isearch-moccur))
+    ;;    (bind-keys* :map isearch-mode-map :package color-moccur ("M-O" . isearch-moccur-all))))
+
+    ;; ((leaf color-moccur
+    ;;    :bind* (("M-s O" . moccur)
+    ;;           (:isearch-mode-map
+    ;;            :package isearch
+    ;;            ("M-o" . isearch-moccur)
+    ;;            ("M-O" . isearch-moccur-all))))
+    ;;  (progn
+    ;;    (autoload #'moccur "color-moccur" nil t)
+    ;;    (autoload #'isearch-moccur "color-moccur" nil t)
+    ;;    (autoload #'isearch-moccur-all "color-moccur" nil t)
+    ;;    (bind-keys* :package color-moccur ("M-s O" . moccur))
+    ;;    (bind-keys* :map isearch-mode-map :package isearch ("M-o" . isearch-moccur))
+    ;;    (bind-keys* :map isearch-mode-map :package isearch ("M-O" . isearch-moccur-all))))
+    ))
+
+(cort-deftest-with-macroexpand leaf/mode
+  '(((leaf web-mode
+       :mode "\\.js\\'" "\\.p?html?\\'")
+     (progn
+       (autoload (function web-mode) "web-mode" nil t)
+       (add-to-list 'auto-mode-alist '("\\.js\\'" web-mode))
+       (add-to-list 'auto-mode-alist '("\\.p?html?\\'" web-mode))))
+
+    ((leaf web-mode
+       :mode ("\\.js\\'" "\\.p?html?\\'"))
+     (progn
+       (autoload (function web-mode) "web-mode" nil t)
+       (add-to-list 'auto-mode-alist '("\\.js\\'" web-mode))
+       (add-to-list 'auto-mode-alist '("\\.p?html?\\'" web-mode))))
+
+    ((leaf web-mode
+       :mode ("\\.js\\'" ("\\.p?html?\\'")))
+     (progn
+       (autoload (function web-mode) "web-mode" nil t)
+       (add-to-list 'auto-mode-alist '("\\.js\\'" web-mode))
+       (add-to-list 'auto-mode-alist '("\\.p?html?\\'" web-mode))))
+
+    ((leaf web-mode
+       :mode (("\\.js\\'" "\\.p?html?\\'") . web-mode))
+     (progn
+       (autoload (function web-mode) "web-mode" nil t)
+       (add-to-list 'auto-mode-alist '("\\.js\\'" web-mode))
+       (add-to-list 'auto-mode-alist '("\\.p?html?\\'" web-mode))))
+
+    ((leaf web-mode
+       :mode (("\\.phtml?\\'" "\\.html?\\'" . web-html-mode) "\\.js\\'" . web-mode))
+     (progn
+       (autoload (function web-html-mode) "web-mode" nil t)
+       (autoload (function web-mode) "web-mode" nil t)
+       (add-to-list 'auto-mode-alist '("\\.phtml?\\'" web-html-mode))
+       (add-to-list 'auto-mode-alist '("\\.html?\\'" web-html-mode))
+       (add-to-list 'auto-mode-alist '("\\.js\\'" web-mode))))))
+
+(cort-deftest-with-macroexpand leaf/interpreter
+  '(((leaf ruby-mode
+       :mode "\\.rb\\'" "\\.rb2\\'" ("\\.rbg\\'" . rb-mode)
+       :interpreter "ruby")
+     (progn
+       (autoload (function ruby-mode) "ruby-mode" nil t)
+       (autoload (function rb-mode) "ruby-mode" nil t)
+       (add-to-list 'auto-mode-alist '("\\.rb\\'" ruby-mode))
+       (add-to-list 'auto-mode-alist '("\\.rb2\\'" ruby-mode))
+       (add-to-list 'auto-mode-alist '("\\.rbg\\'" rb-mode))
+       (add-to-list 'interpreter-mode-alist '("ruby" ruby-mode))))
+
+    ((leaf web-mode
+       :interpreter "js" "p?html?")
+     (progn
+       (autoload (function web-mode) "web-mode" nil t)
+       (add-to-list 'interpreter-mode-alist '("js" web-mode))
+       (add-to-list 'interpreter-mode-alist '("p?html?" web-mode))))
+
+    ((leaf web-mode
+       :interpreter ("js" "p?html?"))
+     (progn
+       (autoload (function web-mode) "web-mode" nil t)
+       (add-to-list 'interpreter-mode-alist '("js" web-mode))
+       (add-to-list 'interpreter-mode-alist '("p?html?" web-mode))))
+
+    ((leaf web-mode
+       :interpreter ("js" ("p?html?")))
+     (progn
+       (autoload (function web-mode) "web-mode" nil t)
+       (add-to-list 'interpreter-mode-alist '("js" web-mode))
+       (add-to-list 'interpreter-mode-alist '("p?html?" web-mode))))
+
+    ((leaf web-mode
+       :interpreter (("js" "p?html?") . web-mode))
+     (progn
+       (autoload (function web-mode) "web-mode" nil t)
+       (add-to-list 'interpreter-mode-alist '("js" web-mode))
+       (add-to-list 'interpreter-mode-alist '("p?html?" web-mode))))
+
+    ((leaf web-mode
+       :interpreter (("phtml?" "html?" . web-html-mode) "js" . web-mode))
+     (progn
+       (autoload (function web-html-mode) "web-mode" nil t)
+       (autoload (function web-mode) "web-mode" nil t)
+       (add-to-list 'interpreter-mode-alist '("phtml?" web-html-mode))
+       (add-to-list 'interpreter-mode-alist '("html?" web-html-mode))
+       (add-to-list 'interpreter-mode-alist '("js" web-mode))))))
+
+(cort-deftest-with-macroexpand leaf/magic
+  '(((leaf pdf-tools
+       :magic ("%PDF" . pdf-view-mode)
+       :config
+       (pdf-tools-install))
+     (progn
+       (autoload (function pdf-view-mode) "pdf-tools" nil t)
+       (add-to-list 'magic-mode-alist '("%PDF" pdf-view-mode))
+       (pdf-tools-install)))
+
+    ((leaf web-mode
+       :magic "js" "p?html?")
+     (progn
+       (autoload (function web-mode) "web-mode" nil t)
+       (add-to-list 'magic-mode-alist '("js" web-mode))
+       (add-to-list 'magic-mode-alist '("p?html?" web-mode))))
+
+    ((leaf web-mode
+       :magic ("js" "p?html?"))
+     (progn
+       (autoload (function web-mode) "web-mode" nil t)
+       (add-to-list 'magic-mode-alist '("js" web-mode))
+       (add-to-list 'magic-mode-alist '("p?html?" web-mode))))
+
+    ((leaf web-mode
+       :magic ("js" ("p?html?")))
+     (progn
+       (autoload (function web-mode) "web-mode" nil t)
+       (add-to-list 'magic-mode-alist '("js" web-mode))
+       (add-to-list 'magic-mode-alist '("p?html?" web-mode))))
+
+    ((leaf web-mode
+       :magic (("js" "p?html?") . web-mode))
+     (progn
+       (autoload (function web-mode) "web-mode" nil t)
+       (add-to-list 'magic-mode-alist '("js" web-mode))
+       (add-to-list 'magic-mode-alist '("p?html?" web-mode))))
+
+    ((leaf web-mode
+       :magic (("phtml?" "html?" . web-html-mode) "js" . web-mode))
+     (progn
+       (autoload (function web-html-mode) "web-mode" nil t)
+       (autoload (function web-mode) "web-mode" nil t)
+       (add-to-list 'magic-mode-alist '("phtml?" web-html-mode))
+       (add-to-list 'magic-mode-alist '("html?" web-html-mode))
+       (add-to-list 'magic-mode-alist '("js" web-mode))))))
+
+(cort-deftest-with-macroexpand leaf/magic-fallback
+  '(((leaf pdf-tools
+       :magic-fallback ("%PDF" . pdf-view-mode)
+       :config
+       (pdf-tools-install))
+     (progn
+       (autoload (function pdf-view-mode) "pdf-tools" nil t)
+       (add-to-list 'magic-fallback-mode-alist '("%PDF" pdf-view-mode))
+       (pdf-tools-install)))
+
+    ((leaf web-mode
+       :magic-fallback "js" "p?html?")
+     (progn
+       (autoload (function web-mode) "web-mode" nil t)
+       (add-to-list 'magic-fallback-mode-alist '("js" web-mode))
+       (add-to-list 'magic-fallback-mode-alist '("p?html?" web-mode))))
+
+    ((leaf web-mode
+       :magic-fallback ("js" "p?html?"))
+     (progn
+       (autoload (function web-mode) "web-mode" nil t)
+       (add-to-list 'magic-fallback-mode-alist '("js" web-mode))
+       (add-to-list 'magic-fallback-mode-alist '("p?html?" web-mode))))
+
+    ((leaf web-mode
+       :magic-fallback ("js" ("p?html?")))
+     (progn
+       (autoload (function web-mode) "web-mode" nil t)
+       (add-to-list 'magic-fallback-mode-alist '("js" web-mode))
+       (add-to-list 'magic-fallback-mode-alist '("p?html?" web-mode))))
+
+    ((leaf web-mode
+       :magic-fallback (("js" "p?html?") . web-mode))
+     (progn
+       (autoload (function web-mode) "web-mode" nil t)
+       (add-to-list 'magic-fallback-mode-alist '("js" web-mode))
+       (add-to-list 'magic-fallback-mode-alist '("p?html?" web-mode))))
+
+    ((leaf web-mode
+       :magic-fallback (("phtml?" "html?" . web-html-mode) "js" . web-mode))
+     (progn
+       (autoload (function web-html-mode) "web-mode" nil t)
+       (autoload (function web-mode) "web-mode" nil t)
+       (add-to-list 'magic-fallback-mode-alist '("phtml?" web-html-mode))
+       (add-to-list 'magic-fallback-mode-alist '("html?" web-html-mode))
+       (add-to-list 'magic-fallback-mode-alist '("js" web-mode))))))
+
+(cort-deftest-with-macroexpand leaf/hook
+  '(((leaf ace-jump-mode
+       :hook cc-mode-hook)
+     (progn
+       (autoload (function ace-jump-mode) "ace-jump-mode" nil t)
+       (add-hook 'cc-mode-hook (function ace-jump-mode))))
+
+    ((leaf ace-jump-mode
+       :hook cc-mode-hook prog-mode-hook)
+     (progn
+       (autoload (function ace-jump-mode) "ace-jump-mode" nil t)
+       (add-hook 'cc-mode-hook (function ace-jump-mode))
+       (add-hook 'prog-mode-hook (function ace-jump-mode))))
+
+    ((leaf ace-jump-mode
+       :hook (cc-mode-hook (prog-mode-hook)))
+     (progn
+       (autoload (function ace-jump-mode) "ace-jump-mode" nil t)
+       (add-hook 'cc-mode-hook (function ace-jump-mode))
+       (add-hook 'prog-mode-hook (function ace-jump-mode))))
+
+    ((leaf ace-jump-mode
+       :hook cc-mode-hook (prog-mode-hook . my-ace-jump-mode))
+     (progn
+       (autoload (function ace-jump-mode) "ace-jump-mode" nil t)
+       (autoload (function my-ace-jump-mode) "ace-jump-mode" nil t)
+       (add-hook 'cc-mode-hook (function ace-jump-mode))
+       (add-hook 'prog-mode-hook (function my-ace-jump-mode))))
+
+    ((leaf ace-jump-mode
+       :hook ((cc-mode-hook prog-mode-hook) . my-ace-jump-mode))
+     (progn
+       (autoload (function my-ace-jump-mode) "ace-jump-mode" nil t)
+       (add-hook 'cc-mode-hook (function my-ace-jump-mode))
+       (add-hook 'prog-mode-hook (function my-ace-jump-mode))))
+
+    ((leaf ace-jump-mode
+       :hook ((cc-mode-hook prog-mode-hook . ace-jump-mode) isearch-mode . my-ace-jump-mode))
+     (progn
+       (autoload (function ace-jump-mode) "ace-jump-mode" nil t)
+       (autoload (function my-ace-jump-mode) "ace-jump-mode" nil t)
+       (add-hook 'cc-mode-hook (function ace-jump-mode))
+       (add-hook 'prog-mode-hook (function ace-jump-mode))
+       (add-hook 'isearch-mode (function my-ace-jump-mode))))))
+
+(cort-deftest-with-macroexpand leaf/commands
+  '(((leaf leaf
+       :commands leaf
+       :config (leaf-init))
+     (progn
+       (autoload (function leaf) "leaf" nil t)
+       (leaf-init)))
+
+    ((leaf leaf
+       :commands leaf leaf-pairp leaf-plist-get)
+     (progn
+       (autoload (function leaf) "leaf" nil t)
+       (autoload (function leaf-pairp) "leaf" nil t)
+       (autoload (function leaf-plist-get) "leaf" nil t)))
+
+    ((leaf leaf
+       :commands leaf (leaf-pairp leaf-plist-get))
+     (progn
+       (autoload (function leaf) "leaf" nil t)
+       (autoload (function leaf-pairp) "leaf" nil t)
+       (autoload (function leaf-plist-get) "leaf" nil t)))
+
+    ((leaf leaf
+       :commands leaf (leaf-pairp leaf-plist-get (leaf
+                                                   (leaf-pairp
+                                                    (leaf-pairp
+                                                     (leaf-insert-after))))))
+     (progn
+       (autoload (function leaf) "leaf" nil t)
+       (autoload (function leaf-pairp) "leaf" nil t)
+       (autoload (function leaf-plist-get) "leaf" nil t)
+       (autoload (function leaf-insert-after) "leaf" nil t)))))
+
+(cort-deftest-with-macroexpand leaf/pre-setq
+  '(((leaf alloc
+       :pre-setq `((gc-cons-threshold . ,(* 512 1024 1024))
+                   (garbage-collection-messages . t))
+       :require t)
+     (progn
+       (setq gc-cons-threshold 536870912)
+       (setq garbage-collection-messages t)
+       (require 'alloc)))
+
+    ((leaf alloc
+       :pre-setq ((gc-cons-threshold . 536870912)
+                  (garbage-collection-messages . t))
+       :require t)
+     (progn
+       (setq gc-cons-threshold 536870912)
+       (setq garbage-collection-messages t)
+       (require 'alloc)))
+
+    ((leaf leaf
+       :pre-setq
+       (leaf-backend-bind . 'bind-key)
+       (leaf-backend-bind* . 'bind-key)
+       :require t)
+     (progn
+       (setq leaf-backend-bind 'bind-key)
+       (setq leaf-backend-bind* 'bind-key)
+       (require 'leaf)))
+
+    ((leaf leaf
+       :pre-setq (leaf-backend-bind leaf-backend-bind* . 'bind-key)
+       :require t)
+     (progn
+       (setq leaf-backend-bind 'bind-key)
+       (setq leaf-backend-bind* 'bind-key)
+       (require 'leaf)))
+
+    ((leaf leaf
+       :pre-setq ((leaf-backend-bind) leaf-backend-bind* . 'bind-key)
+       :require t)
+     (progn
+       (setq leaf-backend-bind 'bind-key)
+       (setq leaf-backend-bind* 'bind-key)
+       (require 'leaf)))
+
+    ((leaf leaf
+       :pre-setq ((leaf-backend-bind leaf-backend-bind*) . 'bind-key)
+       :require t)
+     (progn
+       (setq leaf-backend-bind 'bind-key)
+       (setq leaf-backend-bind* 'bind-key)
+       (require 'leaf)))))
+
+(cort-deftest-with-macroexpand leaf/init
+  '(((leaf leaf
+       :init (leaf-pre-init)
+       :require t
+       :config (leaf-init))
+     (progn
+       (leaf-pre-init)
+       (require 'leaf)
+       (leaf-init)))
+
+    ((leaf leaf
+       :init (progn
+               (leaf-pre-init)
+               (leaf-pre-init-after))
+       :require t
+       :config (leaf-init))
+     (progn
+       (progn
+         (leaf-pre-init)
+         (leaf-pre-init-after))
+       (require 'leaf)
+       (leaf-init)))
+
+    ((leaf leaf
+       :init
+       (leaf-pre-init)
+       (leaf-pre-init-after)
+       :require t
+       :config (leaf-init))
+     (progn
+       (leaf-pre-init)
+       (leaf-pre-init-after)
+       (require 'leaf)
+       (leaf-init)))))
+
+(cort-deftest-with-macroexpand leaf/require
+  '(((leaf leaf
+       :init (leaf-pre-init)
+       :require t
+       :config (leaf-init))
+     (progn
+       (leaf-pre-init)
+       (require 'leaf)
+       (leaf-init)))
+
+    ((leaf leaf
+       :init (leaf-pre-init)
+       :require nil
+       :config (leaf-init))
+     (progn
+       (leaf-pre-init)
+       (leaf-init)))
+
+    ((leaf leaf
+       :init (leaf-pre-init)
+       :require leaf leaf-polyfill
+       :config (leaf-init))
+     (progn
+       (leaf-pre-init)
+       (require 'leaf)
+       (require 'leaf-polyfill)
+       (leaf-init)))
+
+    ((leaf leaf
+       :init (leaf-pre-init)
+       :require t
+       :require leaf-polyfill
+       :config (leaf-init))
+     (progn
+       (leaf-pre-init)
+       (require 'leaf)
+       (require 'leaf-polyfill)
+       (leaf-init)))
+
+    ((leaf leaf
+       :init (leaf-pre-init)
+       :require t leaf-polyfill
+       :config (leaf-init))
+     (progn
+       (leaf-pre-init)
+       (require 'leaf)
+       (require 'leaf-polyfill)
+       (leaf-init)))
+
+    ((leaf leaf
+       :init (leaf-pre-init)
+       :require (leaf leaf-polyfill leaf-sub leaf-subsub)
+       :config (leaf-init))
+     (progn
+       (leaf-pre-init)
+       (require 'leaf)
+       (require 'leaf-polyfill)
+       (require 'leaf-sub)
+       (require 'leaf-subsub)
+       (leaf-init)))))
+
+(cort-deftest-with-macroexpand leaf/setq
+  '(((leaf alloc
+       :setq `((gc-cons-threshold . ,(* 512 1024 1024))
+               (garbage-collection-messages . t))
+       :require t)
+     (progn
+       (require 'alloc)
+       (setq gc-cons-threshold 536870912)
+       (setq garbage-collection-messages t)))
+
+    ((leaf alloc
+       :setq ((gc-cons-threshold . 536870912)
+              (garbage-collection-messages . t))
+       :require t)
+     (progn
+       (require 'alloc)
+       (setq gc-cons-threshold 536870912)
+       (setq garbage-collection-messages t)))
+
+    ((leaf leaf
+       :setq
+       (leaf-backend-bind . 'bind-key)
+       (leaf-backend-bind* . 'bind-key)
+       :require t)
+     (progn
+       (require 'leaf)
+       (setq leaf-backend-bind 'bind-key)
+       (setq leaf-backend-bind* 'bind-key)))
+
+    ((leaf leaf
+       :setq (leaf-backend-bind leaf-backend-bind* . 'bind-key)
+       :require t)
+     (progn
+       (require 'leaf)
+       (setq leaf-backend-bind 'bind-key)
+       (setq leaf-backend-bind* 'bind-key)))
+
+    ((leaf leaf
+       :setq ((leaf-backend-bind) leaf-backend-bind* . 'bind-key)
+       :require t)
+     (progn
+       (require 'leaf)
+       (setq leaf-backend-bind 'bind-key)
+       (setq leaf-backend-bind* 'bind-key)))
+
+    ((leaf leaf
+       :setq ((leaf-backend-bind leaf-backend-bind*) . 'bind-key)
+       :require t)
+     (progn
+       (require 'leaf)
+       (setq leaf-backend-bind 'bind-key)
+       (setq leaf-backend-bind* 'bind-key)))))
+
+(cort-deftest-with-macroexpand leaf/setq-default
+  '(((leaf alloc
+       :setq-default `((gc-cons-threshold . ,(* 512 1024 1024))
+                       (garbage-collection-messages . t))
+       :require t)
+     (progn
+       (require 'alloc)
+       (setq-default gc-cons-threshold 536870912)
+       (setq-default garbage-collection-messages t)))
+
+    ((leaf alloc
+       :setq-default ((gc-cons-threshold . 536870912)
+                      (garbage-collection-messages . t))
+       :require t)
+     (progn
+       (require 'alloc)
+       (setq-default gc-cons-threshold 536870912)
+       (setq-default garbage-collection-messages t)))
+
+    ((leaf leaf
+       :setq-default
+       (leaf-backend-bind . 'bind-key)
+       (leaf-backend-bind* . 'bind-key)
+       :require t)
+     (progn
+       (require 'leaf)
+       (setq-default leaf-backend-bind 'bind-key)
+       (setq-default leaf-backend-bind* 'bind-key)))
+
+    ((leaf leaf
+       :setq-default (leaf-backend-bind leaf-backend-bind* . 'bind-key)
+       :require t)
+     (progn
+       (require 'leaf)
+       (setq-default leaf-backend-bind 'bind-key)
+       (setq-default leaf-backend-bind* 'bind-key)))
+
+    ((leaf leaf
+       :setq-default ((leaf-backend-bind) leaf-backend-bind* . 'bind-key)
+       :require t)
+     (progn
+       (require 'leaf)
+       (setq-default leaf-backend-bind 'bind-key)
+       (setq-default leaf-backend-bind* 'bind-key)))
+
+    ((leaf leaf
+       :setq-default ((leaf-backend-bind leaf-backend-bind*) . 'bind-key)
+       :require t)
+     (progn
+       (require 'leaf)
+       (setq-default leaf-backend-bind 'bind-key)
+       (setq-default leaf-backend-bind* 'bind-key)))))
+
+(cort-deftest-with-macroexpand leaf/config
+  '(((leaf leaf
+       :init (leaf-pre-init)
+       :require t
+       :config (leaf-init))
+     (progn
+       (leaf-pre-init)
+       (require 'leaf)
+       (leaf-init)))
+
+    ((leaf leaf
+       :init (leaf-init)
+       :require t
+       :config (progn
+                 (leaf-pre-init)
+                 (leaf-pre-init-after)))
+     (progn
+       (leaf-init)
+       (require 'leaf)
+       (progn
+         (leaf-pre-init)
+         (leaf-pre-init-after))))
+
+    ((leaf leaf
+       :init (leaf-init)
+       :require t
+       :config
+       (leaf-pre-init)
+       (leaf-pre-init-after))
+     (progn
+       (leaf-init)
+       (require 'leaf)
+       (leaf-pre-init)
+       (leaf-pre-init-after)))))
 
 (provide 'leaf-tests)
 ;;; leaf-tests.el ends here

@@ -1,4 +1,8 @@
 # conao3's global .gitignore at
 # http://dotfiles.conao3.com/gitignore
 
+# make temporary folder
+/.make
+
+# Emacs Lisp compiled files
 *.elc

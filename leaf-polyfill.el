@@ -48,7 +48,6 @@
 (defsubst leaf-pairp (var &optional allow)
   "Return t if VAR is pair.  If ALLOW is non-nil, allow nil as last element"
   (and (listp var)
-       (atom (car var))
        (atom (cdr var))
        (if allow t (not (null (cdr var))))))
 
@@ -141,6 +140,13 @@
         (setq ret (cons elm ret)))
       (setq count (1+ count)))
     (nreverse ret)))
+
+(defun leaf-plist-get (key plist &optional default)
+  "`plist-get' with DEFAULT value in PLIST search KEY."
+  (declare (indent 1))
+  (if (member key plist)
+      (plist-get plist key)
+    default))
 
 (provide 'leaf-polyfill)
 ;;; leaf-polyfill.el ends here
