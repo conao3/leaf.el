@@ -37,7 +37,7 @@
   "Symplifying your `.emacs' configuration."
   :group 'lisp)
 
-(defcustom leaf-defaults '()
+(defcustom leaf-defaults '(:autoload t)
   "Default values for each leaf packages."
   :type 'sexp
   :group 'leaf)
@@ -81,6 +81,9 @@
 (defvar leaf-keywords
   '(:dummy
     :disabled (unless (eval (car value)) `(,@body))
+    :autoload `(,@(when (car value)
+                    (mapcar (lambda (elm) `(autoload #',(car elm) ,(cdr elm) nil t)) (nreverse leaf--autoload)))
+                ,@body)
     :ensure `(,@(mapcar
                  (lambda (elm)
                    (let ((pkg `',(car elm))
@@ -583,11 +586,8 @@ EXAMPLE:
                  (leaf-normalize-plist
                   (leaf-append-defaults args) 'merge 'eval)))
          (body (leaf-process-keywords name args*)))
-    (when (or body leaf--autoload)
+    (when body
       `(progn
-         ,@(mapcar
-            (lambda (elm) `(autoload #',(car elm) ,(cdr elm) nil t))
-            (nreverse leaf--autoload))
          ,@body))))
 
 (provide 'leaf)
