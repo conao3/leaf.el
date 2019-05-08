@@ -843,36 +843,36 @@ Example
   '(((leaf web-mode
        :mode "\\.js\\'" "\\.p?html?\\'")
      (progn
-       (autoload (function web-mode) "web-mode" nil t)
+       (autoload #'web-mode "web-mode" nil t)
        (add-to-list 'auto-mode-alist '("\\.js\\'" web-mode))
        (add-to-list 'auto-mode-alist '("\\.p?html?\\'" web-mode))))
 
     ((leaf web-mode
        :mode ("\\.js\\'" "\\.p?html?\\'"))
      (progn
-       (autoload (function web-mode) "web-mode" nil t)
+       (autoload #'web-mode "web-mode" nil t)
        (add-to-list 'auto-mode-alist '("\\.js\\'" web-mode))
        (add-to-list 'auto-mode-alist '("\\.p?html?\\'" web-mode))))
 
     ((leaf web-mode
        :mode ("\\.js\\'" ("\\.p?html?\\'")))
      (progn
-       (autoload (function web-mode) "web-mode" nil t)
+       (autoload #'web-mode "web-mode" nil t)
        (add-to-list 'auto-mode-alist '("\\.js\\'" web-mode))
        (add-to-list 'auto-mode-alist '("\\.p?html?\\'" web-mode))))
 
     ((leaf web-mode
        :mode (("\\.js\\'" "\\.p?html?\\'") . web-mode))
      (progn
-       (autoload (function web-mode) "web-mode" nil t)
+       (autoload #'web-mode "web-mode" nil t)
        (add-to-list 'auto-mode-alist '("\\.js\\'" web-mode))
        (add-to-list 'auto-mode-alist '("\\.p?html?\\'" web-mode))))
 
     ((leaf web-mode
        :mode (("\\.phtml?\\'" "\\.html?\\'" . web-html-mode) "\\.js\\'" . web-mode))
      (progn
-       (autoload (function web-html-mode) "web-mode" nil t)
-       (autoload (function web-mode) "web-mode" nil t)
+       (autoload #'web-html-mode "web-mode" nil t)
+       (autoload #'web-mode "web-mode" nil t)
        (add-to-list 'auto-mode-alist '("\\.phtml?\\'" web-html-mode))
        (add-to-list 'auto-mode-alist '("\\.html?\\'" web-html-mode))
        (add-to-list 'auto-mode-alist '("\\.js\\'" web-mode))))))
@@ -882,8 +882,8 @@ Example
        :mode "\\.rb\\'" "\\.rb2\\'" ("\\.rbg\\'" . rb-mode)
        :interpreter "ruby")
      (progn
-       (autoload (function ruby-mode) "ruby-mode" nil t)
-       (autoload (function rb-mode) "ruby-mode" nil t)
+       (autoload #'ruby-mode "ruby-mode" nil t)
+       (autoload #'rb-mode "ruby-mode" nil t)
        (add-to-list 'auto-mode-alist '("\\.rb\\'" ruby-mode))
        (add-to-list 'auto-mode-alist '("\\.rb2\\'" ruby-mode))
        (add-to-list 'auto-mode-alist '("\\.rbg\\'" rb-mode))
@@ -892,36 +892,36 @@ Example
     ((leaf web-mode
        :interpreter "js" "p?html?")
      (progn
-       (autoload (function web-mode) "web-mode" nil t)
+       (autoload #'web-mode "web-mode" nil t)
        (add-to-list 'interpreter-mode-alist '("js" web-mode))
        (add-to-list 'interpreter-mode-alist '("p?html?" web-mode))))
 
     ((leaf web-mode
        :interpreter ("js" "p?html?"))
      (progn
-       (autoload (function web-mode) "web-mode" nil t)
+       (autoload #'web-mode "web-mode" nil t)
        (add-to-list 'interpreter-mode-alist '("js" web-mode))
        (add-to-list 'interpreter-mode-alist '("p?html?" web-mode))))
 
     ((leaf web-mode
        :interpreter ("js" ("p?html?")))
      (progn
-       (autoload (function web-mode) "web-mode" nil t)
+       (autoload #'web-mode "web-mode" nil t)
        (add-to-list 'interpreter-mode-alist '("js" web-mode))
        (add-to-list 'interpreter-mode-alist '("p?html?" web-mode))))
 
     ((leaf web-mode
        :interpreter (("js" "p?html?") . web-mode))
      (progn
-       (autoload (function web-mode) "web-mode" nil t)
+       (autoload #'web-mode "web-mode" nil t)
        (add-to-list 'interpreter-mode-alist '("js" web-mode))
        (add-to-list 'interpreter-mode-alist '("p?html?" web-mode))))
 
     ((leaf web-mode
        :interpreter (("phtml?" "html?" . web-html-mode) "js" . web-mode))
      (progn
-       (autoload (function web-html-mode) "web-mode" nil t)
-       (autoload (function web-mode) "web-mode" nil t)
+       (autoload #'web-html-mode "web-mode" nil t)
+       (autoload #'web-mode "web-mode" nil t)
        (add-to-list 'interpreter-mode-alist '("phtml?" web-html-mode))
        (add-to-list 'interpreter-mode-alist '("html?" web-html-mode))
        (add-to-list 'interpreter-mode-alist '("js" web-mode))))))
@@ -932,43 +932,43 @@ Example
        :config
        (pdf-tools-install))
      (progn
-       (autoload (function pdf-view-mode) "pdf-tools" nil t)
+       (autoload #'pdf-view-mode "pdf-tools" nil t)
        (add-to-list 'magic-mode-alist '("%PDF" pdf-view-mode))
        (pdf-tools-install)))
 
     ((leaf web-mode
        :magic "js" "p?html?")
      (progn
-       (autoload (function web-mode) "web-mode" nil t)
+       (autoload #'web-mode "web-mode" nil t)
        (add-to-list 'magic-mode-alist '("js" web-mode))
        (add-to-list 'magic-mode-alist '("p?html?" web-mode))))
 
     ((leaf web-mode
        :magic ("js" "p?html?"))
      (progn
-       (autoload (function web-mode) "web-mode" nil t)
+       (autoload #'web-mode "web-mode" nil t)
        (add-to-list 'magic-mode-alist '("js" web-mode))
        (add-to-list 'magic-mode-alist '("p?html?" web-mode))))
 
     ((leaf web-mode
        :magic ("js" ("p?html?")))
      (progn
-       (autoload (function web-mode) "web-mode" nil t)
+       (autoload #'web-mode "web-mode" nil t)
        (add-to-list 'magic-mode-alist '("js" web-mode))
        (add-to-list 'magic-mode-alist '("p?html?" web-mode))))
 
     ((leaf web-mode
        :magic (("js" "p?html?") . web-mode))
      (progn
-       (autoload (function web-mode) "web-mode" nil t)
+       (autoload #'web-mode "web-mode" nil t)
        (add-to-list 'magic-mode-alist '("js" web-mode))
        (add-to-list 'magic-mode-alist '("p?html?" web-mode))))
 
     ((leaf web-mode
        :magic (("phtml?" "html?" . web-html-mode) "js" . web-mode))
      (progn
-       (autoload (function web-html-mode) "web-mode" nil t)
-       (autoload (function web-mode) "web-mode" nil t)
+       (autoload #'web-html-mode "web-mode" nil t)
+       (autoload #'web-mode "web-mode" nil t)
        (add-to-list 'magic-mode-alist '("phtml?" web-html-mode))
        (add-to-list 'magic-mode-alist '("html?" web-html-mode))
        (add-to-list 'magic-mode-alist '("js" web-mode))))))
@@ -979,43 +979,43 @@ Example
        :config
        (pdf-tools-install))
      (progn
-       (autoload (function pdf-view-mode) "pdf-tools" nil t)
+       (autoload #'pdf-view-mode "pdf-tools" nil t)
        (add-to-list 'magic-fallback-mode-alist '("%PDF" pdf-view-mode))
        (pdf-tools-install)))
 
     ((leaf web-mode
        :magic-fallback "js" "p?html?")
      (progn
-       (autoload (function web-mode) "web-mode" nil t)
+       (autoload #'web-mode "web-mode" nil t)
        (add-to-list 'magic-fallback-mode-alist '("js" web-mode))
        (add-to-list 'magic-fallback-mode-alist '("p?html?" web-mode))))
 
     ((leaf web-mode
        :magic-fallback ("js" "p?html?"))
      (progn
-       (autoload (function web-mode) "web-mode" nil t)
+       (autoload #'web-mode "web-mode" nil t)
        (add-to-list 'magic-fallback-mode-alist '("js" web-mode))
        (add-to-list 'magic-fallback-mode-alist '("p?html?" web-mode))))
 
     ((leaf web-mode
        :magic-fallback ("js" ("p?html?")))
      (progn
-       (autoload (function web-mode) "web-mode" nil t)
+       (autoload #'web-mode "web-mode" nil t)
        (add-to-list 'magic-fallback-mode-alist '("js" web-mode))
        (add-to-list 'magic-fallback-mode-alist '("p?html?" web-mode))))
 
     ((leaf web-mode
        :magic-fallback (("js" "p?html?") . web-mode))
      (progn
-       (autoload (function web-mode) "web-mode" nil t)
+       (autoload #'web-mode "web-mode" nil t)
        (add-to-list 'magic-fallback-mode-alist '("js" web-mode))
        (add-to-list 'magic-fallback-mode-alist '("p?html?" web-mode))))
 
     ((leaf web-mode
        :magic-fallback (("phtml?" "html?" . web-html-mode) "js" . web-mode))
      (progn
-       (autoload (function web-html-mode) "web-mode" nil t)
-       (autoload (function web-mode) "web-mode" nil t)
+       (autoload #'web-html-mode "web-mode" nil t)
+       (autoload #'web-mode "web-mode" nil t)
        (add-to-list 'magic-fallback-mode-alist '("phtml?" web-html-mode))
        (add-to-list 'magic-fallback-mode-alist '("html?" web-html-mode))
        (add-to-list 'magic-fallback-mode-alist '("js" web-mode))))))
@@ -1070,22 +1070,22 @@ Example
        :commands leaf
        :config (leaf-init))
      (progn
-       (autoload (function leaf) "leaf" nil t)
+       (autoload #'leaf "leaf" nil t)
        (leaf-init)))
 
     ((leaf leaf
        :commands leaf leaf-pairp leaf-plist-get)
      (progn
-       (autoload (function leaf) "leaf" nil t)
-       (autoload (function leaf-pairp) "leaf" nil t)
-       (autoload (function leaf-plist-get) "leaf" nil t)))
+       (autoload #'leaf "leaf" nil t)
+       (autoload #'leaf-pairp "leaf" nil t)
+       (autoload #'leaf-plist-get "leaf" nil t)))
 
     ((leaf leaf
        :commands leaf (leaf-pairp leaf-plist-get))
      (progn
-       (autoload (function leaf) "leaf" nil t)
-       (autoload (function leaf-pairp) "leaf" nil t)
-       (autoload (function leaf-plist-get) "leaf" nil t)))
+       (autoload #'leaf "leaf" nil t)
+       (autoload #'leaf-pairp "leaf" nil t)
+       (autoload #'leaf-plist-get "leaf" nil t)))
 
     ((leaf leaf
        :commands leaf (leaf-pairp leaf-plist-get (leaf
@@ -1093,10 +1093,10 @@ Example
                                                     (leaf-pairp
                                                      (leaf-insert-after))))))
      (progn
-       (autoload (function leaf) "leaf" nil t)
-       (autoload (function leaf-pairp) "leaf" nil t)
-       (autoload (function leaf-plist-get) "leaf" nil t)
-       (autoload (function leaf-insert-after) "leaf" nil t)))))
+       (autoload #'leaf "leaf" nil t)
+       (autoload #'leaf-pairp "leaf" nil t)
+       (autoload #'leaf-plist-get "leaf" nil t)
+       (autoload #'leaf-insert-after "leaf" nil t)))))
 
 (cort-deftest-with-macroexpand leaf/pre-setq
   '(((leaf alloc
