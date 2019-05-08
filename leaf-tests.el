@@ -1024,46 +1024,46 @@ Example
   '(((leaf ace-jump-mode
        :hook cc-mode-hook)
      (progn
-       (autoload (function ace-jump-mode) "ace-jump-mode" nil t)
-       (add-hook 'cc-mode-hook (function ace-jump-mode))))
+       (autoload #'ace-jump-mode "ace-jump-mode" nil t)
+       (add-hook 'cc-mode-hook #'ace-jump-mode)))
 
     ((leaf ace-jump-mode
        :hook cc-mode-hook prog-mode-hook)
      (progn
-       (autoload (function ace-jump-mode) "ace-jump-mode" nil t)
-       (add-hook 'cc-mode-hook (function ace-jump-mode))
-       (add-hook 'prog-mode-hook (function ace-jump-mode))))
+       (autoload #'ace-jump-mode "ace-jump-mode" nil t)
+       (add-hook 'cc-mode-hook #'ace-jump-mode)
+       (add-hook 'prog-mode-hook #'ace-jump-mode)))
 
     ((leaf ace-jump-mode
        :hook (cc-mode-hook (prog-mode-hook)))
      (progn
-       (autoload (function ace-jump-mode) "ace-jump-mode" nil t)
-       (add-hook 'cc-mode-hook (function ace-jump-mode))
-       (add-hook 'prog-mode-hook (function ace-jump-mode))))
+       (autoload #'ace-jump-mode "ace-jump-mode" nil t)
+       (add-hook 'cc-mode-hook #'ace-jump-mode)
+       (add-hook 'prog-mode-hook #'ace-jump-mode)))
 
     ((leaf ace-jump-mode
        :hook cc-mode-hook (prog-mode-hook . my-ace-jump-mode))
      (progn
-       (autoload (function ace-jump-mode) "ace-jump-mode" nil t)
-       (autoload (function my-ace-jump-mode) "ace-jump-mode" nil t)
-       (add-hook 'cc-mode-hook (function ace-jump-mode))
-       (add-hook 'prog-mode-hook (function my-ace-jump-mode))))
+       (autoload #'ace-jump-mode "ace-jump-mode" nil t)
+       (autoload #'my-ace-jump-mode "ace-jump-mode" nil t)
+       (add-hook 'cc-mode-hook #'ace-jump-mode)
+       (add-hook 'prog-mode-hook #'my-ace-jump-mode)))
 
     ((leaf ace-jump-mode
        :hook ((cc-mode-hook prog-mode-hook) . my-ace-jump-mode))
      (progn
-       (autoload (function my-ace-jump-mode) "ace-jump-mode" nil t)
-       (add-hook 'cc-mode-hook (function my-ace-jump-mode))
-       (add-hook 'prog-mode-hook (function my-ace-jump-mode))))
+       (autoload #'my-ace-jump-mode "ace-jump-mode" nil t)
+       (add-hook 'cc-mode-hook #'my-ace-jump-mode)
+       (add-hook 'prog-mode-hook #'my-ace-jump-mode)))
 
     ((leaf ace-jump-mode
        :hook ((cc-mode-hook prog-mode-hook . ace-jump-mode) isearch-mode . my-ace-jump-mode))
      (progn
-       (autoload (function ace-jump-mode) "ace-jump-mode" nil t)
-       (autoload (function my-ace-jump-mode) "ace-jump-mode" nil t)
-       (add-hook 'cc-mode-hook (function ace-jump-mode))
-       (add-hook 'prog-mode-hook (function ace-jump-mode))
-       (add-hook 'isearch-mode (function my-ace-jump-mode))))))
+       (autoload #'ace-jump-mode "ace-jump-mode" nil t)
+       (autoload #'my-ace-jump-mode "ace-jump-mode" nil t)
+       (add-hook 'cc-mode-hook #'ace-jump-mode)
+       (add-hook 'prog-mode-hook #'ace-jump-mode)
+       (add-hook 'isearch-mode #'my-ace-jump-mode)))))
 
 (cort-deftest-with-macroexpand leaf/commands
   '(((leaf leaf
