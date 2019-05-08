@@ -121,6 +121,10 @@ Example
 ;;  test definition
 ;;
 
+(cort-deftest-with-macroexpand leaf/none
+  '(((leaf leaf)
+     nil)))
+
 (cort-deftest-with-macroexpand leaf/disabled
   '(((leaf leaf :disabled t       :config (leaf-init))
      nil)
@@ -363,12 +367,6 @@ Example
        (declare-function leaf "leaf")
        (declare-function leaf-normalize-plist "leaf")
        (declare-function leaf-merge-dupkey-values-plist "leaf")))
-
-    ((leaf leaf
-       :defun ((lbrowser-open lbrowser-close) . leaf-browser))
-     (progn
-       (declare-function lbrowser-open "leaf-browser")
-       (declare-function lbrowser-close "leaf-browser")))
 
     ((leaf leaf
        :defun (lbrowser-open lbrowser-close . leaf-browser))
