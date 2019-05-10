@@ -207,23 +207,48 @@ Example
        (leaf-init)))))
 
 ;; This test failed on Emacs-22 and Emacs-23
-;; (cort-deftest-with-macroexpand leaf/ensure
-;;   '(((leaf leaf :ensure t :config (leaf-init))
-;;      (progn
-;;        (unless
-;;            (package-installed-p 'leaf)
-;;          (condition-case-unless-debug err
-;;              (if
-;;                  (assoc 'leaf package-archive-contents)
-;;                  (package-install 'leaf)
-;;                (package-refresh-contents)
-;;                (package-install 'leaf))
-;;            (error
-;;             (display-warning 'leaf
-;;                              (format "Failed to install %s: %s" 'leaf
-;;                                      (error-message-string err))
-;;                              :error))))
-;;        (leaf-init)))))
+(cort-deftest-with-macroexpand leaf/ensure
+  '(((leaf leaf
+       :ensure t
+       :config (leaf-init))
+     (progn
+       (leaf-meta-handler-ensure leaf 'leaf nil)
+       (leaf-init)))
+
+    ((leaf leaf
+       :ensure t leaf-browser
+       :config (leaf-init))
+     (progn
+       (leaf-meta-handler-ensure leaf 'leaf nil)
+       (leaf-meta-handler-ensure leaf 'leaf-browser nil)
+       (leaf-init)))
+
+    ((leaf leaf
+       :ensure feather leaf-key leaf-browser
+       :config (leaf-init))
+     (progn
+       (leaf-meta-handler-ensure leaf 'feather nil)
+       (leaf-meta-handler-ensure leaf 'leaf-key nil)
+       (leaf-meta-handler-ensure leaf 'leaf-browser nil)
+       (leaf-init)))
+
+    ((leaf leaf
+       :ensure (((feather) leaf-key) leaf-browser)
+       :config (leaf-init))
+     (progn
+       (leaf-meta-handler-ensure leaf 'feather nil)
+       (leaf-meta-handler-ensure leaf 'leaf-key nil)
+       (leaf-meta-handler-ensure leaf 'leaf-browser nil)
+       (leaf-init)))
+
+    ((leaf leaf
+       :ensure (((feather . elpa-archive) leaf-key) leaf-browser . stable)
+       :config (leaf-init))
+     (progn
+       (leaf-meta-handler-ensure leaf 'feather elpa-archive)
+       (leaf-meta-handler-ensure leaf 'leaf-key stable)
+       (leaf-meta-handler-ensure leaf 'leaf-browser stable)
+       (leaf-init)))))
 
 (cort-deftest-with-macroexpand leaf/doc
   '(((leaf leaf

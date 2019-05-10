@@ -47,21 +47,20 @@
 ;;  Customize backend
 ;;
 
-(defcustom leaf-backend-ensure (if (require 'feather nil t) 'feather
-                                  (if (require 'package nil t) 'package))
+(defcustom leaf-backend-ensure (if (require 'feather nil t) 'feather 'package)
   "Backend to process `:ensure' keyword."
   :type '(choice (const :tag "Use `package.el'." 'package)
                  (const :tag "Use `feather.el'." 'feather)
                  (const :tag "No backend, disable `:ensure'." nil))
   :group 'leaf)
 
-(defcustom leaf-backend-bind (if (require 'bind-key nil t) 'bind-key)
+(defcustom leaf-backend-bind (if (require 'leaf-key nil t) 'leaf-key 'bind-key)
   "Backend to process `:bind' keyword."
   :type '(choice (const :tag "Use `bind-key.el'." 'bind-key)
                  (const :tag "No backend, disable `:bind'." nil))
   :group 'leaf)
 
-(defcustom leaf-backend-bind* (if (require 'bind-key nil t) 'bind-key)
+(defcustom leaf-backend-bind* (if (require 'leaf-key nil t) 'leaf-key 'bind-key)
   "Backend to process `:bind*' keyword."
   :type '(choice (const :tag "Use `bind-key.el'." 'bind-key)
                  (const :tag "No backend, disable `:bind'." nil))
@@ -91,25 +90,7 @@
     :autoload `(,@(when (car leaf--value)
                     (mapcar (lambda (elm) `(autoload #',(car elm) ,(cdr elm) nil t)) (nreverse leaf--autoload)))
                 ,@leaf--body)
-    :ensure `(,@(mapcar
-                 (lambda (elm)
-                   (let ((pkg `',(car elm))
-                         (pin (cdr elm)))
-                     (cond
-                      ((eq leaf-backend-ensure 'package)
-                       `(unless (package-installed-p ,pkg)
-                          (condition-case-unless-debug err
-                              (if (assoc ,pkg package-archive-contents)
-                                  (package-install ,pkg)
-                                (package-refresh-contents)
-                                (package-install ,pkg))
-                            (error
-                             (display-warning 'leaf
-                                              (format "Failed to install %s: %s"
-                                                      ,pkg (error-message-string err))
-                                              :error))))))))
-                 leaf--value)
-              ,@leaf--body)
+    :ensure `(,@(mapcar (lambda (elm) `(leaf-meta-handler-ensure ,leaf--name ',(car elm) ,(cdr elm))) leaf--value) ,@leaf--body)
     :doc `(,@leaf--body) :file `(,@leaf--body) :url `(,@leaf--body)
 
     :load-path `(,@(mapcar (lambda (elm) `(add-to-list 'load-path ,elm)) leaf--value) ,@leaf--body)
@@ -264,8 +245,10 @@ Sort by `leaf-sort-leaf--values-plist' in this order.")
                    ((leaf-pairp elm)
                     (if (listp (car elm))
                         (progn
-                          (dolist (el (car elm))
-                            (setq ret (funcall fn `(,el . ,(cdr elm)) ret)))
+                          (if (leaf-dotlistp (car elm))
+                              (setq ret (funcall fn (car elm) ret))
+                            (dolist (el (car elm))
+                              (setq ret (funcall fn `(,el . ,(cdr elm)) ret))))
                           ret)
                       (if (member elm ret)
                           ret
@@ -428,6 +411,27 @@ Don't call this function directory."
   (let ((target `(,fn . ,(symbol-name pkg))))
     (when (not (member target leaf--autoload))
       (setq leaf--autoload (cons target leaf--autoload)))))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;
+;;  Meta handler
+;;
+
+(defmacro leaf-meta-handler-ensure (name pkg pin)
+  "Meta handler for PKG from PIN in NAME leaf block."
+  (cond
+   ((eq leaf-backend-ensure 'package)
+    `(unless (package-installed-p ,pkg)
+       (condition-case-unless-debug err
+           (if (assoc ,pkg package-archive-contents)
+               (package-install ,pkg)
+             (package-refresh-contents)
+             (package-install ,pkg))
+         (error
+          (display-warning 'leaf
+                           (format "Failed to install %s: %s"
+                                   ,pkg (error-message-string err))
+                           :error)))))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
