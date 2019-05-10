@@ -60,12 +60,6 @@
                  (const :tag "No backend, disable `:bind'." nil))
   :group 'leaf)
 
-(defcustom leaf-backend-bind* (if (require 'leaf-key nil t) 'leaf-key 'bind-key)
-  "Backend to process `:bind*' keyword."
-  :type '(choice (const :tag "Use `bind-key.el'." 'bind-key)
-                 (const :tag "No backend, disable `:bind'." nil))
-  :group 'leaf)
-
 (defcustom leaf-options-ensure-default-pin nil
   "Option :ensure pin default.
 'nil is using package manager default."
@@ -118,11 +112,11 @@
     :bind
     (progn
       (mapc (lambda (elm) (leaf-register-autoload (cdar (last elm)) leaf--name)) leaf--value)
-      `(,@(mapcar (lambda (elm) `(bind-keys ,@elm)) leaf--value) ,@leaf--body))
+      `(,@(mapcar (lambda (elm) `(leaf-meta-handler-bind ,leaf--name ,elm)) leaf--value) ,@leaf--body))
     :bind*
     (progn
       (mapc (lambda (elm) (leaf-register-autoload (cdar (last elm)) leaf--name)) leaf--value)
-      `(,@(mapcar (lambda (elm) `(bind-keys* ,@elm)) leaf--value) ,@leaf--body))
+      `(,@(mapcar (lambda (elm) `(leaf-meta-handler-bind* ,leaf--name ,elm)) leaf--value) ,@leaf--body))
 
     :mode
     (progn
@@ -432,6 +426,18 @@ Don't call this function directory."
                            (format "Failed to install %s: %s"
                                    ,pkg (error-message-string err))
                            :error)))))))
+
+(defmacro leaf-meta-handler-bind (_name elm)
+  "Meta handler for NAME with ELM."
+  (cond
+   ((eq leaf-backend-bind 'bind-key)
+    `(bind-keys ,@elm))))
+
+(defmacro leaf-meta-handler-bind (_name elm)
+  "Meta handler for NAME with ELM."
+  (cond
+   ((eq leaf-backend-bind 'bind-key)
+    `(bind-keys* ,@elm))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
