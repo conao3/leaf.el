@@ -424,7 +424,7 @@ Don't call this function directory."
    ((eq leaf-backend-bind 'bind-key)
     `(bind-keys ,@elm))))
 
-(defmacro leaf-meta-handler-bind (_name elm)
+(defmacro leaf-meta-handler-bind* (_name elm)
   "Meta handler for NAME with ELM."
   (cond
    ((eq leaf-backend-bind 'bind-key)
