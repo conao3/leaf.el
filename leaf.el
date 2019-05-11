@@ -402,7 +402,7 @@ Don't call this function directory."
 ;;  Meta handler
 ;;
 
-(defmacro leaf-meta-handler-ensure (name pkg pin)
+(defmacro leaf-meta-handler-ensure (_name pkg _pin)
   "Meta handler for PKG from PIN in NAME leaf block."
   (cond
    ((eq leaf-backend-ensure 'package)
