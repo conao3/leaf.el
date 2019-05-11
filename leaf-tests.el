@@ -1323,15 +1323,7 @@ Example
      (progn
        (require 'leaf)
        (setq leaf-backend-bind 'bind-key)
-       (setq leaf-backend-bind* 'bind-key)))
-
-    ((leaf leaf
-       :setq ((leaf-backend-bind . leaf-nil) leaf-backend-bind* . 'bind-keys)
-       :require t)
-     (progn
-       (require 'leaf)
-       (setq leaf-backend-bind nil)
-       (setq leaf-backend-bind* 'bind-keys)))))
+       (setq leaf-backend-bind* 'bind-key)))))
 
 (cort-deftest-with-macroexpand leaf/setq-default
   '(((leaf alloc
