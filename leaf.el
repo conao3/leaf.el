@@ -262,13 +262,13 @@ Don't call this function directory."
   "Meta handler for NAME with ELM."
   (cond
    ((eq leaf-backend-bind 'bind-key)
-    `(bind-keys ,@elm))))
+    `(bind-keys ,@(delq :bind elm)))))
 
 (defmacro leaf-meta-handler-bind* (_name elm)
   "Meta handler for NAME with ELM."
   (cond
    ((eq leaf-backend-bind 'bind-key)
-    `(bind-keys* ,@elm))))
+    `(bind-keys* ,@(delq :bind elm)))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
