@@ -152,12 +152,14 @@ Sort by `leaf-sort-leaf--values-plist' in this order.")
        (if (eq nil (car ret))
            nil
          (delete-dups (delq nil (leaf-subst t leaf--name ret))))))
+
     ((memq leaf--key '(:load-path :commands :after :defvar))
      ;; Accept: 't, 'nil, symbol and list of these (and nested)
      ;; Return: symbol list.
      ;; Note  : 'nil is just ignored
      ;;         remove duplicate element
      (delete-dups (delq nil (leaf-flatten leaf--value))))
+
     ((memq leaf--key (cdr '(:dummy
                             :ensure
                             :hook :mode :interpreter :magic :magic-fallback :defun
@@ -179,6 +181,7 @@ Sort by `leaf-sort-leaf--values-plist' in this order.")
                 (t
                  elm)))
              (mapcan #'leaf-normalize-list-in-list leaf--value)))
+
     ((memq leaf--key '(:bind :bind*))
      ;; Accept: list of pair (bind . func),
      ;;         ([:{{hoge}}-map] [:package {{pkg}}](bind . func) (bind . func) ...)
@@ -196,8 +199,10 @@ Sort by `leaf-sort-leaf--values-plist' in this order.")
                              `(:package ,leaf--name :map ,map :bind ,el)))
                          (cdr elm)))))
              leaf--value))
+
     ((memq leaf--key '(:disabled :if :when :unless :doc :file :url :preface :init :config))
      leaf--value)
+
     (t
      leaf--value))
   "Normarize rule")
