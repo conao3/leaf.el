@@ -248,9 +248,9 @@ Don't call this function directory."
    ((eq leaf-backend-ensure 'package)
     `(unless (package-installed-p ,pkg)
        (condition-case-unless-debug err
-           (if (assoc ,pkg package-archive-contents)
-               (package-install ,pkg)
-             (package-refresh-contents)
+           (progn
+             (unless (assoc ,pkg package-archive-contents)
+               (package-refresh-contents))
              (package-install ,pkg))
          (error
           (display-warning 'leaf
