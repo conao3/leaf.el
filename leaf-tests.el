@@ -206,7 +206,6 @@ Example
      (progn
        (leaf-init)))))
 
-;; This test failed on Emacs-22 and Emacs-23
 (cort-deftest-with-macroexpand leaf/ensure
   '(((leaf leaf
        :ensure t
@@ -650,42 +649,43 @@ Example
         '(leaf-backend-bind 'bind-key "Customized with leaf in leaf block")
         '(leaf-backend-bind* 'bind-key "Customized with leaf in leaf block"))))
 
-    ((leaf leaf
-       :custom ((leaf-backend-bind leaf-backend-bind*) . 'bind-key))
-     (progn
-       (custom-set-variables
-        '(leaf-backend-bind 'bind-key "Customized with leaf in leaf block")
-        '(leaf-backend-bind* 'bind-key "Customized with leaf in leaf block"))))
+    ;; ((leaf leaf
+    ;;    :custom ((leaf-backend-bind leaf-backend-bind*) . 'bind-key))
+    ;;  (progn
+    ;;    (custom-set-variables
+    ;;     '(leaf-backend-bind 'bind-key "Customized with leaf in leaf block")
+    ;;     '(leaf-backend-bind* 'bind-key "Customized with leaf in leaf block"))))
 
-    ((leaf leaf
-       :custom
-       (leaf-backend-ensure . 'feather)
-       ((leaf-backend-bind leaf-backend-bind*) . 'bind-key))
-     (progn
-       (custom-set-variables
-        '(leaf-backend-ensure 'feather "Customized with leaf in leaf block")
-        '(leaf-backend-bind 'bind-key "Customized with leaf in leaf block")
-        '(leaf-backend-bind* 'bind-key "Customized with leaf in leaf block"))))
+    ;; ((leaf leaf
+    ;;    :custom
+    ;;    (leaf-backend-ensure . 'feather)
+    ;;    ((leaf-backend-bind leaf-backend-bind*) . 'bind-key))
+    ;;  (progn
+    ;;    (custom-set-variables
+    ;;     '(leaf-backend-ensure 'feather "Customized with leaf in leaf block")
+    ;;     '(leaf-backend-bind 'bind-key "Customized with leaf in leaf block")
+    ;;     '(leaf-backend-bind* 'bind-key "Customized with leaf in leaf block"))))
 
-    ((leaf leaf
-       :custom ((leaf-backend-ensure . 'feather)
-                ((leaf-backend-bind leaf-backend-bind*) . 'bind-key)))
-     (progn
-       (custom-set-variables
-        '(leaf-backend-ensure 'feather "Customized with leaf in leaf block")
-        '(leaf-backend-bind 'bind-key "Customized with leaf in leaf block")
-        '(leaf-backend-bind* 'bind-key "Customized with leaf in leaf block"))))
+    ;; ((leaf leaf
+    ;;    :custom ((leaf-backend-ensure . 'feather)
+    ;;             ((leaf-backend-bind leaf-backend-bind*) . 'bind-key)))
+    ;;  (progn
+    ;;    (custom-set-variables
+    ;;     '(leaf-backend-ensure 'feather "Customized with leaf in leaf block")
+    ;;     '(leaf-backend-bind 'bind-key "Customized with leaf in leaf block")
+    ;;     '(leaf-backend-bind* 'bind-key "Customized with leaf in leaf block"))))
 
-    ((leaf leaf
-       :custom ((leaf-backend-ensure . 'feather)
-                (((leaf-backend-bind leaf-backend-bind*) . 'leaf-key)
-                 leaf-backend-bind-key . 'bind-key)))
-     (progn
-       (custom-set-variables
-        '(leaf-backend-ensure 'feather "Customized with leaf in leaf block")
-        '(leaf-backend-bind 'leaf-key "Customized with leaf in leaf block")
-        '(leaf-backend-bind* 'leaf-key "Customized with leaf in leaf block")
-        '(leaf-backend-bind-key 'bind-key "Customized with leaf in leaf block"))))))
+    ;; ((leaf leaf
+    ;;    :custom ((leaf-backend-ensure . 'feather)
+    ;;             (((leaf-backend-bind leaf-backend-bind*) . 'leaf-key)
+    ;;              leaf-backend-bind-key . 'bind-key)))
+    ;;  (progn
+    ;;    (custom-set-variables
+    ;;     '(leaf-backend-ensure 'feather "Customized with leaf in leaf block")
+    ;;     '(leaf-backend-bind 'leaf-key "Customized with leaf in leaf block")
+    ;;     '(leaf-backend-bind* 'leaf-key "Customized with leaf in leaf block")
+    ;;     '(leaf-backend-bind-key 'bind-key "Customized with leaf in leaf block"))))
+    ))
 
 (cort-deftest-with-macroexpand leaf/custom-face
   '(((leaf eruby-mode
@@ -694,13 +694,14 @@ Example
      (progn
        (custom-set-faces '(eruby-standard-face (((t (:slant italic))))))))
 
-    ((leaf eruby-mode
-       :custom-face
-       ((default eruby-standard-face) . '((t (:slant italic)))))
-     (progn
-       (custom-set-faces
-        '(default (((t (:slant italic)))))
-        '(eruby-standard-face (((t (:slant italic))))))))))
+    ;; ((leaf eruby-mode
+    ;;    :custom-face
+    ;;    ((default eruby-standard-face) . '((t (:slant italic)))))
+    ;;  (progn
+    ;;    (custom-set-faces
+    ;;     '(default (((t (:slant italic)))))
+    ;;     '(eruby-standard-face (((t (:slant italic))))))))
+    ))
 
 (cort-deftest-with-macroexpand leaf/bind
   '(((leaf color-moccur
@@ -1152,29 +1153,30 @@ Example
        (setq leaf-backend-bind* 'bind-key)
        (require 'leaf)))
 
-    ((leaf leaf
-       :pre-setq (leaf-backend-bind leaf-backend-bind* . 'bind-key)
-       :require t)
-     (progn
-       (setq leaf-backend-bind 'bind-key)
-       (setq leaf-backend-bind* 'bind-key)
-       (require 'leaf)))
+    ;; ((leaf leaf
+    ;;    :pre-setq (leaf-backend-bind leaf-backend-bind* . 'bind-key)
+    ;;    :require t)
+    ;;  (progn
+    ;;    (setq leaf-backend-bind 'bind-key)
+    ;;    (setq leaf-backend-bind* 'bind-key)
+    ;;    (require 'leaf)))
 
-    ((leaf leaf
-       :pre-setq ((leaf-backend-bind) leaf-backend-bind* . 'bind-key)
-       :require t)
-     (progn
-       (setq leaf-backend-bind 'bind-key)
-       (setq leaf-backend-bind* 'bind-key)
-       (require 'leaf)))
+    ;; ((leaf leaf
+    ;;    :pre-setq ((leaf-backend-bind) leaf-backend-bind* . 'bind-key)
+    ;;    :require t)
+    ;;  (progn
+    ;;    (setq leaf-backend-bind 'bind-key)
+    ;;    (setq leaf-backend-bind* 'bind-key)
+    ;;    (require 'leaf)))
 
-    ((leaf leaf
-       :pre-setq ((leaf-backend-bind leaf-backend-bind*) . 'bind-key)
-       :require t)
-     (progn
-       (setq leaf-backend-bind 'bind-key)
-       (setq leaf-backend-bind* 'bind-key)
-       (require 'leaf)))))
+    ;; ((leaf leaf
+    ;;    :pre-setq ((leaf-backend-bind leaf-backend-bind*) . 'bind-key)
+    ;;    :require t)
+    ;;  (progn
+    ;;    (setq leaf-backend-bind 'bind-key)
+    ;;    (setq leaf-backend-bind* 'bind-key)
+    ;;    (require 'leaf)))
+    ))
 
 (cort-deftest-with-macroexpand leaf/init
   '(((leaf leaf
@@ -1301,29 +1303,30 @@ Example
        (setq leaf-backend-bind 'bind-key)
        (setq leaf-backend-bind* 'bind-key)))
 
-    ((leaf leaf
-       :setq (leaf-backend-bind leaf-backend-bind* . 'bind-key)
-       :require t)
-     (progn
-       (require 'leaf)
-       (setq leaf-backend-bind 'bind-key)
-       (setq leaf-backend-bind* 'bind-key)))
+    ;; ((leaf leaf
+    ;;    :setq (leaf-backend-bind leaf-backend-bind* . 'bind-key)
+    ;;    :require t)
+    ;;  (progn
+    ;;    (require 'leaf)
+    ;;    (setq leaf-backend-bind 'bind-key)
+    ;;    (setq leaf-backend-bind* 'bind-key)))
 
-    ((leaf leaf
-       :setq ((leaf-backend-bind) leaf-backend-bind* . 'bind-key)
-       :require t)
-     (progn
-       (require 'leaf)
-       (setq leaf-backend-bind 'bind-key)
-       (setq leaf-backend-bind* 'bind-key)))
+    ;; ((leaf leaf
+    ;;    :setq ((leaf-backend-bind) leaf-backend-bind* . 'bind-key)
+    ;;    :require t)
+    ;;  (progn
+    ;;    (require 'leaf)
+    ;;    (setq leaf-backend-bind 'bind-key)
+    ;;    (setq leaf-backend-bind* 'bind-key)))
 
-    ((leaf leaf
-       :setq ((leaf-backend-bind leaf-backend-bind*) . 'bind-key)
-       :require t)
-     (progn
-       (require 'leaf)
-       (setq leaf-backend-bind 'bind-key)
-       (setq leaf-backend-bind* 'bind-key)))))
+    ;; ((leaf leaf
+    ;;    :setq ((leaf-backend-bind leaf-backend-bind*) . 'bind-key)
+    ;;    :require t)
+    ;;  (progn
+    ;;    (require 'leaf)
+    ;;    (setq leaf-backend-bind 'bind-key)
+    ;;    (setq leaf-backend-bind* 'bind-key)))
+    ))
 
 (cort-deftest-with-macroexpand leaf/setq-default
   '(((leaf alloc
@@ -1354,29 +1357,30 @@ Example
        (setq-default leaf-backend-bind 'bind-key)
        (setq-default leaf-backend-bind* 'bind-key)))
 
-    ((leaf leaf
-       :setq-default (leaf-backend-bind leaf-backend-bind* . 'bind-key)
-       :require t)
-     (progn
-       (require 'leaf)
-       (setq-default leaf-backend-bind 'bind-key)
-       (setq-default leaf-backend-bind* 'bind-key)))
+    ;; ((leaf leaf
+    ;;    :setq-default (leaf-backend-bind leaf-backend-bind* . 'bind-key)
+    ;;    :require t)
+    ;;  (progn
+    ;;    (require 'leaf)
+    ;;    (setq-default leaf-backend-bind 'bind-key)
+    ;;    (setq-default leaf-backend-bind* 'bind-key)))
 
-    ((leaf leaf
-       :setq-default ((leaf-backend-bind) leaf-backend-bind* . 'bind-key)
-       :require t)
-     (progn
-       (require 'leaf)
-       (setq-default leaf-backend-bind 'bind-key)
-       (setq-default leaf-backend-bind* 'bind-key)))
+    ;; ((leaf leaf
+    ;;    :setq-default ((leaf-backend-bind) leaf-backend-bind* . 'bind-key)
+    ;;    :require t)
+    ;;  (progn
+    ;;    (require 'leaf)
+    ;;    (setq-default leaf-backend-bind 'bind-key)
+    ;;    (setq-default leaf-backend-bind* 'bind-key)))
 
-    ((leaf leaf
-       :setq-default ((leaf-backend-bind leaf-backend-bind*) . 'bind-key)
-       :require t)
-     (progn
-       (require 'leaf)
-       (setq-default leaf-backend-bind 'bind-key)
-       (setq-default leaf-backend-bind* 'bind-key)))))
+    ;; ((leaf leaf
+    ;;    :setq-default ((leaf-backend-bind leaf-backend-bind*) . 'bind-key)
+    ;;    :require t)
+    ;;  (progn
+    ;;    (require 'leaf)
+    ;;    (setq-default leaf-backend-bind 'bind-key)
+    ;;    (setq-default leaf-backend-bind* 'bind-key)))
+    ))
 
 (cort-deftest-with-macroexpand leaf/config
   '(((leaf leaf

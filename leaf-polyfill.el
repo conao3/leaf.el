@@ -36,6 +36,9 @@
 `mapcan' uses `nconc', but Emacs-22 doesn't support it."
   (apply #'append (apply #'mapcar func seq rest)))
 
+(unless (fboundp 'mapcan)
+  (defalias 'mapcan 'leaf-mapcaappend))
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
 ;;  General functions
@@ -48,12 +51,15 @@
 (defsubst leaf-pairp (var &optional allow)
   "Return t if VAR is pair.  If ALLOW is non-nil, allow nil as last element"
   (and (listp var)
-       (atom (cdr var))
-       (if allow t (not (null (cdr var))))))
+       (or (atom (cdr var))                  ; (a . b)
+           (and (= 3 (safe-length var))      ; (a . 'b) => (a quote b)
+                (eq 'quote (cadr var))))
+       (if allow t (not (null (cdr var)))))) ; (a . nil) => (a)
 
 (defsubst leaf-dotlistp (var)
   "Return t if VAR is doted list (last arg of list is not 'nil)."
-  (not (eq nil (cdr (last var)))))
+  (or (leaf-pairp (last var))           ; (a b c . d) => (pairp '(c . d))
+      (leaf-pairp (last var 3))))       ; (a b c . 'd) => (pairp '(c . 'd))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;

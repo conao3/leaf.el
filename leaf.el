@@ -303,64 +303,7 @@ Sort by `leaf-sort-leaf--values-plist' in this order.")
      ;; Return: list of pair (sym . val)
      ;; Note  : atom ('t, 'nil, symbol) is just ignored
      ;;         remove duplicate configure
-     (let ((ret) (fn))
-       (setq fn (lambda (elm ret)
-                  (cond
-                   ((atom elm)
-                    ret)
-                   ((leaf-pairp elm)
-                    (if (listp (car elm))
-                        (progn
-                          (dolist (el (car elm))
-                            (setq ret (funcall fn `(,el . ,(cdr elm)) ret)))
-                          ret)
-                      (if (member elm ret)
-                          ret
-                        (cons elm ret))))
-                   ((leaf-pairp elm)
-                    (let ((tail (cdr elm)))
-                      (if (listp (car elm))
-                          (progn
-                            (dolist (el (car elm))
-                              (let ((target `(,el . ,tail)))
-                                (if (member target ret)
-                                    ret
-                                  (setq ret (cons target ret)))))
-                            ret)
-                        (let ((target `(,(car elm) . ,tail)))
-                          (if (member target ret)
-                              ret
-                            (cons target ret))))))
-                   ((member `',(nth (- (safe-length elm) 2) elm) '('quote 'function))
-                    (let ((tail (nthcdr (- (safe-length elm) 2) elm)))
-                      (while (not (= 2 (safe-length elm)))
-                        (if (and (listp (car elm))
-                                 (or (leaf-dotlistp (car elm))
-                                     (member `',(nth (- (safe-length (car elm)) 2) (car elm)) '('quote 'function))))
-                            (setq ret (funcall fn (car elm) ret))
-                          (if (listp (car elm))
-                              (setq ret (funcall fn `(,@(car elm) . ,tail) ret))
-                            (let ((target `(,(car elm) . ,tail)))
-                              (if (member target ret)
-                                  ret
-                                (setq ret (cons target ret))))))
-                        (pop elm))
-                      ret))
-                   ((leaf-dotlistp elm)
-                    (let ((tail (nthcdr (safe-length elm) elm)))
-                      (while (not (atom elm))
-                        (setq ret (funcall fn `(,(car elm) . ,tail) ret))
-                        (pop elm))
-                      ret))
-                   ((listp elm)
-                    (dolist (el elm)
-                      (setq ret (funcall fn el ret)))
-                    ret)
-                   (t
-                    (warn (format "Value %s is malformed." leaf--value))))))
-       (dolist (elm leaf--value)
-         (setq ret (funcall fn elm ret)))
-       (nreverse ret)))
+     (mapcan #'leaf-normalize-list-in-list leaf--value))
     ((memq leaf--key '(:disabled :if :when :unless :doc :file :url :preface :init :config))
      leaf--value)
     (t
@@ -477,6 +420,16 @@ Don't call this function directory."
       (warn (format "%s already exists in `leaf-keywords'" target))
     (setq leaf-keywords
           (leaf-insert-after leaf-keywords target aelm))))
+
+(defun leaf-normalize-list-in-list (lst)
+  "Return normarized list from LST."
+  (cond
+   ((or (atom lst))
+    (list (list lst)))
+   ((or (atom (car lst)) (leaf-pairp lst))
+    (list lst))
+   (t
+    lst)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
