@@ -239,6 +239,11 @@ Don't call this function directory."
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
+;;  Support functions
+;;
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;
 ;;  Meta handler
 ;;
 
@@ -269,11 +274,6 @@ Don't call this function directory."
   (cond
    ((eq leaf-backend-bind 'bind-key)
     `(bind-keys* ,@(delq :bind elm)))))
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;
-;;  Support functions
-;;
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
