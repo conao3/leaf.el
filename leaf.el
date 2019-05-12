@@ -253,57 +253,24 @@ Sort by `leaf-sort-leaf--values-plist' in this order.")
        (dolist (elm leaf--value)
          (setq ret (funcall fn elm ret)))
        (nreverse ret)))
-    ((memq leaf--key '(:hook :mode :interpreter :magic :magic-fallback :defun))
-     ;; Accept: func, (hook . func), ((hook hook ...) . func),
-     ;;         (hook hook ... . func) and list of these (and nested)
-     ;; Return: list of pair (hook . func).
-     ;; Note  : if omit hook, use leaf--name as hook
-     ;;         remove duplicate configure
-     ;;         't and 'nil are just ignored
-     (let ((ret) (fn))
-       (setq fn (lambda (elm ret)
-                  (cond
-                   ((eq t elm)
-                    ret)
-                   ((eq nil elm)
-                    ret)
-                   ((atom elm)
-                    (let ((sym `(,elm . ,leaf--name)))
-                      (if (member sym ret)
-                          ret
-                        (cons sym ret))))
-                   ((leaf-pairp elm)
-                    (if (listp (car elm))
-                        (progn
-                          (if (leaf-dotlistp (car elm))
-                              (setq ret (funcall fn (car elm) ret))
-                            (dolist (el (car elm))
-                              (setq ret (funcall fn `(,el . ,(cdr elm)) ret))))
-                          ret)
-                      (if (member elm ret)
-                          ret
-                        (cons elm ret))))
-                   ((leaf-dotlistp elm)
-                    (let ((tail (nthcdr (safe-length elm) elm)))
-                      (while (not (atom elm))
-                        (setq ret (funcall fn `(,(car elm) . ,tail) ret))
-                        (pop elm))
-                      ret))
-                   ((listp elm)
-                    (dolist (el elm)
-                      (setq ret (funcall fn el ret)))
-                    ret)
-                   (t
-                    (warn (format "Value %s is malformed." leaf--value))))))
-       (dolist (elm leaf--value)
-         (setq ret (funcall fn elm ret)))
-       (nreverse ret)))
-    ((memq leaf--key '(:setq :pre-setq :setq-default :custom :custom-face))
+    ((memq leaf--key (cdr '(:dummy
+                            :hook :mode :interpreter :magic :magic-fallback :defun
+                            :setq :pre-setq :setq-default :custom :custom-face)))
      ;; Accept: (sym . val), ((sym sym ...) . val), (sym sym ... . val)
      ;; Return: list of pair (sym . val)
      ;; Note  : atom ('t, 'nil, symbol) is just ignored
      ;;         remove duplicate configure
-     (mapcan #'leaf-normalize-list-in-list leaf--value))
+     (mapcar (lambda (elm)
+               (cond
+                ((leaf-pairp elm)
+                 elm)
+                ((memq leaf--key '(:hook :mode :interpreter :magic :magic-fallback :defun))
+                 `(,elm . ,leaf--name))
+                ((memq leaf--key '(:setq :pre-setq :setq-default :custom :custom-face))
+                 (error "malformed."))
+                (t
+                 elm)))
+             (mapcan #'leaf-normalize-list-in-list leaf--value)))
     ((memq leaf--key '(:disabled :if :when :unless :doc :file :url :preface :init :config))
      leaf--value)
     (t
@@ -423,13 +390,9 @@ Don't call this function directory."
 
 (defun leaf-normalize-list-in-list (lst)
   "Return normarized list from LST."
-  (cond
-   ((or (atom lst))
-    (list (list lst)))
-   ((or (atom (car lst)) (leaf-pairp lst))
-    (list lst))
-   (t
-    lst)))
+  (if (or (atom lst) (leaf-pairp lst))
+      (list lst)
+    lst))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
