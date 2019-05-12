@@ -158,23 +158,6 @@ Sort by `leaf-sort-leaf--values-plist' in this order.")
      ;; Note  : 'nil is just ignored
      ;;         remove duplicate element
      (delete-dups (delq nil (leaf-flatten leaf--value))))
-    ((memq leaf--key '(:bind :bind*))
-     ;; Accept: list of pair (bind . func),
-     ;;         ([:{{hoge}}-map] [:package {{pkg}}](bind . func) (bind . func) ...)
-     ;;         optional, [:{{hoge}}-map] [:package {{pkg}}]
-     ;; Return: list of ([:{{hoge}}-map] [:package {{pkg}}] (bind . func))
-     (mapcan (lambda (elm)
-               (cond
-                ((leaf-pairp elm)
-                 (list `(:package ,leaf--name :bind ,elm)))
-                ((not (keywordp (car elm)))
-                 (mapcar (lambda (el) `(:package ,leaf--name :bind ,el)) elm))
-                (t
-                 (mapcar (lambda (el)
-                           (let ((map (intern (substring (symbol-name (car elm)) 1))))
-                             `(:package ,leaf--name :map ,map :bind ,el)))
-                         (cdr elm)))))
-             leaf--value))
     ((memq leaf--key (cdr '(:dummy
                             :ensure
                             :hook :mode :interpreter :magic :magic-fallback :defun
@@ -196,6 +179,23 @@ Sort by `leaf-sort-leaf--values-plist' in this order.")
                 (t
                  elm)))
              (mapcan #'leaf-normalize-list-in-list leaf--value)))
+    ((memq leaf--key '(:bind :bind*))
+     ;; Accept: list of pair (bind . func),
+     ;;         ([:{{hoge}}-map] [:package {{pkg}}](bind . func) (bind . func) ...)
+     ;;         optional, [:{{hoge}}-map] [:package {{pkg}}]
+     ;; Return: list of ([:{{hoge}}-map] [:package {{pkg}}] (bind . func))
+     (mapcan (lambda (elm)
+               (cond
+                ((leaf-pairp elm)
+                 (list `(:package ,leaf--name :bind ,elm)))
+                ((not (keywordp (car elm)))
+                 (mapcar (lambda (el) `(:package ,leaf--name :bind ,el)) elm))
+                (t
+                 (mapcar (lambda (el)
+                           (let ((map (intern (substring (symbol-name (car elm)) 1))))
+                             `(:package ,leaf--name :map ,map :bind ,el)))
+                         (cdr elm)))))
+             leaf--value))
     ((memq leaf--key '(:disabled :if :when :unless :doc :file :url :preface :init :config))
      leaf--value)
     (t
