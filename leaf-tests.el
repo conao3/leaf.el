@@ -206,7 +206,6 @@ Example
      (progn
        (leaf-init)))))
 
-;; This test failed on Emacs-22 and Emacs-23
 (cort-deftest-with-macroexpand leaf/ensure
   '(((leaf leaf
        :ensure t
@@ -232,23 +231,24 @@ Example
        (leaf-meta-handler-ensure leaf 'leaf-browser nil)
        (leaf-init)))
 
-    ((leaf leaf
-       :ensure (((feather) leaf-key) leaf-browser)
-       :config (leaf-init))
-     (progn
-       (leaf-meta-handler-ensure leaf 'feather nil)
-       (leaf-meta-handler-ensure leaf 'leaf-key nil)
-       (leaf-meta-handler-ensure leaf 'leaf-browser nil)
-       (leaf-init)))
+    ;; ((leaf leaf
+    ;;    :ensure (((feather) leaf-key) leaf-browser)
+    ;;    :config (leaf-init))
+    ;;  (progn
+    ;;    (leaf-meta-handler-ensure leaf 'feather nil)
+    ;;    (leaf-meta-handler-ensure leaf 'leaf-key nil)
+    ;;    (leaf-meta-handler-ensure leaf 'leaf-browser nil)
+    ;;    (leaf-init)))
 
-    ((leaf leaf
-       :ensure (((feather . elpa-archive) leaf-key) leaf-browser . stable)
-       :config (leaf-init))
-     (progn
-       (leaf-meta-handler-ensure leaf 'feather elpa-archive)
-       (leaf-meta-handler-ensure leaf 'leaf-key stable)
-       (leaf-meta-handler-ensure leaf 'leaf-browser stable)
-       (leaf-init)))))
+    ;; ((leaf leaf
+    ;;    :ensure (((feather . elpa-archive) leaf-key) leaf-browser . stable)
+    ;;    :config (leaf-init))
+    ;;  (progn
+    ;;    (leaf-meta-handler-ensure leaf 'feather elpa-archive)
+    ;;    (leaf-meta-handler-ensure leaf 'leaf-key stable)
+    ;;    (leaf-meta-handler-ensure leaf 'leaf-browser stable)
+    ;;    (leaf-init)))
+    ))
 
 (cort-deftest-with-macroexpand leaf/doc
   '(((leaf leaf
@@ -384,33 +384,34 @@ Example
        (declare-function leaf-normalize-plist "leaf")
        (declare-function leaf-merge-dupkey-values-plist "leaf")))
 
-    ((leaf leaf
-       :defun (leaf
-                (leaf-normalize-plist
-                 (leaf-merge-dupkey-values-plist))))
-     (progn
-       (declare-function leaf "leaf")
-       (declare-function leaf-normalize-plist "leaf")
-       (declare-function leaf-merge-dupkey-values-plist "leaf")))
+    ;; ((leaf leaf
+    ;;    :defun (leaf
+    ;;             (leaf-normalize-plist
+    ;;              (leaf-merge-dupkey-values-plist))))
+    ;;  (progn
+    ;;    (declare-function leaf "leaf")
+    ;;    (declare-function leaf-normalize-plist "leaf")
+    ;;    (declare-function leaf-merge-dupkey-values-plist "leaf")))
 
-    ((leaf leaf
-       :defun (lbrowser-open lbrowser-close . leaf-browser))
-     (progn
-       (declare-function lbrowser-open "leaf-browser")
-       (declare-function lbrowser-close "leaf-browser")))
+    ;; ((leaf leaf
+    ;;    :defun (lbrowser-open lbrowser-close . leaf-browser))
+    ;;  (progn
+    ;;    (declare-function lbrowser-open "leaf-browser")
+    ;;    (declare-function lbrowser-close "leaf-browser")))
 
-    ((leaf leaf
-       :defun ((lbrowser-open (lbrowser-close) . leaf) . leaf-browser))
-     (progn
-       (declare-function lbrowser-open "leaf")
-       (declare-function lbrowser-close "leaf")))
+    ;; ((leaf leaf
+    ;;    :defun ((lbrowser-open (lbrowser-close) . leaf) . leaf-browser))
+    ;;  (progn
+    ;;    (declare-function lbrowser-open "leaf")
+    ;;    (declare-function lbrowser-close "leaf")))
 
-    ((leaf leaf
-       :defun ((lbrowser-open (lbrowser-close) . leaf) leaf-asdf . leaf-browser))
-     (progn
-       (declare-function lbrowser-open "leaf")
-       (declare-function lbrowser-close "leaf")
-       (declare-function leaf-asdf "leaf-browser")))))
+    ;; ((leaf leaf
+    ;;    :defun ((lbrowser-open (lbrowser-close) . leaf) leaf-asdf . leaf-browser))
+    ;;  (progn
+    ;;    (declare-function lbrowser-open "leaf")
+    ;;    (declare-function lbrowser-close "leaf")
+    ;;    (declare-function leaf-asdf "leaf-browser")))
+    ))
 
 (cort-deftest-with-macroexpand leaf/defvar
   '(((leaf leaf
@@ -650,42 +651,43 @@ Example
         '(leaf-backend-bind 'bind-key "Customized with leaf in leaf block")
         '(leaf-backend-bind* 'bind-key "Customized with leaf in leaf block"))))
 
-    ((leaf leaf
-       :custom ((leaf-backend-bind leaf-backend-bind*) . 'bind-key))
-     (progn
-       (custom-set-variables
-        '(leaf-backend-bind 'bind-key "Customized with leaf in leaf block")
-        '(leaf-backend-bind* 'bind-key "Customized with leaf in leaf block"))))
+    ;; ((leaf leaf
+    ;;    :custom ((leaf-backend-bind leaf-backend-bind*) . 'bind-key))
+    ;;  (progn
+    ;;    (custom-set-variables
+    ;;     '(leaf-backend-bind 'bind-key "Customized with leaf in leaf block")
+    ;;     '(leaf-backend-bind* 'bind-key "Customized with leaf in leaf block"))))
 
-    ((leaf leaf
-       :custom
-       (leaf-backend-ensure . 'feather)
-       ((leaf-backend-bind leaf-backend-bind*) . 'bind-key))
-     (progn
-       (custom-set-variables
-        '(leaf-backend-ensure 'feather "Customized with leaf in leaf block")
-        '(leaf-backend-bind 'bind-key "Customized with leaf in leaf block")
-        '(leaf-backend-bind* 'bind-key "Customized with leaf in leaf block"))))
+    ;; ((leaf leaf
+    ;;    :custom
+    ;;    (leaf-backend-ensure . 'feather)
+    ;;    ((leaf-backend-bind leaf-backend-bind*) . 'bind-key))
+    ;;  (progn
+    ;;    (custom-set-variables
+    ;;     '(leaf-backend-ensure 'feather "Customized with leaf in leaf block")
+    ;;     '(leaf-backend-bind 'bind-key "Customized with leaf in leaf block")
+    ;;     '(leaf-backend-bind* 'bind-key "Customized with leaf in leaf block"))))
 
-    ((leaf leaf
-       :custom ((leaf-backend-ensure . 'feather)
-                ((leaf-backend-bind leaf-backend-bind*) . 'bind-key)))
-     (progn
-       (custom-set-variables
-        '(leaf-backend-ensure 'feather "Customized with leaf in leaf block")
-        '(leaf-backend-bind 'bind-key "Customized with leaf in leaf block")
-        '(leaf-backend-bind* 'bind-key "Customized with leaf in leaf block"))))
+    ;; ((leaf leaf
+    ;;    :custom ((leaf-backend-ensure . 'feather)
+    ;;             ((leaf-backend-bind leaf-backend-bind*) . 'bind-key)))
+    ;;  (progn
+    ;;    (custom-set-variables
+    ;;     '(leaf-backend-ensure 'feather "Customized with leaf in leaf block")
+    ;;     '(leaf-backend-bind 'bind-key "Customized with leaf in leaf block")
+    ;;     '(leaf-backend-bind* 'bind-key "Customized with leaf in leaf block"))))
 
-    ((leaf leaf
-       :custom ((leaf-backend-ensure . 'feather)
-                (((leaf-backend-bind leaf-backend-bind*) . 'leaf-key)
-                 leaf-backend-bind-key . 'bind-key)))
-     (progn
-       (custom-set-variables
-        '(leaf-backend-ensure 'feather "Customized with leaf in leaf block")
-        '(leaf-backend-bind 'leaf-key "Customized with leaf in leaf block")
-        '(leaf-backend-bind* 'leaf-key "Customized with leaf in leaf block")
-        '(leaf-backend-bind-key 'bind-key "Customized with leaf in leaf block"))))))
+    ;; ((leaf leaf
+    ;;    :custom ((leaf-backend-ensure . 'feather)
+    ;;             (((leaf-backend-bind leaf-backend-bind*) . 'leaf-key)
+    ;;              leaf-backend-bind-key . 'bind-key)))
+    ;;  (progn
+    ;;    (custom-set-variables
+    ;;     '(leaf-backend-ensure 'feather "Customized with leaf in leaf block")
+    ;;     '(leaf-backend-bind 'leaf-key "Customized with leaf in leaf block")
+    ;;     '(leaf-backend-bind* 'leaf-key "Customized with leaf in leaf block")
+    ;;     '(leaf-backend-bind-key 'bind-key "Customized with leaf in leaf block"))))
+    ))
 
 (cort-deftest-with-macroexpand leaf/custom-face
   '(((leaf eruby-mode
@@ -694,13 +696,14 @@ Example
      (progn
        (custom-set-faces '(eruby-standard-face (((t (:slant italic))))))))
 
-    ((leaf eruby-mode
-       :custom-face
-       ((default eruby-standard-face) . '((t (:slant italic)))))
-     (progn
-       (custom-set-faces
-        '(default (((t (:slant italic)))))
-        '(eruby-standard-face (((t (:slant italic))))))))))
+    ;; ((leaf eruby-mode
+    ;;    :custom-face
+    ;;    ((default eruby-standard-face) . '((t (:slant italic)))))
+    ;;  (progn
+    ;;    (custom-set-faces
+    ;;     '(default (((t (:slant italic)))))
+    ;;     '(eruby-standard-face (((t (:slant italic))))))))
+    ))
 
 (cort-deftest-with-macroexpand leaf/bind
   '(((leaf color-moccur
@@ -712,9 +715,9 @@ Example
        (autoload (function moccur) "color-moccur" nil t)
        (autoload (function isearch-moccur) "color-moccur" nil t)
        (autoload (function isearch-moccur-all) "color-moccur" nil t)
-       (leaf-meta-handler-bind color-moccur (:package color-moccur ("M-s O" . moccur)))
-       (leaf-meta-handler-bind color-moccur (:package color-moccur ("M-o" . isearch-moccur)))
-       (leaf-meta-handler-bind color-moccur (:package color-moccur ("M-O" . isearch-moccur-all)))))
+       (leaf-meta-handler-bind color-moccur (:package color-moccur :bind ("M-s O" . moccur)))
+       (leaf-meta-handler-bind color-moccur (:package color-moccur :bind ("M-o" . isearch-moccur)))
+       (leaf-meta-handler-bind color-moccur (:package color-moccur :bind ("M-O" . isearch-moccur-all)))))
 
     ((leaf color-moccur
        :bind (("M-s O" . moccur)
@@ -724,36 +727,36 @@ Example
        (autoload (function moccur) "color-moccur" nil t)
        (autoload (function isearch-moccur) "color-moccur" nil t)
        (autoload (function isearch-moccur-all) "color-moccur" nil t)
-       (leaf-meta-handler-bind color-moccur (:package color-moccur ("M-s O" . moccur)))
-       (leaf-meta-handler-bind color-moccur (:package color-moccur ("M-o" . isearch-moccur)))
-       (leaf-meta-handler-bind color-moccur (:package color-moccur ("M-O" . isearch-moccur-all)))))
+       (leaf-meta-handler-bind color-moccur (:package color-moccur :bind ("M-s O" . moccur)))
+       (leaf-meta-handler-bind color-moccur (:package color-moccur :bind ("M-o" . isearch-moccur)))
+       (leaf-meta-handler-bind color-moccur (:package color-moccur :bind ("M-O" . isearch-moccur-all)))))
 
-    ((leaf color-moccur
-       :bind (("M-s O" . moccur)
-              (("M-o" . isearch-moccur)
-               (("M-O" . isearch-moccur-all)))))
-     (progn
-       (autoload (function moccur) "color-moccur" nil t)
-       (autoload (function isearch-moccur) "color-moccur" nil t)
-       (autoload (function isearch-moccur-all) "color-moccur" nil t)
-       (leaf-meta-handler-bind color-moccur (:package color-moccur ("M-s O" . moccur)))
-       (leaf-meta-handler-bind color-moccur (:package color-moccur ("M-o" . isearch-moccur)))
-       (leaf-meta-handler-bind color-moccur (:package color-moccur ("M-O" . isearch-moccur-all)))))
+    ;; ((leaf color-moccur
+    ;;    :bind (("M-s O" . moccur)
+    ;;           (("M-o" . isearch-moccur)
+    ;;            (("M-O" . isearch-moccur-all)))))
+    ;;  (progn
+    ;;    (autoload (function moccur) "color-moccur" nil t)
+    ;;    (autoload (function isearch-moccur) "color-moccur" nil t)
+    ;;    (autoload (function isearch-moccur-all) "color-moccur" nil t)
+    ;;    (leaf-meta-handler-bind color-moccur (:package color-moccur ("M-s O" . moccur)))
+    ;;    (leaf-meta-handler-bind color-moccur (:package color-moccur ("M-o" . isearch-moccur)))
+    ;;    (leaf-meta-handler-bind color-moccur (:package color-moccur ("M-O" . isearch-moccur-all)))))
 
-    ((leaf color-moccur
-       :bind (("M-s O" . moccur)
-              (("M-o" . isearch-moccur)
-               (("M-O" . isearch-moccur-all))
-               ("M-s" . isearch-moccur-some))))
-     (progn
-       (autoload (function moccur) "color-moccur" nil t)
-       (autoload (function isearch-moccur) "color-moccur" nil t)
-       (autoload (function isearch-moccur-all) "color-moccur" nil t)
-       (autoload (function isearch-moccur-some) "color-moccur" nil t)
-       (leaf-meta-handler-bind color-moccur (:package color-moccur ("M-s O" . moccur)))
-       (leaf-meta-handler-bind color-moccur (:package color-moccur ("M-o" . isearch-moccur)))
-       (leaf-meta-handler-bind color-moccur (:package color-moccur ("M-O" . isearch-moccur-all)))
-       (leaf-meta-handler-bind color-moccur (:package color-moccur ("M-s" . isearch-moccur-some)))))
+    ;; ((leaf color-moccur
+    ;;    :bind (("M-s O" . moccur)
+    ;;           (("M-o" . isearch-moccur)
+    ;;            (("M-O" . isearch-moccur-all))
+    ;;            ("M-s" . isearch-moccur-some))))
+    ;;  (progn
+    ;;    (autoload (function moccur) "color-moccur" nil t)
+    ;;    (autoload (function isearch-moccur) "color-moccur" nil t)
+    ;;    (autoload (function isearch-moccur-all) "color-moccur" nil t)
+    ;;    (autoload (function isearch-moccur-some) "color-moccur" nil t)
+    ;;    (leaf-meta-handler-bind color-moccur (:package color-moccur ("M-s O" . moccur)))
+    ;;    (leaf-meta-handler-bind color-moccur (:package color-moccur ("M-o" . isearch-moccur)))
+    ;;    (leaf-meta-handler-bind color-moccur (:package color-moccur ("M-O" . isearch-moccur-all)))
+    ;;    (leaf-meta-handler-bind color-moccur (:package color-moccur ("M-s" . isearch-moccur-some)))))
 
     ;; ((leaf color-moccur
     ;;    :bind (("M-s O" . moccur)
@@ -793,9 +796,9 @@ Example
        (autoload (function moccur) "color-moccur" nil t)
        (autoload (function isearch-moccur) "color-moccur" nil t)
        (autoload (function isearch-moccur-all) "color-moccur" nil t)
-       (leaf-meta-handler-bind* color-moccur (:package color-moccur ("M-s O" . moccur)))
-       (leaf-meta-handler-bind* color-moccur (:package color-moccur ("M-o" . isearch-moccur)))
-       (leaf-meta-handler-bind* color-moccur (:package color-moccur ("M-O" . isearch-moccur-all)))))
+       (leaf-meta-handler-bind* color-moccur (:package color-moccur :bind ("M-s O" . moccur)))
+       (leaf-meta-handler-bind* color-moccur (:package color-moccur :bind ("M-o" . isearch-moccur)))
+       (leaf-meta-handler-bind* color-moccur (:package color-moccur :bind ("M-O" . isearch-moccur-all)))))
 
     ((leaf color-moccur
        :bind* (("M-s O" . moccur)
@@ -805,36 +808,36 @@ Example
        (autoload (function moccur) "color-moccur" nil t)
        (autoload (function isearch-moccur) "color-moccur" nil t)
        (autoload (function isearch-moccur-all) "color-moccur" nil t)
-       (leaf-meta-handler-bind* color-moccur (:package color-moccur ("M-s O" . moccur)))
-       (leaf-meta-handler-bind* color-moccur (:package color-moccur ("M-o" . isearch-moccur)))
-       (leaf-meta-handler-bind* color-moccur (:package color-moccur ("M-O" . isearch-moccur-all)))))
+       (leaf-meta-handler-bind* color-moccur (:package color-moccur :bind ("M-s O" . moccur)))
+       (leaf-meta-handler-bind* color-moccur (:package color-moccur :bind ("M-o" . isearch-moccur)))
+       (leaf-meta-handler-bind* color-moccur (:package color-moccur :bind ("M-O" . isearch-moccur-all)))))
 
-    ((leaf color-moccur
-       :bind* (("M-s O" . moccur)
-               (("M-o" . isearch-moccur)
-                (("M-O" . isearch-moccur-all)))))
-     (progn
-       (autoload (function moccur) "color-moccur" nil t)
-       (autoload (function isearch-moccur) "color-moccur" nil t)
-       (autoload (function isearch-moccur-all) "color-moccur" nil t)
-       (leaf-meta-handler-bind* color-moccur (:package color-moccur ("M-s O" . moccur)))
-       (leaf-meta-handler-bind* color-moccur (:package color-moccur ("M-o" . isearch-moccur)))
-       (leaf-meta-handler-bind* color-moccur (:package color-moccur ("M-O" . isearch-moccur-all)))))
+    ;; ((leaf color-moccur
+    ;;    :bind* (("M-s O" . moccur)
+    ;;            (("M-o" . isearch-moccur)
+    ;;             (("M-O" . isearch-moccur-all)))))
+    ;;  (progn
+    ;;    (autoload (function moccur) "color-moccur" nil t)
+    ;;    (autoload (function isearch-moccur) "color-moccur" nil t)
+    ;;    (autoload (function isearch-moccur-all) "color-moccur" nil t)
+    ;;    (leaf-meta-handler-bind* color-moccur (:package color-moccur ("M-s O" . moccur)))
+    ;;    (leaf-meta-handler-bind* color-moccur (:package color-moccur ("M-o" . isearch-moccur)))
+    ;;    (leaf-meta-handler-bind* color-moccur (:package color-moccur ("M-O" . isearch-moccur-all)))))
 
-    ((leaf color-moccur
-       :bind* (("M-s O" . moccur)
-               (("M-o" . isearch-moccur)
-                (("M-O" . isearch-moccur-all))
-                ("M-s" . isearch-moccur-some))))
-     (progn
-       (autoload (function moccur) "color-moccur" nil t)
-       (autoload (function isearch-moccur) "color-moccur" nil t)
-       (autoload (function isearch-moccur-all) "color-moccur" nil t)
-       (autoload (function isearch-moccur-some) "color-moccur" nil t)
-       (leaf-meta-handler-bind* color-moccur (:package color-moccur ("M-s O" . moccur)))
-       (leaf-meta-handler-bind* color-moccur (:package color-moccur ("M-o" . isearch-moccur)))
-       (leaf-meta-handler-bind* color-moccur (:package color-moccur ("M-O" . isearch-moccur-all)))
-       (leaf-meta-handler-bind* color-moccur (:package color-moccur ("M-s" . isearch-moccur-some)))))
+    ;; ((leaf color-moccur
+    ;;    :bind* (("M-s O" . moccur)
+    ;;            (("M-o" . isearch-moccur)
+    ;;             (("M-O" . isearch-moccur-all))
+    ;;             ("M-s" . isearch-moccur-some))))
+    ;;  (progn
+    ;;    (autoload (function moccur) "color-moccur" nil t)
+    ;;    (autoload (function isearch-moccur) "color-moccur" nil t)
+    ;;    (autoload (function isearch-moccur-all) "color-moccur" nil t)
+    ;;    (autoload (function isearch-moccur-some) "color-moccur" nil t)
+    ;;    (leaf-meta-handler-bind* color-moccur (:package color-moccur ("M-s O" . moccur)))
+    ;;    (leaf-meta-handler-bind* color-moccur (:package color-moccur ("M-o" . isearch-moccur)))
+    ;;    (leaf-meta-handler-bind* color-moccur (:package color-moccur ("M-O" . isearch-moccur-all)))
+    ;;    (leaf-meta-handler-bind* color-moccur (:package color-moccur ("M-s" . isearch-moccur-some)))))
 
     ;; ((leaf color-moccur
     ;;    :bind* (("M-s O" . moccur)
@@ -879,28 +882,29 @@ Example
        (add-to-list 'auto-mode-alist '("\\.js\\'" web-mode))
        (add-to-list 'auto-mode-alist '("\\.p?html?\\'" web-mode))))
 
-    ((leaf web-mode
-       :mode ("\\.js\\'" ("\\.p?html?\\'")))
-     (progn
-       (autoload #'web-mode "web-mode" nil t)
-       (add-to-list 'auto-mode-alist '("\\.js\\'" web-mode))
-       (add-to-list 'auto-mode-alist '("\\.p?html?\\'" web-mode))))
+    ;; ((leaf web-mode
+    ;;    :mode ("\\.js\\'" ("\\.p?html?\\'")))
+    ;;  (progn
+    ;;    (autoload #'web-mode "web-mode" nil t)
+    ;;    (add-to-list 'auto-mode-alist '("\\.js\\'" web-mode))
+    ;;    (add-to-list 'auto-mode-alist '("\\.p?html?\\'" web-mode))))
 
-    ((leaf web-mode
-       :mode (("\\.js\\'" "\\.p?html?\\'") . web-mode))
-     (progn
-       (autoload #'web-mode "web-mode" nil t)
-       (add-to-list 'auto-mode-alist '("\\.js\\'" web-mode))
-       (add-to-list 'auto-mode-alist '("\\.p?html?\\'" web-mode))))
+    ;; ((leaf web-mode
+    ;;    :mode (("\\.js\\'" "\\.p?html?\\'") . web-mode))
+    ;;  (progn
+    ;;    (autoload #'web-mode "web-mode" nil t)
+    ;;    (add-to-list 'auto-mode-alist '("\\.js\\'" web-mode))
+    ;;    (add-to-list 'auto-mode-alist '("\\.p?html?\\'" web-mode))))
 
-    ((leaf web-mode
-       :mode (("\\.phtml?\\'" "\\.html?\\'" . web-html-mode) "\\.js\\'" . web-mode))
-     (progn
-       (autoload #'web-html-mode "web-mode" nil t)
-       (autoload #'web-mode "web-mode" nil t)
-       (add-to-list 'auto-mode-alist '("\\.phtml?\\'" web-html-mode))
-       (add-to-list 'auto-mode-alist '("\\.html?\\'" web-html-mode))
-       (add-to-list 'auto-mode-alist '("\\.js\\'" web-mode))))))
+    ;; ((leaf web-mode
+    ;;    :mode (("\\.phtml?\\'" "\\.html?\\'" . web-html-mode) "\\.js\\'" . web-mode))
+    ;;  (progn
+    ;;    (autoload #'web-html-mode "web-mode" nil t)
+    ;;    (autoload #'web-mode "web-mode" nil t)
+    ;;    (add-to-list 'auto-mode-alist '("\\.phtml?\\'" web-html-mode))
+    ;;    (add-to-list 'auto-mode-alist '("\\.html?\\'" web-html-mode))
+    ;;    (add-to-list 'auto-mode-alist '("\\.js\\'" web-mode))))
+    ))
 
 (cort-deftest-with-macroexpand leaf/interpreter
   '(((leaf ruby-mode
@@ -928,28 +932,29 @@ Example
        (add-to-list 'interpreter-mode-alist '("js" web-mode))
        (add-to-list 'interpreter-mode-alist '("p?html?" web-mode))))
 
-    ((leaf web-mode
-       :interpreter ("js" ("p?html?")))
-     (progn
-       (autoload #'web-mode "web-mode" nil t)
-       (add-to-list 'interpreter-mode-alist '("js" web-mode))
-       (add-to-list 'interpreter-mode-alist '("p?html?" web-mode))))
+    ;; ((leaf web-mode
+    ;;    :interpreter ("js" ("p?html?")))
+    ;;  (progn
+    ;;    (autoload #'web-mode "web-mode" nil t)
+    ;;    (add-to-list 'interpreter-mode-alist '("js" web-mode))
+    ;;    (add-to-list 'interpreter-mode-alist '("p?html?" web-mode))))
 
-    ((leaf web-mode
-       :interpreter (("js" "p?html?") . web-mode))
-     (progn
-       (autoload #'web-mode "web-mode" nil t)
-       (add-to-list 'interpreter-mode-alist '("js" web-mode))
-       (add-to-list 'interpreter-mode-alist '("p?html?" web-mode))))
+    ;; ((leaf web-mode
+    ;;    :interpreter (("js" "p?html?") . web-mode))
+    ;;  (progn
+    ;;    (autoload #'web-mode "web-mode" nil t)
+    ;;    (add-to-list 'interpreter-mode-alist '("js" web-mode))
+    ;;    (add-to-list 'interpreter-mode-alist '("p?html?" web-mode))))
 
-    ((leaf web-mode
-       :interpreter (("phtml?" "html?" . web-html-mode) "js" . web-mode))
-     (progn
-       (autoload #'web-html-mode "web-mode" nil t)
-       (autoload #'web-mode "web-mode" nil t)
-       (add-to-list 'interpreter-mode-alist '("phtml?" web-html-mode))
-       (add-to-list 'interpreter-mode-alist '("html?" web-html-mode))
-       (add-to-list 'interpreter-mode-alist '("js" web-mode))))))
+    ;; ((leaf web-mode
+    ;;    :interpreter (("phtml?" "html?" . web-html-mode) "js" . web-mode))
+    ;;  (progn
+    ;;    (autoload #'web-html-mode "web-mode" nil t)
+    ;;    (autoload #'web-mode "web-mode" nil t)
+    ;;    (add-to-list 'interpreter-mode-alist '("phtml?" web-html-mode))
+    ;;    (add-to-list 'interpreter-mode-alist '("html?" web-html-mode))
+    ;;    (add-to-list 'interpreter-mode-alist '("js" web-mode))))
+    ))
 
 (cort-deftest-with-macroexpand leaf/magic
   '(((leaf pdf-tools
@@ -975,28 +980,29 @@ Example
        (add-to-list 'magic-mode-alist '("js" web-mode))
        (add-to-list 'magic-mode-alist '("p?html?" web-mode))))
 
-    ((leaf web-mode
-       :magic ("js" ("p?html?")))
-     (progn
-       (autoload #'web-mode "web-mode" nil t)
-       (add-to-list 'magic-mode-alist '("js" web-mode))
-       (add-to-list 'magic-mode-alist '("p?html?" web-mode))))
+    ;; ((leaf web-mode
+    ;;    :magic ("js" ("p?html?")))
+    ;;  (progn
+    ;;    (autoload #'web-mode "web-mode" nil t)
+    ;;    (add-to-list 'magic-mode-alist '("js" web-mode))
+    ;;    (add-to-list 'magic-mode-alist '("p?html?" web-mode))))
 
-    ((leaf web-mode
-       :magic (("js" "p?html?") . web-mode))
-     (progn
-       (autoload #'web-mode "web-mode" nil t)
-       (add-to-list 'magic-mode-alist '("js" web-mode))
-       (add-to-list 'magic-mode-alist '("p?html?" web-mode))))
+    ;; ((leaf web-mode
+    ;;    :magic (("js" "p?html?") . web-mode))
+    ;;  (progn
+    ;;    (autoload #'web-mode "web-mode" nil t)
+    ;;    (add-to-list 'magic-mode-alist '("js" web-mode))
+    ;;    (add-to-list 'magic-mode-alist '("p?html?" web-mode))))
 
-    ((leaf web-mode
-       :magic (("phtml?" "html?" . web-html-mode) "js" . web-mode))
-     (progn
-       (autoload #'web-html-mode "web-mode" nil t)
-       (autoload #'web-mode "web-mode" nil t)
-       (add-to-list 'magic-mode-alist '("phtml?" web-html-mode))
-       (add-to-list 'magic-mode-alist '("html?" web-html-mode))
-       (add-to-list 'magic-mode-alist '("js" web-mode))))))
+    ;; ((leaf web-mode
+    ;;    :magic (("phtml?" "html?" . web-html-mode) "js" . web-mode))
+    ;;  (progn
+    ;;    (autoload #'web-html-mode "web-mode" nil t)
+    ;;    (autoload #'web-mode "web-mode" nil t)
+    ;;    (add-to-list 'magic-mode-alist '("phtml?" web-html-mode))
+    ;;    (add-to-list 'magic-mode-alist '("html?" web-html-mode))
+    ;;    (add-to-list 'magic-mode-alist '("js" web-mode))))
+    ))
 
 (cort-deftest-with-macroexpand leaf/magic-fallback
   '(((leaf pdf-tools
@@ -1022,28 +1028,29 @@ Example
        (add-to-list 'magic-fallback-mode-alist '("js" web-mode))
        (add-to-list 'magic-fallback-mode-alist '("p?html?" web-mode))))
 
-    ((leaf web-mode
-       :magic-fallback ("js" ("p?html?")))
-     (progn
-       (autoload #'web-mode "web-mode" nil t)
-       (add-to-list 'magic-fallback-mode-alist '("js" web-mode))
-       (add-to-list 'magic-fallback-mode-alist '("p?html?" web-mode))))
+    ;; ((leaf web-mode
+    ;;    :magic-fallback ("js" ("p?html?")))
+    ;;  (progn
+    ;;    (autoload #'web-mode "web-mode" nil t)
+    ;;    (add-to-list 'magic-fallback-mode-alist '("js" web-mode))
+    ;;    (add-to-list 'magic-fallback-mode-alist '("p?html?" web-mode))))
 
-    ((leaf web-mode
-       :magic-fallback (("js" "p?html?") . web-mode))
-     (progn
-       (autoload #'web-mode "web-mode" nil t)
-       (add-to-list 'magic-fallback-mode-alist '("js" web-mode))
-       (add-to-list 'magic-fallback-mode-alist '("p?html?" web-mode))))
+    ;; ((leaf web-mode
+    ;;    :magic-fallback (("js" "p?html?") . web-mode))
+    ;;  (progn
+    ;;    (autoload #'web-mode "web-mode" nil t)
+    ;;    (add-to-list 'magic-fallback-mode-alist '("js" web-mode))
+    ;;    (add-to-list 'magic-fallback-mode-alist '("p?html?" web-mode))))
 
-    ((leaf web-mode
-       :magic-fallback (("phtml?" "html?" . web-html-mode) "js" . web-mode))
-     (progn
-       (autoload #'web-html-mode "web-mode" nil t)
-       (autoload #'web-mode "web-mode" nil t)
-       (add-to-list 'magic-fallback-mode-alist '("phtml?" web-html-mode))
-       (add-to-list 'magic-fallback-mode-alist '("html?" web-html-mode))
-       (add-to-list 'magic-fallback-mode-alist '("js" web-mode))))))
+    ;; ((leaf web-mode
+    ;;    :magic-fallback (("phtml?" "html?" . web-html-mode) "js" . web-mode))
+    ;;  (progn
+    ;;    (autoload #'web-html-mode "web-mode" nil t)
+    ;;    (autoload #'web-mode "web-mode" nil t)
+    ;;    (add-to-list 'magic-fallback-mode-alist '("phtml?" web-html-mode))
+    ;;    (add-to-list 'magic-fallback-mode-alist '("html?" web-html-mode))
+    ;;    (add-to-list 'magic-fallback-mode-alist '("js" web-mode))))
+    ))
 
 (cort-deftest-with-macroexpand leaf/hook
   '(((leaf ace-jump-mode
@@ -1059,12 +1066,12 @@ Example
        (add-hook 'cc-mode-hook #'ace-jump-mode)
        (add-hook 'prog-mode-hook #'ace-jump-mode)))
 
-    ((leaf ace-jump-mode
-       :hook (cc-mode-hook (prog-mode-hook)))
-     (progn
-       (autoload #'ace-jump-mode "ace-jump-mode" nil t)
-       (add-hook 'cc-mode-hook #'ace-jump-mode)
-       (add-hook 'prog-mode-hook #'ace-jump-mode)))
+    ;; ((leaf ace-jump-mode
+    ;;    :hook (cc-mode-hook (prog-mode-hook)))
+    ;;  (progn
+    ;;    (autoload #'ace-jump-mode "ace-jump-mode" nil t)
+    ;;    (add-hook 'cc-mode-hook #'ace-jump-mode)
+    ;;    (add-hook 'prog-mode-hook #'ace-jump-mode)))
 
     ((leaf ace-jump-mode
        :hook cc-mode-hook (prog-mode-hook . my-ace-jump-mode))
@@ -1074,21 +1081,22 @@ Example
        (add-hook 'cc-mode-hook #'ace-jump-mode)
        (add-hook 'prog-mode-hook #'my-ace-jump-mode)))
 
-    ((leaf ace-jump-mode
-       :hook ((cc-mode-hook prog-mode-hook) . my-ace-jump-mode))
-     (progn
-       (autoload #'my-ace-jump-mode "ace-jump-mode" nil t)
-       (add-hook 'cc-mode-hook #'my-ace-jump-mode)
-       (add-hook 'prog-mode-hook #'my-ace-jump-mode)))
+    ;; ((leaf ace-jump-mode
+    ;;    :hook ((cc-mode-hook prog-mode-hook) . my-ace-jump-mode))
+    ;;  (progn
+    ;;    (autoload #'my-ace-jump-mode "ace-jump-mode" nil t)
+    ;;    (add-hook 'cc-mode-hook #'my-ace-jump-mode)
+    ;;    (add-hook 'prog-mode-hook #'my-ace-jump-mode)))
 
-    ((leaf ace-jump-mode
-       :hook ((cc-mode-hook prog-mode-hook . ace-jump-mode) isearch-mode . my-ace-jump-mode))
-     (progn
-       (autoload #'ace-jump-mode "ace-jump-mode" nil t)
-       (autoload #'my-ace-jump-mode "ace-jump-mode" nil t)
-       (add-hook 'cc-mode-hook #'ace-jump-mode)
-       (add-hook 'prog-mode-hook #'ace-jump-mode)
-       (add-hook 'isearch-mode #'my-ace-jump-mode)))))
+    ;; ((leaf ace-jump-mode
+    ;;    :hook ((cc-mode-hook prog-mode-hook . ace-jump-mode) isearch-mode . my-ace-jump-mode))
+    ;;  (progn
+    ;;    (autoload #'ace-jump-mode "ace-jump-mode" nil t)
+    ;;    (autoload #'my-ace-jump-mode "ace-jump-mode" nil t)
+    ;;    (add-hook 'cc-mode-hook #'ace-jump-mode)
+    ;;    (add-hook 'prog-mode-hook #'ace-jump-mode)
+    ;;    (add-hook 'isearch-mode #'my-ace-jump-mode)))
+    ))
 
 (cort-deftest-with-macroexpand leaf/commands
   '(((leaf leaf
@@ -1152,29 +1160,30 @@ Example
        (setq leaf-backend-bind* 'bind-key)
        (require 'leaf)))
 
-    ((leaf leaf
-       :pre-setq (leaf-backend-bind leaf-backend-bind* . 'bind-key)
-       :require t)
-     (progn
-       (setq leaf-backend-bind 'bind-key)
-       (setq leaf-backend-bind* 'bind-key)
-       (require 'leaf)))
+    ;; ((leaf leaf
+    ;;    :pre-setq (leaf-backend-bind leaf-backend-bind* . 'bind-key)
+    ;;    :require t)
+    ;;  (progn
+    ;;    (setq leaf-backend-bind 'bind-key)
+    ;;    (setq leaf-backend-bind* 'bind-key)
+    ;;    (require 'leaf)))
 
-    ((leaf leaf
-       :pre-setq ((leaf-backend-bind) leaf-backend-bind* . 'bind-key)
-       :require t)
-     (progn
-       (setq leaf-backend-bind 'bind-key)
-       (setq leaf-backend-bind* 'bind-key)
-       (require 'leaf)))
+    ;; ((leaf leaf
+    ;;    :pre-setq ((leaf-backend-bind) leaf-backend-bind* . 'bind-key)
+    ;;    :require t)
+    ;;  (progn
+    ;;    (setq leaf-backend-bind 'bind-key)
+    ;;    (setq leaf-backend-bind* 'bind-key)
+    ;;    (require 'leaf)))
 
-    ((leaf leaf
-       :pre-setq ((leaf-backend-bind leaf-backend-bind*) . 'bind-key)
-       :require t)
-     (progn
-       (setq leaf-backend-bind 'bind-key)
-       (setq leaf-backend-bind* 'bind-key)
-       (require 'leaf)))))
+    ;; ((leaf leaf
+    ;;    :pre-setq ((leaf-backend-bind leaf-backend-bind*) . 'bind-key)
+    ;;    :require t)
+    ;;  (progn
+    ;;    (setq leaf-backend-bind 'bind-key)
+    ;;    (setq leaf-backend-bind* 'bind-key)
+    ;;    (require 'leaf)))
+    ))
 
 (cort-deftest-with-macroexpand leaf/init
   '(((leaf leaf
@@ -1301,29 +1310,30 @@ Example
        (setq leaf-backend-bind 'bind-key)
        (setq leaf-backend-bind* 'bind-key)))
 
-    ((leaf leaf
-       :setq (leaf-backend-bind leaf-backend-bind* . 'bind-key)
-       :require t)
-     (progn
-       (require 'leaf)
-       (setq leaf-backend-bind 'bind-key)
-       (setq leaf-backend-bind* 'bind-key)))
+    ;; ((leaf leaf
+    ;;    :setq (leaf-backend-bind leaf-backend-bind* . 'bind-key)
+    ;;    :require t)
+    ;;  (progn
+    ;;    (require 'leaf)
+    ;;    (setq leaf-backend-bind 'bind-key)
+    ;;    (setq leaf-backend-bind* 'bind-key)))
 
-    ((leaf leaf
-       :setq ((leaf-backend-bind) leaf-backend-bind* . 'bind-key)
-       :require t)
-     (progn
-       (require 'leaf)
-       (setq leaf-backend-bind 'bind-key)
-       (setq leaf-backend-bind* 'bind-key)))
+    ;; ((leaf leaf
+    ;;    :setq ((leaf-backend-bind) leaf-backend-bind* . 'bind-key)
+    ;;    :require t)
+    ;;  (progn
+    ;;    (require 'leaf)
+    ;;    (setq leaf-backend-bind 'bind-key)
+    ;;    (setq leaf-backend-bind* 'bind-key)))
 
-    ((leaf leaf
-       :setq ((leaf-backend-bind leaf-backend-bind*) . 'bind-key)
-       :require t)
-     (progn
-       (require 'leaf)
-       (setq leaf-backend-bind 'bind-key)
-       (setq leaf-backend-bind* 'bind-key)))))
+    ;; ((leaf leaf
+    ;;    :setq ((leaf-backend-bind leaf-backend-bind*) . 'bind-key)
+    ;;    :require t)
+    ;;  (progn
+    ;;    (require 'leaf)
+    ;;    (setq leaf-backend-bind 'bind-key)
+    ;;    (setq leaf-backend-bind* 'bind-key)))
+    ))
 
 (cort-deftest-with-macroexpand leaf/setq-default
   '(((leaf alloc
@@ -1354,29 +1364,30 @@ Example
        (setq-default leaf-backend-bind 'bind-key)
        (setq-default leaf-backend-bind* 'bind-key)))
 
-    ((leaf leaf
-       :setq-default (leaf-backend-bind leaf-backend-bind* . 'bind-key)
-       :require t)
-     (progn
-       (require 'leaf)
-       (setq-default leaf-backend-bind 'bind-key)
-       (setq-default leaf-backend-bind* 'bind-key)))
+    ;; ((leaf leaf
+    ;;    :setq-default (leaf-backend-bind leaf-backend-bind* . 'bind-key)
+    ;;    :require t)
+    ;;  (progn
+    ;;    (require 'leaf)
+    ;;    (setq-default leaf-backend-bind 'bind-key)
+    ;;    (setq-default leaf-backend-bind* 'bind-key)))
 
-    ((leaf leaf
-       :setq-default ((leaf-backend-bind) leaf-backend-bind* . 'bind-key)
-       :require t)
-     (progn
-       (require 'leaf)
-       (setq-default leaf-backend-bind 'bind-key)
-       (setq-default leaf-backend-bind* 'bind-key)))
+    ;; ((leaf leaf
+    ;;    :setq-default ((leaf-backend-bind) leaf-backend-bind* . 'bind-key)
+    ;;    :require t)
+    ;;  (progn
+    ;;    (require 'leaf)
+    ;;    (setq-default leaf-backend-bind 'bind-key)
+    ;;    (setq-default leaf-backend-bind* 'bind-key)))
 
-    ((leaf leaf
-       :setq-default ((leaf-backend-bind leaf-backend-bind*) . 'bind-key)
-       :require t)
-     (progn
-       (require 'leaf)
-       (setq-default leaf-backend-bind 'bind-key)
-       (setq-default leaf-backend-bind* 'bind-key)))))
+    ;; ((leaf leaf
+    ;;    :setq-default ((leaf-backend-bind leaf-backend-bind*) . 'bind-key)
+    ;;    :require t)
+    ;;  (progn
+    ;;    (require 'leaf)
+    ;;    (setq-default leaf-backend-bind 'bind-key)
+    ;;    (setq-default leaf-backend-bind* 'bind-key)))
+    ))
 
 (cort-deftest-with-macroexpand leaf/config
   '(((leaf leaf
