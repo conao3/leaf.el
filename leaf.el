@@ -206,54 +206,8 @@ Sort by `leaf-sort-leaf--values-plist' in this order.")
        (dolist (elm leaf--value)
          (setq ret (funcall fn elm ret)))
        (nreverse ret)))
-    ((memq leaf--key '(:ensure))
-     ;; Accept: pkg, (pkg . pin), ((pkg pkg ...) . pin),
-     ;;         (pkg pkg ... . pin) and list of these (and nested)
-     ;; Return: list of pair (pkg . pin).
-     ;; Note  : t will convert (leaf--name . nil)
-     ;;         if omit pin, use `leaf-options-ensure-default-pin'.
-     ;;         if pin is 'nil, use package manager default
-     ;;         remove duplicate configure
-     ;;         't and 'nil are just ignored
-     (let ((ret) (fn))
-       (setq fn (lambda (elm ret)
-                  (cond
-                   ((eq t elm)
-                    (cons `(,leaf--name . nil) ret))
-                   ((eq nil elm)
-                    ret)
-                   ((atom elm)
-                    (let ((sym `(,elm . ,leaf-options-ensure-default-pin)))
-                      (if (member sym ret)
-                          ret
-                        (cons sym ret))))
-                   ((leaf-pairp elm)
-                    (if (listp (car elm))
-                        (progn
-                          (if (leaf-dotlistp (car elm))
-                              (setq ret (funcall fn (car elm) ret))
-                            (dolist (el (car elm))
-                              (setq ret (funcall fn `(,el . ,(cdr elm)) ret))))
-                          ret)
-                      (if (member elm ret)
-                          ret
-                        (cons elm ret))))
-                   ((leaf-dotlistp elm)
-                    (let ((tail (nthcdr (safe-length elm) elm)))
-                      (while (not (atom elm))
-                        (setq ret (funcall fn `(,(car elm) . ,tail) ret))
-                        (pop elm))
-                      ret))
-                   ((listp elm)
-                    (dolist (el elm)
-                      (setq ret (funcall fn el ret)))
-                    ret)
-                   (t
-                    (warn (format "Value %s is malformed." leaf--value))))))
-       (dolist (elm leaf--value)
-         (setq ret (funcall fn elm ret)))
-       (nreverse ret)))
     ((memq leaf--key (cdr '(:dummy
+                            :ensure
                             :hook :mode :interpreter :magic :magic-fallback :defun
                             :setq :pre-setq :setq-default :custom :custom-face)))
      ;; Accept: (sym . val), ((sym sym ...) . val), (sym sym ... . val)
@@ -264,6 +218,8 @@ Sort by `leaf-sort-leaf--values-plist' in this order.")
                (cond
                 ((leaf-pairp elm)
                  elm)
+                ((memq leaf--key '(:ensure))
+                 (if (eq t elm) `(,leaf--name . nil) `(,elm . nil)))
                 ((memq leaf--key '(:hook :mode :interpreter :magic :magic-fallback :defun))
                  `(,elm . ,leaf--name))
                 ((memq leaf--key '(:setq :pre-setq :setq-default :custom :custom-face))

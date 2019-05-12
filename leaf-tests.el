@@ -231,23 +231,24 @@ Example
        (leaf-meta-handler-ensure leaf 'leaf-browser nil)
        (leaf-init)))
 
-    ((leaf leaf
-       :ensure (((feather) leaf-key) leaf-browser)
-       :config (leaf-init))
-     (progn
-       (leaf-meta-handler-ensure leaf 'feather nil)
-       (leaf-meta-handler-ensure leaf 'leaf-key nil)
-       (leaf-meta-handler-ensure leaf 'leaf-browser nil)
-       (leaf-init)))
+    ;; ((leaf leaf
+    ;;    :ensure (((feather) leaf-key) leaf-browser)
+    ;;    :config (leaf-init))
+    ;;  (progn
+    ;;    (leaf-meta-handler-ensure leaf 'feather nil)
+    ;;    (leaf-meta-handler-ensure leaf 'leaf-key nil)
+    ;;    (leaf-meta-handler-ensure leaf 'leaf-browser nil)
+    ;;    (leaf-init)))
 
-    ((leaf leaf
-       :ensure (((feather . elpa-archive) leaf-key) leaf-browser . stable)
-       :config (leaf-init))
-     (progn
-       (leaf-meta-handler-ensure leaf 'feather elpa-archive)
-       (leaf-meta-handler-ensure leaf 'leaf-key stable)
-       (leaf-meta-handler-ensure leaf 'leaf-browser stable)
-       (leaf-init)))))
+    ;; ((leaf leaf
+    ;;    :ensure (((feather . elpa-archive) leaf-key) leaf-browser . stable)
+    ;;    :config (leaf-init))
+    ;;  (progn
+    ;;    (leaf-meta-handler-ensure leaf 'feather elpa-archive)
+    ;;    (leaf-meta-handler-ensure leaf 'leaf-key stable)
+    ;;    (leaf-meta-handler-ensure leaf 'leaf-browser stable)
+    ;;    (leaf-init)))
+    ))
 
 (cort-deftest-with-macroexpand leaf/doc
   '(((leaf leaf
