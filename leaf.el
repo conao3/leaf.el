@@ -163,49 +163,18 @@ Sort by `leaf-sort-leaf--values-plist' in this order.")
      ;;         ([:{{hoge}}-map] [:package {{pkg}}](bind . func) (bind . func) ...)
      ;;         optional, [:{{hoge}}-map] [:package {{pkg}}]
      ;; Return: list of ([:{{hoge}}-map] [:package {{pkg}}] (bind . func))
-     (let ((ret) (fn))
-       (setq fn (lambda (elm ret)
-                  (cond
-                   ((leaf-pairp elm)
-                    (if (member elm ret)
-                        ret
-                      (cons `(:package ,leaf--name ,elm) ret)))
-                   ((listp elm)
-                    (if (not (atom (car elm)))
-                        (progn
-                          (dolist (el elm)
-                            (setq ret (funcall fn el ret)))
-                          ret)
-                      (let ((map        (make-symbol (substring (symbol-name (car elm)) 1)))
-                            (package    (plist-get (cdr elm) :package))
-                            (prefix     (plist-get (cdr elm) :prefix))
-                            (prefix-map (plist-get (cdr elm) :prefix-map))
-                            (menu-name  (plist-get (cdr elm) :menu-name))
-                            (filter     (plist-get (cdr elm) :filter)))
-                        (dolist (el elm)
-                          (let ((target
-                                 (cdr `(:dummy
-                                        :map ,map
-                                        ,@(if package `(:package ,package)
-                                            `(:package ,leaf--name))
-                                        ,@(when prefix `(:prefix ,prefix))
-                                        ,@(when prefix-map `(:prefix-map ,prefix-map))
-                                        ,@(when menu-name `(:manu-name ,menu-name))
-                                        ,@(when filter `(:filter ,filter))
-                                        ,el))))
-                            (cond
-                             ((leaf-pairp el)
-                              (if (member target ret)
-                                  ret
-                                (setq ret (cons target ret))))
-                             ((listp el)
-                              (setq ret (funcall fn target ret)))))))
-                      ret))
-                   (t
-                    (warn (format "Value %s is malformed." leaf--value))))))
-       (dolist (elm leaf--value)
-         (setq ret (funcall fn elm ret)))
-       (nreverse ret)))
+     (mapcan (lambda (elm)
+               (cond
+                ((leaf-pairp elm)
+                 (list `(:package ,leaf--name :bind ,elm)))
+                ((not (keywordp (car elm)))
+                 (mapcar (lambda (el) `(:package ,leaf--name :bind ,el)) elm))
+                (t
+                 (mapcar (lambda (el)
+                           (let ((map (intern (substring (symbol-name (car elm)) 1))))
+                             `(:package ,leaf--name :map ,map :bind ,el)))
+                         (cdr elm)))))
+             leaf--value))
     ((memq leaf--key (cdr '(:dummy
                             :ensure
                             :hook :mode :interpreter :magic :magic-fallback :defun
