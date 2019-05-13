@@ -242,12 +242,22 @@ Don't call this function directory."
 ;;  Support functions
 ;;
 
+(defun leaf-warn (message &rest args)
+  "Minor change from `warn' for `leaf'.
+MESSAGE and ARGS are passed `format'."
+  (display-warning 'leaf (apply #'format `(,message ,@args))))
+
+(defun leaf-error (message &rest args)
+  "Minor change from `error' for `leaf'.
+MESSAGE and ARGS are passed `format'."
+  (display-warning 'leaf (apply #'format `(,message ,@args)) :error))
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
 ;;  Meta handler
 ;;
 
-(defmacro leaf-meta-handler-ensure (_name pkg _pin)
+(defmacro leaf-meta-handler-ensure (name pkg _pin)
   "Meta handler for PKG from PIN in NAME leaf block."
   (cond
    ((eq leaf-backend-ensure 'package)
@@ -257,11 +267,8 @@ Don't call this function directory."
              (unless (assoc ,pkg package-archive-contents)
                (package-refresh-contents))
              (package-install ,pkg))
-         (error
-          (display-warning 'leaf
-                           (format "Failed to install %s: %s"
-                                   ,pkg (error-message-string err))
-                           :error)))))))
+         (leaf-error "In leaf `%s' block, failed to install %s: %s"
+                     name pkg (error-message-string err)))))))
 
 (defmacro leaf-meta-handler-bind (_name elm)
   "Meta handler for NAME with ELM."
@@ -439,6 +446,23 @@ EXAMPLE:
     (when body
       `(progn
          ,@body))))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;
+;;  Font lock
+;;
+
+(defconst leaf-warn-font-lock-keywords
+  '(((rx (group "leaf-" (or "warn" "error")))
+     (1 font-lock-warning-face))))
+
+(defconst leaf-font-lock-keywords
+  '(("(\\(leaf\\)\\_>[ \t']*\\(\\(?:\\sw\\|\\s_\\)+\\)?"
+     (1 font-lock-keyword-face)
+     (2 font-lock-constant-face nil t))))
+
+(font-lock-add-keywords 'emacs-lisp-mode leaf-warn-font-lock-keywords)
+(font-lock-add-keywords 'emacs-lisp-mode leaf-font-lock-keywords)
 
 (provide 'leaf)
 ;;; leaf.el ends here
