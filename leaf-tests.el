@@ -651,6 +651,12 @@ Example
         '(leaf-backend-bind 'bind-key "Customized with leaf in leaf block")
         '(leaf-backend-bind* 'bind-key "Customized with leaf in leaf block"))))
 
+    ((leaf buffer.c
+       :custom ((cursor-type . nil)))
+     (progn
+       (custom-set-variables
+        '(cursor-type nil "Customized with leaf in buffer.c block"))))
+
     ;; ((leaf leaf
     ;;    :custom ((leaf-backend-bind leaf-backend-bind*) . 'bind-key))
     ;;  (progn

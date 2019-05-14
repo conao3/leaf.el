@@ -177,7 +177,7 @@ Sort by `leaf-sort-leaf--values-plist' in this order.")
                 ((memq leaf--key '(:hook :mode :interpreter :magic :magic-fallback :defun))
                  `(,elm . ,leaf--name))
                 ((memq leaf--key '(:setq :pre-setq :setq-default :custom :custom-face))
-                 `(,elm . nil))
+                 elm)
                 (t
                  elm)))
              (mapcan #'leaf-normalize-list-in-list leaf--value)))
