@@ -5,7 +5,7 @@
 ;; Author: Naoya Yamashita <conao3@gmail.com>
 ;; Maintainer: Naoya Yamashita <conao3@gmail.com>
 ;; Keywords: lisp settings
-;; Version: 2.2.8
+;; Version: 2.2.9
 ;; URL: https://github.com/conao3/leaf.el
 ;; Package-Requires: ((emacs "24.0"))
 
@@ -177,7 +177,7 @@ Sort by `leaf-sort-leaf--values-plist' in this order.")
                 ((memq leaf--key '(:hook :mode :interpreter :magic :magic-fallback :defun))
                  `(,elm . ,leaf--name))
                 ((memq leaf--key '(:setq :pre-setq :setq-default :custom :custom-face))
-                 (error "malformed."))
+                 elm)
                 (t
                  elm)))
              (mapcan #'leaf-normalize-list-in-list leaf--value)))
