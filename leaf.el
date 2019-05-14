@@ -84,7 +84,7 @@
     :autoload       `(,@(when (car leaf--value)
                           (mapcar (lambda (elm) `(autoload #',(car elm) ,(cdr elm) nil t)) (nreverse leaf--autoload)))
                       ,@leaf--body)
-    :ensure         `(,@(mapcar (lambda (elm) `(leaf-meta-handler-ensure ,leaf--name ',(car elm) ,(cdr elm))) leaf--value) ,@leaf--body)
+    :ensure         `(,@(mapcar (lambda (elm) `(leaf-meta-handler-ensure ,leaf--name ,(car elm) ,(cdr elm))) leaf--value) ,@leaf--body)
     :doc            `(,@leaf--body)
     :file           `(,@leaf--body)
     :url            `(,@leaf--body)
@@ -261,14 +261,15 @@ MESSAGE and ARGS are passed `format'."
   "Meta handler for PKG from PIN in NAME leaf block."
   (cond
    ((eq leaf-backend-ensure 'package)
-    `(unless (package-installed-p ,pkg)
+    `(unless (package-installed-p ',pkg)
        (condition-case-unless-debug err
            (progn
-             (unless (assoc ,pkg package-archive-contents)
+             (unless (assoc ',pkg package-archive-contents)
                (package-refresh-contents))
-             (package-install ,pkg))
-         (leaf-error "In leaf `%s' block, failed to install %s: %s"
-                     name pkg (error-message-string err)))))))
+             (package-install ',pkg))
+         (leaf-error
+          ,(format "In `%s' block, failed to install %s: %%s" name pkg)
+          (error-message-string err)))))))
 
 (defmacro leaf-meta-handler-bind (_name elm)
   "Meta handler for NAME with ELM."
