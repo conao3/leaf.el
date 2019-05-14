@@ -211,24 +211,24 @@ Example
        :ensure t
        :config (leaf-init))
      (progn
-       (leaf-meta-handler-ensure leaf 'leaf nil)
+       (leaf-meta-handler-ensure leaf leaf nil)
        (leaf-init)))
 
     ((leaf leaf
        :ensure t leaf-browser
        :config (leaf-init))
      (progn
-       (leaf-meta-handler-ensure leaf 'leaf nil)
-       (leaf-meta-handler-ensure leaf 'leaf-browser nil)
+       (leaf-meta-handler-ensure leaf leaf nil)
+       (leaf-meta-handler-ensure leaf leaf-browser nil)
        (leaf-init)))
 
     ((leaf leaf
        :ensure feather leaf-key leaf-browser
        :config (leaf-init))
      (progn
-       (leaf-meta-handler-ensure leaf 'feather nil)
-       (leaf-meta-handler-ensure leaf 'leaf-key nil)
-       (leaf-meta-handler-ensure leaf 'leaf-browser nil)
+       (leaf-meta-handler-ensure leaf feather nil)
+       (leaf-meta-handler-ensure leaf leaf-key nil)
+       (leaf-meta-handler-ensure leaf leaf-browser nil)
        (leaf-init)))
 
     ;; ((leaf leaf
