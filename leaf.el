@@ -454,7 +454,7 @@ EXAMPLE:
 ;;
 
 (defconst leaf-warn-font-lock-keywords
-  '(((rx (group "leaf-" (or "warn" "error")))
+  `((,(rx (group "leaf-" (or "warn" "error")))
      (1 font-lock-warning-face))))
 
 (defconst leaf-font-lock-keywords
