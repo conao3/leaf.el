@@ -5,7 +5,7 @@
 ;; Author: Naoya Yamashita <conao3@gmail.com>
 ;; Maintainer: Naoya Yamashita <conao3@gmail.com>
 ;; Keywords: lisp settings
-;; Version: 2.2.9
+;; Version: 2.3.0
 ;; URL: https://github.com/conao3/leaf.el
 ;; Package-Requires: ((emacs "24.0"))
 
@@ -454,7 +454,7 @@ EXAMPLE:
 ;;
 
 (defconst leaf-warn-font-lock-keywords
-  '(((rx (group "leaf-" (or "warn" "error")))
+  `((,(rx (group "leaf-" (or "warn" "error")))
      (1 font-lock-warning-face))))
 
 (defconst leaf-font-lock-keywords
