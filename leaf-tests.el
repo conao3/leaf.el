@@ -700,7 +700,7 @@ Example
        :custom-face
        (eruby-standard-face . '((t (:slant italic)))))
      (progn
-       (custom-set-faces '(eruby-standard-face (((t (:slant italic))))))))
+       (custom-set-faces '(eruby-standard-face ((t (:slant italic)))))))
 
     ;; ((leaf eruby-mode
     ;;    :custom-face
