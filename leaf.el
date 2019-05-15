@@ -106,7 +106,7 @@
                                        `(,ret)))
 
     :custom         `((custom-set-variables ,@(mapcar (lambda (elm) `'(,(car elm) ,(cdr elm) ,(format "Customized with leaf in %s block" leaf--name))) leaf--value)) ,@leaf--body)
-    :custom-face    `((custom-set-faces ,@(mapcar (lambda (elm) `'(,(car elm) ,(cddr elm))) leaf--value)) ,@leaf--body)
+    :custom-face    `((custom-set-faces ,@(mapcar (lambda (elm) `'(,(car elm) ,(car (cddr elm)))) leaf--value)) ,@leaf--body)
     :bind           (progn
                       (mapc (lambda (elm) (leaf-register-autoload (cdar (last elm)) leaf--name)) leaf--value)
                       `(,@(mapcar (lambda (elm) `(leaf-meta-handler-bind ,leaf--name ,elm)) leaf--value) ,@leaf--body))
