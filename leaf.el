@@ -5,7 +5,7 @@
 ;; Author: Naoya Yamashita <conao3@gmail.com>
 ;; Maintainer: Naoya Yamashita <conao3@gmail.com>
 ;; Keywords: lisp settings
-;; Version: 2.3.2
+;; Version: 2.3.3
 ;; URL: https://github.com/conao3/leaf.el
 ;; Package-Requires: ((emacs "24.0"))
 
@@ -180,7 +180,9 @@ Sort by `leaf-sort-leaf--values-plist' in this order.")
                  elm)
                 (t
                  elm)))
-             (mapcan #'leaf-normalize-list-in-list leaf--value)))
+             (mapcan (lambda (elm)
+                       (leaf-normalize-list-in-list elm 'dotlistp))
+                     leaf--value)))
 
     ((memq leaf--key '(:bind :bind*))
      ;; Accept: list of pair (bind . func), (bind . nil)
@@ -194,11 +196,23 @@ Sort by `leaf-sort-leaf--values-plist' in this order.")
                 ((not (keywordp (car elm)))
                  (mapcar (lambda (el) `(:package ,leaf--name :bind ,el)) elm))
                 (t
-                 (mapcar (lambda (el)
-                           (let ((map (intern (substring (symbol-name (car elm)) 1))))
-                             `(:package ,leaf--name :map ,map :bind ,el)))
-                         (cdr elm)))))
-             leaf--value))
+                 (delq nil
+                       (mapcar (lambda (el)
+                                 (when (leaf-pairp el 'allow-nil)
+                                   (let ((map (intern (substring (symbol-name (car elm)) 1)))
+                                         (pkg (leaf-plist-get :package (cdr elm))))
+                                     (cdr `(:dummy
+                                            :map ,map
+                                            :package ,(if pkg pkg leaf--name)
+                                            :bind ,el)))))
+                               (cdr elm))))))
+             (mapcan (lambda (elm)
+                       (if (or (and (listp elm)
+                                    (keywordp (car elm)))
+                               (leaf-pairp elm 'allow-nil))
+                           (list elm)
+                         elm))
+                     leaf--value)))
 
     ((memq leaf--key '(:disabled :if :when :unless :doc :file :url :preface :init :config))
      leaf--value)
@@ -326,9 +340,25 @@ MESSAGE and ARGS are passed `format'."
     (setq leaf-keywords
           (leaf-insert-after leaf-keywords target aelm))))
 
-(defun leaf-normalize-list-in-list (lst)
-  "Return normarized list from LST."
-  (if (or (atom lst) (leaf-pairp lst))
+(defun leaf-normalize-list-in-list (lst &optional dotlistp)
+  "Return normarized list from LST.
+Example:
+  - when dotlistp is nil
+  a       => (a)
+  (a b c) => (a b c)
+
+  - when dotlistp is t
+  a                 => (a)
+  (a b c)           => (a b c)
+  (a . b)           => ((a . b))
+  ((a . b) (c . d)) => ((a . b) (c . d))
+  (a . nil)         => ((a . nil))
+  (a)               => ((a . nil))
+  ((a) (b) (c))     => ((a) (b) (c))"
+  (if (or (atom lst)
+          (and dotlistp
+               (leaf-pairp lst dotlistp)
+               (not (leaf-pairp (car lst) dotlistp))))
       (list lst)
     lst))
 
