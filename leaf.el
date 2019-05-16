@@ -109,10 +109,10 @@
     :custom-face    `((custom-set-faces ,@(mapcar (lambda (elm) `'(,(car elm) ,(car (cddr elm)))) leaf--value)) ,@leaf--body)
     :bind           (progn
                       (mapc (lambda (elm) (leaf-register-autoload (cdar (last elm)) leaf--name)) leaf--value)
-                      `(,@(mapcar (lambda (elm) `(leaf-meta-handler-bind ,leaf--name ,elm)) leaf--value) ,@leaf--body))
+                      `(,@(mapcar (lambda (elm) `(leaf-meta-handler-bind ,leaf--name ',elm)) leaf--value) ,@leaf--body))
     :bind*          (progn
                       (mapc (lambda (elm) (leaf-register-autoload (cdar (last elm)) leaf--name)) leaf--value)
-                      `(,@(mapcar (lambda (elm) `(leaf-meta-handler-bind* ,leaf--name ,elm)) leaf--value) ,@leaf--body))
+                      `(,@(mapcar (lambda (elm) `(leaf-meta-handler-bind* ,leaf--name ',elm)) leaf--value) ,@leaf--body))
 
     :mode           (progn
                       (mapc (lambda (elm) (leaf-register-autoload (cdr elm) leaf--name)) leaf--value)
@@ -290,14 +290,14 @@ MESSAGE and ARGS are passed `format'."
   (declare (indent 1))
   (cond
    ((eq leaf-backend-bind 'bind-key)
-    `(bind-keys ,@(delq :bind elm)))))
+    `(bind-keys ,@(delq :bind (eval elm))))))
 
 (defmacro leaf-meta-handler-bind* (_name elm)
   "Meta handler for NAME with ELM."
   (declare (indent 1))
   (cond
    ((eq leaf-backend-bind 'bind-key)
-    `(bind-keys* ,@(delq :bind elm)))))
+    `(bind-keys* ,@(delq :bind (eval elm))))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
