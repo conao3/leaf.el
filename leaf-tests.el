@@ -737,6 +737,30 @@ Example
        (leaf-meta-handler-bind color-moccur (:package color-moccur :bind ("M-o" . isearch-moccur)))
        (leaf-meta-handler-bind color-moccur (:package color-moccur :bind ("M-O" . isearch-moccur-all)))))
 
+    ((leaf color-moccur
+       :bind
+       ("M-s" . nil)
+       ("M-s o" . isearch-moccur)
+       ("M-s i" . isearch-moccur-all))
+     (progn
+       (autoload #'isearch-moccur "color-moccur" nil t)
+       (autoload #'isearch-moccur-all "color-moccur" nil t)
+       (leaf-meta-handler-bind color-moccur (:package color-moccur :bind ("M-s")))
+       (leaf-meta-handler-bind color-moccur (:package color-moccur :bind ("M-s o" . isearch-moccur)))
+       (leaf-meta-handler-bind color-moccur (:package color-moccur :bind ("M-s i" . isearch-moccur-all)))))
+
+    ((leaf color-moccur
+       :bind
+       (("M-s" . nil)
+        ("M-s o" . isearch-moccur)
+        ("M-s i" . isearch-moccur-all)))
+     (progn
+       (autoload #'isearch-moccur "color-moccur" nil t)
+       (autoload #'isearch-moccur-all "color-moccur" nil t)
+       (leaf-meta-handler-bind color-moccur (:package color-moccur :bind ("M-s")))
+       (leaf-meta-handler-bind color-moccur (:package color-moccur :bind ("M-s o" . isearch-moccur)))
+       (leaf-meta-handler-bind color-moccur (:package color-moccur :bind ("M-s i" . isearch-moccur-all)))))
+
     ;; ((leaf color-moccur
     ;;    :bind (("M-s O" . moccur)
     ;;           (("M-o" . isearch-moccur)
