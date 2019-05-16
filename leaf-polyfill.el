@@ -53,7 +53,8 @@
   (and (listp var)
        (or (atom (cdr var))                  ; (a . b)
            (and (= 3 (safe-length var))      ; (a . 'b) => (a quote b)
-                (eq 'quote (cadr var))))
+                (or (eq 'quote (cadr var))
+                    (eq 'function (cadr var)))))
        (if allow t (not (null (cdr var)))))) ; (a . nil) => (a)
 
 (defsubst leaf-dotlistp (var)

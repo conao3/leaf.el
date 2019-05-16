@@ -624,7 +624,16 @@ Example
                      (leaf-browser-init))))))))))
 
 (cort-deftest-with-macroexpand leaf/custom
-  '(((leaf leaf
+  '(((leaf flyspell-correct-ivy
+      :bind (("C-M-i" . flyspell-correct-wrapper))
+      :custom ((flyspell-correct-interface . #'flyspell-correct-ivy)))
+     (progn
+       (autoload (function flyspell-correct-wrapper) "flyspell-correct-ivy" nil t)
+       (custom-set-variables
+        '(flyspell-correct-interface (function flyspell-correct-ivy) "Customized with leaf in flyspell-correct-ivy block"))
+       (leaf-meta-handler-bind flyspell-correct-ivy '(:package flyspell-correct-ivy :key "C-M-i" :func flyspell-correct-wrapper))))
+
+    ((leaf leaf
        :custom ((leaf-backend-ensure . 'feather)))
      (progn
        (custom-set-variables
