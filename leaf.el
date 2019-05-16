@@ -5,7 +5,7 @@
 ;; Author: Naoya Yamashita <conao3@gmail.com>
 ;; Maintainer: Naoya Yamashita <conao3@gmail.com>
 ;; Keywords: lisp settings
-;; Version: 2.3.3
+;; Version: 2.3.4
 ;; URL: https://github.com/conao3/leaf.el
 ;; Package-Requires: ((emacs "24.0"))
 
@@ -108,11 +108,11 @@
     :custom         `((custom-set-variables ,@(mapcar (lambda (elm) `'(,(car elm) ,(cdr elm) ,(format "Customized with leaf in %s block" leaf--name))) leaf--value)) ,@leaf--body)
     :custom-face    `((custom-set-faces ,@(mapcar (lambda (elm) `'(,(car elm) ,(car (cddr elm)))) leaf--value)) ,@leaf--body)
     :bind           (progn
-                      (mapc (lambda (elm) (leaf-register-autoload (cdar (last elm)) leaf--name)) leaf--value)
-                      `(,@(mapcar (lambda (elm) `(leaf-meta-handler-bind ,leaf--name ,elm)) leaf--value) ,@leaf--body))
+                      (mapc (lambda (elm) (leaf-register-autoload (leaf-plist-get :func elm) leaf--name)) leaf--value)
+                      `(,@(mapcar (lambda (elm) `(leaf-meta-handler-bind ,leaf--name ',elm)) leaf--value) ,@leaf--body))
     :bind*          (progn
-                      (mapc (lambda (elm) (leaf-register-autoload (cdar (last elm)) leaf--name)) leaf--value)
-                      `(,@(mapcar (lambda (elm) `(leaf-meta-handler-bind* ,leaf--name ,elm)) leaf--value) ,@leaf--body))
+                      (mapc (lambda (elm) (leaf-register-autoload (leaf-plist-get :func elm) leaf--name)) leaf--value)
+                      `(,@(mapcar (lambda (elm) `(leaf-meta-handler-bind* ,leaf--name ',elm)) leaf--value) ,@leaf--body))
 
     :mode           (progn
                       (mapc (lambda (elm) (leaf-register-autoload (cdr elm) leaf--name)) leaf--value)
@@ -192,9 +192,10 @@ Sort by `leaf-sort-leaf--values-plist' in this order.")
      (mapcan (lambda (elm)
                (cond
                 ((leaf-pairp elm 'allow-nil)
-                 (list `(:package ,leaf--name :bind ,elm)))
+                 (list `(:package ,leaf--name :key ,(car elm) :func ,(cdr elm))))
                 ((not (keywordp (car elm)))
-                 (mapcar (lambda (el) `(:package ,leaf--name :bind ,el)) elm))
+                 (mapcar
+                  (lambda (el) `(:package ,leaf--name :key ,(car el) :func ,(cdr el))) elm))
                 (t
                  (delq nil
                        (mapcar (lambda (el)
@@ -204,12 +205,12 @@ Sort by `leaf-sort-leaf--values-plist' in this order.")
                                      (cdr `(:dummy
                                             :map ,map
                                             :package ,(if pkg pkg leaf--name)
-                                            :bind ,el)))))
+                                            :key ,(car el)
+                                            :func ,(cdr el))))))
                                (cdr elm))))))
              (mapcan (lambda (elm)
-                       (if (or (and (listp elm)
-                                    (keywordp (car elm)))
-                               (leaf-pairp elm 'allow-nil))
+                       (if (or (and (listp elm) (keywordp (car elm)))
+                               (and (listp elm) (atom (car elm)) (atom (cdr elm))))
                            (list elm)
                          elm))
                      leaf--value)))
@@ -287,15 +288,27 @@ MESSAGE and ARGS are passed `format'."
 
 (defmacro leaf-meta-handler-bind (_name elm)
   "Meta handler for NAME with ELM."
+  (declare (indent 1))
   (cond
    ((eq leaf-backend-bind 'bind-key)
-    `(bind-keys ,@(delq :bind elm)))))
+    (let* ((elm* (eval elm))
+           (map (leaf-plist-get :map elm*))
+           (pkg (leaf-plist-get :package elm*))
+           (key (leaf-plist-get :key elm*))
+           (fn  (leaf-plist-get :func elm*)))
+      `(bind-keys ,@(when map `(:map ,map)) :package ,pkg (,key . ,fn))))))
 
 (defmacro leaf-meta-handler-bind* (_name elm)
   "Meta handler for NAME with ELM."
+  (declare (indent 1))
   (cond
    ((eq leaf-backend-bind 'bind-key)
-    `(bind-keys* ,@(delq :bind elm)))))
+    (let* ((elm* (eval elm))
+           (map (leaf-plist-get :map elm*))
+           (pkg (leaf-plist-get :package elm*))
+           (key (leaf-plist-get :key elm*))
+           (fn  (leaf-plist-get :func elm*)))
+      `(bind-keys* ,@(when map `(:map ,map)) :package ,pkg (,key . ,fn))))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
