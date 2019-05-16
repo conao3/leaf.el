@@ -5,7 +5,7 @@
 ;; Author: Naoya Yamashita <conao3@gmail.com>
 ;; Maintainer: Naoya Yamashita <conao3@gmail.com>
 ;; Keywords: lisp settings
-;; Version: 2.3.1
+;; Version: 2.3.2
 ;; URL: https://github.com/conao3/leaf.el
 ;; Package-Requires: ((emacs "24.0"))
 
@@ -183,13 +183,13 @@ Sort by `leaf-sort-leaf--values-plist' in this order.")
              (mapcan #'leaf-normalize-list-in-list leaf--value)))
 
     ((memq leaf--key '(:bind :bind*))
-     ;; Accept: list of pair (bind . func),
+     ;; Accept: list of pair (bind . func), (bind . nil)
      ;;         ([:{{hoge}}-map] [:package {{pkg}}](bind . func) (bind . func) ...)
      ;;         optional, [:{{hoge}}-map] [:package {{pkg}}]
      ;; Return: list of ([:{{hoge}}-map] [:package {{pkg}}] (bind . func))
      (mapcan (lambda (elm)
                (cond
-                ((leaf-pairp elm)
+                ((leaf-pairp elm 'allow-nil)
                  (list `(:package ,leaf--name :bind ,elm)))
                 ((not (keywordp (car elm)))
                  (mapcar (lambda (el) `(:package ,leaf--name :bind ,el)) elm))
@@ -234,7 +234,7 @@ Don't call this function directory."
 (defun leaf-register-autoload (fn pkg)
   "Registry FN as autoload for PKG."
   (let ((target `(,fn . ,(symbol-name pkg))))
-    (when (not (member target leaf--autoload))
+    (when (and fn (not (member target leaf--autoload)))
       (setq leaf--autoload (cons target leaf--autoload)))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
