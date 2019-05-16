@@ -287,12 +287,14 @@ MESSAGE and ARGS are passed `format'."
 
 (defmacro leaf-meta-handler-bind (_name elm)
   "Meta handler for NAME with ELM."
+  (declare (indent 1))
   (cond
    ((eq leaf-backend-bind 'bind-key)
     `(bind-keys ,@(delq :bind elm)))))
 
 (defmacro leaf-meta-handler-bind* (_name elm)
   "Meta handler for NAME with ELM."
+  (declare (indent 1))
   (cond
    ((eq leaf-backend-bind 'bind-key)
     `(bind-keys* ,@(delq :bind elm)))))
