@@ -712,7 +712,25 @@ Example
     ))
 
 (cort-deftest-with-macroexpand leaf/bind
-  '(((leaf color-moccur
+  '(((leaf macrostep
+       :ensure t
+       :bind (("C-c e" . macrostep-expand)))
+     (progn
+       (autoload (function macrostep-expand) "macrostep" nil t)
+       (leaf-meta-handler-ensure macrostep macrostep nil)
+       (leaf-meta-handler-bind macrostep
+         '(:package macrostep :key "C-c e" :func macrostep-expand))))
+
+    ((leaf macrostep
+       :ensure t
+       :bind ("C-c e" . macrostep-expand))
+     (progn
+       (autoload (function macrostep-expand) "macrostep" nil t)
+       (leaf-meta-handler-ensure macrostep macrostep nil)
+       (leaf-meta-handler-bind macrostep
+         '(:package macrostep :key "C-c e" :func macrostep-expand))))
+
+    ((leaf color-moccur
        :bind
        ("M-s O" . moccur)
        ("M-o" . isearch-moccur)
@@ -721,9 +739,9 @@ Example
        (autoload (function moccur) "color-moccur" nil t)
        (autoload (function isearch-moccur) "color-moccur" nil t)
        (autoload (function isearch-moccur-all) "color-moccur" nil t)
-       (leaf-meta-handler-bind color-moccur '(:package color-moccur :bind ("M-s O" . moccur)))
-       (leaf-meta-handler-bind color-moccur '(:package color-moccur :bind ("M-o" . isearch-moccur)))
-       (leaf-meta-handler-bind color-moccur '(:package color-moccur :bind ("M-O" . isearch-moccur-all)))))
+       (leaf-meta-handler-bind color-moccur '(:package color-moccur :key "M-s O" :func moccur))
+       (leaf-meta-handler-bind color-moccur '(:package color-moccur :key "M-o" :func isearch-moccur))
+       (leaf-meta-handler-bind color-moccur '(:package color-moccur :key "M-O" :func isearch-moccur-all))))
 
     ((leaf color-moccur
        :bind (("M-s O" . moccur)
@@ -733,9 +751,9 @@ Example
        (autoload (function moccur) "color-moccur" nil t)
        (autoload (function isearch-moccur) "color-moccur" nil t)
        (autoload (function isearch-moccur-all) "color-moccur" nil t)
-       (leaf-meta-handler-bind color-moccur '(:package color-moccur :bind ("M-s O" . moccur)))
-       (leaf-meta-handler-bind color-moccur '(:package color-moccur :bind ("M-o" . isearch-moccur)))
-       (leaf-meta-handler-bind color-moccur '(:package color-moccur :bind ("M-O" . isearch-moccur-all)))))
+       (leaf-meta-handler-bind color-moccur '(:package color-moccur :key "M-s O" :func moccur))
+       (leaf-meta-handler-bind color-moccur '(:package color-moccur :key "M-o" :func isearch-moccur))
+       (leaf-meta-handler-bind color-moccur '(:package color-moccur :key "M-O" :func isearch-moccur-all))))
 
     ((leaf color-moccur
        :bind
@@ -743,11 +761,11 @@ Example
        ("M-s o" . isearch-moccur)
        ("M-s i" . isearch-moccur-all))
      (progn
-       (autoload #'isearch-moccur "color-moccur" nil t)
-       (autoload #'isearch-moccur-all "color-moccur" nil t)
-       (leaf-meta-handler-bind color-moccur '(:package color-moccur :bind ("M-s")))
-       (leaf-meta-handler-bind color-moccur '(:package color-moccur :bind ("M-s o" . isearch-moccur)))
-       (leaf-meta-handler-bind color-moccur '(:package color-moccur :bind ("M-s i" . isearch-moccur-all)))))
+       (autoload (function isearch-moccur) "color-moccur" nil t)
+       (autoload (function isearch-moccur-all) "color-moccur" nil t)
+       (leaf-meta-handler-bind color-moccur '(:package color-moccur :key "M-s" :func nil))
+       (leaf-meta-handler-bind color-moccur '(:package color-moccur :key "M-s o" :func isearch-moccur))
+       (leaf-meta-handler-bind color-moccur '(:package color-moccur :key "M-s i" :func isearch-moccur-all))))
 
     ((leaf color-moccur
        :bind
@@ -755,11 +773,11 @@ Example
         ("M-s o" . isearch-moccur)
         ("M-s i" . isearch-moccur-all)))
      (progn
-       (autoload #'isearch-moccur "color-moccur" nil t)
-       (autoload #'isearch-moccur-all "color-moccur" nil t)
-       (leaf-meta-handler-bind color-moccur '(:package color-moccur :bind ("M-s")))
-       (leaf-meta-handler-bind color-moccur '(:package color-moccur :bind ("M-s o" . isearch-moccur)))
-       (leaf-meta-handler-bind color-moccur '(:package color-moccur :bind ("M-s i" . isearch-moccur-all)))))
+       (autoload (function isearch-moccur) "color-moccur" nil t)
+       (autoload (function isearch-moccur-all) "color-moccur" nil t)
+       (leaf-meta-handler-bind color-moccur '(:package color-moccur :key "M-s" :func nil))
+       (leaf-meta-handler-bind color-moccur '(:package color-moccur :key "M-s o" :func isearch-moccur))
+       (leaf-meta-handler-bind color-moccur '(:package color-moccur :key "M-s i" :func isearch-moccur-all))))
 
     ;; ((leaf color-moccur
     ;;    :bind (("M-s O" . moccur)
@@ -812,9 +830,9 @@ Example
        (autoload (function moccur) "color-moccur" nil t)
        (autoload (function isearch-moccur) "color-moccur" nil t)
        (autoload (function isearch-moccur-all) "color-moccur" nil t)
-       (leaf-meta-handler-bind color-moccur '(:package color-moccur :bind ("M-s O" . moccur)))
-       (leaf-meta-handler-bind color-moccur '(:map isearch-mode-map :package isearch :bind ("M-o" . isearch-moccur)))
-       (leaf-meta-handler-bind color-moccur '(:map isearch-mode-map :package isearch :bind ("M-O" . isearch-moccur-all)))))
+       (leaf-meta-handler-bind color-moccur '(:package color-moccur :key "M-s O" :func moccur))
+       (leaf-meta-handler-bind color-moccur '(:map isearch-mode-map :package isearch :key "M-o" :func isearch-moccur))
+       (leaf-meta-handler-bind color-moccur '(:map isearch-mode-map :package isearch :key "M-O" :func isearch-moccur-all))))
 
     ((leaf color-moccur
        :bind (("M-s O" . moccur)
@@ -826,9 +844,9 @@ Example
        (autoload (function moccur) "color-moccur" nil t)
        (autoload (function isearch-moccur) "color-moccur" nil t)
        (autoload (function isearch-moccur-all) "color-moccur" nil t)
-       (leaf-meta-handler-bind color-moccur '(:package color-moccur :bind ("M-s O" . moccur)))
-       (leaf-meta-handler-bind color-moccur '(:map isearch-mode-map :package isearch :bind ("M-o" . isearch-moccur)))
-       (leaf-meta-handler-bind color-moccur '(:map isearch-mode-map :package isearch :bind ("M-O" . isearch-moccur-all)))))))
+       (leaf-meta-handler-bind color-moccur '(:package color-moccur :key "M-s O" :func moccur))
+       (leaf-meta-handler-bind color-moccur '(:map isearch-mode-map :package isearch :key "M-o" :func isearch-moccur))
+       (leaf-meta-handler-bind color-moccur '(:map isearch-mode-map :package isearch :key "M-O" :func isearch-moccur-all))))))
 
 (cort-deftest-with-macroexpand leaf/bind*
   '(((leaf color-moccur
@@ -840,9 +858,9 @@ Example
        (autoload (function moccur) "color-moccur" nil t)
        (autoload (function isearch-moccur) "color-moccur" nil t)
        (autoload (function isearch-moccur-all) "color-moccur" nil t)
-       (leaf-meta-handler-bind* color-moccur '(:package color-moccur :bind ("M-s O" . moccur)))
-       (leaf-meta-handler-bind* color-moccur '(:package color-moccur :bind ("M-o" . isearch-moccur)))
-       (leaf-meta-handler-bind* color-moccur '(:package color-moccur :bind ("M-O" . isearch-moccur-all)))))
+       (leaf-meta-handler-bind* color-moccur '(:package color-moccur :key "M-s O" :func moccur))
+       (leaf-meta-handler-bind* color-moccur '(:package color-moccur :key "M-o" :func isearch-moccur))
+       (leaf-meta-handler-bind* color-moccur '(:package color-moccur :key "M-O" :func isearch-moccur-all))))
 
     ((leaf color-moccur
        :bind* (("M-s O" . moccur)
@@ -852,9 +870,9 @@ Example
        (autoload (function moccur) "color-moccur" nil t)
        (autoload (function isearch-moccur) "color-moccur" nil t)
        (autoload (function isearch-moccur-all) "color-moccur" nil t)
-       (leaf-meta-handler-bind* color-moccur '(:package color-moccur :bind ("M-s O" . moccur)))
-       (leaf-meta-handler-bind* color-moccur '(:package color-moccur :bind ("M-o" . isearch-moccur)))
-       (leaf-meta-handler-bind* color-moccur '(:package color-moccur :bind ("M-O" . isearch-moccur-all)))))
+       (leaf-meta-handler-bind* color-moccur '(:package color-moccur :key "M-s O" :func moccur))
+       (leaf-meta-handler-bind* color-moccur '(:package color-moccur :key "M-o" :func isearch-moccur))
+       (leaf-meta-handler-bind* color-moccur '(:package color-moccur :key "M-O" :func isearch-moccur-all))))
 
     ;; ((leaf color-moccur
     ;;    :bind* (("M-s O" . moccur)
@@ -889,12 +907,12 @@ Example
                 ("M-o" . isearch-moccur)
                 ("M-O" . isearch-moccur-all))))
      (progn
-       (autoload #'moccur "color-moccur" nil t)
-       (autoload #'isearch-moccur "color-moccur" nil t)
-       (autoload #'isearch-moccur-all "color-moccur" nil t)
-       (leaf-meta-handler-bind* color-moccur '(:package color-moccur :bind ("M-s O" . moccur)))
-       (leaf-meta-handler-bind* color-moccur '(:map isearch-mode-map :package color-moccur :bind ("M-o" . isearch-moccur)))
-       (leaf-meta-handler-bind* color-moccur '(:map isearch-mode-map :package color-moccur :bind ("M-O" . isearch-moccur-all)))))
+       (autoload (function moccur) "color-moccur" nil t)
+       (autoload (function isearch-moccur) "color-moccur" nil t)
+       (autoload (function isearch-moccur-all) "color-moccur" nil t)
+       (leaf-meta-handler-bind* color-moccur '(:package color-moccur :key "M-s O" :func moccur))
+       (leaf-meta-handler-bind* color-moccur '(:map isearch-mode-map :package color-moccur :key "M-o" :func isearch-moccur))
+       (leaf-meta-handler-bind* color-moccur '(:map isearch-mode-map :package color-moccur :key "M-O" :func isearch-moccur-all))))
 
     ((leaf color-moccur
        :bind* (("M-s O" . moccur)
@@ -903,12 +921,12 @@ Example
                ("M-o" . isearch-moccur)
                ("M-O" . isearch-moccur-all))))
      (progn
-       (autoload #'moccur "color-moccur" nil t)
-       (autoload #'isearch-moccur "color-moccur" nil t)
-       (autoload #'isearch-moccur-all "color-moccur" nil t)
-       (leaf-meta-handler-bind* color-moccur '(:package color-moccur :bind ("M-s O" . moccur)))
-       (leaf-meta-handler-bind* color-moccur '(:map isearch-mode-map :package isearch :bind ("M-o" . isearch-moccur)))
-       (leaf-meta-handler-bind* color-moccur '(:map isearch-mode-map :package isearch :bind ("M-O" . isearch-moccur-all)))))))
+       (autoload (function moccur) "color-moccur" nil t)
+       (autoload (function isearch-moccur) "color-moccur" nil t)
+       (autoload (function isearch-moccur-all) "color-moccur" nil t)
+       (leaf-meta-handler-bind* color-moccur '(:package color-moccur :key "M-s O" :func moccur))
+       (leaf-meta-handler-bind* color-moccur '(:map isearch-mode-map :package isearch :key "M-o" :func isearch-moccur))
+       (leaf-meta-handler-bind* color-moccur '(:map isearch-mode-map :package isearch :key "M-O" :func isearch-moccur-all))))))
 
 (cort-deftest-with-macroexpand leaf/mode
   '(((leaf web-mode
