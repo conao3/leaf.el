@@ -247,23 +247,14 @@ Don't call this function directory."
   (when plist
     (let* ((leaf--name  name)
            (leaf--key   (pop plist))
+           (leaf--value (pop plist))
            (leaf--raw   raw)
-           (leaf--value (leaf-normarize-args leaf--name leaf--key (pop plist) plist raw))
-           (leaf--body  (leaf-process-keywords leaf--name plist raw))
-           (leaf--rest  plist))
+           (leaf--rest  plist)
+           (leaf--body))
+      (setq leaf--value (eval `(cond ,@leaf-normarize)))
+      (setq leaf--body (leaf-process-keywords leaf--name leaf--rest leaf--raw))
       (eval
        (plist-get (cdr leaf-keywords) leaf--key)))))
-
-(defun leaf-normarize-args (name key value rest raw)
-  "Normarize for NAME, KEY and VALUE."
-  (let ((leaf--name  name)
-        (leaf--key   key)
-        (leaf--raw   raw)
-        (leaf--value value)
-        (leaf--rest  rest))
-    (eval
-     `(cond
-       ,@leaf-normarize))))
 
 (defun leaf-register-autoload (fn pkg)
   "Registry FN as autoload for PKG."
