@@ -84,7 +84,6 @@
     :autoload       `(,@(when (car leaf--value)
                           (mapcar (lambda (elm) `(autoload #',(car elm) ,(cdr elm) nil t)) (nreverse leaf--autoload)))
                       ,@leaf--body)
-    :ensure         `(,@(mapcar (lambda (elm) `(leaf-meta-handler-ensure ,leaf--name ,(car elm) ,(cdr elm))) leaf--value) ,@leaf--body)
     :doc            `(,@leaf--body)
     :file           `(,@leaf--body)
     :url            `(,@leaf--body)
@@ -101,6 +100,8 @@
     :if             (when leaf--body `((if ,@(if (= 1 (length leaf--value)) leaf--value `((and ,@leaf--value)))
                                            (progn ,@leaf--body))))
 
+    :ensure         `(,@(mapcar (lambda (elm) `(leaf-meta-handler-ensure ,leaf--name ,(car elm) ,(cdr elm))) leaf--value) ,@leaf--body)
+    
     :after          (when leaf--body (let ((ret `(progn ,@leaf--body)))
                                        (dolist (elm leaf--value) (setq ret `(eval-after-load ',elm ',ret)))
                                        `(,ret)))
