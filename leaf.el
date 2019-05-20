@@ -5,7 +5,7 @@
 ;; Author: Naoya Yamashita <conao3@gmail.com>
 ;; Maintainer: Naoya Yamashita <conao3@gmail.com>
 ;; Keywords: lisp settings
-;; Version: 2.3.6
+;; Version: 2.3.7
 ;; URL: https://github.com/conao3/leaf.el
 ;; Package-Requires: ((emacs "24.0"))
 
@@ -481,11 +481,9 @@ EXAMPLE:
   (let* ((leaf--autoload)
          (args* (leaf-sort-values-plist
                  (leaf-normalize-plist
-                  (leaf-append-defaults args) 'merge 'eval)))
-         (body (leaf-process-keywords name args*)))
-    (when body
-      `(progn
-         ,@body))))
+                  (leaf-append-defaults args) 'merge 'eval))))
+    `(prog1 ',name
+       ,@(leaf-process-keywords name args*))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;

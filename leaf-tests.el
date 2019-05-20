@@ -123,101 +123,101 @@ Example
 
 (cort-deftest-with-macroexpand leaf/none
   '(((leaf leaf)
-     nil)))
+     (prog1 'leaf))))
 
 (cort-deftest-with-macroexpand leaf/disabled
   '(((leaf leaf :disabled t       :config (leaf-init))
-     nil)
+     (prog1 'leaf))
     ((leaf leaf :disabled nil     :config (leaf-init))
-     (progn
+     (prog1 'leaf
        (leaf-init)))
     ((leaf leaf :disabled t t     :config (leaf-init))
-     nil)
+     (prog1 'leaf))
     ((leaf leaf :disabled t nil   :config (leaf-init))
-     nil)
+     (prog1 'leaf))
     ((leaf leaf :disabled nil t   :config (leaf-init))
-     (progn
+     (prog1 'leaf
        (leaf-init)))
     ((leaf leaf :disabled nil nil :config (leaf-init))
-     (progn
+     (prog1 'leaf
        (leaf-init)))
 
     ((leaf leaf :disabled t :disabled t       :config (leaf-init))
-     nil)
+     (prog1 'leaf))
     ((leaf leaf :disabled t :disabled nil     :config (leaf-init))
-     nil)
+     (prog1 'leaf))
     ((leaf leaf :disabled t :disabled t t     :config (leaf-init))
-     nil)
+     (prog1 'leaf))
     ((leaf leaf :disabled t :disabled t nil   :config (leaf-init))
-     nil)
+     (prog1 'leaf))
     ((leaf leaf :disabled t :disabled nil t   :config (leaf-init))
-     nil)
+     (prog1 'leaf))
     ((leaf leaf :disabled t :disabled nil nil :config (leaf-init))
-     nil)
+     (prog1 'leaf))
 
     ((leaf leaf :disabled nil :disabled t       :config (leaf-init))
-     (progn
+     (prog1 'leaf
        (leaf-init)))
     ((leaf leaf :disabled nil :disabled nil     :config (leaf-init))
-     (progn
+     (prog1 'leaf
        (leaf-init)))
     ((leaf leaf :disabled nil :disabled t t     :config (leaf-init))
-     (progn
+     (prog1 'leaf
        (leaf-init)))
     ((leaf leaf :disabled nil :disabled t nil   :config (leaf-init))
-     (progn
+     (prog1 'leaf
        (leaf-init)))
     ((leaf leaf :disabled nil :disabled nil t   :config (leaf-init))
-     (progn
+     (prog1 'leaf
        (leaf-init)))
     ((leaf leaf :disabled nil :disabled nil nil :config (leaf-init))
-     (progn
+     (prog1 'leaf
        (leaf-init)))
 
     ((leaf leaf :disabled t :disabled t       :config (leaf-init) :disabled t)
-     nil)
+     (prog1 'leaf))
     ((leaf leaf :disabled t :disabled nil     :config (leaf-init) :disabled nil)
-     nil)
+     (prog1 'leaf))
     ((leaf leaf :disabled t :disabled t t     :config (leaf-init) :disabled t t)
-     nil)
+     (prog1 'leaf))
     ((leaf leaf :disabled t :disabled t nil   :config (leaf-init) :disabled t nil)
-     nil)
+     (prog1 'leaf))
     ((leaf leaf :disabled t :disabled nil t   :config (leaf-init) :disabled nil t)
-     nil)
+     (prog1 'leaf))
     ((leaf leaf :disabled t :disabled nil nil :config (leaf-init) :disabled nil nil)
-     nil)
+     (prog1 'leaf))
 
     ((leaf leaf :disabled nil :disabled t       :config (leaf-init) :disabled t)
-     (progn
+     (prog1 'leaf
        (leaf-init)))
     ((leaf leaf :disabled nil :disabled nil     :config (leaf-init) :disabled nil)
-     (progn
+     (prog1 'leaf
        (leaf-init)))
     ((leaf leaf :disabled nil :disabled t t     :config (leaf-init) :disabled t t)
-     (progn
+     (prog1 'leaf
        (leaf-init)))
     ((leaf leaf :disabled nil :disabled t nil   :config (leaf-init) :disabled t nil)
-     (progn
+     (prog1 'leaf
        (leaf-init)))
     ((leaf leaf :disabled nil :disabled nil t   :config (leaf-init) :disabled nil t)
-     (progn
+     (prog1 'leaf
        (leaf-init)))
     ((leaf leaf :disabled nil :disabled nil nil :config (leaf-init) :disabled nil nil)
-     (progn
+     (prog1 'leaf
        (leaf-init)))))
 
 (cort-deftest-with-macroexpand leaf/ensure
   '(((leaf leaf
        :ensure t
        :config (leaf-init))
-     (progn
+     (prog1 'leaf
        (leaf-meta-handler-ensure leaf leaf nil)
        (leaf-init)))
 
     ((leaf leaf
        :ensure t leaf-browser
        :config (leaf-init))
-     (progn
+     (prog1 'leaf
        (leaf-meta-handler-ensure leaf leaf nil)
        (leaf-meta-handler-ensure leaf leaf-browser nil)
        (leaf-init)))
@@ -225,7 +225,7 @@ Example
     ((leaf leaf
        :ensure feather leaf-key leaf-browser
        :config (leaf-init))
-     (progn
+     (prog1 'leaf
        (leaf-meta-handler-ensure leaf feather nil)
        (leaf-meta-handler-ensure leaf leaf-key nil)
        (leaf-meta-handler-ensure leaf leaf-browser nil)
@@ -254,19 +254,19 @@ Example
   '(((leaf leaf
        :doc "Symplify init.el configuration"
        :config (leaf-init))
-     (progn
+     (prog1 'leaf
        (leaf-init)))
 
     ((leaf leaf
        :file "~/.emacs.d/elpa/leaf.el/leaf.el"
        :config (leaf-init))
-     (progn
+     (prog1 'leaf
        (leaf-init)))
 
     ((leaf leaf
        :url "https://github.com/conao3/leaf.el"
        :config (leaf-init))
-     (progn
+     (prog1 'leaf
        (leaf-init)))
 
     ((leaf leaf
@@ -274,7 +274,7 @@ Example
        :file "~/.emacs.d/elpa/leaf.el/leaf.el"
        :url "https://github.com/conao3/leaf.el"
        :config (leaf-init))
-     (progn
+     (prog1 'leaf
        (leaf-init)))
 
     ((leaf leaf
@@ -294,7 +294,7 @@ Example
        :file "~/.emacs.d/elpa/leaf.el/leaf.el"
        :url "https://github.com/conao3/leaf.el"
        :config (leaf-init))
-     (progn
+     (prog1 'leaf
        (leaf-init)))))
 
 (cort-deftest-with-macroexpand leaf/load-path
@@ -302,7 +302,7 @@ Example
        :load-path "~/.emacs.d/elpa-archive/leaf.el/"
        :require t
        :config (leaf-init))
-     (progn
+     (prog1 'leaf
        (add-to-list 'load-path "~/.emacs.d/elpa-archive/leaf.el/")
        (require 'leaf)
        (leaf-init)))
@@ -313,7 +313,7 @@ Example
        "~/.emacs.d/elpa-archive/leaf-browser.el/"
        :require t
        :config (leaf-init))
-     (progn
+     (prog1 'leaf
        (add-to-list 'load-path "~/.emacs.d/elpa-archive/leaf.el/")
        (add-to-list 'load-path "~/.emacs.d/elpa-archive/leaf-browser.el/")
        (require 'leaf)
@@ -324,7 +324,7 @@ Example
                    "~/.emacs.d/elpa-archive/leaf-browser.el/")
        :require t
        :config (leaf-init))
-     (progn
+     (prog1 'leaf
        (add-to-list 'load-path "~/.emacs.d/elpa-archive/leaf.el/")
        (add-to-list 'load-path "~/.emacs.d/elpa-archive/leaf-browser.el/")
        (require 'leaf)
@@ -336,7 +336,7 @@ Example
                     "~/.emacs.d/elpa-archive/leaf-browser.el/"))
        :require t
        :config (leaf-init))
-     (progn
+     (prog1 'leaf
        (add-to-list 'load-path "~/.emacs.d/elpa-archive/leaf.el/")
        (add-to-list 'load-path "~/.emacs.d/elpa-archive/leaf-browser.el/")
        (require 'leaf)
@@ -350,7 +350,7 @@ Example
                       ("~/.emacs.d/elpa-archive/leaf.el/")))))
        :require t
        :config (leaf-init))
-     (progn
+     (prog1 'leaf
        (add-to-list 'load-path "~/.emacs.d/elpa-archive/leaf.el/")
        (require 'leaf)
        (leaf-init)))
@@ -362,7 +362,7 @@ Example
                              '("leaf.el" "leaf-broser.el" "orglyth.el")))
        :require t
        :config (leaf-init))
-     (progn
+     (prog1 'leaf
        (add-to-list 'load-path "~/.emacs.d/elpa-archive/leaf.el/")
        (add-to-list 'load-path "~/.emacs.d/elpa-archive/leaf-broser.el/")
        (add-to-list 'load-path "~/.emacs.d/elpa-archive/orglyth.el/")
@@ -372,14 +372,14 @@ Example
 (cort-deftest-with-macroexpand leaf/defun
   '(((leaf leaf
        :defun leaf leaf-normalize-plist leaf-merge-dupkey-values-plist)
-     (progn
+     (prog1 'leaf
        (declare-function leaf "leaf")
        (declare-function leaf-normalize-plist "leaf")
        (declare-function leaf-merge-dupkey-values-plist "leaf")))
 
     ((leaf leaf
        :defun (leaf leaf-normalize-plist leaf-merge-dupkey-values-plist))
-     (progn
+     (prog1 'leaf
        (declare-function leaf "leaf")
        (declare-function leaf-normalize-plist "leaf")
        (declare-function leaf-merge-dupkey-values-plist "leaf")))
@@ -416,14 +416,14 @@ Example
 (cort-deftest-with-macroexpand leaf/defvar
   '(((leaf leaf
        :defvar leaf leaf-normalize-plist leaf-merge-dupkey-values-plist)
-     (progn
+     (prog1 'leaf
        (defvar leaf)
        (defvar leaf-normalize-plist)
        (defvar leaf-merge-dupkey-values-plist)))
 
     ((leaf leaf
        :defvar (leaf leaf-normalize-plist leaf-merge-dupkey-values-plist))
-     (progn
+     (prog1 'leaf
        (defvar leaf)
        (defvar leaf-normalize-plist)
        (defvar leaf-merge-dupkey-values-plist)))
@@ -432,7 +432,7 @@ Example
        :defvar (leaf
                  (leaf-normalize-plist
                   (leaf-merge-dupkey-values-plist))))
-     (progn
+     (prog1 'leaf
        (defvar leaf)
        (defvar leaf-normalize-plist)
        (defvar leaf-merge-dupkey-values-plist)))))
@@ -442,7 +442,7 @@ Example
        :init (leaf-pre-init)
        :require t
        :config (leaf-init))
-     (progn
+     (prog1 'leaf
        (leaf-pre-init)
        (require 'leaf)
        (leaf-init)))
@@ -453,7 +453,7 @@ Example
                   (leaf-pre-init-after))
        :require t
        :config (leaf-init))
-     (progn
+     (prog1 'leaf
        (progn
          (leaf-pre-init)
          (leaf-pre-init-after))
@@ -466,7 +466,7 @@ Example
        (leaf-pre-init-after)
        :require t
        :config (leaf-init))
-     (progn
+     (prog1 'leaf
        (leaf-pre-init)
        (leaf-pre-init-after)
        (require 'leaf)
@@ -478,7 +478,7 @@ Example
        :require t
        :init (package-preconfig)
        :config (package-init))
-     (progn
+     (prog1 'leaf
        (preface-init)
        (when (some-condition)
          (package-preconfig)
@@ -490,7 +490,7 @@ Example
        :if leafp
        :require t
        :config (leaf-init))
-     (progn
+     (prog1 'leaf
        (if leafp
            (progn
              (require 'leaf)
@@ -500,7 +500,7 @@ Example
        :if leafp leaf-avairablep (window-system)
        :require t
        :config (leaf-init))
-     (progn
+     (prog1 'leaf
        (if (and leafp leaf-avairablep (window-system))
            (progn
              (require 'leaf)
@@ -511,7 +511,7 @@ Example
        :when leaf-browserp
        :require t
        :config (leaf-init))
-     (progn
+     (prog1 'leaf
        (when leaf-browserp
          (if (and leafp leaf-avairablep (window-system))
              (progn
@@ -525,7 +525,7 @@ Example
        :preface (leaf-load)
        :require t
        :config (leaf-init))
-     (progn
+     (prog1 'leaf
        (add-to-list 'load-path "~/.emacs.d/elpa-archive/leaf.el/")
        (leaf-load)
        (when leaf-browserp
@@ -539,7 +539,7 @@ Example
        :when leafp
        :require t
        :config (leaf-init))
-     (progn
+     (prog1 'leaf
        (when leafp
          (require 'leaf)
          (leaf-init))))
@@ -548,7 +548,7 @@ Example
        :when leafp leaf-avairablep (window-system)
        :require t
        :config (leaf-init))
-     (progn
+     (prog1 'leaf
        (when (and leafp leaf-avairablep (window-system))
          (require 'leaf)
          (leaf-init))))))
@@ -558,7 +558,7 @@ Example
        :unless leafp
        :require t
        :config (leaf-init))
-     (progn
+     (prog1 'leaf
        (unless leafp
          (require 'leaf)
          (leaf-init))))
@@ -567,7 +567,7 @@ Example
        :unless leafp leaf-avairablep (window-system)
        :require t
        :config (leaf-init))
-     (progn
+     (prog1 'leaf
        (unless (and leafp leaf-avairablep (window-system))
          (require 'leaf)
          (leaf-init))))))
@@ -577,7 +577,7 @@ Example
        :after leaf
        :require t
        :config (leaf-browser-init))
-     (progn
+     (prog1 'leaf-browser
        (eval-after-load 'leaf
          '(progn
             (require 'leaf-browser)
@@ -587,7 +587,7 @@ Example
        :after leaf org orglyth
        :require t
        :config (leaf-browser-init))
-     (progn
+     (prog1 'leaf-browser
        (eval-after-load 'orglyth
          '(eval-after-load 'org
             '(eval-after-load 'leaf
@@ -599,7 +599,7 @@ Example
        :after leaf (org orglyth)
        :require t
        :config (leaf-browser-init))
-     (progn
+     (prog1 'leaf-browser
        (eval-after-load 'orglyth
          '(eval-after-load 'org
             '(eval-after-load 'leaf
@@ -614,7 +614,7 @@ Example
                           (org-ex))))
        :require t
        :config (leaf-browser-init))
-     (progn
+     (prog1 'leaf-browser
        (eval-after-load 'org-ex
          '(eval-after-load 'orglyth
             '(eval-after-load 'org
@@ -625,17 +625,17 @@ Example
 
 (cort-deftest-with-macroexpand leaf/custom
   '(((leaf flyspell-correct-ivy
-      :bind (("C-M-i" . flyspell-correct-wrapper))
-      :custom ((flyspell-correct-interface . #'flyspell-correct-ivy)))
-     (progn
-       (autoload (function flyspell-correct-wrapper) "flyspell-correct-ivy" nil t)
+       :bind (("C-M-i" . flyspell-correct-wrapper))
+       :custom ((flyspell-correct-interface . #'flyspell-correct-ivy)))
+     (prog1 'flyspell-correct-ivy
+       (autoload #'flyspell-correct-wrapper "flyspell-correct-ivy" nil t)
        (custom-set-variables
-        '(flyspell-correct-interface (function flyspell-correct-ivy) "Customized with leaf in flyspell-correct-ivy block"))
+        '(flyspell-correct-interface #'flyspell-correct-ivy "Customized with leaf in flyspell-correct-ivy block"))
        (leaf-meta-handler-bind flyspell-correct-ivy '(:package flyspell-correct-ivy :key "C-M-i" :func flyspell-correct-wrapper))))
 
     ((leaf leaf
        :custom ((leaf-backend-ensure . 'feather)))
-     (progn
+     (prog1 'leaf
        (custom-set-variables
         '(leaf-backend-ensure 'feather "Customized with leaf in leaf block"))))
 
@@ -643,7 +643,7 @@ Example
        :custom ((leaf-backend-ensure . 'feather)
                 (leaf-backend-bind   . 'bind-key)
                 (leaf-backend-bind*  . 'bind-key)))
-     (progn
+     (prog1 'leaf
        (custom-set-variables
         '(leaf-backend-ensure 'feather "Customized with leaf in leaf block")
         '(leaf-backend-bind 'bind-key "Customized with leaf in leaf block")
@@ -654,7 +654,7 @@ Example
        (leaf-backend-ensure . 'feather)
        (leaf-backend-bind   . 'bind-key)
        (leaf-backend-bind*  . 'bind-key))
-     (progn
+     (prog1 'leaf
        (custom-set-variables
         '(leaf-backend-ensure 'feather "Customized with leaf in leaf block")
         '(leaf-backend-bind 'bind-key "Customized with leaf in leaf block")
@@ -662,7 +662,7 @@ Example
 
     ((leaf buffer.c
        :custom ((cursor-type . nil)))
-     (progn
+     (prog1 'buffer\.c
        (custom-set-variables
         '(cursor-type nil "Customized with leaf in buffer.c block"))))
 
@@ -708,8 +708,9 @@ Example
   '(((leaf eruby-mode
        :custom-face
        (eruby-standard-face . '((t (:slant italic)))))
-     (progn
-       (custom-set-faces '(eruby-standard-face ((t (:slant italic)))))))
+     (prog1 'eruby-mode
+       (custom-set-faces
+        '(eruby-standard-face ((t (:slant italic)))))))
 
     ;; ((leaf eruby-mode
     ;;    :custom-face
@@ -724,30 +725,28 @@ Example
   '(((leaf macrostep
        :ensure t
        :bind (("C-c e" . macrostep-expand)))
-     (progn
-       (autoload (function macrostep-expand) "macrostep" nil t)
+     (prog1 'macrostep
+       (autoload #'macrostep-expand "macrostep" nil t)
        (leaf-meta-handler-ensure macrostep macrostep nil)
-       (leaf-meta-handler-bind macrostep
-         '(:package macrostep :key "C-c e" :func macrostep-expand))))
+       (leaf-meta-handler-bind macrostep '(:package macrostep :key "C-c e" :func macrostep-expand))))
 
     ((leaf macrostep
        :ensure t
        :bind ("C-c e" . macrostep-expand))
-     (progn
-       (autoload (function macrostep-expand) "macrostep" nil t)
+     (prog1 'macrostep
+       (autoload #'macrostep-expand "macrostep" nil t)
        (leaf-meta-handler-ensure macrostep macrostep nil)
-       (leaf-meta-handler-bind macrostep
-         '(:package macrostep :key "C-c e" :func macrostep-expand))))
+       (leaf-meta-handler-bind macrostep '(:package macrostep :key "C-c e" :func macrostep-expand))))
 
     ((leaf color-moccur
        :bind
        ("M-s O" . moccur)
        ("M-o" . isearch-moccur)
        ("M-O" . isearch-moccur-all))
-     (progn
-       (autoload (function moccur) "color-moccur" nil t)
-       (autoload (function isearch-moccur) "color-moccur" nil t)
-       (autoload (function isearch-moccur-all) "color-moccur" nil t)
+     (prog1 'color-moccur
+       (autoload #'moccur "color-moccur" nil t)
+       (autoload #'isearch-moccur "color-moccur" nil t)
+       (autoload #'isearch-moccur-all "color-moccur" nil t)
        (leaf-meta-handler-bind color-moccur '(:package color-moccur :key "M-s O" :func moccur))
        (leaf-meta-handler-bind color-moccur '(:package color-moccur :key "M-o" :func isearch-moccur))
        (leaf-meta-handler-bind color-moccur '(:package color-moccur :key "M-O" :func isearch-moccur-all))))
@@ -756,10 +755,10 @@ Example
        :bind (("M-s O" . moccur)
               ("M-o" . isearch-moccur)
               ("M-O" . isearch-moccur-all)))
-     (progn
-       (autoload (function moccur) "color-moccur" nil t)
-       (autoload (function isearch-moccur) "color-moccur" nil t)
-       (autoload (function isearch-moccur-all) "color-moccur" nil t)
+     (prog1 'color-moccur
+       (autoload #'moccur "color-moccur" nil t)
+       (autoload #'isearch-moccur "color-moccur" nil t)
+       (autoload #'isearch-moccur-all "color-moccur" nil t)
        (leaf-meta-handler-bind color-moccur '(:package color-moccur :key "M-s O" :func moccur))
        (leaf-meta-handler-bind color-moccur '(:package color-moccur :key "M-o" :func isearch-moccur))
        (leaf-meta-handler-bind color-moccur '(:package color-moccur :key "M-O" :func isearch-moccur-all))))
@@ -769,9 +768,9 @@ Example
        ("M-s" . nil)
        ("M-s o" . isearch-moccur)
        ("M-s i" . isearch-moccur-all))
-     (progn
-       (autoload (function isearch-moccur) "color-moccur" nil t)
-       (autoload (function isearch-moccur-all) "color-moccur" nil t)
+     (prog1 'color-moccur
+       (autoload #'isearch-moccur "color-moccur" nil t)
+       (autoload #'isearch-moccur-all "color-moccur" nil t)
        (leaf-meta-handler-bind color-moccur '(:package color-moccur :key "M-s" :func nil))
        (leaf-meta-handler-bind color-moccur '(:package color-moccur :key "M-s o" :func isearch-moccur))
        (leaf-meta-handler-bind color-moccur '(:package color-moccur :key "M-s i" :func isearch-moccur-all))))
@@ -781,9 +780,9 @@ Example
        (("M-s" . nil)
         ("M-s o" . isearch-moccur)
         ("M-s i" . isearch-moccur-all)))
-     (progn
-       (autoload (function isearch-moccur) "color-moccur" nil t)
-       (autoload (function isearch-moccur-all) "color-moccur" nil t)
+     (prog1 'color-moccur
+       (autoload #'isearch-moccur "color-moccur" nil t)
+       (autoload #'isearch-moccur-all "color-moccur" nil t)
        (leaf-meta-handler-bind color-moccur '(:package color-moccur :key "M-s" :func nil))
        (leaf-meta-handler-bind color-moccur '(:package color-moccur :key "M-s o" :func isearch-moccur))
        (leaf-meta-handler-bind color-moccur '(:package color-moccur :key "M-s i" :func isearch-moccur-all))))
@@ -793,9 +792,9 @@ Example
     ;;           (("M-o" . isearch-moccur)
     ;;            (("M-O" . isearch-moccur-all)))))
     ;;  (progn
-    ;;    (autoload (function moccur) "color-moccur" nil t)
-    ;;    (autoload (function isearch-moccur) "color-moccur" nil t)
-    ;;    (autoload (function isearch-moccur-all) "color-moccur" nil t)
+    ;;    (autoload #'moccur "color-moccur" nil t)
+    ;;    (autoload #'isearch-moccur "color-moccur" nil t)
+    ;;    (autoload #'isearch-moccur-all "color-moccur" nil t)
     ;;    (leaf-meta-handler-bind color-moccur '(:package color-moccur ("M-s O" . moccur)))
     ;;    (leaf-meta-handler-bind color-moccur '(:package color-moccur ("M-o" . isearch-moccur)))
     ;;    (leaf-meta-handler-bind color-moccur '(:package color-moccur ("M-O" . isearch-moccur-all)))))
@@ -806,10 +805,10 @@ Example
     ;;            (("M-O" . isearch-moccur-all))
     ;;            ("M-s" . isearch-moccur-some))))
     ;;  (progn
-    ;;    (autoload (function moccur) "color-moccur" nil t)
-    ;;    (autoload (function isearch-moccur) "color-moccur" nil t)
-    ;;    (autoload (function isearch-moccur-all) "color-moccur" nil t)
-    ;;    (autoload (function isearch-moccur-some) "color-moccur" nil t)
+    ;;    (autoload #'moccur "color-moccur" nil t)
+    ;;    (autoload #'isearch-moccur "color-moccur" nil t)
+    ;;    (autoload #'isearch-moccur-all "color-moccur" nil t)
+    ;;    (autoload #'isearch-moccur-some "color-moccur" nil t)
     ;;    (leaf-meta-handler-bind color-moccur '(:package color-moccur ("M-s O" . moccur)))
     ;;    (leaf-meta-handler-bind color-moccur '(:package color-moccur ("M-o" . isearch-moccur)))
     ;;    (leaf-meta-handler-bind color-moccur '(:package color-moccur ("M-O" . isearch-moccur-all)))
@@ -821,9 +820,9 @@ Example
     ;;            ("M-o" . isearch-moccur)
     ;;            ("M-O" . isearch-moccur-all))))
     ;;  (progn
-    ;;    (autoload (function moccur) "color-moccur" nil t)
-    ;;    (autoload (function isearch-moccur) "color-moccur" nil t)
-    ;;    (autoload (function isearch-moccur-all) "color-moccur" nil t)
+    ;;    (autoload #'moccur "color-moccur" nil t)
+    ;;    (autoload #'isearch-moccur "color-moccur" nil t)
+    ;;    (autoload #'isearch-moccur-all "color-moccur" nil t)
     ;;    (leaf-meta-handler-bind color-moccur '(:package color-moccur ("M-s O" . moccur)))
     ;;    (leaf-meta-handler-bind color-moccur '(:map isearch-mode-map :package color-moccur ("M-o" . isearch-moccur)))
     ;;    (leaf-meta-handler-bind color-moccur '(:map isearch-mode-map :package color-moccur ("M-O" . isearch-moccur-all)))))
@@ -835,10 +834,10 @@ Example
         :package isearch
         ("M-o" . isearch-moccur)
         ("M-O" . isearch-moccur-all)))
-     (progn
-       (autoload (function moccur) "color-moccur" nil t)
-       (autoload (function isearch-moccur) "color-moccur" nil t)
-       (autoload (function isearch-moccur-all) "color-moccur" nil t)
+     (prog1 'color-moccur
+       (autoload #'moccur "color-moccur" nil t)
+       (autoload #'isearch-moccur "color-moccur" nil t)
+       (autoload #'isearch-moccur-all "color-moccur" nil t)
        (leaf-meta-handler-bind color-moccur '(:package color-moccur :key "M-s O" :func moccur))
        (leaf-meta-handler-bind color-moccur '(:map isearch-mode-map :package isearch :key "M-o" :func isearch-moccur))
        (leaf-meta-handler-bind color-moccur '(:map isearch-mode-map :package isearch :key "M-O" :func isearch-moccur-all))))
@@ -849,10 +848,10 @@ Example
                :package isearch
                ("M-o" . isearch-moccur)
                ("M-O" . isearch-moccur-all))))
-     (progn
-       (autoload (function moccur) "color-moccur" nil t)
-       (autoload (function isearch-moccur) "color-moccur" nil t)
-       (autoload (function isearch-moccur-all) "color-moccur" nil t)
+     (prog1 'color-moccur
+       (autoload #'moccur "color-moccur" nil t)
+       (autoload #'isearch-moccur "color-moccur" nil t)
+       (autoload #'isearch-moccur-all "color-moccur" nil t)
        (leaf-meta-handler-bind color-moccur '(:package color-moccur :key "M-s O" :func moccur))
        (leaf-meta-handler-bind color-moccur '(:map isearch-mode-map :package isearch :key "M-o" :func isearch-moccur))
        (leaf-meta-handler-bind color-moccur '(:map isearch-mode-map :package isearch :key "M-O" :func isearch-moccur-all))))))
@@ -863,10 +862,10 @@ Example
        ("M-s O" . moccur)
        ("M-o" . isearch-moccur)
        ("M-O" . isearch-moccur-all))
-     (progn
-       (autoload (function moccur) "color-moccur" nil t)
-       (autoload (function isearch-moccur) "color-moccur" nil t)
-       (autoload (function isearch-moccur-all) "color-moccur" nil t)
+     (prog1 'color-moccur
+       (autoload #'moccur "color-moccur" nil t)
+       (autoload #'isearch-moccur "color-moccur" nil t)
+       (autoload #'isearch-moccur-all "color-moccur" nil t)
        (leaf-meta-handler-bind* color-moccur '(:package color-moccur :key "M-s O" :func moccur))
        (leaf-meta-handler-bind* color-moccur '(:package color-moccur :key "M-o" :func isearch-moccur))
        (leaf-meta-handler-bind* color-moccur '(:package color-moccur :key "M-O" :func isearch-moccur-all))))
@@ -875,10 +874,10 @@ Example
        :bind* (("M-s O" . moccur)
                ("M-o" . isearch-moccur)
                ("M-O" . isearch-moccur-all)))
-     (progn
-       (autoload (function moccur) "color-moccur" nil t)
-       (autoload (function isearch-moccur) "color-moccur" nil t)
-       (autoload (function isearch-moccur-all) "color-moccur" nil t)
+     (prog1 'color-moccur
+       (autoload #'moccur "color-moccur" nil t)
+       (autoload #'isearch-moccur "color-moccur" nil t)
+       (autoload #'isearch-moccur-all "color-moccur" nil t)
        (leaf-meta-handler-bind* color-moccur '(:package color-moccur :key "M-s O" :func moccur))
        (leaf-meta-handler-bind* color-moccur '(:package color-moccur :key "M-o" :func isearch-moccur))
        (leaf-meta-handler-bind* color-moccur '(:package color-moccur :key "M-O" :func isearch-moccur-all))))
@@ -888,9 +887,9 @@ Example
     ;;            (("M-o" . isearch-moccur)
     ;;             (("M-O" . isearch-moccur-all)))))
     ;;  (progn
-    ;;    (autoload (function moccur) "color-moccur" nil t)
-    ;;    (autoload (function isearch-moccur) "color-moccur" nil t)
-    ;;    (autoload (function isearch-moccur-all) "color-moccur" nil t)
+    ;;    (autoload #'moccur "color-moccur" nil t)
+    ;;    (autoload #'isearch-moccur "color-moccur" nil t)
+    ;;    (autoload #'isearch-moccur-all "color-moccur" nil t)
     ;;    (leaf-meta-handler-bind* color-moccur '(:package color-moccur ("M-s O" . moccur)))
     ;;    (leaf-meta-handler-bind* color-moccur '(:package color-moccur ("M-o" . isearch-moccur)))
     ;;    (leaf-meta-handler-bind* color-moccur '(:package color-moccur ("M-O" . isearch-moccur-all)))))
@@ -901,10 +900,10 @@ Example
     ;;             (("M-O" . isearch-moccur-all))
     ;;             ("M-s" . isearch-moccur-some))))
     ;;  (progn
-    ;;    (autoload (function moccur) "color-moccur" nil t)
-    ;;    (autoload (function isearch-moccur) "color-moccur" nil t)
-    ;;    (autoload (function isearch-moccur-all) "color-moccur" nil t)
-    ;;    (autoload (function isearch-moccur-some) "color-moccur" nil t)
+    ;;    (autoload #'moccur "color-moccur" nil t)
+    ;;    (autoload #'isearch-moccur "color-moccur" nil t)
+    ;;    (autoload #'isearch-moccur-all "color-moccur" nil t)
+    ;;    (autoload #'isearch-moccur-some "color-moccur" nil t)
     ;;    (leaf-meta-handler-bind* color-moccur '(:package color-moccur ("M-s O" . moccur)))
     ;;    (leaf-meta-handler-bind* color-moccur '(:package color-moccur ("M-o" . isearch-moccur)))
     ;;    (leaf-meta-handler-bind* color-moccur '(:package color-moccur ("M-O" . isearch-moccur-all)))
@@ -915,24 +914,24 @@ Example
                (:isearch-mode-map
                 ("M-o" . isearch-moccur)
                 ("M-O" . isearch-moccur-all))))
-     (progn
-       (autoload (function moccur) "color-moccur" nil t)
-       (autoload (function isearch-moccur) "color-moccur" nil t)
-       (autoload (function isearch-moccur-all) "color-moccur" nil t)
+     (prog1 'color-moccur
+       (autoload #'moccur "color-moccur" nil t)
+       (autoload #'isearch-moccur "color-moccur" nil t)
+       (autoload #'isearch-moccur-all "color-moccur" nil t)
        (leaf-meta-handler-bind* color-moccur '(:package color-moccur :key "M-s O" :func moccur))
        (leaf-meta-handler-bind* color-moccur '(:map isearch-mode-map :package color-moccur :key "M-o" :func isearch-moccur))
        (leaf-meta-handler-bind* color-moccur '(:map isearch-mode-map :package color-moccur :key "M-O" :func isearch-moccur-all))))
 
     ((leaf color-moccur
        :bind* (("M-s O" . moccur)
-              (:isearch-mode-map
-               :package isearch
-               ("M-o" . isearch-moccur)
-               ("M-O" . isearch-moccur-all))))
-     (progn
-       (autoload (function moccur) "color-moccur" nil t)
-       (autoload (function isearch-moccur) "color-moccur" nil t)
-       (autoload (function isearch-moccur-all) "color-moccur" nil t)
+               (:isearch-mode-map
+                :package isearch
+                ("M-o" . isearch-moccur)
+                ("M-O" . isearch-moccur-all))))
+     (prog1 'color-moccur
+       (autoload #'moccur "color-moccur" nil t)
+       (autoload #'isearch-moccur "color-moccur" nil t)
+       (autoload #'isearch-moccur-all "color-moccur" nil t)
        (leaf-meta-handler-bind* color-moccur '(:package color-moccur :key "M-s O" :func moccur))
        (leaf-meta-handler-bind* color-moccur '(:map isearch-mode-map :package isearch :key "M-o" :func isearch-moccur))
        (leaf-meta-handler-bind* color-moccur '(:map isearch-mode-map :package isearch :key "M-O" :func isearch-moccur-all))))))
@@ -940,14 +939,14 @@ Example
 (cort-deftest-with-macroexpand leaf/mode
   '(((leaf web-mode
        :mode "\\.js\\'" "\\.p?html?\\'")
-     (progn
+     (prog1 'web-mode
        (autoload #'web-mode "web-mode" nil t)
        (add-to-list 'auto-mode-alist '("\\.js\\'" web-mode))
        (add-to-list 'auto-mode-alist '("\\.p?html?\\'" web-mode))))
 
     ((leaf web-mode
        :mode ("\\.js\\'" "\\.p?html?\\'"))
-     (progn
+     (prog1 'web-mode
        (autoload #'web-mode "web-mode" nil t)
        (add-to-list 'auto-mode-alist '("\\.js\\'" web-mode))
        (add-to-list 'auto-mode-alist '("\\.p?html?\\'" web-mode))))
@@ -980,7 +979,7 @@ Example
   '(((leaf ruby-mode
        :mode "\\.rb\\'" "\\.rb2\\'" ("\\.rbg\\'" . rb-mode)
        :interpreter "ruby")
-     (progn
+     (prog1 'ruby-mode
        (autoload #'ruby-mode "ruby-mode" nil t)
        (autoload #'rb-mode "ruby-mode" nil t)
        (add-to-list 'auto-mode-alist '("\\.rb\\'" ruby-mode))
@@ -990,14 +989,14 @@ Example
 
     ((leaf web-mode
        :interpreter "js" "p?html?")
-     (progn
+     (prog1 'web-mode
        (autoload #'web-mode "web-mode" nil t)
        (add-to-list 'interpreter-mode-alist '("js" web-mode))
        (add-to-list 'interpreter-mode-alist '("p?html?" web-mode))))
 
     ((leaf web-mode
        :interpreter ("js" "p?html?"))
-     (progn
+     (prog1 'web-mode
        (autoload #'web-mode "web-mode" nil t)
        (add-to-list 'interpreter-mode-alist '("js" web-mode))
        (add-to-list 'interpreter-mode-alist '("p?html?" web-mode))))
@@ -1031,21 +1030,21 @@ Example
        :magic ("%PDF" . pdf-view-mode)
        :config
        (pdf-tools-install))
-     (progn
+     (prog1 'pdf-tools
        (autoload #'pdf-view-mode "pdf-tools" nil t)
        (add-to-list 'magic-mode-alist '("%PDF" pdf-view-mode))
        (pdf-tools-install)))
 
     ((leaf web-mode
        :magic "js" "p?html?")
-     (progn
+     (prog1 'web-mode
        (autoload #'web-mode "web-mode" nil t)
        (add-to-list 'magic-mode-alist '("js" web-mode))
        (add-to-list 'magic-mode-alist '("p?html?" web-mode))))
 
     ((leaf web-mode
        :magic ("js" "p?html?"))
-     (progn
+     (prog1 'web-mode
        (autoload #'web-mode "web-mode" nil t)
        (add-to-list 'magic-mode-alist '("js" web-mode))
        (add-to-list 'magic-mode-alist '("p?html?" web-mode))))
@@ -1079,21 +1078,21 @@ Example
        :magic-fallback ("%PDF" . pdf-view-mode)
        :config
        (pdf-tools-install))
-     (progn
+     (prog1 'pdf-tools
        (autoload #'pdf-view-mode "pdf-tools" nil t)
        (add-to-list 'magic-fallback-mode-alist '("%PDF" pdf-view-mode))
        (pdf-tools-install)))
 
     ((leaf web-mode
        :magic-fallback "js" "p?html?")
-     (progn
+     (prog1 'web-mode
        (autoload #'web-mode "web-mode" nil t)
        (add-to-list 'magic-fallback-mode-alist '("js" web-mode))
        (add-to-list 'magic-fallback-mode-alist '("p?html?" web-mode))))
 
     ((leaf web-mode
        :magic-fallback ("js" "p?html?"))
-     (progn
+     (prog1 'web-mode
        (autoload #'web-mode "web-mode" nil t)
        (add-to-list 'magic-fallback-mode-alist '("js" web-mode))
        (add-to-list 'magic-fallback-mode-alist '("p?html?" web-mode))))
@@ -1125,13 +1124,13 @@ Example
 (cort-deftest-with-macroexpand leaf/hook
   '(((leaf ace-jump-mode
        :hook cc-mode-hook)
-     (progn
+     (prog1 'ace-jump-mode
        (autoload #'ace-jump-mode "ace-jump-mode" nil t)
        (add-hook 'cc-mode-hook #'ace-jump-mode)))
 
     ((leaf ace-jump-mode
        :hook cc-mode-hook prog-mode-hook)
-     (progn
+     (prog1 'ace-jump-mode
        (autoload #'ace-jump-mode "ace-jump-mode" nil t)
        (add-hook 'cc-mode-hook #'ace-jump-mode)
        (add-hook 'prog-mode-hook #'ace-jump-mode)))
@@ -1145,7 +1144,7 @@ Example
 
     ((leaf ace-jump-mode
        :hook cc-mode-hook (prog-mode-hook . my-ace-jump-mode))
-     (progn
+     (prog1 'ace-jump-mode
        (autoload #'ace-jump-mode "ace-jump-mode" nil t)
        (autoload #'my-ace-jump-mode "ace-jump-mode" nil t)
        (add-hook 'cc-mode-hook #'ace-jump-mode)
@@ -1172,20 +1171,20 @@ Example
   '(((leaf leaf
        :commands leaf
        :config (leaf-init))
-     (progn
+     (prog1 'leaf
        (autoload #'leaf "leaf" nil t)
        (leaf-init)))
 
     ((leaf leaf
        :commands leaf leaf-pairp leaf-plist-get)
-     (progn
+     (prog1 'leaf
        (autoload #'leaf "leaf" nil t)
        (autoload #'leaf-pairp "leaf" nil t)
        (autoload #'leaf-plist-get "leaf" nil t)))
 
     ((leaf leaf
        :commands leaf (leaf-pairp leaf-plist-get))
-     (progn
+     (prog1 'leaf
        (autoload #'leaf "leaf" nil t)
        (autoload #'leaf-pairp "leaf" nil t)
        (autoload #'leaf-plist-get "leaf" nil t)))
@@ -1195,7 +1194,7 @@ Example
                                                    (leaf-pairp
                                                     (leaf-pairp
                                                      (leaf-insert-after))))))
-     (progn
+     (prog1 'leaf
        (autoload #'leaf "leaf" nil t)
        (autoload #'leaf-pairp "leaf" nil t)
        (autoload #'leaf-plist-get "leaf" nil t)
@@ -1206,7 +1205,7 @@ Example
        :pre-setq `((gc-cons-threshold . ,(* 512 1024 1024))
                    (garbage-collection-messages . t))
        :require t)
-     (progn
+     (prog1 'alloc
        (setq gc-cons-threshold 536870912)
        (setq garbage-collection-messages t)
        (require 'alloc)))
@@ -1215,7 +1214,7 @@ Example
        :pre-setq ((gc-cons-threshold . 536870912)
                   (garbage-collection-messages . t))
        :require t)
-     (progn
+     (prog1 'alloc
        (setq gc-cons-threshold 536870912)
        (setq garbage-collection-messages t)
        (require 'alloc)))
@@ -1225,7 +1224,7 @@ Example
        (leaf-backend-bind . 'bind-key)
        (leaf-backend-bind* . 'bind-key)
        :require t)
-     (progn
+     (prog1 'leaf
        (setq leaf-backend-bind 'bind-key)
        (setq leaf-backend-bind* 'bind-key)
        (require 'leaf)))
@@ -1260,7 +1259,7 @@ Example
        :init (leaf-pre-init)
        :require t
        :config (leaf-init))
-     (progn
+     (prog1 'leaf
        (leaf-pre-init)
        (require 'leaf)
        (leaf-init)))
@@ -1271,7 +1270,7 @@ Example
                (leaf-pre-init-after))
        :require t
        :config (leaf-init))
-     (progn
+     (prog1 'leaf
        (progn
          (leaf-pre-init)
          (leaf-pre-init-after))
@@ -1284,7 +1283,7 @@ Example
        (leaf-pre-init-after)
        :require t
        :config (leaf-init))
-     (progn
+     (prog1 'leaf
        (leaf-pre-init)
        (leaf-pre-init-after)
        (require 'leaf)
@@ -1295,7 +1294,7 @@ Example
        :init (leaf-pre-init)
        :require t
        :config (leaf-init))
-     (progn
+     (prog1 'leaf
        (leaf-pre-init)
        (require 'leaf)
        (leaf-init)))
@@ -1304,7 +1303,7 @@ Example
        :init (leaf-pre-init)
        :require nil
        :config (leaf-init))
-     (progn
+     (prog1 'leaf
        (leaf-pre-init)
        (leaf-init)))
 
@@ -1312,7 +1311,7 @@ Example
        :init (leaf-pre-init)
        :require leaf leaf-polyfill
        :config (leaf-init))
-     (progn
+     (prog1 'leaf
        (leaf-pre-init)
        (require 'leaf)
        (require 'leaf-polyfill)
@@ -1323,7 +1322,7 @@ Example
        :require t
        :require leaf-polyfill
        :config (leaf-init))
-     (progn
+     (prog1 'leaf
        (leaf-pre-init)
        (require 'leaf)
        (require 'leaf-polyfill)
@@ -1333,7 +1332,7 @@ Example
        :init (leaf-pre-init)
        :require t leaf-polyfill
        :config (leaf-init))
-     (progn
+     (prog1 'leaf
        (leaf-pre-init)
        (require 'leaf)
        (require 'leaf-polyfill)
@@ -1343,7 +1342,7 @@ Example
        :init (leaf-pre-init)
        :require (leaf leaf-polyfill leaf-sub leaf-subsub)
        :config (leaf-init))
-     (progn
+     (prog1 'leaf
        (leaf-pre-init)
        (require 'leaf)
        (require 'leaf-polyfill)
@@ -1356,7 +1355,7 @@ Example
        :setq `((gc-cons-threshold . ,(* 512 1024 1024))
                (garbage-collection-messages . t))
        :require t)
-     (progn
+     (prog1 'alloc
        (require 'alloc)
        (setq gc-cons-threshold 536870912)
        (setq garbage-collection-messages t)))
@@ -1365,7 +1364,7 @@ Example
        :setq ((gc-cons-threshold . 536870912)
               (garbage-collection-messages . t))
        :require t)
-     (progn
+     (prog1 'alloc
        (require 'alloc)
        (setq gc-cons-threshold 536870912)
        (setq garbage-collection-messages t)))
@@ -1375,7 +1374,7 @@ Example
        (leaf-backend-bind . 'bind-key)
        (leaf-backend-bind* . 'bind-key)
        :require t)
-     (progn
+     (prog1 'leaf
        (require 'leaf)
        (setq leaf-backend-bind 'bind-key)
        (setq leaf-backend-bind* 'bind-key)))
@@ -1410,7 +1409,7 @@ Example
        :setq-default `((gc-cons-threshold . ,(* 512 1024 1024))
                        (garbage-collection-messages . t))
        :require t)
-     (progn
+     (prog1 'alloc
        (require 'alloc)
        (setq-default gc-cons-threshold 536870912)
        (setq-default garbage-collection-messages t)))
@@ -1419,7 +1418,7 @@ Example
        :setq-default ((gc-cons-threshold . 536870912)
                       (garbage-collection-messages . t))
        :require t)
-     (progn
+     (prog1 'alloc
        (require 'alloc)
        (setq-default gc-cons-threshold 536870912)
        (setq-default garbage-collection-messages t)))
@@ -1429,7 +1428,7 @@ Example
        (leaf-backend-bind . 'bind-key)
        (leaf-backend-bind* . 'bind-key)
        :require t)
-     (progn
+     (prog1 'leaf
        (require 'leaf)
        (setq-default leaf-backend-bind 'bind-key)
        (setq-default leaf-backend-bind* 'bind-key)))
@@ -1464,7 +1463,7 @@ Example
        :init (leaf-pre-init)
        :require t
        :config (leaf-init))
-     (progn
+     (prog1 'leaf
        (leaf-pre-init)
        (require 'leaf)
        (leaf-init)))
@@ -1475,7 +1474,7 @@ Example
        :config (progn
                  (leaf-pre-init)
                  (leaf-pre-init-after)))
-     (progn
+     (prog1 'leaf
        (leaf-init)
        (require 'leaf)
        (progn
@@ -1488,7 +1487,7 @@ Example
        :config
        (leaf-pre-init)
        (leaf-pre-init-after))
-     (progn
+     (prog1 'leaf
        (leaf-init)
        (require 'leaf)
        (leaf-pre-init)
