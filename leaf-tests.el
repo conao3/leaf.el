@@ -633,9 +633,13 @@ Example
        :custom ((flyspell-correct-interface . #'flyspell-correct-ivy)))
      (prog1 'flyspell-correct-ivy
        (autoload #'flyspell-correct-wrapper "flyspell-correct-ivy" nil t)
-       (custom-set-variables
-        '(flyspell-correct-interface #'flyspell-correct-ivy "Customized with leaf in flyspell-correct-ivy block"))
-       (leaf-meta-handler-bind flyspell-correct-ivy '(:package flyspell-correct-ivy :key "C-M-i" :func flyspell-correct-wrapper))))
+       (leaf-meta-handler-bind flyspell-correct-ivy '(:package flyspell-correct-ivy :key "C-M-i" :func flyspell-correct-wrapper))
+       (eval-after-load 'flyspell-correct-ivy
+         '(progn
+            (custom-set-variables
+             '(flyspell-correct-interface
+               #'flyspell-correct-ivy
+               "Customized with leaf in flyspell-correct-ivy block"))))))
 
     ((leaf leaf
        :custom ((leaf-backend-ensure . 'feather)))

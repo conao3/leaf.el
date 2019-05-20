@@ -106,13 +106,13 @@ with values for these keywords."
      :no-error       (if (and leaf-expand-no-error leaf--body leaf--key)
                          `((condition-case err (progn ,@leaf--body) (error (leaf-error ,(format "Error in `%s' block.  Error msg: %%s" leaf--name) (error-message-string err)))))
                        `(,@leaf--body))
+     :load-path      `(,@(mapcar (lambda (elm) `(add-to-list 'load-path ,elm)) leaf--value) ,@leaf--body)
      :autoload       `(,@(when (car leaf--value) (mapcar (lambda (elm) `(autoload #',(car elm) ,(cdr elm) nil t)) (nreverse leaf--autoload))) ,@leaf--body)
 
      :doc            `(,@leaf--body)
      :file           `(,@leaf--body)
      :url            `(,@leaf--body)
 
-     :load-path      `(,@(mapcar (lambda (elm) `(add-to-list 'load-path ,elm)) leaf--value) ,@leaf--body)
      :defun          `(,@(mapcar (lambda (elm) `(declare-function ,(car elm) ,(symbol-name (cdr elm)))) leaf--value) ,@leaf--body)
      :defvar         `(,@(mapcar (lambda (elm) `(defvar ,elm)) leaf--value) ,@leaf--body)
 
@@ -126,9 +126,6 @@ with values for these keywords."
      :after          (when leaf--body (let ((ret `(progn ,@leaf--body)))
                                         (dolist (elm leaf--value) (setq ret `(eval-after-load ',elm ',ret)))
                                         `(,ret)))
-
-     :custom         `((custom-set-variables ,@(mapcar (lambda (elm) `'(,(car elm) ,(cdr elm) ,(format "Customized with leaf in %s block" leaf--name))) leaf--value)) ,@leaf--body)
-     :custom-face    `((custom-set-faces     ,@(mapcar (lambda (elm) `'(,(car elm) ,(car (cddr elm)))) leaf--value)) ,@leaf--body)
 
      :commands       (progn (mapc (lambda (elm) (leaf-register-autoload elm leaf--name)) leaf--value) `(,@leaf--body))
      :bind           (progn
@@ -155,6 +152,9 @@ with values for these keywords."
                        `(,@(mapcar (lambda (elm) `(add-hook ',(car elm) #',(cdr elm))) leaf--value) ,@leaf--body))
 
      :defer          (if (and leaf--body leaf--value) `((eval-after-load ',leaf--name '(progn ,@leaf--body))) `(,@leaf--body))
+
+     :custom         `((custom-set-variables ,@(mapcar (lambda (elm) `'(,(car elm) ,(cdr elm) ,(format "Customized with leaf in %s block" leaf--name))) leaf--value)) ,@leaf--body)
+     :custom-face    `((custom-set-faces     ,@(mapcar (lambda (elm) `'(,(car elm) ,(car (cddr elm)))) leaf--value)) ,@leaf--body)
      
      :pre-setq       `(,@(mapcar (lambda (elm) `(setq ,(car elm) ,(cdr elm))) leaf--value) ,@leaf--body)
      :init           `(,@leaf--value ,@leaf--body)
