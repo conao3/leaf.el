@@ -5,7 +5,7 @@
 ;; Author: Naoya Yamashita <conao3@gmail.com>
 ;; Maintainer: Naoya Yamashita <conao3@gmail.com>
 ;; Keywords: lisp settings
-;; Version: 2.3.8
+;; Version: 2.3.9
 ;; URL: https://github.com/conao3/leaf.el
 ;; Package-Requires: ((emacs "24.0"))
 
@@ -289,15 +289,23 @@ MESSAGE and ARGS are passed `format'."
   "Meta handler for PKG from PIN in NAME leaf block."
   (cond
    ((eq leaf-backend-ensure 'package)
-    `(unless (package-installed-p ',pkg)
-       (condition-case-unless-debug err
+    `(unless
+         (package-installed-p ',pkg)
+       (condition-case err
            (progn
-             (unless (assoc ',pkg package-archive-contents)
+             (unless (assoc 'leaf package-archive-contents)
                (package-refresh-contents))
              (package-install ',pkg))
-         (leaf-error
-          ,(format "In `%s' block, failed to install %s: %%s" name pkg)
-          (error-message-string err)))))))
+         (error
+          (condition-case err
+              (progn
+                (package-refresh-contents)
+                (package-install ',pkg))
+            (error
+             (leaf-error
+              ,(format "In `%s' block, failed to :ensure of %s.  Error msg: %%s"
+                       name pkg)
+              (error-message-string err))))))))))
 
 (defmacro leaf-meta-handler-bind (_name elm)
   "Meta handler for NAME with ELM."
