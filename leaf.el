@@ -481,11 +481,9 @@ EXAMPLE:
   (let* ((leaf--autoload)
          (args* (leaf-sort-values-plist
                  (leaf-normalize-plist
-                  (leaf-append-defaults args) 'merge 'eval)))
-         (body (leaf-process-keywords name args*)))
-    (when body
-      `(progn
-         ,@body))))
+                  (leaf-append-defaults args) 'merge 'eval))))
+    `(prog1 ',name
+       ,@(leaf-process-keywords name args*))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
