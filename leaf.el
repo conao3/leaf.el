@@ -90,63 +90,64 @@ with values for these keywords."
 (defvar leaf--autoload)
 
 (defvar leaf-keywords
-  '(:dummy
-    :disabled       (unless (eval (car leaf--value)) `(,@leaf--body))
-    :autoload       `(,@(when (car leaf--value) (mapcar (lambda (elm) `(autoload #',(car elm) ,(cdr elm) nil t)) (nreverse leaf--autoload))) ,@leaf--body)
-    :doc            `(,@leaf--body)
-    :file           `(,@leaf--body)
-    :url            `(,@leaf--body)
+  (cdr
+   '(:dummy
+     :disabled       (unless (eval (car leaf--value)) `(,@leaf--body))
+     :autoload       `(,@(when (car leaf--value) (mapcar (lambda (elm) `(autoload #',(car elm) ,(cdr elm) nil t)) (nreverse leaf--autoload))) ,@leaf--body)
+     :doc            `(,@leaf--body)
+     :file           `(,@leaf--body)
+     :url            `(,@leaf--body)
 
-    :load-path      `(,@(mapcar (lambda (elm) `(add-to-list 'load-path ,elm)) leaf--value) ,@leaf--body)
-    :defun          `(,@(mapcar (lambda (elm) `(declare-function ,(car elm) ,(symbol-name (cdr elm)))) leaf--value) ,@leaf--body)
-    :defvar         `(,@(mapcar (lambda (elm) `(defvar ,elm)) leaf--value) ,@leaf--body)
-    :preface        `(,@leaf--value ,@leaf--body)
+     :load-path      `(,@(mapcar (lambda (elm) `(add-to-list 'load-path ,elm)) leaf--value) ,@leaf--body)
+     :defun          `(,@(mapcar (lambda (elm) `(declare-function ,(car elm) ,(symbol-name (cdr elm)))) leaf--value) ,@leaf--body)
+     :defvar         `(,@(mapcar (lambda (elm) `(defvar ,elm)) leaf--value) ,@leaf--body)
+     :preface        `(,@leaf--value ,@leaf--body)
 
-    :when           (when leaf--body `((when   ,@(if (= 1 (length leaf--value)) leaf--value `((and ,@leaf--value))) ,@leaf--body)))
-    :unless         (when leaf--body `((unless ,@(if (= 1 (length leaf--value)) leaf--value `((and ,@leaf--value))) ,@leaf--body)))
-    :if             (when leaf--body `((if     ,@(if (= 1 (length leaf--value)) leaf--value `((and ,@leaf--value))) (progn ,@leaf--body))))
+     :when           (when leaf--body `((when   ,@(if (= 1 (length leaf--value)) leaf--value `((and ,@leaf--value))) ,@leaf--body)))
+     :unless         (when leaf--body `((unless ,@(if (= 1 (length leaf--value)) leaf--value `((and ,@leaf--value))) ,@leaf--body)))
+     :if             (when leaf--body `((if     ,@(if (= 1 (length leaf--value)) leaf--value `((and ,@leaf--value))) (progn ,@leaf--body))))
 
-    :ensure         `(,@(mapcar (lambda (elm) `(leaf-meta-handler-ensure ,leaf--name ,(car elm) ,(cdr elm))) leaf--value) ,@leaf--body)
+     :ensure         `(,@(mapcar (lambda (elm) `(leaf-meta-handler-ensure ,leaf--name ,(car elm) ,(cdr elm))) leaf--value) ,@leaf--body)
 
-    :after          (when leaf--body (let ((ret `(progn ,@leaf--body)))
-                                       (dolist (elm leaf--value) (setq ret `(eval-after-load ',elm ',ret)))
-                                       `(,ret)))
+     :after          (when leaf--body (let ((ret `(progn ,@leaf--body)))
+                                        (dolist (elm leaf--value) (setq ret `(eval-after-load ',elm ',ret)))
+                                        `(,ret)))
 
-    :custom         `((custom-set-variables ,@(mapcar (lambda (elm) `'(,(car elm) ,(cdr elm) ,(format "Customized with leaf in %s block" leaf--name))) leaf--value)) ,@leaf--body)
-    :custom-face    `((custom-set-faces     ,@(mapcar (lambda (elm) `'(,(car elm) ,(car (cddr elm)))) leaf--value)) ,@leaf--body)
-    :bind           (progn
-                      (mapc (lambda (elm) (leaf-register-autoload (leaf-plist-get :func elm) leaf--name)) leaf--value)
-                      `(,@(mapcar (lambda (elm) `(leaf-meta-handler-bind ,leaf--name ',elm)) leaf--value) ,@leaf--body))
-    :bind*          (progn
-                      (mapc (lambda (elm) (leaf-register-autoload (leaf-plist-get :func elm) leaf--name)) leaf--value)
-                      `(,@(mapcar (lambda (elm) `(leaf-meta-handler-bind* ,leaf--name ',elm)) leaf--value) ,@leaf--body))
+     :custom         `((custom-set-variables ,@(mapcar (lambda (elm) `'(,(car elm) ,(cdr elm) ,(format "Customized with leaf in %s block" leaf--name))) leaf--value)) ,@leaf--body)
+     :custom-face    `((custom-set-faces     ,@(mapcar (lambda (elm) `'(,(car elm) ,(car (cddr elm)))) leaf--value)) ,@leaf--body)
+     :bind           (progn
+                       (mapc (lambda (elm) (leaf-register-autoload (leaf-plist-get :func elm) leaf--name)) leaf--value)
+                       `(,@(mapcar (lambda (elm) `(leaf-meta-handler-bind ,leaf--name ',elm)) leaf--value) ,@leaf--body))
+     :bind*          (progn
+                       (mapc (lambda (elm) (leaf-register-autoload (leaf-plist-get :func elm) leaf--name)) leaf--value)
+                       `(,@(mapcar (lambda (elm) `(leaf-meta-handler-bind* ,leaf--name ',elm)) leaf--value) ,@leaf--body))
 
-    :mode           (progn
-                      (mapc (lambda (elm) (leaf-register-autoload (cdr elm) leaf--name)) leaf--value)
-                      `(,@(mapcar (lambda (elm) `(add-to-list 'auto-mode-alist '(,(car elm) ,(cdr elm)))) leaf--value) ,@leaf--body))
-    :interpreter    (progn
-                      (mapc (lambda (elm) (leaf-register-autoload (cdr elm) leaf--name)) leaf--value)
-                      `(,@(mapcar (lambda (elm) `(add-to-list 'interpreter-mode-alist '(,(car elm) ,(cdr elm)))) leaf--value) ,@leaf--body))
-    :magic          (progn
-                      (mapc (lambda (elm) (leaf-register-autoload (cdr elm) leaf--name)) leaf--value)
-                      `(,@(mapcar (lambda (elm) `(add-to-list 'magic-mode-alist '(,(car elm) ,(cdr elm)))) leaf--value) ,@leaf--body))
-    :magic-fallback (progn
-                      (mapc (lambda (elm) (leaf-register-autoload (cdr elm) leaf--name)) leaf--value)
-                      `(,@(mapcar (lambda (elm) `(add-to-list 'magic-fallback-mode-alist '(,(car elm) ,(cdr elm)))) leaf--value) ,@leaf--body))
-    :hook           (progn
-                      (mapc (lambda (elm) (leaf-register-autoload (cdr elm) leaf--name)) leaf--value)
-                      `(,@(mapcar (lambda (elm) `(add-hook ',(car elm) #',(cdr elm))) leaf--value) ,@leaf--body))
+     :mode           (progn
+                       (mapc (lambda (elm) (leaf-register-autoload (cdr elm) leaf--name)) leaf--value)
+                       `(,@(mapcar (lambda (elm) `(add-to-list 'auto-mode-alist '(,(car elm) ,(cdr elm)))) leaf--value) ,@leaf--body))
+     :interpreter    (progn
+                       (mapc (lambda (elm) (leaf-register-autoload (cdr elm) leaf--name)) leaf--value)
+                       `(,@(mapcar (lambda (elm) `(add-to-list 'interpreter-mode-alist '(,(car elm) ,(cdr elm)))) leaf--value) ,@leaf--body))
+     :magic          (progn
+                       (mapc (lambda (elm) (leaf-register-autoload (cdr elm) leaf--name)) leaf--value)
+                       `(,@(mapcar (lambda (elm) `(add-to-list 'magic-mode-alist '(,(car elm) ,(cdr elm)))) leaf--value) ,@leaf--body))
+     :magic-fallback (progn
+                       (mapc (lambda (elm) (leaf-register-autoload (cdr elm) leaf--name)) leaf--value)
+                       `(,@(mapcar (lambda (elm) `(add-to-list 'magic-fallback-mode-alist '(,(car elm) ,(cdr elm)))) leaf--value) ,@leaf--body))
+     :hook           (progn
+                       (mapc (lambda (elm) (leaf-register-autoload (cdr elm) leaf--name)) leaf--value)
+                       `(,@(mapcar (lambda (elm) `(add-hook ',(car elm) #',(cdr elm))) leaf--value) ,@leaf--body))
 
-    :defer          (if (and leaf--body leaf--value) `((eval-after-load ',leaf--name '(progn ,@leaf--body))) `(,@leaf--body))
- 
-    :commands       (progn (mapc (lambda (elm) (leaf-register-autoload elm leaf--name)) leaf--value) `(,@leaf--body))
-    :pre-setq       `(,@(mapcar (lambda (elm) `(setq ,(car elm) ,(cdr elm))) leaf--value) ,@leaf--body)
-    :init           `(,@leaf--value ,@leaf--body)
-    :require        `(,@(mapcar (lambda (elm) `(require ',elm)) leaf--value) ,@leaf--body)
-    :setq           `(,@(mapcar (lambda (elm) `(setq ,(car elm) ,(cdr elm))) leaf--value) ,@leaf--body)
-    :setq-default   `(,@(mapcar (lambda (elm) `(setq-default ,(car elm) ,(cdr elm))) leaf--value) ,@leaf--body)
-    :config         `(,@leaf--value ,@leaf--body)
-    )
+     :defer          (if (and leaf--body leaf--value) `((eval-after-load ',leaf--name '(progn ,@leaf--body))) `(,@leaf--body))
+     
+     :commands       (progn (mapc (lambda (elm) (leaf-register-autoload elm leaf--name)) leaf--value) `(,@leaf--body))
+     :pre-setq       `(,@(mapcar (lambda (elm) `(setq ,(car elm) ,(cdr elm))) leaf--value) ,@leaf--body)
+     :init           `(,@leaf--value ,@leaf--body)
+     :require        `(,@(mapcar (lambda (elm) `(require ',elm)) leaf--value) ,@leaf--body)
+     :setq           `(,@(mapcar (lambda (elm) `(setq ,(car elm) ,(cdr elm))) leaf--value) ,@leaf--body)
+     :setq-default   `(,@(mapcar (lambda (elm) `(setq-default ,(car elm) ,(cdr elm))) leaf--value) ,@leaf--body)
+     :config         `(,@leaf--value ,@leaf--body)
+     ))
   "Special keywords and conversion rule to be processed by `leaf'.
 Sort by `leaf-sort-leaf--values-plist' in this order.")
 
@@ -254,7 +255,7 @@ Don't call this function directory."
       (setq leaf--value (eval `(cond ,@leaf-normarize)))
       (setq leaf--body (leaf-process-keywords leaf--name leaf--rest leaf--raw))
       (eval
-       (plist-get (cdr leaf-keywords) leaf--key)))))
+       (plist-get leaf-keywords leaf--key)))))
 
 (defun leaf-register-autoload (fn pkg)
   "Registry FN as autoload for PKG."
@@ -418,7 +419,7 @@ EXAMPLE:
   => (:disabled (t)
       :config (message \"a\"))"
   (let ((retplist))
-    (dolist (key (leaf-plist-keys (cdr leaf-keywords)))
+    (dolist (key (leaf-plist-keys leaf-keywords))
       (if (plist-member plist key)
           (setq retplist `(,@retplist ,key ,(plist-get plist key)))))
     retplist))
