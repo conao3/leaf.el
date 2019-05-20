@@ -1033,7 +1033,9 @@ Example
      (prog1 'pdf-tools
        (autoload #'pdf-view-mode "pdf-tools" nil t)
        (add-to-list 'magic-mode-alist '("%PDF" pdf-view-mode))
-       (pdf-tools-install)))
+       (eval-after-load 'pdf-tools
+         '(progn
+            (pdf-tools-install)))))
 
     ((leaf web-mode
        :magic "js" "p?html?")
@@ -1081,7 +1083,9 @@ Example
      (prog1 'pdf-tools
        (autoload #'pdf-view-mode "pdf-tools" nil t)
        (add-to-list 'magic-fallback-mode-alist '("%PDF" pdf-view-mode))
-       (pdf-tools-install)))
+       (eval-after-load 'pdf-tools
+         '(progn
+            (pdf-tools-install)))))
 
     ((leaf web-mode
        :magic-fallback "js" "p?html?")
@@ -1123,6 +1127,16 @@ Example
 
 (cort-deftest-with-macroexpand leaf/hook
   '(((leaf ace-jump-mode
+       :hook cc-mode-hook
+       :config (ace-jump-mode))
+     (prog1 'ace-jump-mode
+       (autoload #'ace-jump-mode "ace-jump-mode" nil t)
+       (add-hook 'cc-mode-hook #'ace-jump-mode)
+       (eval-after-load 'ace-jump-mode
+         '(progn
+            (ace-jump-mode)))))
+
+    ((leaf ace-jump-mode
        :hook cc-mode-hook)
      (prog1 'ace-jump-mode
        (autoload #'ace-jump-mode "ace-jump-mode" nil t)
@@ -1173,7 +1187,9 @@ Example
        :config (leaf-init))
      (prog1 'leaf
        (autoload #'leaf "leaf" nil t)
-       (leaf-init)))
+       (eval-after-load 'leaf
+         '(progn
+            (leaf-init)))))
 
     ((leaf leaf
        :commands leaf leaf-pairp leaf-plist-get)
