@@ -37,8 +37,18 @@
   "Symplifying your `.emacs' configuration."
   :group 'lisp)
 
-(defcustom leaf-defaults '(:autoload t)
+(defcustom leaf-defaults '(:autoload t :defer t)
   "Default values for each leaf packages."
+  :type 'sexp
+  :group 'leaf)
+
+(defcustom leaf-defer-keywords (cdr '(:dummy
+                                      :bind :bind*
+                                      :mode :interpreter :magic :magic-fallback
+                                      :hook :commands))
+  "Specifies a keyword to perform a deferred load.
+`leaf' blocks are lazily loaded by their package name
+with values for these keywords."
   :type 'sexp
   :group 'leaf)
 
@@ -71,6 +81,7 @@
 ;;  leaf keywords definition
 ;;
 
+(defvar leaf--raw)
 (defvar leaf--name)
 (defvar leaf--key)
 (defvar leaf--value)
@@ -96,7 +107,7 @@
     :if             (when leaf--body `((if     ,@(if (= 1 (length leaf--value)) leaf--value `((and ,@leaf--value))) (progn ,@leaf--body))))
 
     :ensure         `(,@(mapcar (lambda (elm) `(leaf-meta-handler-ensure ,leaf--name ,(car elm) ,(cdr elm))) leaf--value) ,@leaf--body)
-    
+
     :after          (when leaf--body (let ((ret `(progn ,@leaf--body)))
                                        (dolist (elm leaf--value) (setq ret `(eval-after-load ',elm ',ret)))
                                        `(,ret)))
@@ -126,6 +137,8 @@
                       (mapc (lambda (elm) (leaf-register-autoload (cdr elm) leaf--name)) leaf--value)
                       `(,@(mapcar (lambda (elm) `(add-hook ',(car elm) #',(cdr elm))) leaf--value) ,@leaf--body))
 
+    :defer          (if (and leaf--body leaf--value) `((eval-after-load ',leaf--name '(progn ,@leaf--body))) `(,@leaf--body))
+ 
     :commands       (progn (mapc (lambda (elm) (leaf-register-autoload elm leaf--name)) leaf--value) `(,@leaf--body))
     :pre-setq       `(,@(mapcar (lambda (elm) `(setq ,(car elm) ,(cdr elm))) leaf--value) ,@leaf--body)
     :init           `(,@leaf--value ,@leaf--body)
@@ -155,6 +168,13 @@ Sort by `leaf-sort-leaf--values-plist' in this order.")
      ;; Note  : 'nil is just ignored
      ;;         remove duplicate element
      (delete-dups (delq nil (leaf-flatten leaf--value))))
+
+    ((memq leaf--key '(:defer))
+     ;; Accept: 't, 'nil, symbol and list of these (and nested)
+     ;; Return: 't, 'nil
+     ;; Note  : 't is returned when specified `leaf-defer-keywords'.
+     (and (delq nil (leaf-flatten leaf--value))
+          (leaf-list-memq leaf-defer-keywords (leaf-plist-keys leaf--raw))))
 
     ((memq leaf--key (cdr '(:dummy
                             :ensure
@@ -211,14 +231,14 @@ Sort by `leaf-sort-leaf--values-plist' in this order.")
                          elm))
                      leaf--value)))
 
-    ((memq leaf--key '(:disabled :if :when :unless :doc :file :url :preface :init :config))
+    ((memq leaf--key '(:dummy :disabled :if :when :unless :doc :file :url :preface :init :config))
      leaf--value)
 
     (t
      leaf--value))
   "Normarize rule")
 
-(defun leaf-process-keywords (name plist)
+(defun leaf-process-keywords (name plist raw)
   "Process keywords for NAME.
 NOTE:
 Not check PLIST, PLIST has already been carefully checked
@@ -227,17 +247,20 @@ Don't call this function directory."
   (when plist
     (let* ((leaf--name  name)
            (leaf--key   (pop plist))
-           (leaf--value (leaf-normarize-args leaf--name leaf--key (pop plist)))
-           (leaf--body  (leaf-process-keywords leaf--name plist))
+           (leaf--raw   raw)
+           (leaf--value (leaf-normarize-args leaf--name leaf--key (pop plist) plist raw))
+           (leaf--body  (leaf-process-keywords leaf--name plist raw))
            (leaf--rest  plist))
       (eval
        (plist-get (cdr leaf-keywords) leaf--key)))))
 
-(defun leaf-normarize-args (name key value)
+(defun leaf-normarize-args (name key value rest raw)
   "Normarize for NAME, KEY and VALUE."
   (let ((leaf--name  name)
         (leaf--key   key)
-        (leaf--value value))
+        (leaf--raw   raw)
+        (leaf--value value)
+        (leaf--rest  rest))
     (eval
      `(cond
        ,@leaf-normarize))))
@@ -483,7 +506,7 @@ EXAMPLE:
                  (leaf-normalize-plist
                   (leaf-append-defaults args) 'merge 'eval))))
     `(prog1 ',name
-       ,@(leaf-process-keywords name args*))))
+       ,@(leaf-process-keywords name args* args*))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
