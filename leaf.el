@@ -5,7 +5,7 @@
 ;; Author: Naoya Yamashita <conao3@gmail.com>
 ;; Maintainer: Naoya Yamashita <conao3@gmail.com>
 ;; Keywords: lisp settings
-;; Version: 2.3.5
+;; Version: 2.3.6
 ;; URL: https://github.com/conao3/leaf.el
 ;; Package-Requires: ((emacs "24.0"))
 
@@ -81,10 +81,7 @@
 (defvar leaf-keywords
   '(:dummy
     :disabled       (unless (eval (car leaf--value)) `(,@leaf--body))
-    :autoload       `(,@(when (car leaf--value)
-                          (mapcar (lambda (elm) `(autoload #',(car elm) ,(cdr elm) nil t)) (nreverse leaf--autoload)))
-                      ,@leaf--body)
-    :ensure         `(,@(mapcar (lambda (elm) `(leaf-meta-handler-ensure ,leaf--name ,(car elm) ,(cdr elm))) leaf--value) ,@leaf--body)
+    :autoload       `(,@(when (car leaf--value) (mapcar (lambda (elm) `(autoload #',(car elm) ,(cdr elm) nil t)) (nreverse leaf--autoload))) ,@leaf--body)
     :doc            `(,@leaf--body)
     :file           `(,@leaf--body)
     :url            `(,@leaf--body)
@@ -94,19 +91,18 @@
     :defvar         `(,@(mapcar (lambda (elm) `(defvar ,elm)) leaf--value) ,@leaf--body)
     :preface        `(,@leaf--value ,@leaf--body)
 
-    :when           (when leaf--body `((when ,@(if (= 1 (length leaf--value)) leaf--value `((and ,@leaf--value)))
-                                         ,@leaf--body)))
-    :unless         (when leaf--body `((unless ,@(if (= 1 (length leaf--value)) leaf--value `((and ,@leaf--value)))
-                                         ,@leaf--body)))
-    :if             (when leaf--body `((if ,@(if (= 1 (length leaf--value)) leaf--value `((and ,@leaf--value)))
-                                           (progn ,@leaf--body))))
+    :when           (when leaf--body `((when   ,@(if (= 1 (length leaf--value)) leaf--value `((and ,@leaf--value))) ,@leaf--body)))
+    :unless         (when leaf--body `((unless ,@(if (= 1 (length leaf--value)) leaf--value `((and ,@leaf--value))) ,@leaf--body)))
+    :if             (when leaf--body `((if     ,@(if (= 1 (length leaf--value)) leaf--value `((and ,@leaf--value))) (progn ,@leaf--body))))
 
+    :ensure         `(,@(mapcar (lambda (elm) `(leaf-meta-handler-ensure ,leaf--name ,(car elm) ,(cdr elm))) leaf--value) ,@leaf--body)
+    
     :after          (when leaf--body (let ((ret `(progn ,@leaf--body)))
                                        (dolist (elm leaf--value) (setq ret `(eval-after-load ',elm ',ret)))
                                        `(,ret)))
 
     :custom         `((custom-set-variables ,@(mapcar (lambda (elm) `'(,(car elm) ,(cdr elm) ,(format "Customized with leaf in %s block" leaf--name))) leaf--value)) ,@leaf--body)
-    :custom-face    `((custom-set-faces ,@(mapcar (lambda (elm) `'(,(car elm) ,(car (cddr elm)))) leaf--value)) ,@leaf--body)
+    :custom-face    `((custom-set-faces     ,@(mapcar (lambda (elm) `'(,(car elm) ,(car (cddr elm)))) leaf--value)) ,@leaf--body)
     :bind           (progn
                       (mapc (lambda (elm) (leaf-register-autoload (leaf-plist-get :func elm) leaf--name)) leaf--value)
                       `(,@(mapcar (lambda (elm) `(leaf-meta-handler-bind ,leaf--name ',elm)) leaf--value) ,@leaf--body))
