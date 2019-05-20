@@ -5,7 +5,7 @@
 ;; Author: Naoya Yamashita <conao3@gmail.com>
 ;; Maintainer: Naoya Yamashita <conao3@gmail.com>
 ;; Keywords: lisp settings
-;; Version: 2.3.9
+;; Version: 2.4.0
 ;; URL: https://github.com/conao3/leaf.el
 ;; Package-Requires: ((emacs "24.0"))
 
@@ -37,7 +37,7 @@
   "Symplifying your `.emacs' configuration."
   :group 'lisp)
 
-(defcustom leaf-defaults '(:autoload t :defer t)
+(defcustom leaf-defaults '(:autoload t :defer t :no-error t)
   "Default values for each leaf packages."
   :type 'sexp
   :group 'leaf)
@@ -76,6 +76,16 @@ with values for these keywords."
   :type 'sexp
   :group 'leaf)
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;
+;;  Customize keywords
+;;
+
+(defcustom leaf-expand-no-error t
+  "If nil, override :no-error with nil"
+  :type 'boolean
+  :group 'leaf)
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
 ;;  leaf keywords definition
@@ -93,6 +103,9 @@ with values for these keywords."
   (cdr
    '(:dummy
      :disabled       (unless (eval (car leaf--value)) `(,@leaf--body))
+     :no-error       (if (and leaf-expand-no-error leaf--body leaf--key)
+                         `((condition-case err (progn ,@leaf--body) (error (leaf-error ,(format "Error in `%s' block.  Error msg: %%s" leaf--name) (error-message-string err)))))
+                       `(,@leaf--body))
      :autoload       `(,@(when (car leaf--value) (mapcar (lambda (elm) `(autoload #',(car elm) ,(cdr elm) nil t)) (nreverse leaf--autoload))) ,@leaf--body)
 
      :doc            `(,@leaf--body)
@@ -178,6 +191,11 @@ Sort by `leaf-sort-leaf--values-plist' in this order.")
      ;; Note  : 't is returned when specified `leaf-defer-keywords'.
      (and (delq nil (leaf-flatten leaf--value))
           (leaf-list-memq leaf-defer-keywords (leaf-plist-keys leaf--raw))))
+
+    ((memq leaf--key '(:no-error))
+     ;; Accept: 't, 'nil, symbol and list of these (and nested)
+     ;; Return: 't, 'nil
+     (leaf-truep (delq nil (leaf-flatten leaf--value))))
 
     ((memq leaf--key (cdr '(:dummy
                             :ensure
