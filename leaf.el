@@ -5,7 +5,7 @@
 ;; Author: Naoya Yamashita <conao3@gmail.com>
 ;; Maintainer: Naoya Yamashita <conao3@gmail.com>
 ;; Keywords: lisp settings
-;; Version: 2.4.2
+;; Version: 2.4.3
 ;; URL: https://github.com/conao3/leaf.el
 ;; Package-Requires: ((emacs "24.0"))
 
@@ -37,8 +37,13 @@
   "Symplifying your `.emacs' configuration."
   :group 'lisp)
 
-(defcustom leaf-defaults '(:autoload t :defer t :no-error t)
+(defcustom leaf-defaults '()
   "Default values for each leaf packages."
+  :type 'sexp
+  :group 'leaf)
+
+(defcustom leaf-system-defaults '(:leaf-autoload t :leaf-defer t :leaf-no-error t)
+  "Default values for each leaf packages for `leaf' system."
   :type 'sexp
   :group 'leaf)
 
@@ -94,11 +99,11 @@ with values for these keywords."
   (cdr
    '(:dummy
      :disabled       (unless (eval (car leaf--value)) `(,@leaf--body))
-     :no-error       (if (and leaf--body leaf--key)
+     :leaf-no-error  (if (and leaf--body leaf--key)
                          `((condition-case err (progn ,@leaf--body) (error (leaf-error ,(format "Error in `%s' block.  Error msg: %%s" leaf--name) (error-message-string err)))))
                        `(,@leaf--body))
      :load-path      `(,@(mapcar (lambda (elm) `(add-to-list 'load-path ,elm)) leaf--value) ,@leaf--body)
-     :autoload       `(,@(when (car leaf--value) (mapcar (lambda (elm) `(autoload #',(car elm) ,(cdr elm) nil t)) (nreverse leaf--autoload))) ,@leaf--body)
+     :leaf-autoload  `(,@(when (car leaf--value) (mapcar (lambda (elm) `(autoload #',(car elm) ,(cdr elm) nil t)) (nreverse leaf--autoload))) ,@leaf--body)
 
      :doc            `(,@leaf--body)
      :file           `(,@leaf--body)
@@ -142,7 +147,7 @@ with values for these keywords."
                        (mapc (lambda (elm) (leaf-register-autoload (cdr elm) leaf--name)) leaf--value)
                        `(,@(mapcar (lambda (elm) `(add-hook ',(car elm) #',(cdr elm))) leaf--value) ,@leaf--body))
 
-     :defer          (if (and leaf--body leaf--value) `((eval-after-load ',leaf--name '(progn ,@leaf--body))) `(,@leaf--body))
+     :leaf-defer     (if (and leaf--body leaf--value) `((eval-after-load ',leaf--name '(progn ,@leaf--body))) `(,@leaf--body))
 
      :custom         `((custom-set-variables ,@(mapcar (lambda (elm) `'(,(car elm) ,(cdr elm) ,(format "Customized with leaf in %s block" leaf--name))) leaf--value)) ,@leaf--body)
      :custom-face    `((custom-set-faces     ,@(mapcar (lambda (elm) `'(,(car elm) ,(car (cddr elm)))) leaf--value)) ,@leaf--body)
@@ -176,14 +181,14 @@ Sort by `leaf-sort-leaf--values-plist' in this order.")
      ;;         remove duplicate element
      (delete-dups (delq nil (leaf-flatten leaf--value))))
 
-    ((memq leaf--key '(:defer))
+    ((memq leaf--key '(:leaf-defer))
      ;; Accept: 't, 'nil, symbol and list of these (and nested)
      ;; Return: 't, 'nil
      ;; Note  : 't is returned when specified `leaf-defer-keywords'.
      (and (delq nil (leaf-flatten leaf--value))
           (leaf-list-memq leaf-defer-keywords (leaf-plist-keys leaf--raw))))
 
-    ((memq leaf--key '(:no-error))
+    ((memq leaf--key '(:leaf-no-error))
      ;; Accept: 't, 'nil, symbol and list of these (and nested)
      ;; Return: 't, 'nil
      (leaf-truep (delq nil (leaf-flatten leaf--value))))
@@ -388,7 +393,7 @@ MESSAGE and ARGS are passed `format'."
 
 (defun leaf-append-defaults (plist)
   "Append leaf default values to PLIST."
-  (append plist leaf-defaults))
+  (append plist leaf-defaults leaf-system-defaults))
 
 (defun leaf-add-keyword-before (target belm)
   "Add leaf keyword as name TARGET before BELM."
