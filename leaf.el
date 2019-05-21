@@ -5,7 +5,7 @@
 ;; Author: Naoya Yamashita <conao3@gmail.com>
 ;; Maintainer: Naoya Yamashita <conao3@gmail.com>
 ;; Keywords: lisp settings
-;; Version: 2.4.1
+;; Version: 2.4.2
 ;; URL: https://github.com/conao3/leaf.el
 ;; Package-Requires: ((emacs "24.0"))
 
@@ -112,7 +112,7 @@ with values for these keywords."
      :unless         (when leaf--body `((unless ,@(if (= 1 (length leaf--value)) leaf--value `((and ,@leaf--value))) ,@leaf--body)))
      :if             (when leaf--body `((if     ,@(if (= 1 (length leaf--value)) leaf--value `((and ,@leaf--value))) (progn ,@leaf--body))))
 
-     :ensure         `(,@(mapcar (lambda (elm) `(leaf-meta-handler-ensure ,leaf--name ,(car elm) ,(cdr elm))) leaf--value) ,@leaf--body)
+     :ensure         `(,@(mapcar (lambda (elm) `(leaf-handler-ensure ,leaf--name ,(car elm) ,(cdr elm))) leaf--value) ,@leaf--body)
 
      :after          (when leaf--body (let ((ret `(progn ,@leaf--body)))
                                         (dolist (elm leaf--value) (setq ret `(eval-after-load ',elm ',ret)))
@@ -121,10 +121,10 @@ with values for these keywords."
      :commands       (progn (mapc (lambda (elm) (leaf-register-autoload elm leaf--name)) leaf--value) `(,@leaf--body))
      :bind           (progn
                        (mapc (lambda (elm) (leaf-register-autoload (leaf-plist-get :func elm) leaf--name)) leaf--value)
-                       `(,@(mapcar (lambda (elm) `(leaf-meta-handler-bind ,leaf--name ',elm)) leaf--value) ,@leaf--body))
+                       `(,@(mapcar (lambda (elm) `(leaf-handler-bind ,leaf--name ',elm)) leaf--value) ,@leaf--body))
      :bind*          (progn
                        (mapc (lambda (elm) (leaf-register-autoload (leaf-plist-get :func elm) leaf--name)) leaf--value)
-                       `(,@(mapcar (lambda (elm) `(leaf-meta-handler-bind* ,leaf--name ',elm)) leaf--value) ,@leaf--body))
+                       `(,@(mapcar (lambda (elm) `(leaf-handler-bind* ,leaf--name ',elm)) leaf--value) ,@leaf--body))
 
      :mode           (progn
                        (mapc (lambda (elm) (leaf-register-autoload (cdr elm) leaf--name)) leaf--value)
@@ -312,10 +312,10 @@ MESSAGE and ARGS are passed `format'."
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
-;;  Meta handler
+;;  Handler
 ;;
 
-(defmacro leaf-meta-handler-ensure (name pkg _pin)
+(defmacro leaf-handler-ensure (name pkg _pin)
   "Meta handler for PKG from PIN in NAME leaf block."
   (cond
    ((eq leaf-backend-ensure 'package)
@@ -337,7 +337,7 @@ MESSAGE and ARGS are passed `format'."
                        name pkg)
               (error-message-string err))))))))))
 
-(defmacro leaf-meta-handler-bind (_name elm)
+(defmacro leaf-handler-bind (_name elm)
   "Meta handler for NAME with ELM."
   (declare (indent 1))
   (cond
@@ -349,7 +349,7 @@ MESSAGE and ARGS are passed `format'."
            (fn  (leaf-plist-get :func elm*)))
       `(bind-keys ,@(when map `(:map ,map)) :package ,pkg (,key . ,fn))))))
 
-(defmacro leaf-meta-handler-bind* (_name elm)
+(defmacro leaf-handler-bind* (_name elm)
   "Meta handler for NAME with ELM."
   (declare (indent 1))
   (cond
