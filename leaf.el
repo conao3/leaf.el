@@ -275,8 +275,13 @@ Don't call this function directory."
            (leaf--raw     raw)
            (leaf--rest    plist)
            (leaf--body))
+      ;; renew (normalize) leaf--value, save follow expansion in leaf--body
       (setq leaf--value (eval `(cond ,@leaf-normarize)))
       (setq leaf--body (leaf-process-keywords leaf--name leaf--rest leaf--raw))
+
+      ;; if leaf-expand-no-error is nil, stop :no-error expansion.
+      ;; unconditionally expands if leaf-expand is not declared,
+      ;; as when only leaf-keyword is updated by the user or other packages.
       (if (boundp (intern (format "leaf-expand-%s" leaf--keyname)))
           (if (eval (intern (format "leaf-expand-%s" leaf--keyname)))
               (eval (plist-get leaf-keywords leaf--key))
