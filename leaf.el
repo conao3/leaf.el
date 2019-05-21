@@ -5,7 +5,7 @@
 ;; Author: Naoya Yamashita <conao3@gmail.com>
 ;; Maintainer: Naoya Yamashita <conao3@gmail.com>
 ;; Keywords: lisp settings
-;; Version: 2.4.3
+;; Version: 2.4.4
 ;; URL: https://github.com/conao3/leaf.el
 ;; Package-Requires: ((emacs "24.0"))
 
@@ -99,9 +99,7 @@ with values for these keywords."
   (cdr
    '(:dummy
      :disabled       (unless (eval (car leaf--value)) `(,@leaf--body))
-     :leaf-no-error  (if (and leaf--body leaf--key)
-                         `((condition-case err (progn ,@leaf--body) (error (leaf-error ,(format "Error in `%s' block.  Error msg: %%s" leaf--name) (error-message-string err)))))
-                       `(,@leaf--body))
+     :leaf-no-error  (if (and leaf--body leaf--value) `((leaf-handler-leaf-no-error ,leaf--name ,@leaf--body)) `(,@leaf--body))
      :load-path      `(,@(mapcar (lambda (elm) `(add-to-list 'load-path ,elm)) leaf--value) ,@leaf--body)
      :leaf-autoload  `(,@(when (car leaf--value) (mapcar (lambda (elm) `(autoload #',(car elm) ,(cdr elm) nil t)) (nreverse leaf--autoload))) ,@leaf--body)
 
@@ -319,6 +317,15 @@ MESSAGE and ARGS are passed `format'."
 ;;
 ;;  Handler
 ;;
+
+(defmacro leaf-handler-leaf-no-error (name &rest body)
+  "Meta handler for :leaf-no-erorr in NAME leaf block."
+  (declare (indent 1))
+  `(condition-case err
+       (progn ,@body)
+     (error
+      (leaf-error ,(format "Error in `%s' block.  Error msg: %%s" name)
+                  (error-message-string err)))))
 
 (defmacro leaf-handler-ensure (name pkg _pin)
   "Meta handler for PKG from PIN in NAME leaf block."
