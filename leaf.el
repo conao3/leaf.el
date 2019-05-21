@@ -268,12 +268,12 @@ Not check PLIST, PLIST has already been carefully checked
 parent funcitons.
 Don't call this function directory."
   (when plist
-    (let* ((leaf--name  name)
-           (leaf--key   (pop plist))
+    (let* ((leaf--name    name)
+           (leaf--key     (pop plist))
            (leaf--keyname (substring (symbol-name leaf--key) 1))
-           (leaf--value (pop plist))
-           (leaf--raw   raw)
-           (leaf--rest  plist)
+           (leaf--value   (pop plist))
+           (leaf--raw     raw)
+           (leaf--rest    plist)
            (leaf--body))
       (setq leaf--value (eval `(cond ,@leaf-normarize)))
       (setq leaf--body (leaf-process-keywords leaf--name leaf--rest leaf--raw))
