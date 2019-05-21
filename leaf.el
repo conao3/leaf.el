@@ -282,11 +282,12 @@ Don't call this function directory."
       ;; if leaf-expand-no-error is nil, stop :no-error expansion.
       ;; unconditionally expands if leaf-expand is not declared,
       ;; as when only leaf-keyword is updated by the user or other packages.
-      (if (boundp (intern (format "leaf-expand-%s" leaf--keyname)))
-          (if (eval (intern (format "leaf-expand-%s" leaf--keyname)))
-              (eval (plist-get leaf-keywords leaf--key))
-            leaf--body)
-        (eval (plist-get leaf-keywords leaf--key))))))
+      (let ((var (intern (format "leaf-expand-%s" leaf--keyname))))
+        (if (boundp var)
+            (if (eval var)
+                (eval (plist-get leaf-keywords leaf--key))
+              leaf--body)
+          (eval (plist-get leaf-keywords leaf--key)))))))
 
 (defun leaf-register-autoload (fn pkg)
   "Registry FN as autoload for PKG."
