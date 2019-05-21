@@ -123,7 +123,7 @@ Example
 
 (custom-set-variables '(leaf-backend-ensure 'package)
                       '(leaf-backend-bind   'bind-key)
-                      '(leaf-expand-no-error nil))
+                      '(leaf-expand-leaf-no-error nil))
 
 (cort-deftest-with-macroexpand leaf/none
   '(((leaf leaf)
