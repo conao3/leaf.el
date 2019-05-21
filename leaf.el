@@ -76,16 +76,6 @@ with values for these keywords."
   :type 'sexp
   :group 'leaf)
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;
-;;  Customize keywords
-;;
-
-(defcustom leaf-expand-no-error t
-  "If nil, override :no-error with nil"
-  :type 'boolean
-  :group 'leaf)
-
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
 ;;  leaf keywords definition
@@ -94,6 +84,7 @@ with values for these keywords."
 (defvar leaf--raw)
 (defvar leaf--name)
 (defvar leaf--key)
+(defvar leaf--keyname)
 (defvar leaf--value)
 (defvar leaf--body)
 (defvar leaf--rest)
@@ -103,7 +94,7 @@ with values for these keywords."
   (cdr
    '(:dummy
      :disabled       (unless (eval (car leaf--value)) `(,@leaf--body))
-     :no-error       (if (and leaf-expand-no-error leaf--body leaf--key)
+     :no-error       (if (and leaf--body leaf--key)
                          `((condition-case err (progn ,@leaf--body) (error (leaf-error ,(format "Error in `%s' block.  Error msg: %%s" leaf--name) (error-message-string err)))))
                        `(,@leaf--body))
      :load-path      `(,@(mapcar (lambda (elm) `(add-to-list 'load-path ,elm)) leaf--value) ,@leaf--body)
@@ -259,6 +250,17 @@ Sort by `leaf-sort-leaf--values-plist' in this order.")
      leaf--value))
   "Normarize rule")
 
+(eval
+ `(progn
+    ,@(mapcar
+       (lambda (elm)
+         (let ((keyname (substring (symbol-name elm) 1)))
+           `(defcustom ,(intern (format "leaf-expand-%s" keyname)) t
+              ,(format "If nil, do not expand values for :%s." keyname)
+              :type 'boolean
+              :group 'leaf)))
+       (leaf-plist-keys leaf-keywords))))
+
 (defun leaf-process-keywords (name plist raw)
   "Process keywords for NAME.
 NOTE:
@@ -266,16 +268,26 @@ Not check PLIST, PLIST has already been carefully checked
 parent funcitons.
 Don't call this function directory."
   (when plist
-    (let* ((leaf--name  name)
-           (leaf--key   (pop plist))
-           (leaf--value (pop plist))
-           (leaf--raw   raw)
-           (leaf--rest  plist)
+    (let* ((leaf--name    name)
+           (leaf--key     (pop plist))
+           (leaf--keyname (substring (symbol-name leaf--key) 1))
+           (leaf--value   (pop plist))
+           (leaf--raw     raw)
+           (leaf--rest    plist)
            (leaf--body))
+      ;; renew (normalize) leaf--value, save follow expansion in leaf--body
       (setq leaf--value (eval `(cond ,@leaf-normarize)))
       (setq leaf--body (leaf-process-keywords leaf--name leaf--rest leaf--raw))
-      (eval
-       (plist-get leaf-keywords leaf--key)))))
+
+      ;; if leaf-expand-no-error is nil, stop :no-error expansion.
+      ;; unconditionally expands if leaf-expand is not declared,
+      ;; as when only leaf-keyword is updated by the user or other packages.
+      (let ((var (intern (format "leaf-expand-%s" leaf--keyname))))
+        (if (boundp var)
+            (if (eval var)
+                (eval (plist-get leaf-keywords leaf--key))
+              leaf--body)
+          (eval (plist-get leaf-keywords leaf--key)))))))
 
 (defun leaf-register-autoload (fn pkg)
   "Registry FN as autoload for PKG."
