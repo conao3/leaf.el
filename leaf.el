@@ -408,40 +408,6 @@ Sort by `leaf-sort-leaf--values-plist' in this order.")
               :group 'leaf)))
        (leaf-plist-keys leaf-keywords))))
 
-(defun leaf-process-keywords (name plist raw)
-  "Process keywords for NAME.
-NOTE:
-Not check PLIST, PLIST has already been carefully checked
-parent funcitons.
-Don't call this function directory."
-  (when plist
-    (let* ((leaf--name    name)
-           (leaf--key     (pop plist))
-           (leaf--keyname (substring (symbol-name leaf--key) 1))
-           (leaf--value   (pop plist))
-           (leaf--raw     raw)
-           (leaf--rest    plist)
-           (leaf--body))
-      ;; renew (normalize) leaf--value, save follow expansion in leaf--body
-      (setq leaf--value (eval `(cond ,@leaf-normarize)))
-      (setq leaf--body (leaf-process-keywords leaf--name leaf--rest leaf--raw))
-
-      ;; if leaf-expand-no-error is nil, stop :no-error expansion.
-      ;; unconditionally expands if leaf-expand is not declared,
-      ;; as when only leaf-keyword is updated by the user or other packages.
-      (let ((var (intern (format "leaf-expand-%s" leaf--keyname))))
-        (if (boundp var)
-            (if (eval var)
-                (eval (plist-get leaf-keywords leaf--key))
-              leaf--body)
-          (eval (plist-get leaf-keywords leaf--key)))))))
-
-(defun leaf-register-autoload (fn pkg)
-  "Registry FN as autoload for PKG."
-  (let ((target `(,fn . ,(symbol-name pkg))))
-    (when (and fn (not (member target leaf--autoload)))
-      (setq leaf--autoload (cons target leaf--autoload)))))
-
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
 ;;  Key management
@@ -540,6 +506,12 @@ NOTE: :package, :bind can accept list of these.
 ;;
 ;;  Handler
 ;;
+
+(defun leaf-register-autoload (fn pkg)
+  "Registry FN as autoload for PKG."
+  (let ((target `(,fn . ,(symbol-name pkg))))
+    (when (and fn (not (member target leaf--autoload)))
+      (setq leaf--autoload (cons target leaf--autoload)))))
 
 (defmacro leaf-handler-leaf-no-error (name &rest body)
   "Meta handler for :leaf-no-erorr in NAME leaf block."
@@ -743,7 +715,6 @@ EXAMPLE:
       :config (message \"c\")) t)
   => (:defer (t)
       :config ((message \"a\") (message \"b\") (message \"c\"))"
-
   ;; using reverse list, push (:keyword worklist) when find :keyword
   (let ((retplist) (worklist) (rlist (reverse plist)))
     (dolist (target rlist)
@@ -768,6 +739,34 @@ EXAMPLE:
 ;;
 ;;  Main macro
 ;;
+
+(defun leaf-process-keywords (name plist raw)
+  "Process keywords for NAME.
+NOTE:
+Not check PLIST, PLIST has already been carefully checked
+parent funcitons.
+Don't call this function directory."
+  (when plist
+    (let* ((leaf--name    name)
+           (leaf--key     (pop plist))
+           (leaf--keyname (substring (symbol-name leaf--key) 1))
+           (leaf--value   (pop plist))
+           (leaf--raw     raw)
+           (leaf--rest    plist)
+           (leaf--body))
+      ;; renew (normalize) leaf--value, save follow expansion in leaf--body
+      (setq leaf--value (eval `(cond ,@leaf-normarize)))
+      (setq leaf--body (leaf-process-keywords leaf--name leaf--rest leaf--raw))
+
+      ;; if leaf-expand-no-error is nil, stop :no-error expansion.
+      ;; unconditionally expands if leaf-expand is not declared,
+      ;; as when only leaf-keyword is updated by the user or other packages.
+      (let ((var (intern (format "leaf-expand-%s" leaf--keyname))))
+        (if (boundp var)
+            (if (eval var)
+                (eval (plist-get leaf-keywords leaf--key))
+              leaf--body)
+          (eval (plist-get leaf-keywords leaf--key)))))))
 
 (defmacro leaf (name &rest args)
   "Symplify your `.emacs' configuration for package NAME with ARGS."
