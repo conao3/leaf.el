@@ -19,7 +19,6 @@ DEPENDS      :=
 
 TESTFILE     := leaf-tests.el
 ELS          := leaf.el
-ELS           += leaf-polyfill.el
 
 CORTELS      := $(TESTFILE) cort-test.el
 
