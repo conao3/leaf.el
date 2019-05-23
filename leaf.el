@@ -5,7 +5,7 @@
 ;; Author: Naoya Yamashita <conao3@gmail.com>
 ;; Maintainer: Naoya Yamashita <conao3@gmail.com>
 ;; Keywords: lisp settings
-;; Version: 2.4.4
+;; Version: 2.4.5
 ;; URL: https://github.com/conao3/leaf.el
 ;; Package-Requires: ((emacs "24.0"))
 
@@ -312,6 +312,100 @@ MESSAGE and ARGS are passed `format'."
   "Minor change from `error' for `leaf'.
 MESSAGE and ARGS are passed `format'."
   (display-warning 'leaf (apply #'format `(,message ,@args)) :error))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;
+;;  Key management
+;;
+
+(defvar leaf-key-override-global-map (make-keymap)
+  "leaf-override-global-mode keymap")
+
+(define-minor-mode leaf-key-override-global-mode
+  "A minor mode so that keymap settings override other modes."
+  t "")
+
+;; the keymaps in `emulation-mode-map-alists' take precedence over
+;; `minor-mode-map-alist'
+(add-to-list 'emulation-mode-map-alists
+             `((leaf-key-override-global-mode . ,leaf-key-override-global-map)))
+
+(defvar leaf-key-bindlist nil
+  "List of bindings performed by `leaf-key'.
+Elements have the form ((KEY . [MAP]) CMD ORIGINAL-CMD)")
+
+(defmacro leaf-key (key command &optional keymap)
+  "Bind KEY to COMMAND in KEYMAP (`global-map' if not passed).
+
+KEY-NAME may be a vector, in which case it is passed straight to
+`define-key'. Or it may be a string to be interpreted as
+spelled-out keystrokes, e.g., \"C-c C-z\". See documentation of
+`edmacro-mode' for details.
+
+COMMAND must be an interactive function or lambda form.
+
+KEYMAP, if present, should be a keymap and not a quoted symbol.
+For example:
+  (bind-key \"M-h\" #'some-interactive-function my-mode-map)
+
+If PREDICATE is non-nil, it is a form evaluated to determine when
+a key should be bound. It must return non-nil in such cases.
+Emacs can evaluate this form at any time that it does redisplay
+or operates on menu data structures, so you should write it so it
+can safely be called at any time.
+
+You can also use [remap COMMAND] as KEY.
+For example:
+  (leaf-key [remap backward-sentence] 'sh-beginning-of-command)"
+  (let* ((mmap (or (eval keymap) 'global-map))
+         (vecp (vectorp key))
+         (mvec (if (vectorp key) key (read-kbd-macro key)))
+         (mstr (if (stringp key) key (key-description key))))
+    `(let* ((old (lookup-key ,mmap ,(if vecp key `(kbd ,key))))
+            (value ,(list '\` `((,mstr . ,mmap) ,(eval command) ,',(unless (numberp old) old)))))
+       (push value leaf-key-bindlist)
+       (define-key ,mmap ,(if vecp key `(kbd ,key)) ,command))))
+
+(defmacro leaf-key* (key command)
+  "Similar to `bind-key', but overrides any mode-specific bindings."
+  `(leaf-key ,key ,command 'leaf-key-override-global-map))
+
+(defmacro leaf-keys (&rest plist)
+  "Bind multiple keys at once.
+
+Accepts keyword arguments:
+MUST:
+  :bind (KEY . COMMAND) - bind KEY to COMMAND
+        (KEY . nil)     - unbind KEY
+
+OPTIONAL:
+  :map MAP              - a keymap into which the keybind should be added
+  :package PKG          - a package in which the MAP defined in
+                          (wrap `eval-after-load' PKG)
+
+NOTE: :package, :bind can accept list of these.
+  :package (PKG ... PKG)
+  :bind ((KEY . COMMAND) ... (KEY . COMMAND))"
+  (let ((mmap  (leaf-plist-get :map plist))
+        (mpkg  (leaf-plist-get :package plist))
+        (mbind (leaf-plist-get :bind plist))
+        (mform))
+    (unless mbind (leaf-error "leaf-keys need :bind argument.  arg: %s" plist))
+    (when (atom mpkg) (setq mpkg `(,mpkg)))
+    (when (leaf-pairp mbind 'allow-nil) (setq mbind `(,mbind)))
+    (setq mform `(progn
+                  ,@(mapcar
+                     (lambda (elm) `(leaf-key ,(car elm) ',(cdr elm) ',mmap))
+                     mbind)))
+    (if (equal '(nil) mpkg)
+        mform
+      (dolist (pkg mpkg) (setq mform `(eval-after-load ',pkg ',mform)))
+      mform)))
+
+(defmacro leaf-keys* (&rest plist)
+  (when (leaf-plist-get :map plist)
+    (leaf-error "leaf-keys* should not call with :map argument.  arg: %s" plist))
+  `(leaf-key :map 'leaf-key-override-global-map ,@plist))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
