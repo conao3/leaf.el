@@ -158,7 +158,7 @@ MESSAGE and ARGS are passed `format'."
   (declare (indent 2))
   (mapcar (lambda (elm) (if (eq elm old) new elm)) lst))
 
-(defun leaf-insert-before (lst target belm)
+(defun leaf-insert-before (lst belm target)
   "Insert TARGET before BELM in LST."
   (declare (indent 2))
   (let ((retlst) (frg))
@@ -171,7 +171,7 @@ MESSAGE and ARGS are passed `format'."
       (warn (format "%s is not found in given list" belm)))
     (nreverse retlst)))
 
-(defun leaf-insert-after (lst target aelm)
+(defun leaf-insert-after (lst aelm target)
   "Insert TARGET after AELM in LST."
   (declare (indent 2))
   (let ((retlst) (frg))
@@ -184,7 +184,7 @@ MESSAGE and ARGS are passed `format'."
       (warn (format "%s is not found in given list" aelm)))
     (nreverse retlst)))
 
-(defun leaf-insert-list-before (lst targetlst belm)
+(defun leaf-insert-list-before (lst belm targetlst)
   "Insert TARGETLST before BELM in LST."
   (declare (indent 2))
   (let ((retlst) (frg))
@@ -197,7 +197,7 @@ MESSAGE and ARGS are passed `format'."
       (warn (format "%s is not found in given list" belm)))
     (nreverse retlst)))
 
-(defun leaf-insert-list-after (lst targetlst aelm)
+(defun leaf-insert-list-after (lst aelm targetlst)
   "Insert TARGETLST after AELM in LST."
   (declare (indent 2))
   (let ((retlst) (frg))
