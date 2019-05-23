@@ -5,7 +5,7 @@
 ;; Author: Naoya Yamashita <conao3@gmail.com>
 ;; Maintainer: Naoya Yamashita <conao3@gmail.com>
 ;; Keywords: lisp settings
-;; Version: 2.4.5
+;; Version: 2.4.6
 ;; URL: https://github.com/conao3/leaf.el
 ;; Package-Requires: ((emacs "24.0"))
 
@@ -69,9 +69,10 @@ with values for these keywords."
                  (const :tag "No backend, disable `:ensure'." nil))
   :group 'leaf)
 
-(defcustom leaf-backend-bind (if (require 'leaf-key nil t) 'leaf-key 'bind-key)
+(defcustom leaf-backend-bind 'leaf-key
   "Backend to process `:bind' keyword."
-  :type '(choice (const :tag "Use `bind-key.el'." 'bind-key)
+  :type '(choice (const :tag "Use `leaf-key' implemented in `leaf'." 'leaf-key)
+                 (const :tag "Use `bind-key.el'." 'bind-key)
                  (const :tag "No backend, disable `:bind'." nil))
   :group 'leaf)
 
@@ -446,25 +447,29 @@ NOTE: :package, :bind can accept list of these.
 (defmacro leaf-handler-bind (_name elm)
   "Meta handler for NAME with ELM."
   (declare (indent 1))
-  (cond
-   ((eq leaf-backend-bind 'bind-key)
-    (let* ((elm* (eval elm))
-           (map (leaf-plist-get :map elm*))
-           (pkg (leaf-plist-get :package elm*))
-           (key (leaf-plist-get :key elm*))
-           (fn  (leaf-plist-get :func elm*)))
+  (let* ((elm* (eval elm))
+         (map (leaf-plist-get :map elm*))
+         (pkg (leaf-plist-get :package elm*))
+         (key (leaf-plist-get :key elm*))
+         (fn  (leaf-plist-get :func elm*)))
+    (cond
+     ((eq leaf-backend-bind 'bind-key)
+      `(leaf-keys ,@(when map `(:map ,map)) :package ,pkg :bind (,key . ,fn)))
+     ((eq leaf-backend-bind 'bind-key)
       `(bind-keys ,@(when map `(:map ,map)) :package ,pkg (,key . ,fn))))))
 
 (defmacro leaf-handler-bind* (_name elm)
   "Meta handler for NAME with ELM."
   (declare (indent 1))
-  (cond
-   ((eq leaf-backend-bind 'bind-key)
-    (let* ((elm* (eval elm))
-           (map (leaf-plist-get :map elm*))
-           (pkg (leaf-plist-get :package elm*))
-           (key (leaf-plist-get :key elm*))
-           (fn  (leaf-plist-get :func elm*)))
+  (let* ((elm* (eval elm))
+         (map (leaf-plist-get :map elm*))
+         (pkg (leaf-plist-get :package elm*))
+         (key (leaf-plist-get :key elm*))
+         (fn  (leaf-plist-get :func elm*)))
+    (cond
+     ((eq leaf-backend-bind 'bind-key)
+      `(leaf-keys* ,@(when map `(:map ,map)) :package ,pkg :bind (,key . ,fn)))
+     ((eq leaf-backend-bind 'bind-key)
       `(bind-keys* ,@(when map `(:map ,map)) :package ,pkg (,key . ,fn))))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
