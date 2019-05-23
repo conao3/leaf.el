@@ -5,7 +5,7 @@
 ;; Author: Naoya Yamashita <conao3@gmail.com>
 ;; Maintainer: Naoya Yamashita <conao3@gmail.com>
 ;; Keywords: lisp settings
-;; Version: 2.4.7
+;; Version: 2.4.8
 ;; URL: https://github.com/conao3/leaf.el
 ;; Package-Requires: ((emacs "24.0"))
 
@@ -30,8 +30,6 @@
 ;; simpify init.el
 
 ;;; Code:
-
-(require 'leaf-polyfill)
 
 (defgroup leaf nil
   "Symplifying your `.emacs' configuration."
@@ -81,6 +79,151 @@ with values for these keywords."
 'nil is using package manager default."
   :type 'sexp
   :group 'leaf)
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;
+;;  Support functions
+;;
+
+(defun leaf-warn (message &rest args)
+  "Minor change from `warn' for `leaf'.
+MESSAGE and ARGS are passed `format'."
+  (display-warning 'leaf (apply #'format `(,message ,@args))))
+
+(defun leaf-error (message &rest args)
+  "Minor change from `error' for `leaf'.
+MESSAGE and ARGS are passed `format'."
+  (display-warning 'leaf (apply #'format `(,message ,@args)) :error))
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;
+;;  For legacy Emacs
+;;
+
+(defun leaf-mapcaappend (func seq &rest rest)
+  "Another implementation for `mapcan' for FUNC SEQ REST.
+`mapcan' uses `nconc', but Emacs-22 doesn't support it."
+  (apply #'append (apply #'mapcar func seq rest)))
+
+(unless (fboundp 'mapcan)
+  (defalias 'mapcan 'leaf-mapcaappend))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;
+;;  General functions
+;;
+
+(defsubst leaf-truep (var)
+  "Return t if VAR is non-nil."
+  (not (not var)))
+
+(defsubst leaf-pairp (var &optional allow)
+  "Return t if VAR is pair.  If ALLOW is non-nil, allow nil as last element"
+  (and (listp var)
+       (or (atom (cdr var))                  ; (a . b)
+           (and (= 3 (safe-length var))      ; (a . 'b) => (a quote b)
+                (or (eq 'quote (cadr var))
+                    (eq 'function (cadr var)))))
+       (if allow t (not (null (cdr var)))))) ; (a . nil) => (a)
+
+(defsubst leaf-dotlistp (var)
+  "Return t if VAR is doted list (last arg of list is not 'nil)."
+  (or (leaf-pairp (last var))           ; (a b c . d) => (pairp '(c . d))
+      (leaf-pairp (last var 3))))       ; (a b c . 'd) => (pairp '(c . 'd))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;
+;;  General list functions
+;;
+
+(defsubst leaf-list-memq (symlist list)
+  "Return t if LIST contained element of SYMLIST."
+  (leaf-truep
+   (delq nil (mapcar (lambda (x) (memq x list)) symlist))))
+
+(defun leaf-flatten (lst)
+  "Return flatten list of LST."
+  (let ((fn))
+    (if (fboundp 'mapcan)
+        (setq fn (lambda (lst)
+                   (if (atom lst) `(,lst) (mapcan fn lst))))
+      (setq fn (lambda (lst)
+                 (if (atom lst) `(,lst) (apply #'append (mapcar fn lst))))))
+    (funcall fn lst)))
+
+(defun leaf-subst (old new lst)
+  "Substitute NEW for OLD in LST. "
+  (declare (indent 2))
+  (mapcar (lambda (elm) (if (eq elm old) new elm)) lst))
+
+(defun leaf-insert-before (lst target belm)
+  "Insert TARGET before BELM in LST."
+  (let ((retlst) (frg))
+    (dolist (elm lst)
+      (if (eq elm belm)
+          (setq frg t
+                retlst (append `(,belm ,target) retlst))
+        (setq retlst (cons elm retlst))))
+    (unless frg
+      (warn (format "%s is not found in given list" belm)))
+    (nreverse retlst)))
+
+(defun leaf-insert-after (lst target aelm)
+  "Insert TARGET after AELM in LST."
+  (let ((retlst) (frg))
+    (dolist (elm lst)
+      (if (eq elm aelm)
+          (setq frg t
+                retlst (append `(,target ,aelm) retlst))
+        (setq retlst (cons elm retlst))))
+    (unless frg
+      (warn (format "%s is not found in given list" aelm)))
+    (nreverse retlst)))
+
+(defun leaf-insert-list-before (lst targetlst belm)
+  "Insert TARGETLST before BELM in LST."
+  (let ((retlst) (frg))
+    (dolist (elm lst)
+      (if (eq elm belm)
+          (setq frg t
+                retlst (append `(,belm ,@(reverse targetlst)) retlst))
+        (setq retlst (cons elm retlst))))
+    (unless frg
+      (warn (format "%s is not found in given list" belm)))
+    (nreverse retlst)))
+
+(defun leaf-insert-list-after (lst targetlst aelm)
+  "Insert TARGETLST after AELM in LST."
+  (let ((retlst) (frg))
+    (dolist (elm lst)
+      (if (eq elm aelm)
+          (setq frg t
+                retlst (append `(,@(reverse targetlst) ,aelm) retlst))
+        (setq retlst (cons elm retlst))))
+    (unless frg
+      (warn (format "%s is not found in given list" aelm)))
+    (nreverse retlst)))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;
+;;  General plist functions
+;;
+
+(defun leaf-plist-keys (plist)
+  (let ((count 1) ret)
+    (dolist (elm plist)
+      (when (= 1 (mod count 2))
+        (setq ret (cons elm ret)))
+      (setq count (1+ count)))
+    (nreverse ret)))
+
+(defun leaf-plist-get (key plist &optional default)
+  "`plist-get' with DEFAULT value in PLIST search KEY."
+  (declare (indent 1))
+  (if (member key plist)
+      (plist-get plist key)
+    default))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
@@ -265,55 +408,6 @@ Sort by `leaf-sort-leaf--values-plist' in this order.")
               :group 'leaf)))
        (leaf-plist-keys leaf-keywords))))
 
-(defun leaf-process-keywords (name plist raw)
-  "Process keywords for NAME.
-NOTE:
-Not check PLIST, PLIST has already been carefully checked
-parent funcitons.
-Don't call this function directory."
-  (when plist
-    (let* ((leaf--name    name)
-           (leaf--key     (pop plist))
-           (leaf--keyname (substring (symbol-name leaf--key) 1))
-           (leaf--value   (pop plist))
-           (leaf--raw     raw)
-           (leaf--rest    plist)
-           (leaf--body))
-      ;; renew (normalize) leaf--value, save follow expansion in leaf--body
-      (setq leaf--value (eval `(cond ,@leaf-normarize)))
-      (setq leaf--body (leaf-process-keywords leaf--name leaf--rest leaf--raw))
-
-      ;; if leaf-expand-no-error is nil, stop :no-error expansion.
-      ;; unconditionally expands if leaf-expand is not declared,
-      ;; as when only leaf-keyword is updated by the user or other packages.
-      (let ((var (intern (format "leaf-expand-%s" leaf--keyname))))
-        (if (boundp var)
-            (if (eval var)
-                (eval (plist-get leaf-keywords leaf--key))
-              leaf--body)
-          (eval (plist-get leaf-keywords leaf--key)))))))
-
-(defun leaf-register-autoload (fn pkg)
-  "Registry FN as autoload for PKG."
-  (let ((target `(,fn . ,(symbol-name pkg))))
-    (when (and fn (not (member target leaf--autoload)))
-      (setq leaf--autoload (cons target leaf--autoload)))))
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;
-;;  Support functions
-;;
-
-(defun leaf-warn (message &rest args)
-  "Minor change from `warn' for `leaf'.
-MESSAGE and ARGS are passed `format'."
-  (display-warning 'leaf (apply #'format `(,message ,@args))))
-
-(defun leaf-error (message &rest args)
-  "Minor change from `error' for `leaf'.
-MESSAGE and ARGS are passed `format'."
-  (display-warning 'leaf (apply #'format `(,message ,@args)) :error))
-
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
 ;;  Key management
@@ -412,6 +506,12 @@ NOTE: :package, :bind can accept list of these.
 ;;
 ;;  Handler
 ;;
+
+(defun leaf-register-autoload (fn pkg)
+  "Registry FN as autoload for PKG."
+  (let ((target `(,fn . ,(symbol-name pkg))))
+    (when (and fn (not (member target leaf--autoload)))
+      (setq leaf--autoload (cons target leaf--autoload)))))
 
 (defmacro leaf-handler-leaf-no-error (name &rest body)
   "Meta handler for :leaf-no-erorr in NAME leaf block."
@@ -615,7 +715,6 @@ EXAMPLE:
       :config (message \"c\")) t)
   => (:defer (t)
       :config ((message \"a\") (message \"b\") (message \"c\"))"
-
   ;; using reverse list, push (:keyword worklist) when find :keyword
   (let ((retplist) (worklist) (rlist (reverse plist)))
     (dolist (target rlist)
@@ -640,6 +739,34 @@ EXAMPLE:
 ;;
 ;;  Main macro
 ;;
+
+(defun leaf-process-keywords (name plist raw)
+  "Process keywords for NAME.
+NOTE:
+Not check PLIST, PLIST has already been carefully checked
+parent funcitons.
+Don't call this function directory."
+  (when plist
+    (let* ((leaf--name    name)
+           (leaf--key     (pop plist))
+           (leaf--keyname (substring (symbol-name leaf--key) 1))
+           (leaf--value   (pop plist))
+           (leaf--raw     raw)
+           (leaf--rest    plist)
+           (leaf--body))
+      ;; renew (normalize) leaf--value, save follow expansion in leaf--body
+      (setq leaf--value (eval `(cond ,@leaf-normarize)))
+      (setq leaf--body (leaf-process-keywords leaf--name leaf--rest leaf--raw))
+
+      ;; if leaf-expand-no-error is nil, stop :no-error expansion.
+      ;; unconditionally expands if leaf-expand is not declared,
+      ;; as when only leaf-keyword is updated by the user or other packages.
+      (let ((var (intern (format "leaf-expand-%s" leaf--keyname))))
+        (if (boundp var)
+            (if (eval var)
+                (eval (plist-get leaf-keywords leaf--key))
+              leaf--body)
+          (eval (plist-get leaf-keywords leaf--key)))))))
 
 (defmacro leaf (name &rest args)
   "Symplify your `.emacs' configuration for package NAME with ARGS."
