@@ -601,20 +601,6 @@ NOTE: :package, :bind can accept list of these.
   "Append leaf default values to PLIST."
   (append plist leaf-defaults leaf-system-defaults))
 
-(defun leaf-add-keyword-before (target belm)
-  "Add leaf keyword as name TARGET before BELM."
-  (if (memq target leaf-keywords)
-      (warn (format "%s already exists in `leaf-keywords'" target))
-    (setq leaf-keywords
-          (leaf-insert-before leaf-keywords target belm))))
-
-(defun leaf-add-keyword-after (target aelm)
-  "Add leaf keyword as name TARGET after AELM."
-  (if (memq target leaf-keywords)
-      (warn (format "%s already exists in `leaf-keywords'" target))
-    (setq leaf-keywords
-          (leaf-insert-after leaf-keywords target aelm))))
-
 (defun leaf-normalize-list-in-list (lst &optional dotlistp)
   "Return normarized list from LST.
 Example:
