@@ -454,6 +454,8 @@ NOTE: :package, :bind can accept list of these.
          (fn  (leaf-plist-get :func elm*)))
     (cond
      ((eq leaf-backend-bind 'bind-key)
+      `(leaf-keys ,@(when map `(:map ,map)) :package ,pkg :bind (,key . ,fn)))
+     ((eq leaf-backend-bind 'bind-key)
       `(bind-keys ,@(when map `(:map ,map)) :package ,pkg (,key . ,fn))))))
 
 (defmacro leaf-handler-bind* (_name elm)
@@ -465,6 +467,8 @@ NOTE: :package, :bind can accept list of these.
          (key (leaf-plist-get :key elm*))
          (fn  (leaf-plist-get :func elm*)))
     (cond
+     ((eq leaf-backend-bind 'bind-key)
+      `(leaf-keys* ,@(when map `(:map ,map)) :package ,pkg :bind (,key . ,fn)))
      ((eq leaf-backend-bind 'bind-key)
       `(bind-keys* ,@(when map `(:map ,map)) :package ,pkg (,key . ,fn))))))
 
