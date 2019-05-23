@@ -1517,5 +1517,99 @@ Example
        (leaf-pre-init)
        (leaf-pre-init-after)))))
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;
+;;  Support leaf macros
+;;
+
+(when (version< "24.0" emacs-version)
+  (cort-deftest-with-macroexpand leaf/leaf-key
+    '(((leaf-key "C-M-i" 'flyspell-correct-wrapper)
+       (let* ((old (lookup-key global-map (kbd "C-M-i")))
+              (value `(("C-M-i" . global-map) flyspell-correct-wrapper ,(unless (numberp old) old))))
+         (push value leaf-key-bindlist)
+         (define-key global-map (kbd "C-M-i") 'flyspell-correct-wrapper)))
+
+      ((leaf-key [remap backward-sentence] 'sh-beginning-of-command)
+       (let* ((old (lookup-key global-map [remap backward-sentence]))
+              (value `(("<remap> <backward-sentence>" . global-map) sh-beginning-of-command ,(unless (numberp old) old))))
+         (push value leaf-key-bindlist)
+         (define-key global-map [remap backward-sentence] 'sh-beginning-of-command)))
+
+      ((leaf-key "C-M-i" 'flyspell-correct-wrapper 'c-mode-map)
+       (let* ((old (lookup-key c-mode-map (kbd "C-M-i")))
+              (value `(("C-M-i" . c-mode-map) flyspell-correct-wrapper ,(unless (numberp old) old))))
+         (push value leaf-key-bindlist)
+         (define-key c-mode-map (kbd "C-M-i") 'flyspell-correct-wrapper)))
+
+      ((leaf-key [remap backward-sentence] 'sh-beginning-of-command)
+       (let* ((old (lookup-key global-map [remap backward-sentence]))
+              (value `(("<remap> <backward-sentence>" . global-map) sh-beginning-of-command ,(unless (numberp old) old))))
+         (push value leaf-key-bindlist)
+         (define-key global-map [remap backward-sentence] 'sh-beginning-of-command))))))
+
+(cort-deftest-with-macroexpand leaf/leaf-key*
+  '(((leaf-key* "C-M-i" 'flyspell-correct-wrapper)
+     (leaf-key "C-M-i" 'flyspell-correct-wrapper 'leaf-key-override-global-map))
+
+    ((leaf-key* [remap backward-sentence] 'sh-beginning-of-command)
+     (leaf-key [remap backward-sentence] 'sh-beginning-of-command 'leaf-key-override-global-map))))
+
+(cort-deftest-with-macroexpand leaf/leaf-keys
+  '(((leaf-keys :bind ("C-M-i" . flyspell-correct-wrapper))
+     (progn
+       (leaf-key "C-M-i" 'flyspell-correct-wrapper 'nil)))
+
+    ((leaf-keys :bind (("C-c C-n" . go-run)
+                       ("C-c ."   . go-test-current-test)))
+     (progn
+       (leaf-key "C-c C-n" 'go-run 'nil)
+       (leaf-key "C-c ." 'go-test-current-test 'nil)))
+
+    ((leaf-keys :map go-mode-map :bind ("C-M-i" . flyspell-correct-wrapper))
+     (progn
+       (leaf-key "C-M-i" 'flyspell-correct-wrapper 'go-mode-map)))
+
+    ((leaf-keys :map go-mode-map :bind (("C-c C-n" . go-run)
+                       ("C-c ."   . go-test-current-test)))
+     (progn
+       (leaf-key "C-c C-n" 'go-run 'go-mode-map)
+       (leaf-key "C-c ." 'go-test-current-test 'go-mode-map)))
+
+    ((leaf-keys :package go-mode :map go-mode-map
+                :bind ("C-M-i" . flyspell-correct-wrapper))
+     (eval-after-load 'go-mode
+       '(progn
+          (leaf-key "C-M-i" 'flyspell-correct-wrapper 'go-mode-map))))
+
+    ((leaf-keys :package go-mode :map go-mode-map
+                :bind (("C-c C-n" . go-run)
+                       ("C-c ."   . go-test-current-test)))
+     (eval-after-load 'go-mode
+       '(progn
+          (leaf-key "C-c C-n" 'go-run 'go-mode-map)
+          (leaf-key "C-c ." 'go-test-current-test 'go-mode-map))))
+
+    ((leaf-keys :package (cc-mode go-mode) :map go-mode-map
+                :bind (("C-c C-n" . go-run)
+                       ("C-c ."   . go-test-current-test)))
+     (eval-after-load 'go-mode
+       '(eval-after-load 'cc-mode
+          '(progn
+             (leaf-key "C-c C-n" 'go-run 'go-mode-map)
+             (leaf-key "C-c ." 'go-test-current-test 'go-mode-map)))))))
+
+(cort-deftest-with-macroexpand leaf/leaf-keys*
+  '(((leaf-keys* :bind ("C-M-i" . flyspell-correct-wrapper))
+     (leaf-key :map 'leaf-key-override-global-map
+               :bind ("C-M-i" . flyspell-correct-wrapper)))
+
+    ((leaf-keys* :bind (("C-c C-n" . go-run)
+                        ("C-c ."   . go-test-current-test)))
+     (leaf-key :map 'leaf-key-override-global-map
+               :bind (("C-c C-n" . go-run)
+                      ("C-c ." . go-test-current-test))))))
+
+
 (provide 'leaf-tests)
 ;;; leaf-tests.el ends here
