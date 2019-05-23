@@ -104,6 +104,7 @@ MESSAGE and ARGS are passed `format'."
 (defun leaf-mapcaappend (func seq &rest rest)
   "Another implementation for `mapcan' for FUNC SEQ REST.
 `mapcan' uses `nconc', but Emacs-22 doesn't support it."
+  (declare (indent 2))
   (apply #'append (apply #'mapcar func seq rest)))
 
 (unless (fboundp 'mapcan)
@@ -159,6 +160,7 @@ MESSAGE and ARGS are passed `format'."
 
 (defun leaf-insert-before (lst target belm)
   "Insert TARGET before BELM in LST."
+  (declare (indent 2))
   (let ((retlst) (frg))
     (dolist (elm lst)
       (if (eq elm belm)
@@ -171,6 +173,7 @@ MESSAGE and ARGS are passed `format'."
 
 (defun leaf-insert-after (lst target aelm)
   "Insert TARGET after AELM in LST."
+  (declare (indent 2))
   (let ((retlst) (frg))
     (dolist (elm lst)
       (if (eq elm aelm)
@@ -183,6 +186,7 @@ MESSAGE and ARGS are passed `format'."
 
 (defun leaf-insert-list-before (lst targetlst belm)
   "Insert TARGETLST before BELM in LST."
+  (declare (indent 2))
   (let ((retlst) (frg))
     (dolist (elm lst)
       (if (eq elm belm)
@@ -195,6 +199,7 @@ MESSAGE and ARGS are passed `format'."
 
 (defun leaf-insert-list-after (lst targetlst aelm)
   "Insert TARGETLST after AELM in LST."
+  (declare (indent 2))
   (let ((retlst) (frg))
     (dolist (elm lst)
       (if (eq elm aelm)
