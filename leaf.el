@@ -5,7 +5,7 @@
 ;; Author: Naoya Yamashita <conao3@gmail.com>
 ;; Maintainer: Naoya Yamashita <conao3@gmail.com>
 ;; Keywords: lisp settings
-;; Version: 2.4.6
+;; Version: 2.4.7
 ;; URL: https://github.com/conao3/leaf.el
 ;; Package-Requires: ((emacs "24.0"))
 
@@ -358,10 +358,10 @@ can safely be called at any time.
 You can also use [remap COMMAND] as KEY.
 For example:
   (leaf-key [remap backward-sentence] 'sh-beginning-of-command)"
-  (let* ((mmap (or (eval keymap) 'global-map))
-         (vecp (vectorp key))
-         (mvec (if (vectorp key) key (read-kbd-macro key)))
-         (mstr (if (stringp key) key (key-description key))))
+  (let* ((mmap  (or (eval keymap) 'global-map))
+         (vecp  (vectorp key))
+         (_mvec (if (vectorp key) key (read-kbd-macro key)))
+         (mstr  (if (stringp key) key (key-description key))))
     `(let* ((old (lookup-key ,mmap ,(if vecp key `(kbd ,key))))
             (value ,(list '\` `((,mstr . ,mmap) ,(eval command) ,',(unless (numberp old) old)))))
        (push value leaf-key-bindlist)
