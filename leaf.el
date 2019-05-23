@@ -5,7 +5,7 @@
 ;; Author: Naoya Yamashita <conao3@gmail.com>
 ;; Maintainer: Naoya Yamashita <conao3@gmail.com>
 ;; Keywords: lisp settings
-;; Version: 2.4.8
+;; Version: 2.4.9
 ;; URL: https://github.com/conao3/leaf.el
 ;; Package-Requires: ((emacs "24.0"))
 
@@ -600,20 +600,6 @@ NOTE: :package, :bind can accept list of these.
 (defun leaf-append-defaults (plist)
   "Append leaf default values to PLIST."
   (append plist leaf-defaults leaf-system-defaults))
-
-(defun leaf-add-keyword-before (target belm)
-  "Add leaf keyword as name TARGET before BELM."
-  (if (memq target leaf-keywords)
-      (warn (format "%s already exists in `leaf-keywords'" target))
-    (setq leaf-keywords
-          (leaf-insert-before leaf-keywords target belm))))
-
-(defun leaf-add-keyword-after (target aelm)
-  "Add leaf keyword as name TARGET after AELM."
-  (if (memq target leaf-keywords)
-      (warn (format "%s already exists in `leaf-keywords'" target))
-    (setq leaf-keywords
-          (leaf-insert-after leaf-keywords target aelm))))
 
 (defun leaf-normalize-list-in-list (lst &optional dotlistp)
   "Return normarized list from LST.
