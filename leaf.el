@@ -5,7 +5,7 @@
 ;; Author: Naoya Yamashita <conao3@gmail.com>
 ;; Maintainer: Naoya Yamashita <conao3@gmail.com>
 ;; Keywords: lisp settings
-;; Version: 2.5.6
+;; Version: 2.5.7
 ;; URL: https://github.com/conao3/leaf.el
 ;; Package-Requires: ((emacs "24.0"))
 
@@ -324,7 +324,7 @@ MESSAGE and ARGS are passed `format'."
   "Special keywords and conversion rule to be processed by `leaf'.
 Sort by `leaf-sort-leaf--values-plist' in this order.")
 
-(defvar leaf-normarize
+(defvar leaf-normalize
   '(((memq leaf--key '(:require))
      ;; Accept: 't, 'nil, symbol and list of these (and nested)
      ;; Return: symbol list.
@@ -406,7 +406,7 @@ Sort by `leaf-sort-leaf--values-plist' in this order.")
 
     (t
      leaf--value))
-  "Normarize rule")
+  "Normalize rule")
 
 (eval
  `(progn
@@ -616,7 +616,7 @@ NOTE: :package, :bind can accept list of these.
   (append plist leaf-defaults leaf-system-defaults))
 
 (defun leaf-normalize-list-in-list (lst &optional dotlistp)
-  "Return normarized list from LST.
+  "Return normalized list from LST.
 Example:
   - when dotlistp is nil
   a       => (a)
@@ -755,7 +755,7 @@ Don't call this function directory."
            (leaf--rest    plist)
            (leaf--body))
       ;; renew (normalize) leaf--value, save follow expansion in leaf--body
-      (setq leaf--value (eval `(cond ,@leaf-normarize)))
+      (setq leaf--value (eval `(cond ,@leaf-normalize)))
       (setq leaf--body (leaf-process-keywords leaf--name leaf--rest leaf--raw))
 
       ;; if leaf-expand-no-error is nil, stop :no-error expansion.
