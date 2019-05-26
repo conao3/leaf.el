@@ -5,7 +5,7 @@
 ;; Author: Naoya Yamashita <conao3@gmail.com>
 ;; Maintainer: Naoya Yamashita <conao3@gmail.com>
 ;; Keywords: lisp settings
-;; Version: 2.5.2
+;; Version: 2.5.3
 ;; URL: https://github.com/conao3/leaf.el
 ;; Package-Requires: ((emacs "24.0"))
 
@@ -384,10 +384,10 @@ Sort by `leaf-sort-leaf--values-plist' in this order.")
                          elm))
                      leaf--value)))
 
-    ((memq leaf--key `(cdr '(:dummy
-                             :disabled :if :when :unless
-                             :doc :file :url :preface :init :config
-                             :leaf-autoload :leaf-defer :leaf-no-error)))
+    ((memq leaf--key (cdr '(:dummy
+                            :disabled :if :when :unless
+                            :doc :file :url :preface :init :config
+                            :leaf-autoload :leaf-defer :leaf-no-error)))
      leaf--value)
 
     (t
