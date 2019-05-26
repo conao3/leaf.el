@@ -118,18 +118,18 @@ Example:
 
 Example:
   (p (cort-deftest-with-macroexpand-let leaf/leaf
-         ((leaf-expand-leaf-no-error t))
+         ((leaf-expand-leaf-protect t))
        '(((leaf leaf
             :config (leaf-init))
           (prog1 'leaf
-            (leaf-handler-leaf-no-error leaf
+            (leaf-handler-leaf-protect leaf
               (leaf-init)))))))
    => (cort-deftest leaf/leaf
         '((:equal
            '(prog1 'leaf
-              (leaf-handler-leaf-no-error leaf
+              (leaf-handler-leaf-protect leaf
                 (leaf-init)))
-           (let ((leaf-expand-leaf-no-error t))
+           (let ((leaf-expand-leaf-protect t))
              (macroexpand-1
               '(leaf leaf
                  :config (leaf-init)))))))"
@@ -148,7 +148,7 @@ Example:
 
 (custom-set-variables '(leaf-backend-ensure 'package)
                       '(leaf-backend-bind   'bind-key)
-                      '(leaf-expand-leaf-no-error nil))
+                      '(leaf-expand-leaf-protect nil))
 
 (cort-deftest-with-macroexpand leaf/none
   '(((leaf leaf)
@@ -1582,28 +1582,28 @@ Example:
        (autoload (function leaf) "leaf" nil t)
        (leaf-init)))))
 
-(cort-deftest-with-macroexpand-let leaf/leaf-no-error
-    ((leaf-expand-leaf-no-error t))
+(cort-deftest-with-macroexpand-let leaf/leaf-protect
+    ((leaf-expand-leaf-protect t))
   '(((leaf leaf
        :config (leaf-init))
      (prog1 'leaf
-       (leaf-handler-leaf-no-error leaf
+       (leaf-handler-leaf-protect leaf
          (leaf-init))))
 
     ((leaf leaf
-       :leaf-no-error nil
+       :leaf-protect nil
        :config (leaf-init))
      (prog1 'leaf
        (leaf-init)))
 
     ((leaf leaf
-       :leaf-no-error t nil
+       :leaf-protect t nil
        :config (leaf-init))
      (prog1 'leaf
-       (leaf-handler-leaf-no-error leaf
+       (leaf-handler-leaf-protect leaf
          (leaf-init))))
 
-    ((leaf-handler-leaf-no-error leaf
+    ((leaf-handler-leaf-protect leaf
        (leaf-load)
        (leaf-init))
      (condition-case err

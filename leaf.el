@@ -5,7 +5,7 @@
 ;; Author: Naoya Yamashita <conao3@gmail.com>
 ;; Maintainer: Naoya Yamashita <conao3@gmail.com>
 ;; Keywords: lisp settings
-;; Version: 2.5.3
+;; Version: 2.5.4
 ;; URL: https://github.com/conao3/leaf.el
 ;; Package-Requires: ((emacs "24.0"))
 
@@ -25,7 +25,7 @@
 ;; You should have received a copy of the GNU General Public License
 ;; along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-;;; Commentary:
+;;; Commentary:pp
 
 ;; simpify init.el
 
@@ -40,7 +40,7 @@
   :type 'sexp
   :group 'leaf)
 
-(defcustom leaf-system-defaults '(:leaf-autoload t :leaf-defer t :leaf-no-error t)
+(defcustom leaf-system-defaults '(:leaf-autoload t :leaf-defer t :leaf-protect t)
   "Default values for each leaf packages for `leaf' system."
   :type 'sexp
   :group 'leaf)
@@ -248,7 +248,7 @@ MESSAGE and ARGS are passed `format'."
   (cdr
    '(:dummy
      :disabled       (unless (eval (car leaf--value)) `(,@leaf--body))
-     :leaf-no-error  (if (and leaf--body (eval (car leaf--value))) `((leaf-handler-leaf-no-error ,leaf--name ,@leaf--body)) `(,@leaf--body))
+     :leaf-protect  (if (and leaf--body (eval (car leaf--value))) `((leaf-handler-leaf-protect ,leaf--name ,@leaf--body)) `(,@leaf--body))
      :load-path      `(,@(mapcar (lambda (elm) `(add-to-list 'load-path ,elm)) leaf--value) ,@leaf--body)
      :leaf-autoload  `(,@(when (car leaf--value) (mapcar (lambda (elm) `(autoload #',(car elm) ,(cdr elm) nil t)) (reverse leaf--autoload))) ,@leaf--body)
 
@@ -387,7 +387,7 @@ Sort by `leaf-sort-leaf--values-plist' in this order.")
     ((memq leaf--key (cdr '(:dummy
                             :disabled :if :when :unless
                             :doc :file :url :preface :init :config
-                            :leaf-autoload :leaf-defer :leaf-no-error)))
+                            :leaf-autoload :leaf-defer :leaf-protect)))
      leaf--value)
 
     (t
@@ -510,7 +510,7 @@ NOTE: :package, :bind can accept list of these.
     (when (and fn (not (member target leaf--autoload)))
       (setq leaf--autoload (cons target leaf--autoload)))))
 
-(defmacro leaf-handler-leaf-no-error (name &rest body)
+(defmacro leaf-handler-leaf-protect (name &rest body)
   "Meta handler for :leaf-no-erorr in NAME leaf block."
   (declare (indent 1))
   `(condition-case err
