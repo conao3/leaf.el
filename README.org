@@ -11,9 +11,10 @@
 [[https://join.slack.com/t/conao3-support/shared_invite/enQtNTg2MTY0MjkzOTU0LTFjOTdhOTFiNTM2NmY5YTE5MTNlYzNiOTE2MTZlZWZkNDEzZmRhN2E0NjkwMWViZTZiYjA4MDUxYTUzNDZiNjY][https://img.shields.io/badge/chat-on_slack-blue.svg?logo=slack&style=flat-square]]
 
 * Table of Contents
-- [[#background][Background]]
+- [[#description][Description]]
 - [[#install][Install]]
 - [[#usage][Usage]]
+- [[#customize][Customize]]
 - [[https://github.com/conao3/leaf.el#syntaxes][Syntaxes]]
 - [[https://github.com/conao3/leaf.el#basic-keywords][Basic keywords]]
   - [[https://github.com/conao3/leaf.el#none-keyword][none (keyword)]]
@@ -22,6 +23,7 @@
   - [[https://github.com/conao3/leaf.el#preface-init-config-keywords][:preface :init :config keywords]]
   - [[https://github.com/conao3/leaf.el#commands-keyword][:commands keyword]]
   - [[https://github.com/conao3/leaf.el#after-keyword][:after keyword]]
+  - [[https://github.com/conao3/leaf.el#bind-bind-keywords][:bind, :bind* keywords]]
 - [[https://github.com/conao3/leaf.el#configure-variables-keywords][Configure variables keywords]]
   - [[https://github.com/conao3/leaf.el#custom-custom-face--keywords][:custom :custom-face keywords]]
   - [[https://github.com/conao3/leaf.el#pre-setq-setq-setq-default-keywords][:pre-setq :setq :setq-default keywords]]
@@ -37,24 +39,19 @@
   - [[https://github.com/conao3/leaf.el#defun-defvar-keywords][:defun, :defvar keywords]]
 - [[https://github.com/conao3/leaf.el#documentation-keywords][Documentation keywords]]
   - [[https://github.com/conao3/leaf.el#doc-file-url-keywords][:doc, :file, :url keywords]]
-- [[https://github.com/conao3/leaf.el#configure-other-packages][Configure other packages]]
-  - [[https://github.com/conao3/leaf.el#bind-bind-keywords][:bind, :bind* keywords]]
+- [[#system-keywords][System keywords]]
+  - [[#leaf-protect-keyword][:leaf-protect keyword]]
+  - [[#leaf-defer-keyword][:leaf-defer keyword]]
+  - [[#leaf-autoload-keyword][:leaf-autoload keyword]]
 - [[#information][Information]]
   - [[#donation][Donation]]
   - [[#community][Community]]
   - [[#contribution][Contribution]]
     - [[#leafel-mechanism][leaf.el mechanism]]
-      - [[#leaf-name-rest-args-macro][leaf (name &rest args) macro]]
-      - [[#leaf-core-name-args-function][leaf-core (name args) function]]
-        - [[#leaf-append-defaults-plist-function][leaf-append-defaults (plist) function]]
-        - [[#leaf-normalize-plist-plsit-mergep-function][leaf-normalize-plist (plsit mergep) function]]
-        - [[#leaf-sort-values-plist-plist-function][leaf-sort-values-plist (plist) function]]
-      - [[#leaf-pcocess-keywords-name-plist-function][leaf-pcocess-keywords (name plist) function]]
-    - [[#adding-custom-keyword][Adding custom keyword]]
-      - [[#add-leaf-keywords][Add leaf keyword(s)]]
-      - [[#define-leaf-handler][Define leaf handler]]
+    - [[#adding-new-keywords][Adding new keywords]]
     - [[#why-we-support-emacs-22][Why We support Emacs-22?]]
   - [[#migration][Migration]]
+    - [[#leaf-v10-to-v20][leaf v2.0 to v3.0]]
     - [[#leaf-v10-to-v20][leaf v1.0 to v2.0]]
   - [[#license][License]]
   - [[#author][Author]]
@@ -62,13 +59,13 @@
   - [[#welcome-pr][Welcome PR]]
   - [[#special-thanks][Special Thanks]]
 
-* Background
+* Description
 ~leaf.el~ is yet another [[https://github.com/jwiegley/use-package][use-package]].
 
 ~leaf~ solves the stress of using ~use-package~ for 2 years.
 By developing from scratch, we have a cleaner and more predictable implementation than ~use-package~.
 
-This makes it easy to maintain and add new keywords.
+This makes it easy to maintain and add new keywords. (see [[https://github.com/conao3/leaf-keywords.el][leaf-keywords.el]])
 
 ~leaf~ has keywords almost identical to ~use-package~, but some of usage of the keywords is different.
 
@@ -96,30 +93,25 @@ It is now necessary to use these packages to avoid trouble.
 
 Package to be developed
 - [[https://github.com/conao3/feather.el][feather.el]] instead of package.el
-- leaf-key.el instead of bind-keys
 
 #+BEGIN_SRC emacs-lisp
   ;; add to load-path
   ;; (locate-user-emacs-file "site-lisp/leaf.el")
   ;;  => "~/.emacs.d/local/26.1/site-lisp/leaf.el"
 
-  (add-to-list 'load-path (locate-user-emacs-file "site-lisp/leaf.el"))
-  (add-to-list 'load-path (locate-user-emacs-file "site-lisp/feather.el"))
-
-  (require 'leaf)
-
-  (custom-set-variables '(leaf-backend-ensure 'package)
-                        '(leaf-backend-bind 'bind-key)
-                        '(leaf-backend-bind* 'bind-key))
-
-  (leaf package
-    :config
-    (add-list-to-list 'package-archives
-      '(("org"       . "https://orgmode.org/elpa/")
-        ("melpa"     . "https://melpa.org/packages/")))
-    (package-initialize))
-
-  (leaf bind-key :ensure t)
+  (prog1 "Load leaf.el"
+    (add-to-list 'load-path (locate-user-emacs-file "site-lisp/leaf.el"))
+    (require 'leaf)
+    (leaf leaf
+      :doc "Symplify your init.el configuration"
+      :doc "Initialize leaf dependent packages"
+      :config
+      (leaf package
+        :custom ((package-archives . '(("org"   . "https://orgmode.org/elpa/")
+                                       ("melpa" . "https://melpa.org/packages/")
+                                       ("gnu"   . "https://elpa.gnu.org/packages/"))))
+        :config
+        (package-initialize))))
 #+END_SRC
 
 * Usage
@@ -127,6 +119,10 @@ Use ~leaf~ in your init.el like ~use-package~.
 You declaratively tell the ~leaf~ to configure the package using special keywords.
 
 ~leaf~ converts your declaration into Elisp for Emacs to understand, and Emacs executes it to configure the package.
+
+* Customize
+- leaf-defaults: Default arguments for all leaf-block.
+- leaf-expand-{{keyword}}: If nil, not to expand that keyword.
 
 * Syntaxes
 All below examples are excerpts from ~leaf-tests.el~.
@@ -142,6 +138,16 @@ We expect FORM will be expanded to EXPECT.
        EXPECT)
 
       ...))
+
+  (cort-deftest-with-macroexpand-let TESTCASE-NAME
+      LETFORM
+    '((FORM             ; will be expand by `macroexpand-1' in LETFORM
+       EXPECT)          ; expect FORM's expansion will be EXPECT (test by `equal')
+
+      (FORM
+       EXPECT)
+
+      ...))
 #+end_src
 
 * Basic keywords
@@ -149,8 +155,8 @@ We expect FORM will be expanded to EXPECT.
 *Unlike use-package*, ~leaf~ will convert to ~nil~ when used without any keywords.
 #+begin_src emacs-lisp
   (cort-deftest-with-macroexpand leaf/none
-  '(((leaf leaf)
-     nil)))
+    '(((leaf leaf)
+       (prog1 'leaf))))
 #+end_src
 
 ** :require keyword
@@ -158,7 +164,7 @@ If you want to ~require~, you must use the ~:require~ keyword explicitly.
 
 This is ideally the exact opposite of using the ~:no-require~ keyword in the ~use-package~ if you does not want to ~require~ it.
 
-The leaf ~:require~ keyword is powerful, specify ~t~ to require the package, and specify symbols to ~require~ them.
+The leaf's ~:require~ keyword is powerful, specify ~t~ to require the package, and specify multi symbols to ~require~ all of them.
 
 Since the priority is lower than that of the conditional branch keyword described later,
 it is possible to assign whether to ~require~ or not by the conditional branch keyword.
@@ -169,7 +175,7 @@ it is possible to assign whether to ~require~ or not by the conditional branch k
          :init (leaf-pre-init)
          :require t
          :config (leaf-init))
-       (progn
+       (prog1 'leaf
          (leaf-pre-init)
          (require 'leaf)
          (leaf-init)))
@@ -178,7 +184,7 @@ it is possible to assign whether to ~require~ or not by the conditional branch k
          :init (leaf-pre-init)
          :require nil
          :config (leaf-init))
-       (progn
+       (prog1 'leaf
          (leaf-pre-init)
          (leaf-init)))
 
@@ -186,7 +192,7 @@ it is possible to assign whether to ~require~ or not by the conditional branch k
          :init (leaf-pre-init)
          :require leaf leaf-polyfill
          :config (leaf-init))
-       (progn
+       (prog1 'leaf
          (leaf-pre-init)
          (require 'leaf)
          (require 'leaf-polyfill)
@@ -197,7 +203,7 @@ it is possible to assign whether to ~require~ or not by the conditional branch k
          :require t
          :require leaf-polyfill
          :config (leaf-init))
-       (progn
+       (prog1 'leaf
          (leaf-pre-init)
          (require 'leaf)
          (require 'leaf-polyfill)
@@ -207,7 +213,7 @@ it is possible to assign whether to ~require~ or not by the conditional branch k
          :init (leaf-pre-init)
          :require t leaf-polyfill
          :config (leaf-init))
-       (progn
+       (prog1 'leaf
          (leaf-pre-init)
          (require 'leaf)
          (require 'leaf-polyfill)
@@ -217,7 +223,7 @@ it is possible to assign whether to ~require~ or not by the conditional branch k
          :init (leaf-pre-init)
          :require (leaf leaf-polyfill leaf-sub leaf-subsub)
          :config (leaf-init))
-       (progn
+       (prog1 'leaf
          (leaf-pre-init)
          (require 'leaf)
          (require 'leaf-polyfill)
@@ -226,43 +232,47 @@ it is possible to assign whether to ~require~ or not by the conditional branch k
          (leaf-init)))))
 #+end_src
 
-** :ensure keyword
-~:ensure~ provide package manager frontend
-for example, ~feather.el~ and ~package.el~ etc...
+** :package, :ensure keywords
+~:package~ provide ~package.el~ frontend.
 
-You can customize backend to process ~:ensure~ keyword.
-#+BEGIN_SRC emacs-lisp
-  ;; use package.el as :ensure backend
-  (setq leaf-backend-ensure 'package)
+Because [[https://github.com/conao3/leaf-keywords.el][leaf-keywords.el]] has ~:el-get~ keyword, ~:package~ provide ~package.el~ frontend.
 
-  ;; use feather.el as :ensure backend
-  (setq leaf-backend-ensure 'feather)
+By the mechanism described below, ~:ensure~ is an alias to ~:package~,
+you can also use ~:ensure~ as ~:package~.
 
-  ;; use no package as :ensure backend (disable :ensure)
-  (setq leaf-backend-ensure nil)
-#+END_SRC
+#+begin_src emacs-lisp
+  (cort-deftest-with-macroexpand leaf/package
+    '(((leaf leaf
+         :package t
+         :config (leaf-init))
+       (prog1 'leaf
+         (leaf-handler-package leaf leaf nil)
+         (leaf-init)))
 
-~leaf.el~ prepared ~feather.el~ and ~package.el~ backend,
-but it's easy to create other package manager's backend.
+      ((leaf leaf
+         :package t leaf-browser
+         :config (leaf-init))
+       (prog1 'leaf
+         (leaf-handler-package leaf leaf nil)
+         (leaf-handler-package leaf leaf-browser nil)
+         (leaf-init)))
 
-Of course, loading and setting of the package manager itself must be
-completed before using ~:ensure~ keyword.
-
-# #+BEGIN_SRC emacs-lisp
-#   (cort-deftest leaf-test/:simple-ensure  ;
-#     (match-expansion-let ((leaf-backend/:ensure 'package))
-#       (leaf foo :ensure t)
-#       '(progn
-#          (funcall #'leaf-backend/:ensure-package 'foo 'foo)
-#          (progn))))
-# #+END_SRC
+      ((leaf leaf
+         :package feather leaf-key leaf-browser
+         :config (leaf-init))
+       (prog1 'leaf
+         (leaf-handler-package leaf feather nil)
+         (leaf-handler-package leaf leaf-key nil)
+         (leaf-handler-package leaf leaf-browser nil)
+         (leaf-init)))))
+#+end_src
 
 ** :preface, :init, :config keywords
 These keywords are provided to directly describe elisp with various settings that ~leaf~ does not support.
 
 These keywords are provided to control where the arguments expand,
-- ~:preface~ expands before the conditional branch keyword
-- ~:init~ expands after the conditional branch keyword (~:if~ ~when~ ~unless~) before ~:require~
+- ~:preface~ expands before the conditional branch keyword (~:if~ ~when~ ~unless~)
+- ~:init~ expands after the conditional branch keyword before ~:require~
 - ~:config~ expands after ~:require~
 
 You don't need to put ~progn~ because ~leaf~ can receive multiple S-expressions, but you can do so if you prefer it.
@@ -273,7 +283,7 @@ You don't need to put ~progn~ because ~leaf~ can receive multiple S-expressions,
          :init (leaf-pre-init)
          :require t
          :config (leaf-init))
-       (progn
+       (prog1 'leaf
          (leaf-pre-init)
          (require 'leaf)
          (leaf-init)))
@@ -284,7 +294,7 @@ You don't need to put ~progn~ because ~leaf~ can receive multiple S-expressions,
                     (leaf-pre-init-after))
          :require t
          :config (leaf-init))
-       (progn
+       (prog1 'leaf
          (progn
            (leaf-pre-init)
            (leaf-pre-init-after))
@@ -297,7 +307,7 @@ You don't need to put ~progn~ because ~leaf~ can receive multiple S-expressions,
          (leaf-pre-init-after)
          :require t
          :config (leaf-init))
-       (progn
+       (prog1 'leaf
          (leaf-pre-init)
          (leaf-pre-init-after)
          (require 'leaf)
@@ -309,7 +319,7 @@ You don't need to put ~progn~ because ~leaf~ can receive multiple S-expressions,
          :require t
          :init (package-preconfig)
          :config (package-init))
-       (progn
+       (prog1 'leaf
          (preface-init)
          (when (some-condition)
            (package-preconfig)
@@ -318,70 +328,211 @@ You don't need to put ~progn~ because ~leaf~ can receive multiple S-expressions,
 #+end_src
 
 ** :commands keyword
-~commands~ keyword configures ~autoload~.
+~commands~ keyword configures ~autoload~ for its leaf-block name.
 #+begin_src emacs-lisp
   (cort-deftest-with-macroexpand leaf/commands
     '(((leaf leaf
          :commands leaf
          :config (leaf-init))
-       (progn
+       (prog1 'leaf
          (autoload #'leaf "leaf" nil t)
-         (leaf-init)))
+         (eval-after-load 'leaf
+           '(progn
+              (leaf-init)))))
 
       ((leaf leaf
          :commands leaf leaf-pairp leaf-plist-get)
-       (progn
+       (prog1 'leaf
          (autoload #'leaf "leaf" nil t)
          (autoload #'leaf-pairp "leaf" nil t)
          (autoload #'leaf-plist-get "leaf" nil t)))
 
       ((leaf leaf
          :commands leaf (leaf-pairp leaf-plist-get))
-       (progn
+       (prog1 'leaf
          (autoload #'leaf "leaf" nil t)
          (autoload #'leaf-pairp "leaf" nil t)
-         (autoload #'leaf-plist-get "leaf" nil t)))))
+         (autoload #'leaf-plist-get "leaf" nil t)))
+
+      ((leaf leaf
+         :commands leaf (leaf-pairp leaf-plist-get (leaf
+                                                     (leaf-pairp
+                                                      (leaf-pairp
+                                                       (leaf-insert-after))))))
+       (prog1 'leaf
+         (autoload #'leaf "leaf" nil t)
+         (autoload #'leaf-pairp "leaf" nil t)
+         (autoload #'leaf-plist-get "leaf" nil t)
+         (autoload #'leaf-insert-after "leaf" nil t)))))
 #+end_src
 
 ** :after keyword
 ~:after~ keyword configure loading order.
 
-*Currently it does not support or :after like use-package.*
+*Currently it does not support ~:or~ in ~:after~ like use-package.*
 #+begin_src emacs-lisp
-(cort-deftest-with-macroexpand leaf/after
-  '(((leaf leaf-browser
-       :after leaf
-       :require t
-       :config (leaf-browser-init))
-     (progn
-       (eval-after-load 'leaf
-         '(progn
-            (require 'leaf-browser)
-            (leaf-browser-init)))))
+  (cort-deftest-with-macroexpand leaf/after
+    '(((leaf leaf-browser
+         :after leaf
+         :require t
+         :config (leaf-browser-init))
+       (prog1 'leaf-browser
+         (eval-after-load 'leaf
+           '(progn
+              (require 'leaf-browser)
+              (leaf-browser-init)))))
 
-    ((leaf leaf-browser
-       :after leaf org orglyth
-       :require t
-       :config (leaf-browser-init))
-     (progn
-       (eval-after-load 'orglyth
-         '(eval-after-load 'org
-            '(eval-after-load 'leaf
-               '(progn
-                  (require 'leaf-browser)
-                  (leaf-browser-init)))))))
+      ((leaf leaf-browser
+         :after leaf org orglyth
+         :require t
+         :config (leaf-browser-init))
+       (prog1 'leaf-browser
+         (eval-after-load 'orglyth
+           '(eval-after-load 'org
+              '(eval-after-load 'leaf
+                 '(progn
+                    (require 'leaf-browser)
+                    (leaf-browser-init)))))))
 
-    ((leaf leaf-browser
-       :after leaf (org orglyth)
-       :require t
-       :config (leaf-browser-init))
-     (progn
-       (eval-after-load 'orglyth
-         '(eval-after-load 'org
-            '(eval-after-load 'leaf
-               '(progn
-                  (require 'leaf-browser)
-                  (leaf-browser-init)))))))))
+      ((leaf leaf-browser
+         :after leaf (org orglyth)
+         :require t
+         :config (leaf-browser-init))
+       (prog1 'leaf-browser
+         (eval-after-load 'orglyth
+           '(eval-after-load 'org
+              '(eval-after-load 'leaf
+                 '(progn
+                    (require 'leaf-browser)
+                    (leaf-browser-init)))))))
+
+      ((leaf leaf-browser
+         :after leaf (org orglyth
+                          (org
+                           (org
+                            (org-ex))))
+         :require t
+         :config (leaf-browser-init))
+       (prog1 'leaf-browser
+         (eval-after-load 'org-ex
+           '(eval-after-load 'orglyth
+              '(eval-after-load 'org
+                 '(eval-after-load 'leaf
+                    '(progn
+                       (require 'leaf-browser)
+                       (leaf-browser-init))))))))))
+#+end_src
+
+** :bind, :bind* keywords
+~:bind~ and ~:bind*~ provide frontend for keybind manager.
+
+When defined globally, key bindings and their corresponding functions are specified in dotted pairs.
+
+To set it to a specific map, *place the map name as a symbol* at the top of the list.
+
+These keywords can also be used in lists. Note that these require a *symbol with the map name at the top of the list*.
+
+#+begin_src emacs-lisp
+  (cort-deftest-with-macroexpand leaf/bind
+    '(((leaf macrostep
+         :package t
+         :bind (("C-c e" . macrostep-expand)))
+       (prog1 'macrostep
+         (autoload
+           #'macrostep-expand
+           "macrostep" nil t)
+         (leaf-handler-package macrostep macrostep nil)
+         (leaf-keys (("C-c e" . macrostep-expand)))))
+
+      ((leaf macrostep
+         :package t
+         :bind ("C-c e" . macrostep-expand))
+       (prog1 'macrostep
+         (autoload #'macrostep-expand "macrostep" nil t)
+         (leaf-handler-package macrostep macrostep nil)
+         (leaf-keys ("C-c e" . macrostep-expand))))
+
+      ((leaf color-moccur
+         :bind
+         ("M-s O" . moccur)
+         ("M-o" . isearch-moccur)
+         ("M-O" . isearch-moccur-all))
+       (prog1 'color-moccur
+         (autoload #'isearch-moccur-all "color-moccur" nil t)
+         (autoload #'isearch-moccur "color-moccur" nil t)
+         (autoload #'moccur "color-moccur" nil t)
+         (leaf-keys ("M-s O" . moccur))
+         (leaf-keys ("M-o" . isearch-moccur))
+         (leaf-keys ("M-O" . isearch-moccur-all))))
+
+      ((leaf color-moccur
+         :bind (("M-s O" . moccur)
+                ("M-o" . isearch-moccur)
+                ("M-O" . isearch-moccur-all)))
+       (prog1 'color-moccur
+         (autoload #'isearch-moccur-all "color-moccur" nil t)
+         (autoload #'isearch-moccur "color-moccur" nil t)
+         (autoload #'moccur "color-moccur" nil t)
+         (leaf-keys (("M-s O" . moccur)
+                     ("M-o" . isearch-moccur)
+                     ("M-O" . isearch-moccur-all)))))
+
+      ((leaf color-moccur
+         :bind
+         ("M-s" . nil)
+         ("M-s o" . isearch-moccur)
+         ("M-s i" . isearch-moccur-all))
+       (prog1 'color-moccur
+         (autoload #'isearch-moccur-all "color-moccur" nil t)
+         (autoload #'isearch-moccur "color-moccur" nil t)
+         (leaf-keys ("M-s"))
+         (leaf-keys ("M-s o" . isearch-moccur))
+         (leaf-keys ("M-s i" . isearch-moccur-all))))
+
+      ((leaf color-moccur
+         :bind
+         (("M-s" . nil)
+          ("M-s o" . isearch-moccur)
+          ("M-s i" . isearch-moccur-all)))
+       (prog1 'color-moccur
+         (autoload #'isearch-moccur-all "color-moccur" nil t)
+         (autoload #'isearch-moccur "color-moccur" nil t)
+         (leaf-keys (("M-s")
+                     ("M-s o" . isearch-moccur)
+                     ("M-s i" . isearch-moccur-all)))))
+
+      ((leaf color-moccur
+         :bind
+         ("M-s O" . moccur)
+         (:isearch-mode-map
+          :package isearch
+          ("M-o" . isearch-moccur)
+          ("M-O" . isearch-moccur-all)))
+       (prog1 'color-moccur
+         (autoload #'isearch-moccur-all "color-moccur" nil t)
+         (autoload #'isearch-moccur "color-moccur" nil t)
+         (autoload #'moccur "color-moccur" nil t)
+         (leaf-keys ("M-s O" . moccur))
+         (leaf-keys (:isearch-mode-map
+                     :package isearch
+                     ("M-o" . isearch-moccur)
+                     ("M-O" . isearch-moccur-all)))))
+
+      ((leaf color-moccur
+         :bind (("M-s O" . moccur)
+                (:isearch-mode-map
+                 :package isearch
+                 ("M-o" . isearch-moccur)
+                 ("M-O" . isearch-moccur-all))))
+       (prog1 'color-moccur
+         (autoload #'isearch-moccur-all "color-moccur" nil t)
+         (autoload #'isearch-moccur "color-moccur" nil t)
+         (autoload #'moccur "color-moccur" nil t)
+         (leaf-keys (("M-s O" . moccur)
+                     (:isearch-mode-map
+                      :package isearch
+                      ("M-o" . isearch-moccur)
+                      ("M-O" . isearch-moccur-all))))))))
 #+end_src
 
 ** COMMENT :defaults keyword
@@ -404,18 +555,34 @@ it is a best practice to use ~custom-set-variables~ to customize packages.
 
 *Unlike use-package*, you must specify a dot pair.
 
-You can of course set multiple variables, you can set multiple variables to the same value,
-or you can set the evaluation result of the S expression to a variable.
+You can of course set multiple variables and set the evaluation result of the S expression to a variable.
 
 The value set to ~custom-face~ should also be quoed to emphasize uniformity as ~leaf~.
 
 #+begin_src emacs-lisp
   (cort-deftest-with-macroexpand leaf/custom
-    '(((leaf leaf
+    '(((leaf flyspell-correct-ivy
+         :bind (("C-M-i" . flyspell-correct-wrapper))
+         :custom ((flyspell-correct-interface . #'flyspell-correct-ivy)))
+       (prog1 'flyspell-correct-ivy
+         (autoload #'flyspell-correct-wrapper "flyspell-correct-ivy" nil t)
+         (leaf-keys (("C-M-i" . flyspell-correct-wrapper)))
+         (eval-after-load 'flyspell-correct-ivy
+           '(progn
+              (custom-set-variables
+               '(flyspell-correct-interface #'flyspell-correct-ivy "Customized with leaf in flyspell-correct-ivy block"))))))
+
+      ((leaf leaf
+         :custom ((leaf-backend-ensure . 'feather)))
+       (prog1 'leaf
+         (custom-set-variables
+          '(leaf-backend-ensure 'feather "Customized with leaf in leaf block"))))
+
+      ((leaf leaf
          :custom ((leaf-backend-ensure . 'feather)
                   (leaf-backend-bind   . 'bind-key)
                   (leaf-backend-bind*  . 'bind-key)))
-       (progn
+       (prog1 'leaf
          (custom-set-variables
           '(leaf-backend-ensure 'feather "Customized with leaf in leaf block")
           '(leaf-backend-bind 'bind-key "Customized with leaf in leaf block")
@@ -426,18 +593,25 @@ The value set to ~custom-face~ should also be quoed to emphasize uniformity as ~
          (leaf-backend-ensure . 'feather)
          (leaf-backend-bind   . 'bind-key)
          (leaf-backend-bind*  . 'bind-key))
-       (progn
+       (prog1 'leaf
          (custom-set-variables
           '(leaf-backend-ensure 'feather "Customized with leaf in leaf block")
           '(leaf-backend-bind 'bind-key "Customized with leaf in leaf block")
-          '(leaf-backend-bind* 'bind-key "Customized with leaf in leaf block"))))))
+          '(leaf-backend-bind* 'bind-key "Customized with leaf in leaf block"))))
+
+      ((leaf buffer.c
+         :custom ((cursor-type . nil)))
+       (prog1 'buffer\.c
+         (custom-set-variables
+          '(cursor-type nil "Customized with leaf in buffer.c block"))))))
 
   (cort-deftest-with-macroexpand leaf/custom-face
     '(((leaf eruby-mode
          :custom-face
          (eruby-standard-face . '((t (:slant italic)))))
-       (progn
-         (custom-set-faces '(eruby-standard-face (((t (:slant italic))))))))))
+       (prog1 'eruby-mode
+         (custom-set-faces
+          '(eruby-standard-face ((t (:slant italic)))))))))
 #+end_src
 
 ** :pre-setq, :setq, :setq-default keywords
@@ -448,15 +622,14 @@ the ~:pre-setq~ keyword is also provided to accommodate them.
 
 The argument specified for ~:pre-setq~ is expanded before ~:require~.
 
-You can of course configure multiple variables, set multiple variables to the same value,
-or set the evaluation result of some S expression to variable.
+You can of course configure multiple variables adn set the evaluation result of some S expression to variable.
 #+begin_src emacs-lisp
   (cort-deftest-with-macroexpand leaf/setq
     '(((leaf alloc
          :setq `((gc-cons-threshold . ,(* 512 1024 1024))
                  (garbage-collection-messages . t))
          :require t)
-       (progn
+       (prog1 'alloc
          (require 'alloc)
          (setq gc-cons-threshold 536870912)
          (setq garbage-collection-messages t)))
@@ -465,7 +638,7 @@ or set the evaluation result of some S expression to variable.
          :setq ((gc-cons-threshold . 536870912)
                 (garbage-collection-messages . t))
          :require t)
-       (progn
+       (prog1 'alloc
          (require 'alloc)
          (setq gc-cons-threshold 536870912)
          (setq garbage-collection-messages t)))
@@ -475,27 +648,27 @@ or set the evaluation result of some S expression to variable.
          (leaf-backend-bind . 'bind-key)
          (leaf-backend-bind* . 'bind-key)
          :require t)
-       (progn
+       (prog1 'leaf
          (require 'leaf)
          (setq leaf-backend-bind 'bind-key)
          (setq leaf-backend-bind* 'bind-key)))))
 
   (cort-deftest-with-macroexpand leaf/pre-setq
     '(((leaf alloc
-       :pre-setq `((gc-cons-threshold . ,(* 512 1024 1024))
-                   (garbage-collection-messages . t))
-       :require t)
-     (progn
-       (setq gc-cons-threshold 536870912)
-       (setq garbage-collection-messages t)
-       (require 'alloc)))))
+         :pre-setq `((gc-cons-threshold . ,(* 512 1024 1024))
+                     (garbage-collection-messages . t))
+         :require t)
+       (prog1 'alloc
+         (setq gc-cons-threshold 536870912)
+         (setq garbage-collection-messages t)
+         (require 'alloc)))))
 
   (cort-deftest-with-macroexpand leaf/setq-default
     '(((leaf alloc
          :setq-default `((gc-cons-threshold . ,(* 512 1024 1024))
                          (garbage-collection-messages . t))
          :require t)
-       (progn
+       (prog1 'alloc
          (require 'alloc)
          (setq-default gc-cons-threshold 536870912)
          (setq-default garbage-collection-messages t)))))
@@ -512,14 +685,14 @@ If you want to specify major-mode, pass dotted pair value.
   (cort-deftest-with-macroexpand leaf/mode
     '(((leaf web-mode
          :mode "\\.js\\'" "\\.p?html?\\'")
-       (progn
+       (prog1 'web-mode
          (autoload #'web-mode "web-mode" nil t)
          (add-to-list 'auto-mode-alist '("\\.js\\'" web-mode))
          (add-to-list 'auto-mode-alist '("\\.p?html?\\'" web-mode))))
 
       ((leaf web-mode
          :mode ("\\.js\\'" "\\.p?html?\\'"))
-       (progn
+       (prog1 'web-mode
          (autoload #'web-mode "web-mode" nil t)
          (add-to-list 'auto-mode-alist '("\\.js\\'" web-mode))
          (add-to-list 'auto-mode-alist '("\\.p?html?\\'" web-mode))))))
@@ -528,7 +701,7 @@ If you want to specify major-mode, pass dotted pair value.
     '(((leaf ruby-mode
          :mode "\\.rb\\'" "\\.rb2\\'" ("\\.rbg\\'" . rb-mode)
          :interpreter "ruby")
-       (progn
+       (prog1 'ruby-mode
          (autoload #'ruby-mode "ruby-mode" nil t)
          (autoload #'rb-mode "ruby-mode" nil t)
          (add-to-list 'auto-mode-alist '("\\.rb\\'" ruby-mode))
@@ -538,14 +711,14 @@ If you want to specify major-mode, pass dotted pair value.
 
       ((leaf web-mode
          :interpreter "js" "p?html?")
-       (progn
+       (prog1 'web-mode
          (autoload #'web-mode "web-mode" nil t)
          (add-to-list 'interpreter-mode-alist '("js" web-mode))
          (add-to-list 'interpreter-mode-alist '("p?html?" web-mode))))
 
       ((leaf web-mode
          :interpreter ("js" "p?html?"))
-       (progn
+       (prog1 'web-mode
          (autoload #'web-mode "web-mode" nil t)
          (add-to-list 'interpreter-mode-alist '("js" web-mode))
          (add-to-list 'interpreter-mode-alist '("p?html?" web-mode))))))
@@ -555,27 +728,30 @@ If you want to specify major-mode, pass dotted pair value.
 ~:magic~ keyword define ~magic-mode-alist~. It is used to determine major-mode in binary header byte.
 
 ~:magic-fallback~ keyward also define ~magic-fallback-alist~.
+
 #+begin_src emacs-lisp
   (cort-deftest-with-macroexpand leaf/magic
     '(((leaf pdf-tools
          :magic ("%PDF" . pdf-view-mode)
          :config
          (pdf-tools-install))
-       (progn
+       (prog1 'pdf-tools
          (autoload #'pdf-view-mode "pdf-tools" nil t)
          (add-to-list 'magic-mode-alist '("%PDF" pdf-view-mode))
-         (pdf-tools-install)))
+         (eval-after-load 'pdf-tools
+           '(progn
+              (pdf-tools-install)))))
 
       ((leaf web-mode
          :magic "js" "p?html?")
-       (progn
+       (prog1 'web-mode
          (autoload #'web-mode "web-mode" nil t)
          (add-to-list 'magic-mode-alist '("js" web-mode))
          (add-to-list 'magic-mode-alist '("p?html?" web-mode))))
 
       ((leaf web-mode
          :magic ("js" "p?html?"))
-       (progn
+       (prog1 'web-mode
          (autoload #'web-mode "web-mode" nil t)
          (add-to-list 'magic-mode-alist '("js" web-mode))
          (add-to-list 'magic-mode-alist '("p?html?" web-mode))))))
@@ -585,47 +761,62 @@ If you want to specify major-mode, pass dotted pair value.
          :magic-fallback ("%PDF" . pdf-view-mode)
          :config
          (pdf-tools-install))
-       (progn
+       (prog1 'pdf-tools
          (autoload #'pdf-view-mode "pdf-tools" nil t)
          (add-to-list 'magic-fallback-mode-alist '("%PDF" pdf-view-mode))
-         (pdf-tools-install)))
+         (eval-after-load 'pdf-tools
+           '(progn
+              (pdf-tools-install)))))
 
       ((leaf web-mode
          :magic-fallback "js" "p?html?")
-       (progn
+       (prog1 'web-mode
          (autoload #'web-mode "web-mode" nil t)
          (add-to-list 'magic-fallback-mode-alist '("js" web-mode))
          (add-to-list 'magic-fallback-mode-alist '("p?html?" web-mode))))
 
       ((leaf web-mode
          :magic-fallback ("js" "p?html?"))
-       (progn
+       (prog1 'web-mode
          (autoload #'web-mode "web-mode" nil t)
          (add-to-list 'magic-fallback-mode-alist '("js" web-mode))
          (add-to-list 'magic-fallback-mode-alist '("p?html?" web-mode))))))
 #+end_src
 
 ** :hook keyword
-~:hook~ keyword define ~add-hook~ (add-to-list ~*-hook~).
+~:hook~ keyword define ~add-hook~ via (add-to-list ~*-hook~).
+
+*Unlike use-package*, you must spesify the full hook name.
+It makes easy to jump definition.
 
 #+begin_src emacs-lisp
   (cort-deftest-with-macroexpand leaf/hook
     '(((leaf ace-jump-mode
+         :hook cc-mode-hook
+         :config (ace-jump-mode))
+       (prog1 'ace-jump-mode
+         (autoload #'ace-jump-mode "ace-jump-mode" nil t)
+         (add-hook 'cc-mode-hook #'ace-jump-mode)
+         (eval-after-load 'ace-jump-mode
+           '(progn
+              (ace-jump-mode)))))
+
+      ((leaf ace-jump-mode
          :hook cc-mode-hook)
-       (progn
+       (prog1 'ace-jump-mode
          (autoload #'ace-jump-mode "ace-jump-mode" nil t)
          (add-hook 'cc-mode-hook #'ace-jump-mode)))
 
       ((leaf ace-jump-mode
          :hook cc-mode-hook prog-mode-hook)
-       (progn
+       (prog1 'ace-jump-mode
          (autoload #'ace-jump-mode "ace-jump-mode" nil t)
          (add-hook 'cc-mode-hook #'ace-jump-mode)
          (add-hook 'prog-mode-hook #'ace-jump-mode)))
 
       ((leaf ace-jump-mode
          :hook cc-mode-hook (prog-mode-hook . my-ace-jump-mode))
-       (progn
+       (prog1 'ace-jump-mode
          (autoload #'ace-jump-mode "ace-jump-mode" nil t)
          (autoload #'my-ace-jump-mode "ace-jump-mode" nil t)
          (add-hook 'cc-mode-hook #'ace-jump-mode)
@@ -642,7 +833,7 @@ Use backquotes if you want the path to be relative to the current ~.emacs.d~, su
          :load-path "~/.emacs.d/elpa-archive/leaf.el/"
          :require t
          :config (leaf-init))
-       (progn
+       (prog1 'leaf
          (add-to-list 'load-path "~/.emacs.d/elpa-archive/leaf.el/")
          (require 'leaf)
          (leaf-init)))
@@ -653,7 +844,7 @@ Use backquotes if you want the path to be relative to the current ~.emacs.d~, su
          "~/.emacs.d/elpa-archive/leaf-browser.el/"
          :require t
          :config (leaf-init))
-       (progn
+       (prog1 'leaf
          (add-to-list 'load-path "~/.emacs.d/elpa-archive/leaf.el/")
          (add-to-list 'load-path "~/.emacs.d/elpa-archive/leaf-browser.el/")
          (require 'leaf)
@@ -664,7 +855,7 @@ Use backquotes if you want the path to be relative to the current ~.emacs.d~, su
                      "~/.emacs.d/elpa-archive/leaf-browser.el/")
          :require t
          :config (leaf-init))
-       (progn
+       (prog1 'leaf
          (add-to-list 'load-path "~/.emacs.d/elpa-archive/leaf.el/")
          (add-to-list 'load-path "~/.emacs.d/elpa-archive/leaf-browser.el/")
          (require 'leaf)
@@ -677,38 +868,17 @@ Use backquotes if you want the path to be relative to the current ~.emacs.d~, su
                                '("leaf.el" "leaf-broser.el" "orglyth.el")))
          :require t
          :config (leaf-init))
-       (progn
+       (prog1 'leaf
          (add-to-list 'load-path "~/.emacs.d/elpa-archive/leaf.el/")
          (add-to-list 'load-path "~/.emacs.d/elpa-archive/leaf-broser.el/")
          (add-to-list 'load-path "~/.emacs.d/elpa-archive/orglyth.el/")
-         (require 'leaf)
-         (leaf-init)))
-
-      ((leaf leaf
-         :load-path `,(locate-user-emacs-file "leaf.el")
-         :require t
-         :config (leaf-init))
-       (progn
-         (add-to-list 'load-path "~/.emacs.d/local/26.1/leaf.el")
-         (require 'leaf)
-         (leaf-init)))
-
-      ((leaf leaf
-         :load-path `(,(mapcar #'locate-user-emacs-file
-                               '("leaf.el" "leaf-broser.el" "orglyth.el")))
-         :require t
-         :config (leaf-init))
-       (progn
-         (add-to-list 'load-path "~/.emacs.d/local/26.1/local/leaf.el")
-         (add-to-list 'load-path "~/.emacs.d/local/26.1/local/leaf-broser.el")
-         (add-to-list 'load-path "~/.emacs.d/local/26.1/local/orglyth.el")
          (require 'leaf)
          (leaf-init)))))
 #+end_src
 
 * Condition keywords
 ** :disabled keyword
-The ~:disabled~ keyword provides the ability to temporarily~ nil~ the output of that ~leaf~ block.
+The ~:disabled~ keyword provides the ability to temporarily ~nil~ the output of that ~leaf~ block.
 
 You can use multiple values for the ~:disabled~ keyword, or multiple ~:disabled~ keyword,
 but ~:disabled~ only respects the value specified at the top.
@@ -720,9 +890,10 @@ you do not need to pass an exact ~t~ to convert it to ~nil~ because it is compar
 
 #+begin_src emacs-lisp
   (defvar leaf-keywords
-    '(:dummy
-      :disabled (unless (eval (car value)) `(,@body))
-      ...))
+    (cdt
+     '(:dummy
+       :disabled (unless (eval (car leaf--value)) `(,@leaf--body))
+       ...)))
 #+end_src
 
 #+begin_src emacs-lisp
@@ -731,11 +902,11 @@ you do not need to pass an exact ~t~ to convert it to ~nil~ because it is compar
        nil)
 
       ((leaf leaf :disabled nil     :config (leaf-init))
-       (progn
+       (prog1 'leaf
          (leaf-init)))
 
       ((leaf leaf :disabled nil t   :config (leaf-init))
-       (progn
+       (prog1 'leaf
          (leaf-init)))
 
       ((leaf leaf :disabled t :disabled nil     :config (leaf-init))
@@ -753,7 +924,7 @@ If specified multiple those keywords, evaluate sexp in ~and~.
          :if leafp
          :require t
          :config (leaf-init))
-       (progn
+       (prog1 'leaf
          (if leafp
              (progn
                (require 'leaf)
@@ -763,7 +934,7 @@ If specified multiple those keywords, evaluate sexp in ~and~.
          :if leafp leaf-avairablep (window-system)
          :require t
          :config (leaf-init))
-       (progn
+       (prog1 'leaf
          (if (and leafp leaf-avairablep (window-system))
              (progn
                (require 'leaf)
@@ -774,7 +945,7 @@ If specified multiple those keywords, evaluate sexp in ~and~.
          :when leaf-browserp
          :require t
          :config (leaf-init))
-       (progn
+       (prog1 'leaf
          (when leaf-browserp
            (if (and leafp leaf-avairablep (window-system))
                (progn
@@ -788,7 +959,7 @@ If specified multiple those keywords, evaluate sexp in ~and~.
          :preface (leaf-load)
          :require t
          :config (leaf-init))
-       (progn
+       (prog1 'leaf
          (add-to-list 'load-path "~/.emacs.d/elpa-archive/leaf.el/")
          (leaf-load)
          (when leaf-browserp
@@ -796,13 +967,13 @@ If specified multiple those keywords, evaluate sexp in ~and~.
                (progn
                  (require 'leaf)
                  (leaf-init))))))))
-  
+
   (cort-deftest-with-macroexpand leaf/when
     '(((leaf leaf
          :when leafp
          :require t
          :config (leaf-init))
-       (progn
+       (prog1 'leaf
          (when leafp
            (require 'leaf)
            (leaf-init))))
@@ -811,7 +982,7 @@ If specified multiple those keywords, evaluate sexp in ~and~.
          :when leafp leaf-avairablep (window-system)
          :require t
          :config (leaf-init))
-       (progn
+       (prog1 'leaf
          (when (and leafp leaf-avairablep (window-system))
            (require 'leaf)
            (leaf-init))))))
@@ -821,7 +992,7 @@ If specified multiple those keywords, evaluate sexp in ~and~.
          :unless leafp
          :require t
          :config (leaf-init))
-       (progn
+       (prog1 'leaf
          (unless leafp
            (require 'leaf)
            (leaf-init))))
@@ -830,7 +1001,7 @@ If specified multiple those keywords, evaluate sexp in ~and~.
          :unless leafp leaf-avairablep (window-system)
          :require t
          :config (leaf-init))
-       (progn
+       (prog1 'leaf
          (unless (and leafp leaf-avairablep (window-system))
            (require 'leaf)
            (leaf-init))))))
@@ -841,20 +1012,20 @@ If specified multiple those keywords, evaluate sexp in ~and~.
 To suppress byte compilation warnings, you must make the appropriate declarations in Elisp to tell Emacs
 that you are making the appropriate calls.
 
-This is usually done by a ~declare-function~ and an empty ~defvar~, and ~leaf~ provides a front end to it.
+This is usually done by a ~declare-function~ and an empty ~defvar~, and ~leaf~ provides a frontend of it.
 
 #+BEGIN_SRC emacs-lisp
   (cort-deftest-with-macroexpand leaf/defun
     '(((leaf leaf
          :defun leaf leaf-normalize-plist leaf-merge-dupkey-values-plist)
-       (progn
+       (prog1 'leaf
          (declare-function leaf "leaf")
          (declare-function leaf-normalize-plist "leaf")
          (declare-function leaf-merge-dupkey-values-plist "leaf")))
 
       ((leaf leaf
          :defun (leaf leaf-normalize-plist leaf-merge-dupkey-values-plist))
-       (progn
+       (prog1 'leaf
          (declare-function leaf "leaf")
          (declare-function leaf-normalize-plist "leaf")
          (declare-function leaf-merge-dupkey-values-plist "leaf")))))
@@ -862,14 +1033,14 @@ This is usually done by a ~declare-function~ and an empty ~defvar~, and ~leaf~ p
   (cort-deftest-with-macroexpand leaf/defvar
     '(((leaf leaf
          :defvar leaf leaf-normalize-plist leaf-merge-dupkey-values-plist)
-       (progn
+       (prog1 'leaf
          (defvar leaf)
          (defvar leaf-normalize-plist)
          (defvar leaf-merge-dupkey-values-plist)))
 
       ((leaf leaf
          :defvar (leaf leaf-normalize-plist leaf-merge-dupkey-values-plist))
-       (progn
+       (prog1 'leaf
          (defvar leaf)
          (defvar leaf-normalize-plist)
          (defvar leaf-merge-dupkey-values-plist)))
@@ -878,7 +1049,7 @@ This is usually done by a ~declare-function~ and an empty ~defvar~, and ~leaf~ p
          :defvar (leaf
                    (leaf-normalize-plist
                     (leaf-merge-dupkey-values-plist))))
-       (progn
+       (prog1 'leaf
          (defvar leaf)
          (defvar leaf-normalize-plist)
          (defvar leaf-merge-dupkey-values-plist)))))
@@ -898,19 +1069,19 @@ The arguments specified for this keyword have no effect on the result of the con
     '(((leaf leaf
          :doc "Symplify init.el configuration"
          :config (leaf-init))
-       (progn
+       (prog1 'leaf
          (leaf-init)))
 
       ((leaf leaf
          :file "~/.emacs.d/elpa/leaf.el/leaf.el"
          :config (leaf-init))
-       (progn
+       (prog1 'leaf
          (leaf-init)))
 
       ((leaf leaf
          :url "https://github.com/conao3/leaf.el"
          :config (leaf-init))
-       (progn
+       (prog1 'leaf
          (leaf-init)))
 
       ((leaf leaf
@@ -918,7 +1089,7 @@ The arguments specified for this keyword have no effect on the result of the con
          :file "~/.emacs.d/elpa/leaf.el/leaf.el"
          :url "https://github.com/conao3/leaf.el"
          :config (leaf-init))
-       (progn
+       (prog1 'leaf
          (leaf-init)))
 
       ((leaf leaf
@@ -938,79 +1109,120 @@ The arguments specified for this keyword have no effect on the result of the con
          :file "~/.emacs.d/elpa/leaf.el/leaf.el"
          :url "https://github.com/conao3/leaf.el"
          :config (leaf-init))
-       (progn
+       (prog1 'leaf
          (leaf-init)))))
 #+END_SRC
 
-* Configure other packages
-** :bind, :bind* keywords
-~:bind~ and ~:bind*~ provide frontend for keybind manager.
+* System keywords
+System keywords enabled by defalts on all leaf-block.
 
-When defined globally, key bindings and their corresponding functions are specified in dotted pairs.
+If you disable temporary, pass these keyword to ~nil~,
+or add ~nil~ to ~leaf-defaults~ to disable all leaf-block
+or set ~leaf-expand-leaf-protect~ to nil.
 
-To set it to a specific map, *place the map name as a symbol* at the top of the list.
+** :leaf-protect keyword
+If the leaf fails at the top of the configuration file,
+most of the configuration file will not be read.
 
-These keywords can also be used in lists. Note that these require a *symbol with the map name at the top of the list*.
-
-Currently, ~leaf~ support ~:package~ ~:prefix~ ~:prefix-map~ ~:menu-name~ ~:filter~ additional keywords.
-
-see more in ~bink-keys~ info.
+Therefore, it simply reports an error and expands the error-handling block
+that moves execution to the next leaf-block.
 
 #+begin_src emacs-lisp
-  (cort-deftest-with-macroexpand leaf/bind
-    '(((leaf color-moccur
-         :bind
-         ("M-s O" . moccur)
-         ("M-o" . isearch-moccur)
-         ("M-O" . isearch-moccur-all))
-       (progn
-         (autoload (function moccur) "color-moccur" nil t)
-         (autoload (function isearch-moccur) "color-moccur" nil t)
-         (autoload (function isearch-moccur-all) "color-moccur" nil t)
-         (leaf-meta-handler-bind color-moccur (:package color-moccur ("M-s O" . moccur)))
-         (leaf-meta-handler-bind color-moccur (:package color-moccur ("M-o" . isearch-moccur)))
-         (leaf-meta-handler-bind color-moccur (:package color-moccur ("M-O" . isearch-moccur-all)))))
+  (cort-deftest-with-macroexpand-let leaf/leaf-protect
+      ((leaf-expand-leaf-protect t))
+    '(((leaf leaf
+         :config (leaf-init))
+       (prog1 'leaf
+         (leaf-handler-leaf-protect leaf
+           (leaf-init))))
 
-      ((leaf color-moccur
-         :bind (("M-s O" . moccur)
-                ("M-o" . isearch-moccur)
-                ("M-O" . isearch-moccur-all)))
-       (progn
-         (autoload (function moccur) "color-moccur" nil t)
-         (autoload (function isearch-moccur) "color-moccur" nil t)
-         (autoload (function isearch-moccur-all) "color-moccur" nil t)
-         (leaf-meta-handler-bind color-moccur (:package color-moccur ("M-s O" . moccur)))
-         (leaf-meta-handler-bind color-moccur (:package color-moccur ("M-o" . isearch-moccur)))
-         (leaf-meta-handler-bind color-moccur (:package color-moccur ("M-O" . isearch-moccur-all)))))
+      ((leaf leaf
+         :leaf-protect nil
+         :config (leaf-init))
+       (prog1 'leaf
+         (leaf-init)))
 
-      ((leaf color-moccur
-         :bind (("M-s O" . moccur)
-                (:isearch-mode-map
-                 ("M-o" . isearch-moccur)
-                 ("M-O" . isearch-moccur-all))))
-       (progn
-         (autoload (function moccur) "color-moccur" nil t)
-         (autoload (function isearch-moccur) "color-moccur" nil t)
-         (autoload (function isearch-moccur-all) "color-moccur" nil t)
-         (leaf-meta-handler-bind color-moccur (:package color-moccur ("M-s O" . moccur)))
-         (leaf-meta-handler-bind color-moccur (:map isearch-mode-map :package color-moccur ("M-o" . isearch-moccur)))
-         (leaf-meta-handler-bind color-moccur (:map isearch-mode-map :package color-moccur ("M-O" . isearch-moccur-all)))))
+      ((leaf leaf
+         :leaf-protect t nil
+         :config (leaf-init))
+       (prog1 'leaf
+         (leaf-handler-leaf-protect leaf
+           (leaf-init))))
 
-      ((leaf color-moccur
-         :bind (("M-s O" . moccur)
-                (:isearch-mode-map
-                 :package isearch
-                 ("M-o" . isearch-moccur)
-                 ("M-O" . isearch-moccur-all))))
-       (progn
-         (autoload (function moccur) "color-moccur" nil t)
-         (autoload (function isearch-moccur) "color-moccur" nil t)
-         (autoload (function isearch-moccur-all) "color-moccur" nil t)
-         (leaf-meta-handler-bind color-moccur (:package color-moccur ("M-s O" . moccur)))
-         (leaf-meta-handler-bind color-moccur (:map isearch-mode-map :package isearch ("M-o" . isearch-moccur)))
-         (leaf-meta-handler-bind color-moccur (:map isearch-mode-map :package isearch ("M-O" . isearch-moccur-all)))))))
+      ((leaf-handler-leaf-protect leaf
+         (leaf-load)
+         (leaf-init))
+       (condition-case err
+           (progn
+             (leaf-load)
+             (leaf-init))
+         (error
+          (leaf-error "Error in `leaf' block.  Error msg: %s"
+                      (error-message-string err)))))))
 #+end_src
 
+** :leaf-defer keyword
+leaf-blocks with ~:bind~ or ~:mode~ can often delay loading or configuration evaluation.
+
+The keywords that enable this feature are defined below and expand as follows
+
+#+begin_src emacs-lisp
+  (defcustom leaf-defer-keywords (cdr '(:dummy
+                                        :bind :bind*
+                                        :mode :interpreter :magic :magic-fallback
+                                        :hook :commands))
+    "Specifies a keyword to perform a deferred load.
+  `leaf' blocks are lazily loaded by their package name
+  with values for these keywords."
+    :type 'sexp
+    :group 'leaf)
+
+  (cort-deftest-with-macroexpand leaf/leaf-defer
+    '(((leaf leaf
+         :commands leaf
+         :config (leaf-init))
+       (prog1 'leaf
+         (autoload #'leaf "leaf" nil t)
+         (eval-after-load 'leaf
+           '(progn
+              (leaf-init)))))
+
+      ((leaf leaf
+         :leaf-defer nil
+         :commands leaf
+         :config (leaf-init))
+       (prog1 'leaf
+         (autoload #'leaf "leaf" nil t)
+         (leaf-init)))))
+#+end_src
+
+** :leaf-autoload keyword
+For keywords that set functions, ~leaf~ can auto-expand the autoload expression
+enable lazy loading without relying on magic comments, ~;;;Autoload~.
+
+In some cases, you may want to disable this auto-expansion.
+(I can't think of that case, but it's provided as a function.)
+
+#+begin_src emacs-lisp
+  (cort-deftest-with-macroexpand leaf/leaf-autoload
+    '(((leaf leaf
+         :commands leaf
+         :config (leaf-init))
+       (prog1 'leaf
+         (autoload #'leaf "leaf" nil t)
+         (eval-after-load 'leaf
+           '(progn
+              (leaf-init)))))
+
+      ((leaf leaf
+         :leaf-autoload nil
+         :commands leaf
+         :config (leaf-init))
+       (prog1 'leaf
+         (eval-after-load 'leaf
+           '(progn
+              (leaf-init)))))))
+#+end_src
 * Information
 ** Donation
 I love OSS and I am dreaming of working on it as *full-time* job.
@@ -1026,7 +1238,8 @@ You can use github issues, but you can also use [[https://join.slack.com/t/conao
 if you want a more casual conversation.
 
 ** Contribution
-We welcome PR!
+We welcome PR! But It is need sign to FSF.
+
 Travis Cl test ~leaf-test.el~ with all Emacs version 23 or above.
 
 I think that it is difficult to prepare the environment locally,
@@ -1036,159 +1249,75 @@ Feel free throw PR!
 ~leaf.el~ creates the intended elisp code from DSL with a simple mechanism.
 
 It is clear what internal conversion is done and it is also easy to customize it.
+
 *** leaf.el mechanism
-**** ~leaf (name &rest args)~ macro
-This is ~leaf.el~ frontend macro. Users use only this macro.
+1. Append ~leaf-defaults~ and ~leaf-system-defaults~ to ~leaf~ arguments.
+2. Because ~leaf~ receives arguments too many format, normalize as plist.
+   1. Normalize plist by ~leaf-normalize-plist~.
+   2. Sort plist by ~leaf-keyword~.
 
-Process.
-1. Pass arguments to ~leaf-core~.
+      #+begin_src emacs-lisp
+        (:bind
+         ("M-s O" . moccur)
+         (:isearch-mode-map
+          :package isearch
+          ("M-o" . isearch-moccur)
+          ("M-O" . isearch-moccur-all)))
 
-**** ~leaf-core (name args)~ function
-This is the core process for leaf macro expansion.
+        ;; => (:leaf-protect (t)
+        ;;     :leaf-autoload (t)
+        ;;     :bind (("M-s O" . moccur)
+        ;;            (:isearch-mode-map
+        ;;             :package isearch
+        ;;             ("M-o" . isearch-moccur)
+        ;;             ("M-O" . isearch-moccur-all)))
+        ;;     :leaf-defer (t))
+      #+end_src
+3. Run normalizer, and process keyword using below variables
+   | Variable Name  | Description                                        |
+   |----------------+----------------------------------------------------|
+   | leaf--raw      | The all leaf arguments                             |
+   | leaf--name     | The name of leaf-block                             |
+   | leaf--key      | The :keyword of current processing                 |
+   | leaf--keyname  | The :keyword name as string of current processing  |
+   | leaf--value    | The arguments which is current processed           |
+   | leaf--body     | The result of the following keywords and arguments |
+   | leaf--rest     | The following keywords and arguments               |
+   | leaf--autoload | The list of pair ~(fn . pkg)~                      |
+4. Apply the normalized values to the keyword specific normalizer.
 
-Process.
-1. ~leaf-append-defaults~ to append default value (~leaf-defaults~) to ARGS
-2. ~leaf-normalize-plist~ to normalize pseudo-plist, ARGS
-3. ~leaf-sort-values-plist~ to sort ARGS
-4. pass NAME and ARGS to ~leaf-process-keywords~
+   The definition is ~leaf-normalize~, overwrite ~leaf--value~.
+5. Run conversion process keyword.
 
-***** ~leaf-append-defaults (plist)~ function
-Append leaf default values to PLIST.
-See ~leaf-defaults~. You can customize this value.
+   The conversion definition is ~leaf-keywords~, overridden ~leaf--body~
+6. Wrap finaly ~leaf--body~ with ~prog1~.
 
-EXAMPLE:
-#+BEGIN_SRC emacs-lisp
-  (leaf-append-defaults nil)
-  -> (:init nil)
+*** Adding new keywords
+~leaf~ normalize argument with ~leaf-normalize~, and conversion with ~leaf-keywords~.
 
-  (leaf-append-defaults '(:require foo))
-  -> (:require foo :init nil)
-#+END_SRC
+So, pushing new element these variable, ~leaf~ can recognize new keywords.
 
-***** ~leaf-normalize-plist (plsit mergep)~ function
-Given a pseudo-PLIST, return PLIST,
-if MERGEP is t, return well-formed PLIST.
+In [[https://github.com/conao3/leaf-keywords.el][leaf-keywords.el]], you can see practical example, and you can PR it.
 
-MERGEP every ~t~ in leaf.
-
-EXAMPLE:
-#+BEGIN_SRC emacs-lisp
-  (leaf-normalize-plist
-    '(:defer t
-      :config (message "a") (message "b")
-      :config (message "c")) nil)
-   -> (:defer (t)
-       :config ((message "a") (message "b"))
-       :config ((message "c")))
-
-  (leaf-normalize-plist
-    '(:defer t
-      :config (message "a") (message "b")
-      :config (message "c")) t)
-   -> (:defer (t)
-       :config ((message "a") (message "b") (message "c"))
-#+END_SRC
-
-***** ~leaf-sort-values-plist (plist)~ function
-Given a list-valued PLIST, return sorted-list PLIST by order ~leaf-keywords~.
-
-EXAMPLE:
-(leaf-sort-values-plist
-  '(:config (message "a")
-    :disabled (t)))
- -> (:disabled (t)
-     :config (message "a"))
-
-**** ~leaf-pcocess-keywords (name plist)~ function
-Process keywords for NAME.
-The KEY and VALUE are taken from the PLIST and pass to the handler.
-
-The handler is named leaf-handler/KEY.
-
-*** Adding custom keyword
-~leaf.el~ can easily be expanded by adding keywords.
-
-Actually, it is realized by two steps of adding keyword and adding handler.
-
-Example:
-#+BEGIN_SRC emacs-lisp
-  (cort-deftest leaf-test/:simple-keyword-add
-    (match-expansion
-     (leaf foo
-       :require h s :message-post-require "foo!" :config (setq bar 'baz))
-     '(progn
-        (require 'h)
-        (require 's)
-        (message "foo!")
-        (setq bar 'baz))))
-
-  (cort-deftest leaf-test/:simple-keyword-add-2
-    (match-expansion
-     (leaf foo
-       :require h s
-       :message-post-require "foo!"
-       :config (setq bar 'baz)
-       :message-post-require "post!"
-       :message-pre-require "pre")
-     '(progn
-        (message "pre")
-        (require 'h)
-        (require 's)
-        (message "foo!")
-        (message "post!")
-        (setq bar 'baz))))
-
-  (cort-deftest leaf-test/:simple-keyword-list-add
-    (match-expansion
-     (leaf foo
-       :require h s
-       :tmp-pre (message "start tmp")
-       :tmp-post (setq foo 'bar)
-       :tmp-pre (message "really start tmp!"))
-     '(progn
-        (require 'h)
-        (require 's)
-        (message "start tmp")
-        (message "really start tmp!")
-        (setq foo 'bar))))
-#+END_SRC
-
-**** Add leaf keyword
-The keyword has an appropriate place in ~leaf-keywords~.
-
-Because the keywords are sorted in order of ~leaf-keywords~,
-and they are processed and expanded in that order.
-
-You can use these functions to add keyword
-- ~leaf-add-keyword-before (target belm)~
-- ~leaf-add-keyword-after (target aelm)~
-
-If you message before ~require~, you should use
-~(leaf-add-keyword-before :message-pre-require :require)~.
-
-Or if you message after ~require~, you should use
-~(leaf-add-keyword-after :message-post-require :require)~.
-
-**** Define leaf handler
-Then, you should define a handler for new keyword(s) each.
-
-NOTE: Since VALUE is a list, be careful when implementing a handler.
-#+BEGIN_SRC emacs-lisp
-  (defun leaf-handler/:message-pre-require (name value rest)
-    "process :message-pre-require."
-    (let ((body (leaf-process-keywords name rest)))
-      `(,@(mapcar (lambda (x) `(message ,x)) value) ,@body)))
-
-  (defun leaf-handler/:message-post-require (name value rest)
-    "process :message-post-require."
-    (let ((body (leaf-process-keywords name rest)))
-      `(,@(mapcar (lambda (x) `(message ,x)) value) ,@body)))
-#+END_SRC
+Note that leaf only contains keywords for packages that come with the Emacs standard,
+and that keywords that depend on external packages are added to its repository.
 
 *** Why We support Emacs-22?
 Bundling Emacs-22.1 on macOS 10.13 (High Sierra), we support this.
 
 ** Migration
+*** leaf v2.0 to v3.0
+**** Drop bind-key.el support for :bind and faether.el support for :ensure
+To make ~leaf~ dependent only on packages that are itself and packages attached to and Emacs,
+we have removed the back-end selection for ~bind-key~ and ~leaf-key~ for ~:bind~
+and the back-end selection for ~package.el~, ~feathre.el~, and ~el-get~ for ~:ensure~.
+
+You should now use the external package specific keywords, such as
+~:bind-key~ and ~:el-get~, ~:feather~, defined in [[https://github.com/conao3/leaf-keywords.el][leaf-keywords.el]].
+
+Therefore, the keyword ~:ensure~ has been changed to ~:package~.
+This has no effect because we have defined alias.
+
 *** leaf v1.0 to v2.0
 **** Change not to ~require~ by default
 In order to realize the philosophy of "Leaf of setting",
@@ -1218,7 +1347,7 @@ If you want to request explicitly use the ~:require t~ flag.
 #+begin_example
   Affero General Public License Version 3 (AGPLv3)
   Copyright (c) Naoya Yamashita - https://conao3.com
-  https://github.com/conao3/orglyth.el/blob/master/LICENSE
+  https://github.com/conao3/leaf.el/blob/master/LICENSE
 #+end_example
 
 ** Author
@@ -1229,7 +1358,6 @@ If you want to request explicitly use the ~:require t~ flag.
 - KeenS ([[https://github.com/KeenS][κeen]])
 
 ** Special Thanks
-Advice and comments given by [[http://emacs-jp.github.io/][Emacs-JP]]'s forum member has been a great help
-in developing ~leaf.el~.
+Advice and comments given by [[http://emacs-jp.github.io/][Emacs-JP]]'s forum member has been a great help  in developing ~leaf.el~.
 
 Thank you very much!!

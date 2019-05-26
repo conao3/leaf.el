@@ -5,7 +5,7 @@
 ;; Author: Naoya Yamashita <conao3@gmail.com>
 ;; Maintainer: Naoya Yamashita <conao3@gmail.com>
 ;; Keywords: lisp settings
-;; Version: 2.5.7
+;; Version: 3.0.0
 ;; URL: https://github.com/conao3/leaf.el
 ;; Package-Requires: ((emacs "24.0"))
 
@@ -73,20 +73,6 @@ with values for these keywords."
 ;;
 ;;  Customize backend
 ;;
-
-(defcustom leaf-backend-ensure (if (require 'feather nil t) 'feather 'package)
-  "Backend to process `:ensure' keyword."
-  :type '(choice (const :tag "Use `package.el'." 'package)
-                 (const :tag "Use `feather.el'." 'feather)
-                 (const :tag "No backend, disable `:ensure'." nil))
-  :group 'leaf)
-
-(defcustom leaf-backend-bind 'leaf-key
-  "Backend to process `:bind' keyword."
-  :type '(choice (const :tag "Use `leaf-key' implemented in `leaf'." 'leaf-key)
-                 (const :tag "Use `bind-key.el'." 'bind-key)
-                 (const :tag "No backend, disable `:bind'." nil))
-  :group 'leaf)
 
 (defcustom leaf-options-ensure-default-pin nil
   "Option :ensure pin default.
@@ -278,7 +264,8 @@ MESSAGE and ARGS are passed `format'."
      :unless         (when leaf--body `((unless ,@(if (= 1 (length leaf--value)) leaf--value `((and ,@leaf--value))) ,@leaf--body)))
      :if             (when leaf--body `((if     ,@(if (= 1 (length leaf--value)) leaf--value `((and ,@leaf--value))) (progn ,@leaf--body))))
 
-     :ensure         `(,@(mapcar (lambda (elm) `(leaf-handler-ensure ,leaf--name ,(car elm) ,(cdr elm))) leaf--value) ,@leaf--body)
+     :ensure         `(,@(mapcar (lambda (elm) `(leaf-handler-package ,leaf--name ,(car elm) ,(cdr elm))) leaf--value) ,@leaf--body)
+     :package        `(,@(mapcar (lambda (elm) `(leaf-handler-package ,leaf--name ,(car elm) ,(cdr elm))) leaf--value) ,@leaf--body)
 
      :after          (when leaf--body (let ((ret `(progn ,@leaf--body)))
                                         (dolist (elm leaf--value) (setq ret `(eval-after-load ',elm ',ret)))
@@ -286,11 +273,11 @@ MESSAGE and ARGS are passed `format'."
 
      :commands       (progn (mapc (lambda (elm) (leaf-register-autoload elm leaf--name)) leaf--value) `(,@leaf--body))
      :bind           (progn
-                       (mapc (lambda (elm) (leaf-register-autoload (leaf-plist-get :func elm) leaf--name)) leaf--value)
-                       `(,@(mapcar (lambda (elm) `(leaf-handler-bind ,leaf--name ',elm)) leaf--value) ,@leaf--body))
+                       (mapc (lambda (elm) (leaf-register-autoload elm leaf--name)) (cadr leaf--value))
+                       `(,@(mapcar (lambda (elm) `(leaf-keys ,elm)) (car leaf--value)) ,@leaf--body))
      :bind*          (progn
-                       (mapc (lambda (elm) (leaf-register-autoload (leaf-plist-get :func elm) leaf--name)) leaf--value)
-                       `(,@(mapcar (lambda (elm) `(leaf-handler-bind* ,leaf--name ',elm)) leaf--value) ,@leaf--body))
+                       (mapc (lambda (elm) (leaf-register-autoload elm leaf--name)) (cadr leaf--value))
+                       `(,@(mapcar (lambda (elm) `(leaf-keys* ,elm)) (car leaf--value)) ,@leaf--body))
 
      :mode           (progn
                        (mapc (lambda (elm) (leaf-register-autoload (cdr elm) leaf--name)) leaf--value)
@@ -344,7 +331,7 @@ Sort by `leaf-sort-leaf--values-plist' in this order.")
      (delete-dups (delq nil (leaf-flatten leaf--value))))
 
     ((memq leaf--key (cdr '(:dummy
-                            :ensure
+                            :ensure :package
                             :hook :mode :interpreter :magic :magic-fallback :defun
                             :setq :pre-setq :setq-default :custom :custom-face)))
      ;; Accept: (sym . val), ((sym sym ...) . val), (sym sym ... . val)
@@ -355,7 +342,7 @@ Sort by `leaf-sort-leaf--values-plist' in this order.")
                (cond
                 ((leaf-pairp elm)
                  elm)
-                ((memq leaf--key '(:ensure))
+                ((memq leaf--key '(:ensure :package))
                  (if (eq t elm) `(,leaf--name . nil) `(,elm . nil)))
                 ((memq leaf--key '(:hook :mode :interpreter :magic :magic-fallback :defun))
                  `(,elm . ,leaf--name))
@@ -368,35 +355,57 @@ Sort by `leaf-sort-leaf--values-plist' in this order.")
                      leaf--value)))
 
     ((memq leaf--key '(:bind :bind*))
-     ;; Accept: list of pair (bind . func), (bind . nil)
-     ;;         ([:{{hoge}}-map] [:package {{pkg}}](bind . func) (bind . func) ...)
-     ;;         optional, [:{{hoge}}-map] [:package {{pkg}}]
-     ;; Return: list of ([:{{hoge}}-map] [:package {{pkg}}] (bind . func))
-     (mapcan (lambda (elm)
+     ;; Accept: `leaf-keys' accept form
+     ;; Return: a pair like (leaf--value . (fn fn ...))
+     (let ((pairp (lambda (x)
+                    (condition-case _err
+                        (and (listp x)
+                             (or (stringp (eval (car x)))
+                                 (vectorp (eval (car x))))
+                             (atom (cdr x)))
+                      (error nil))))
+           (recurfn) (fns))
+       (setq recurfn
+             (lambda (bind)
                (cond
-                ((leaf-pairp elm 'allow-nil)
-                 (list `(:package ,leaf--name :key ,(car elm) :func ,(cdr elm))))
-                ((not (keywordp (car elm)))
-                 (mapcar
-                  (lambda (el) `(:package ,leaf--name :key ,(car el) :func ,(cdr el))) elm))
+                ((funcall pairp bind)
+                 ;; `(leaf-key ,(car bind) #',(cdr bind))
+                 (push (cdr bind) fns))
+                ((and (listp (car bind))
+                      (funcall pairp (car bind)))
+                 `(progn
+                    ,@(mapcar (lambda (elm)
+                                (if (funcall pairp elm)
+                                    ;; `(leaf-key ,(car elm) #',(cdr elm))
+                                    (push (cdr elm) fns)
+                                  ;; `(leaf-keys ,elm)
+                                  (funcall recurfn elm)))
+                              bind)))
+                ((keywordp (car bind))
+                 (let* ((map (intern (substring (symbol-name (car bind)) 1)))
+                        (pkg (leaf-plist-get :package (cdr bind)))
+                        (pkgs (if (atom pkg) `(,pkg) pkg))
+                        (elmbind (if pkg (nthcdr 3 bind) (nthcdr 1 bind)))
+                        (elmbinds (if (funcall pairp (car elmbind))
+                                      elmbind (car elmbind)))
+                        (form `(progn
+                                 ,@(mapcar
+                                    (lambda (elm)
+                                      ;; `(leaf-key ,(car elm) #',(cdr elm) ',map)
+                                      (push (cdr elm) fns))
+                                    elmbinds))))
+                   (when pkg
+                     (dolist (elmpkg pkgs)
+                       (setq form `(eval-after-load ',elmpkg ',form))))
+                   form))
                 (t
-                 (delq nil
-                       (mapcar (lambda (el)
-                                 (when (leaf-pairp el 'allow-nil)
-                                   (let ((map (intern (substring (symbol-name (car elm)) 1)))
-                                         (pkg (leaf-plist-get :package (cdr elm))))
-                                     (cdr `(:dummy
-                                            :map ,map
-                                            :package ,(if pkg pkg leaf--name)
-                                            :key ,(car el)
-                                            :func ,(cdr el))))))
-                               (cdr elm))))))
-             (mapcan (lambda (elm)
-                       (if (or (and (listp elm) (keywordp (car elm)))
-                               (and (listp elm) (atom (car elm)) (atom (cdr elm))))
-                           (list elm)
-                         elm))
-                     leaf--value)))
+                 `(progn
+                    ,@(mapcar (lambda (elm)
+                                ;; `(leaf-keys ,elm)
+                                (funcall recurfn elm))
+                              bind))))))
+       (funcall recurfn leaf--value)
+       `(,leaf--value ,fns)))
 
     ((memq leaf--key (cdr '(:dummy
                             :disabled :if :when :unless
@@ -479,42 +488,62 @@ For example:
   "Similar to `bind-key', but overrides any mode-specific bindings."
   `(leaf-key ,key ,command 'leaf-key-override-global-map))
 
-(defmacro leaf-keys (&rest plist)
-  "Bind multiple keys at once.
-
-Accepts keyword arguments:
-MUST:
-  :bind (KEY . COMMAND) - bind KEY to COMMAND
-        (KEY . nil)     - unbind KEY
+(defmacro leaf-keys (bind)
+  "Bind multiple BIND for KEYMAP defined in PKG.
+BIND is (KEY . COMMAND) or (KEY . nil) to unbind KEY.
 
 OPTIONAL:
-  :map MAP              - a keymap into which the keybind should be added
-  :package PKG          - a package in which the MAP defined in
-                          (wrap `eval-after-load' PKG)
+  BIND also accept below form.
+    (:{{map}} :package {{pkg}} (KEY . COMMAND) (KEY . COMMAND))
+  KEYMAP is quoted keymap name.
+  PKG is quoted package name which define KEYMAP.
+  (wrap `eval-after-load' PKG)
 
-NOTE: :package, :bind can accept list of these.
-  :package (PKG ... PKG)
-  :bind ((KEY . COMMAND) ... (KEY . COMMAND))"
-  (let ((mmap  (leaf-plist-get :map plist))
-        (mpkg  (leaf-plist-get :package plist))
-        (mbind (leaf-plist-get :bind plist))
-        (mform))
-    (unless mbind (leaf-error "leaf-keys need :bind argument.  arg: %s" plist))
-    (when (atom mpkg) (setq mpkg `(,mpkg)))
-    (when (leaf-pairp mbind 'allow-nil) (setq mbind `(,mbind)))
-    (setq mform `(progn
-                  ,@(mapcar
-                     (lambda (elm) `(leaf-key ,(car elm) ',(cdr elm) ',mmap))
-                     mbind)))
-    (if (equal '(nil) mpkg)
-        mform
-      (dolist (pkg mpkg) (setq mform `(eval-after-load ',pkg ',mform)))
-      mform)))
+NOTE: BIND can also accept list of these."
+  (let ((pairp (lambda (x)
+                 (condition-case _err
+                     (and (listp x)
+                          (or (stringp (eval (car x)))
+                              (vectorp (eval (car x))))
+                          (atom (cdr x)))
+                   (error nil)))))
+    (cond
+     ((funcall pairp bind)
+      `(leaf-key ,(car bind) #',(cdr bind)))
+     ((and (listp (car bind))
+           (funcall pairp (car bind)))
+      `(progn
+         ,@(mapcar (lambda (elm)
+                     (if (funcall pairp elm)
+                         `(leaf-key ,(car elm) #',(cdr elm))
+                       `(leaf-keys ,elm)))
+                   bind)))
+     ((keywordp (car bind))
+      (let* ((map (intern (substring (symbol-name (car bind)) 1)))
+             (pkg (leaf-plist-get :package (cdr bind)))
+             (pkgs (if (atom pkg) `(,pkg) pkg))
+             (elmbind (if pkg (nthcdr 3 bind) (nthcdr 1 bind)))
+             (elmbinds (if (funcall pairp (car elmbind))
+                           elmbind (car elmbind)))
+             (form `(progn
+                      ,@(mapcar
+                         (lambda (elm)
+                           `(leaf-key ,(car elm) #',(cdr elm) ',map))
+                         elmbinds))))
+        (when pkg
+          (dolist (elmpkg pkgs)
+            (setq form `(eval-after-load ',elmpkg ',form))))
+        form))
+     (t
+      `(progn
+         ,@(mapcar (lambda (elm) `(leaf-keys ,elm)) bind))))))
 
-(defmacro leaf-keys* (&rest plist)
-  (when (leaf-plist-get :map plist)
-    (leaf-error "leaf-keys* should not call with :map argument.  arg: %s" plist))
-  `(leaf-key :map 'leaf-key-override-global-map ,@plist))
+(defmacro leaf-keys* (bind)
+  "Similar to `leaf-keys' but bind BIND to `leaf-key-override-global-map'.
+BIND must not contain :{{map}}."
+  (let ((binds (if (and (atom (car bind)) (atom (cdr bind)))
+                   `(,bind) bind)))
+    `(leaf-keys (:leaf-key-override-global-map ,@binds))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
@@ -536,55 +565,25 @@ NOTE: :package, :bind can accept list of these.
       (leaf-error ,(format "Error in `%s' block.  Error msg: %%s" name)
                   (error-message-string err)))))
 
-(defmacro leaf-handler-ensure (name pkg _pin)
-  "Meta handler for PKG from PIN in NAME leaf block."
-  (cond
-   ((eq leaf-backend-ensure 'package)
-    `(unless
-         (package-installed-p ',pkg)
-       (condition-case err
-           (progn
-             (unless (assoc 'leaf package-archive-contents)
-               (package-refresh-contents))
-             (package-install ',pkg))
-         (error
-          (condition-case err
-              (progn
-                (package-refresh-contents)
-                (package-install ',pkg))
-            (error
-             (leaf-error
-              ,(format "In `%s' block, failed to :ensure of %s.  Error msg: %%s"
-                       name pkg)
-              (error-message-string err))))))))))
-
-(defmacro leaf-handler-bind (_name elm)
-  "Meta handler for NAME with ELM."
-  (declare (indent 1))
-  (let* ((elm* (eval elm))
-         (map (leaf-plist-get :map elm*))
-         (pkg (leaf-plist-get :package elm*))
-         (key (leaf-plist-get :key elm*))
-         (fn  (leaf-plist-get :func elm*)))
-    (cond
-     ((eq leaf-backend-bind 'bind-key)
-      `(leaf-keys ,@(when map `(:map ,map)) :package ,pkg :bind (,key . ,fn)))
-     ((eq leaf-backend-bind 'bind-key)
-      `(bind-keys ,@(when map `(:map ,map)) :package ,pkg (,key . ,fn))))))
-
-(defmacro leaf-handler-bind* (_name elm)
-  "Meta handler for NAME with ELM."
-  (declare (indent 1))
-  (let* ((elm* (eval elm))
-         (map (leaf-plist-get :map elm*))
-         (pkg (leaf-plist-get :package elm*))
-         (key (leaf-plist-get :key elm*))
-         (fn  (leaf-plist-get :func elm*)))
-    (cond
-     ((eq leaf-backend-bind 'bind-key)
-      `(leaf-keys* ,@(when map `(:map ,map)) :package ,pkg :bind (,key . ,fn)))
-     ((eq leaf-backend-bind 'bind-key)
-      `(bind-keys* ,@(when map `(:map ,map)) :package ,pkg (,key . ,fn))))))
+(defmacro leaf-handler-package (name pkg _pin)
+  "Handler ensure PKG via PIN in NAME leaf block."
+  `(unless
+       (package-installed-p ',pkg)
+     (condition-case err
+         (progn
+           (unless (assoc 'leaf package-archive-contents)
+             (package-refresh-contents))
+           (package-install ',pkg))
+       (error
+        (condition-case err
+            (progn
+              (package-refresh-contents)
+              (package-install ',pkg))
+          (error
+           (leaf-error
+            ,(format "In `%s' block, failed to :ensure of %s.  Error msg: %%s"
+                     name pkg)
+            (error-message-string err))))))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
