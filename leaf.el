@@ -384,10 +384,10 @@ Sort by `leaf-sort-leaf--values-plist' in this order.")
                          elm))
                      leaf--value)))
 
-    ((memq leaf--key `(cdr '(:dummy
-                             :disabled :if :when :unless
-                             :doc :file :url :preface :init :config
-                             :leaf-autoload :leaf-defer :leaf-no-error)))
+    ((memq leaf--key (cdr '(:dummy
+                            :disabled :if :when :unless
+                            :doc :file :url :preface :init :config
+                            :leaf-autoload :leaf-defer :leaf-no-error)))
      leaf--value)
 
     (t
