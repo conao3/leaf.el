@@ -656,13 +656,15 @@ Example:
        :bind (("C-M-i" . flyspell-correct-wrapper))
        :custom ((flyspell-correct-interface . #'flyspell-correct-ivy)))
      (prog1 'flyspell-correct-ivy
-       (autoload #'flyspell-correct-wrapper "flyspell-correct-ivy" nil t)
-       (leaf-handler-bind flyspell-correct-ivy '(:package flyspell-correct-ivy :key "C-M-i" :func flyspell-correct-wrapper))
+       (autoload
+         (function flyspell-correct-wrapper)
+         "flyspell-correct-ivy" nil t)
+       (leaf-keys (("C-M-i" . flyspell-correct-wrapper)))
        (eval-after-load 'flyspell-correct-ivy
          '(progn
             (custom-set-variables
              '(flyspell-correct-interface
-               #'flyspell-correct-ivy
+               (function flyspell-correct-ivy)
                "Customized with leaf in flyspell-correct-ivy block"))))))
 
     ((leaf leaf
@@ -758,17 +760,19 @@ Example:
        :package t
        :bind (("C-c e" . macrostep-expand)))
      (prog1 'macrostep
-       (autoload #'macrostep-expand "macrostep" nil t)
+       (autoload
+         (function macrostep-expand)
+         "macrostep" nil t)
        (leaf-handler-package macrostep macrostep nil)
-       (leaf-handler-bind macrostep '(:package macrostep :key "C-c e" :func macrostep-expand))))
+       (leaf-keys (("C-c e" . macrostep-expand)))))
 
     ((leaf macrostep
        :package t
        :bind ("C-c e" . macrostep-expand))
      (prog1 'macrostep
-       (autoload #'macrostep-expand "macrostep" nil t)
+       (autoload (function macrostep-expand) "macrostep" nil t)
        (leaf-handler-package macrostep macrostep nil)
-       (leaf-handler-bind macrostep '(:package macrostep :key "C-c e" :func macrostep-expand))))
+       (leaf-keys ("C-c e" . macrostep-expand))))
 
     ((leaf color-moccur
        :bind
@@ -776,24 +780,24 @@ Example:
        ("M-o" . isearch-moccur)
        ("M-O" . isearch-moccur-all))
      (prog1 'color-moccur
-       (autoload #'moccur "color-moccur" nil t)
-       (autoload #'isearch-moccur "color-moccur" nil t)
-       (autoload #'isearch-moccur-all "color-moccur" nil t)
-       (leaf-handler-bind color-moccur '(:package color-moccur :key "M-s O" :func moccur))
-       (leaf-handler-bind color-moccur '(:package color-moccur :key "M-o" :func isearch-moccur))
-       (leaf-handler-bind color-moccur '(:package color-moccur :key "M-O" :func isearch-moccur-all))))
+       (autoload (function isearch-moccur-all) "color-moccur" nil t)
+       (autoload (function isearch-moccur) "color-moccur" nil t)
+       (autoload (function moccur) "color-moccur" nil t)
+       (leaf-keys ("M-s O" . moccur))
+       (leaf-keys ("M-o" . isearch-moccur))
+       (leaf-keys ("M-O" . isearch-moccur-all))))
 
     ((leaf color-moccur
        :bind (("M-s O" . moccur)
               ("M-o" . isearch-moccur)
               ("M-O" . isearch-moccur-all)))
      (prog1 'color-moccur
-       (autoload #'moccur "color-moccur" nil t)
-       (autoload #'isearch-moccur "color-moccur" nil t)
-       (autoload #'isearch-moccur-all "color-moccur" nil t)
-       (leaf-handler-bind color-moccur '(:package color-moccur :key "M-s O" :func moccur))
-       (leaf-handler-bind color-moccur '(:package color-moccur :key "M-o" :func isearch-moccur))
-       (leaf-handler-bind color-moccur '(:package color-moccur :key "M-O" :func isearch-moccur-all))))
+       (autoload (function isearch-moccur-all) "color-moccur" nil t)
+       (autoload (function isearch-moccur) "color-moccur" nil t)
+       (autoload (function moccur) "color-moccur" nil t)
+       (leaf-keys (("M-s O" . moccur)
+                   ("M-o" . isearch-moccur)
+                   ("M-O" . isearch-moccur-all)))))
 
     ((leaf color-moccur
        :bind
@@ -801,11 +805,11 @@ Example:
        ("M-s o" . isearch-moccur)
        ("M-s i" . isearch-moccur-all))
      (prog1 'color-moccur
-       (autoload #'isearch-moccur "color-moccur" nil t)
-       (autoload #'isearch-moccur-all "color-moccur" nil t)
-       (leaf-handler-bind color-moccur '(:package color-moccur :key "M-s" :func nil))
-       (leaf-handler-bind color-moccur '(:package color-moccur :key "M-s o" :func isearch-moccur))
-       (leaf-handler-bind color-moccur '(:package color-moccur :key "M-s i" :func isearch-moccur-all))))
+       (autoload (function isearch-moccur-all) "color-moccur" nil t)
+       (autoload (function isearch-moccur) "color-moccur" nil t)
+       (leaf-keys ("M-s"))
+       (leaf-keys ("M-s o" . isearch-moccur))
+       (leaf-keys ("M-s i" . isearch-moccur-all))))
 
     ((leaf color-moccur
        :bind
@@ -813,11 +817,11 @@ Example:
         ("M-s o" . isearch-moccur)
         ("M-s i" . isearch-moccur-all)))
      (prog1 'color-moccur
-       (autoload #'isearch-moccur "color-moccur" nil t)
-       (autoload #'isearch-moccur-all "color-moccur" nil t)
-       (leaf-handler-bind color-moccur '(:package color-moccur :key "M-s" :func nil))
-       (leaf-handler-bind color-moccur '(:package color-moccur :key "M-s o" :func isearch-moccur))
-       (leaf-handler-bind color-moccur '(:package color-moccur :key "M-s i" :func isearch-moccur-all))))
+       (autoload (function isearch-moccur-all) "color-moccur" nil t)
+       (autoload (function isearch-moccur) "color-moccur" nil t)
+       (leaf-keys (("M-s")
+                   ("M-s o" . isearch-moccur)
+                   ("M-s i" . isearch-moccur-all)))))
 
     ;; ((leaf color-moccur
     ;;    :bind (("M-s O" . moccur)
@@ -867,12 +871,14 @@ Example:
         ("M-o" . isearch-moccur)
         ("M-O" . isearch-moccur-all)))
      (prog1 'color-moccur
-       (autoload #'moccur "color-moccur" nil t)
-       (autoload #'isearch-moccur "color-moccur" nil t)
-       (autoload #'isearch-moccur-all "color-moccur" nil t)
-       (leaf-handler-bind color-moccur '(:package color-moccur :key "M-s O" :func moccur))
-       (leaf-handler-bind color-moccur '(:map isearch-mode-map :package isearch :key "M-o" :func isearch-moccur))
-       (leaf-handler-bind color-moccur '(:map isearch-mode-map :package isearch :key "M-O" :func isearch-moccur-all))))
+       (autoload (function isearch-moccur-all) "color-moccur" nil t)
+       (autoload (function isearch-moccur) "color-moccur" nil t)
+       (autoload (function moccur) "color-moccur" nil t)
+       (leaf-keys ("M-s O" . moccur))
+       (leaf-keys (:isearch-mode-map
+                   :package isearch
+                   ("M-o" . isearch-moccur)
+                   ("M-O" . isearch-moccur-all)))))
 
     ((leaf color-moccur
        :bind (("M-s O" . moccur)
@@ -881,12 +887,14 @@ Example:
                ("M-o" . isearch-moccur)
                ("M-O" . isearch-moccur-all))))
      (prog1 'color-moccur
-       (autoload #'moccur "color-moccur" nil t)
-       (autoload #'isearch-moccur "color-moccur" nil t)
-       (autoload #'isearch-moccur-all "color-moccur" nil t)
-       (leaf-handler-bind color-moccur '(:package color-moccur :key "M-s O" :func moccur))
-       (leaf-handler-bind color-moccur '(:map isearch-mode-map :package isearch :key "M-o" :func isearch-moccur))
-       (leaf-handler-bind color-moccur '(:map isearch-mode-map :package isearch :key "M-O" :func isearch-moccur-all))))))
+       (autoload (function isearch-moccur-all) "color-moccur" nil t)
+       (autoload (function isearch-moccur) "color-moccur" nil t)
+       (autoload (function moccur) "color-moccur" nil t)
+       (leaf-keys (("M-s O" . moccur)
+                   (:isearch-mode-map
+                    :package isearch
+                    ("M-o" . isearch-moccur)
+                    ("M-O" . isearch-moccur-all))))))))
 
 (cort-deftest-with-macroexpand leaf/bind*
   '(((leaf color-moccur
@@ -895,24 +903,24 @@ Example:
        ("M-o" . isearch-moccur)
        ("M-O" . isearch-moccur-all))
      (prog1 'color-moccur
-       (autoload #'moccur "color-moccur" nil t)
-       (autoload #'isearch-moccur "color-moccur" nil t)
-       (autoload #'isearch-moccur-all "color-moccur" nil t)
-       (leaf-handler-bind* color-moccur '(:package color-moccur :key "M-s O" :func moccur))
-       (leaf-handler-bind* color-moccur '(:package color-moccur :key "M-o" :func isearch-moccur))
-       (leaf-handler-bind* color-moccur '(:package color-moccur :key "M-O" :func isearch-moccur-all))))
+       (autoload (function isearch-moccur-all) "color-moccur" nil t)
+       (autoload (function isearch-moccur) "color-moccur" nil t)
+       (autoload (function moccur) "color-moccur" nil t)
+       (leaf-keys* ("M-s O" . moccur))
+       (leaf-keys* ("M-o" . isearch-moccur))
+       (leaf-keys* ("M-O" . isearch-moccur-all))))
 
     ((leaf color-moccur
        :bind* (("M-s O" . moccur)
                ("M-o" . isearch-moccur)
                ("M-O" . isearch-moccur-all)))
      (prog1 'color-moccur
-       (autoload #'moccur "color-moccur" nil t)
-       (autoload #'isearch-moccur "color-moccur" nil t)
-       (autoload #'isearch-moccur-all "color-moccur" nil t)
-       (leaf-handler-bind* color-moccur '(:package color-moccur :key "M-s O" :func moccur))
-       (leaf-handler-bind* color-moccur '(:package color-moccur :key "M-o" :func isearch-moccur))
-       (leaf-handler-bind* color-moccur '(:package color-moccur :key "M-O" :func isearch-moccur-all))))
+       (autoload (function isearch-moccur-all) "color-moccur" nil t)
+       (autoload (function isearch-moccur) "color-moccur" nil t)
+       (autoload (function moccur) "color-moccur" nil t)
+       (leaf-keys* (("M-s O" . moccur)
+                    ("M-o" . isearch-moccur)
+                    ("M-O" . isearch-moccur-all)))))
 
     ;; ((leaf color-moccur
     ;;    :bind* (("M-s O" . moccur)
@@ -947,12 +955,13 @@ Example:
                 ("M-o" . isearch-moccur)
                 ("M-O" . isearch-moccur-all))))
      (prog1 'color-moccur
-       (autoload #'moccur "color-moccur" nil t)
-       (autoload #'isearch-moccur "color-moccur" nil t)
-       (autoload #'isearch-moccur-all "color-moccur" nil t)
-       (leaf-handler-bind* color-moccur '(:package color-moccur :key "M-s O" :func moccur))
-       (leaf-handler-bind* color-moccur '(:map isearch-mode-map :package color-moccur :key "M-o" :func isearch-moccur))
-       (leaf-handler-bind* color-moccur '(:map isearch-mode-map :package color-moccur :key "M-O" :func isearch-moccur-all))))
+       (autoload (function isearch-moccur-all) "color-moccur" nil t)
+       (autoload (function isearch-moccur) "color-moccur" nil t)
+       (autoload (function moccur) "color-moccur" nil t)
+       (leaf-keys* (("M-s O" . moccur)
+                    (:isearch-mode-map
+                     ("M-o" . isearch-moccur)
+                     ("M-O" . isearch-moccur-all))))))
 
     ((leaf color-moccur
        :bind* (("M-s O" . moccur)
@@ -961,12 +970,14 @@ Example:
                 ("M-o" . isearch-moccur)
                 ("M-O" . isearch-moccur-all))))
      (prog1 'color-moccur
-       (autoload #'moccur "color-moccur" nil t)
-       (autoload #'isearch-moccur "color-moccur" nil t)
-       (autoload #'isearch-moccur-all "color-moccur" nil t)
-       (leaf-handler-bind* color-moccur '(:package color-moccur :key "M-s O" :func moccur))
-       (leaf-handler-bind* color-moccur '(:map isearch-mode-map :package isearch :key "M-o" :func isearch-moccur))
-       (leaf-handler-bind* color-moccur '(:map isearch-mode-map :package isearch :key "M-O" :func isearch-moccur-all))))))
+       (autoload (function isearch-moccur-all) "color-moccur" nil t)
+       (autoload (function isearch-moccur) "color-moccur" nil t)
+       (autoload (function moccur) "color-moccur" nil t)
+       (leaf-keys* (("M-s O" . moccur)
+                    (:isearch-mode-map
+                     :package isearch
+                     ("M-o" . isearch-moccur)
+                     ("M-O" . isearch-moccur-all))))))))
 
 (cort-deftest-with-macroexpand leaf/mode
   '(((leaf web-mode
@@ -1658,60 +1669,146 @@ Example:
      (leaf-key [remap backward-sentence] 'sh-beginning-of-command 'leaf-key-override-global-map))))
 
 (cort-deftest-with-macroexpand leaf/leaf-keys
-  '(((leaf-keys :bind ("C-M-i" . flyspell-correct-wrapper))
-     (progn
-       (leaf-key "C-M-i" 'flyspell-correct-wrapper 'nil)))
+  '(((leaf-keys ("C-M-i" . flyspell-correct-wrapper))
+     (leaf-key "C-M-i" (function flyspell-correct-wrapper)))
 
-    ((leaf-keys :bind (("C-c C-n" . go-run)
-                       ("C-c ."   . go-test-current-test)))
+    ((leaf-keys (("C-M-i" . flyspell-correct-wrapper)))
      (progn
-       (leaf-key "C-c C-n" 'go-run 'nil)
-       (leaf-key "C-c ." 'go-test-current-test 'nil)))
+       (leaf-key "C-M-i" (function flyspell-correct-wrapper))))
 
-    ((leaf-keys :map go-mode-map :bind ("C-M-i" . flyspell-correct-wrapper))
+    ((leaf-keys (("C-c C-n" . go-run)
+                 ("C-c ."   . go-test-current-test)))
      (progn
-       (leaf-key "C-M-i" 'flyspell-correct-wrapper 'go-mode-map)))
+       (leaf-key "C-c C-n" (function go-run))
+       (leaf-key "C-c ." (function go-test-current-test))))
 
-    ((leaf-keys :map go-mode-map :bind (("C-c C-n" . go-run)
-                       ("C-c ."   . go-test-current-test)))
+    ((leaf-keys (:go-mode-map ("C-M-i" . flyspell-correct-wrapper)))
      (progn
-       (leaf-key "C-c C-n" 'go-run 'go-mode-map)
-       (leaf-key "C-c ." 'go-test-current-test 'go-mode-map)))
+       (leaf-key "C-M-i" (function flyspell-correct-wrapper) 'go-mode-map)))
 
-    ((leaf-keys :package go-mode :map go-mode-map
-                :bind ("C-M-i" . flyspell-correct-wrapper))
+    ((leaf-keys (:go-mode-map
+                 ("C-c C-n" . go-run)
+                 ("C-c ."   . go-test-current-test)))
+     (progn
+       (leaf-key "C-c C-n" (function go-run) 'go-mode-map)
+       (leaf-key "C-c ." (function go-test-current-test) 'go-mode-map)))
+
+    ((leaf-keys (:go-mode-map (("C-c C-n" . go-run)
+                               ("C-c ."   . go-test-current-test))))
+     (progn
+       (leaf-key "C-c C-n" (function go-run) 'go-mode-map)
+       (leaf-key "C-c ." (function go-test-current-test) 'go-mode-map)))
+
+    ((leaf-keys (:go-mode-map
+                 :package go-mode
+                 ("C-M-i" . flyspell-correct-wrapper)))
      (eval-after-load 'go-mode
        '(progn
-          (leaf-key "C-M-i" 'flyspell-correct-wrapper 'go-mode-map))))
+          (leaf-key "C-M-i" (function flyspell-correct-wrapper) 'go-mode-map))))
 
-    ((leaf-keys :package go-mode :map go-mode-map
-                :bind (("C-c C-n" . go-run)
-                       ("C-c ."   . go-test-current-test)))
+    ((leaf-keys (:go-mode-map
+                 :package go-mode
+                 (("C-c C-n" . go-run)
+                  ("C-c ."   . go-test-current-test))))
      (eval-after-load 'go-mode
        '(progn
-          (leaf-key "C-c C-n" 'go-run 'go-mode-map)
-          (leaf-key "C-c ." 'go-test-current-test 'go-mode-map))))
+          (leaf-key "C-c C-n" (function go-run) 'go-mode-map)
+          (leaf-key "C-c ." (function go-test-current-test) 'go-mode-map))))
 
-    ((leaf-keys :package (cc-mode go-mode) :map go-mode-map
-                :bind (("C-c C-n" . go-run)
-                       ("C-c ."   . go-test-current-test)))
+    ((leaf-keys (:go-mode-map
+                 :package (cc-mode go-mode)
+                 (("C-c C-n" . go-run)
+                  ("C-c ."   . go-test-current-test))))
      (eval-after-load 'go-mode
        '(eval-after-load 'cc-mode
           '(progn
-             (leaf-key "C-c C-n" 'go-run 'go-mode-map)
-             (leaf-key "C-c ." 'go-test-current-test 'go-mode-map)))))))
+             (leaf-key "C-c C-n" (function go-run) 'go-mode-map)
+             (leaf-key "C-c ." (function go-test-current-test) 'go-mode-map)))))
+
+    ((leaf-keys (:go-mode-map
+                 :package (cc-mode go-mode)
+                 (("C-c C-n" . go-run)
+                  ("C-c ."   . go-test-current-test))))
+     (eval-after-load 'go-mode
+       '(eval-after-load 'cc-mode
+          '(progn
+             (leaf-key "C-c C-n" (function go-run) 'go-mode-map)
+             (leaf-key "C-c ." (function go-test-current-test) 'go-mode-map)))))
+
+    ((leaf-keys ((:isearch-mode-map
+                  ("M-o" . isearch-moccur)
+                  ("M-O" . isearch-moccur-all))
+                 (:go-mode-map
+                  :package (cc-mode go-mode)
+                  (("C-c C-n" . go-run)
+                   ("C-c ."   . go-test-current-test)))))
+     (progn
+       (leaf-keys (:isearch-mode-map
+                   ("M-o" . isearch-moccur)
+                   ("M-O" . isearch-moccur-all)))
+       (leaf-keys (:go-mode-map
+                   :package (cc-mode go-mode)
+                   (("C-c C-n" . go-run)
+                    ("C-c ." . go-test-current-test))))))
+
+    ((leaf-keys (("C-c C-n" . go-run)
+                 ("C-c ."   . go-test-current-test)
+                 (:isearch-mode-map
+                  ("M-o" . isearch-moccur)
+                  ("M-O" . isearch-moccur-all))
+                 (:go-mode-map
+                  :package (cc-mode go-mode)
+                  (("C-c C-n" . go-run)
+                   ("C-c ."   . go-test-current-test)))))
+     (progn
+       (leaf-key "C-c C-n" (function go-run))
+       (leaf-key "C-c ." (function go-test-current-test))
+       (leaf-keys (:isearch-mode-map
+                   ("M-o" . isearch-moccur)
+                   ("M-O" . isearch-moccur-all)))
+       (leaf-keys (:go-mode-map
+                   :package
+                   (cc-mode go-mode)
+                   (("C-c C-n" . go-run)
+                    ("C-c ." . go-test-current-test))))))
+
+    ((leaf-keys (([remap compile] . go-run)
+                 ("C-c ."   . go-test-current-test)))
+     (progn
+       (leaf-key [remap compile] (function go-run))
+       (leaf-key "C-c ." (function go-test-current-test))))
+
+    ((leaf-keys (((vector 'key-chord ?i ?j) . undo)
+                 ([remap compile] . go-run)
+                 ("C-c ."   . go-test-current-test)))
+     (progn
+       (leaf-key (vector 'key-chord 105 106) (function undo))
+       (leaf-key [remap compile] (function go-run))
+       (leaf-key "C-c ." (function go-test-current-test))))
+
+    ((leaf-keys (:go-mode-map
+                 :package go-mode
+                 (((vector 'key-chord ?i ?j) . undo)
+                  ("C-c C-n" . go-run)
+                  ("C-c ."   . go-test-current-test))))
+     (eval-after-load 'go-mode
+       '(progn
+          (leaf-key (vector 'key-chord 105 106) (function undo) 'go-mode-map)
+          (leaf-key "C-c C-n" (function go-run) 'go-mode-map)
+          (leaf-key "C-c ." (function go-test-current-test) 'go-mode-map))))))
 
 (cort-deftest-with-macroexpand leaf/leaf-keys*
-  '(((leaf-keys* :bind ("C-M-i" . flyspell-correct-wrapper))
-     (leaf-key :map 'leaf-key-override-global-map
-               :bind ("C-M-i" . flyspell-correct-wrapper)))
+  '(((leaf-keys* ("C-M-i" . flyspell-correct-wrapper))
+     (leaf-keys
+      (:leaf-key-override-global-map
+       ("C-M-i" . flyspell-correct-wrapper))))
 
-    ((leaf-keys* :bind (("C-c C-n" . go-run)
-                        ("C-c ."   . go-test-current-test)))
-     (leaf-key :map 'leaf-key-override-global-map
-               :bind (("C-c C-n" . go-run)
-                      ("C-c ." . go-test-current-test))))))
-
+    ((leaf-keys* (("C-c C-n" . go-run)
+                  ("C-c ."   . go-test-current-test)))
+     (leaf-keys
+      (:leaf-key-override-global-map
+       ("C-c C-n" . go-run)
+       ("C-c ." . go-test-current-test))))))
 
 (provide 'leaf-tests)
 ;;; leaf-tests.el ends here
