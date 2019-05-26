@@ -5,7 +5,7 @@
 ;; Author: Naoya Yamashita <conao3@gmail.com>
 ;; Maintainer: Naoya Yamashita <conao3@gmail.com>
 ;; Keywords: lisp settings
-;; Version: 2.5.5
+;; Version: 2.5.6
 ;; URL: https://github.com/conao3/leaf.el
 ;; Package-Requires: ((emacs "24.0"))
 
@@ -463,14 +463,17 @@ can safely be called at any time.
 You can also use [remap COMMAND] as KEY.
 For example:
   (leaf-key [remap backward-sentence] 'sh-beginning-of-command)"
-  (let* ((mmap  (or (eval keymap) 'global-map))
-         (vecp  (vectorp key))
-         (_mvec (if (vectorp key) key (read-kbd-macro key)))
-         (mstr  (if (stringp key) key (key-description key))))
+  (let* ((key*     (eval key))
+         (command* (eval command))
+         (keymap*  (eval keymap))
+         (mmap     (or keymap* 'global-map))
+         (vecp     (vectorp key*))
+         (_mvec    (if (vectorp key*) key* (read-kbd-macro key*)))
+         (mstr     (if (stringp key*) key* (key-description key*))))
     `(let* ((old (lookup-key ,mmap ,(if vecp key `(kbd ,key))))
-            (value ,(list '\` `((,mstr . ,mmap) ,(eval command) ,',(unless (numberp old) old)))))
+            (value ,(list '\` `((,mstr . ,mmap) ,command*  ,',(and old (not (numberp old)) old)))))
        (push value leaf-key-bindlist)
-       (define-key ,mmap ,(if vecp key `(kbd ,key)) ,command))))
+       (define-key ,mmap ,(if vecp key `(kbd ,key)) ',command*))))
 
 (defmacro leaf-key* (key command)
   "Similar to `bind-key', but overrides any mode-specific bindings."
