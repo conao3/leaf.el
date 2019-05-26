@@ -364,23 +364,29 @@ Sort by `leaf-sort-leaf--values-plist' in this order.")
                                  (vectorp (eval (car x))))
                              (atom (cdr x)))
                       (error nil))))
-           (recurfn) (fns))
+           (recurfn) (bds) (fns))
        (setq recurfn
              (lambda (bind)
                (cond
                 ((funcall pairp bind)
                  ;; `(leaf-key ,(car bind) #',(cdr bind))
+                 (push bind bds)
                  (push (cdr bind) fns))
                 ((and (listp (car bind))
                       (funcall pairp (car bind)))
                  `(progn
-                    ,@(mapcar (lambda (elm)
-                                (if (funcall pairp elm)
-                                    ;; `(leaf-key ,(car elm) #',(cdr elm))
-                                    (push (cdr elm) fns)
-                                  ;; `(leaf-keys ,elm)
-                                  (funcall recurfn elm)))
-                              bind)))
+                    ,@(let ((flat))
+                        (prog1
+                            (mapcar (lambda (elm)
+                                      (if (funcall pairp elm)
+                                          ;; `(leaf-key ,(car elm) #',(cdr elm))
+                                          (progn
+                                            (push elm flat)
+                                            (push (cdr elm) fns))
+                                        ;; `(leaf-keys ,elm)
+                                        (funcall recurfn elm)))
+                                    bind)
+                          (push (nreverse flat) bds)))))
                 ((keywordp (car bind))
                  (let* ((map (intern (substring (symbol-name (car bind)) 1)))
                         (pkg (leaf-plist-get :package (cdr bind)))
@@ -394,6 +400,11 @@ Sort by `leaf-sort-leaf--values-plist' in this order.")
                                       ;; `(leaf-key ,(car elm) #',(cdr elm) ',map)
                                       (push (cdr elm) fns))
                                     elmbinds))))
+                   (push (if pkg elm
+                                `(,(intern (concat ":" (symbol-name map)))
+                                  :package ,leaf--name
+                                  ,@elmbinds))
+                              bds)
                    (when pkg
                      (dolist (elmpkg pkgs)
                        (setq form `(eval-after-load ',elmpkg ',form))))
@@ -405,7 +416,7 @@ Sort by `leaf-sort-leaf--values-plist' in this order.")
                                 (funcall recurfn elm))
                               bind))))))
        (funcall recurfn leaf--value)
-       `(,leaf--value ,fns)))
+       `(,(nreverse bds) ,fns)))
 
     ((memq leaf--key (cdr '(:dummy
                             :disabled :if :when :unless
