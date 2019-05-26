@@ -1623,27 +1623,33 @@ Example:
   (cort-deftest-with-macroexpand leaf/leaf-key
     '(((leaf-key "C-M-i" 'flyspell-correct-wrapper)
        (let* ((old (lookup-key global-map (kbd "C-M-i")))
-              (value `(("C-M-i" . global-map) flyspell-correct-wrapper ,(unless (numberp old) old))))
+              (value `(("C-M-i" . global-map) flyspell-correct-wrapper ,(and old (not (numberp old)) old))))
          (push value leaf-key-bindlist)
          (define-key global-map (kbd "C-M-i") 'flyspell-correct-wrapper)))
 
       ((leaf-key [remap backward-sentence] 'sh-beginning-of-command)
        (let* ((old (lookup-key global-map [remap backward-sentence]))
-              (value `(("<remap> <backward-sentence>" . global-map) sh-beginning-of-command ,(unless (numberp old) old))))
+              (value `(("<remap> <backward-sentence>" . global-map) sh-beginning-of-command ,(and old (not (numberp old)) old))))
          (push value leaf-key-bindlist)
          (define-key global-map [remap backward-sentence] 'sh-beginning-of-command)))
 
       ((leaf-key "C-M-i" 'flyspell-correct-wrapper 'c-mode-map)
        (let* ((old (lookup-key c-mode-map (kbd "C-M-i")))
-              (value `(("C-M-i" . c-mode-map) flyspell-correct-wrapper ,(unless (numberp old) old))))
+              (value `(("C-M-i" . c-mode-map) flyspell-correct-wrapper ,(and old (not (numberp old)) old))))
          (push value leaf-key-bindlist)
          (define-key c-mode-map (kbd "C-M-i") 'flyspell-correct-wrapper)))
 
       ((leaf-key [remap backward-sentence] 'sh-beginning-of-command)
        (let* ((old (lookup-key global-map [remap backward-sentence]))
-              (value `(("<remap> <backward-sentence>" . global-map) sh-beginning-of-command ,(unless (numberp old) old))))
+              (value `(("<remap> <backward-sentence>" . global-map) sh-beginning-of-command ,(and old (not (numberp old)) old))))
          (push value leaf-key-bindlist)
-         (define-key global-map [remap backward-sentence] 'sh-beginning-of-command))))))
+         (define-key global-map [remap backward-sentence] 'sh-beginning-of-command)))
+
+      ((leaf-key (vector 'key-chord ?i ?j) 'undo nil)
+       (let* ((old (lookup-key global-map (vector 'key-chord 105 106)))
+              (value `(("<key-chord> i j" . global-map) undo ,(and old (not (numberp old)) old))))
+         (push value leaf-key-bindlist)
+         (define-key global-map (vector 'key-chord 105 106) 'undo))))))
 
 (cort-deftest-with-macroexpand leaf/leaf-key*
   '(((leaf-key* "C-M-i" 'flyspell-correct-wrapper)
