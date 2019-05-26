@@ -146,8 +146,7 @@ Example:
 ;;  test definition
 ;;
 
-(custom-set-variables '(leaf-backend-ensure 'package)
-                      '(leaf-backend-bind   'bind-key)
+(custom-set-variables '(leaf-backend-bind   'bind-key)
                       '(leaf-expand-leaf-protect nil))
 
 (cort-deftest-with-macroexpand leaf/none
@@ -235,47 +234,47 @@ Example:
      (prog1 'leaf
        (leaf-init)))))
 
-(cort-deftest-with-macroexpand leaf/ensure
+(cort-deftest-with-macroexpand leaf/package
   '(((leaf leaf
-       :ensure t
+       :package t
        :config (leaf-init))
      (prog1 'leaf
-       (leaf-handler-ensure leaf leaf nil)
+       (leaf-handler-package leaf leaf nil)
        (leaf-init)))
 
     ((leaf leaf
-       :ensure t leaf-browser
+       :package t leaf-browser
        :config (leaf-init))
      (prog1 'leaf
-       (leaf-handler-ensure leaf leaf nil)
-       (leaf-handler-ensure leaf leaf-browser nil)
+       (leaf-handler-package leaf leaf nil)
+       (leaf-handler-package leaf leaf-browser nil)
        (leaf-init)))
 
     ((leaf leaf
-       :ensure feather leaf-key leaf-browser
+       :package feather leaf-key leaf-browser
        :config (leaf-init))
      (prog1 'leaf
-       (leaf-handler-ensure leaf feather nil)
-       (leaf-handler-ensure leaf leaf-key nil)
-       (leaf-handler-ensure leaf leaf-browser nil)
+       (leaf-handler-package leaf feather nil)
+       (leaf-handler-package leaf leaf-key nil)
+       (leaf-handler-package leaf leaf-browser nil)
        (leaf-init)))
 
     ;; ((leaf leaf
-    ;;    :ensure (((feather) leaf-key) leaf-browser)
+    ;;    :package (((feather) leaf-key) leaf-browser)
     ;;    :config (leaf-init))
     ;;  (progn
-    ;;    (leaf-handler-ensure leaf 'feather nil)
-    ;;    (leaf-handler-ensure leaf 'leaf-key nil)
-    ;;    (leaf-handler-ensure leaf 'leaf-browser nil)
+    ;;    (leaf-handler-package leaf 'feather nil)
+    ;;    (leaf-handler-package leaf 'leaf-key nil)
+    ;;    (leaf-handler-package leaf 'leaf-browser nil)
     ;;    (leaf-init)))
 
     ;; ((leaf leaf
-    ;;    :ensure (((feather . elpa-archive) leaf-key) leaf-browser . stable)
+    ;;    :package (((feather . elpa-archive) leaf-key) leaf-browser . stable)
     ;;    :config (leaf-init))
     ;;  (progn
-    ;;    (leaf-handler-ensure leaf 'feather elpa-archive)
-    ;;    (leaf-handler-ensure leaf 'leaf-key stable)
-    ;;    (leaf-handler-ensure leaf 'leaf-browser stable)
+    ;;    (leaf-handler-package leaf 'feather elpa-archive)
+    ;;    (leaf-handler-package leaf 'leaf-key stable)
+    ;;    (leaf-handler-package leaf 'leaf-browser stable)
     ;;    (leaf-init)))
     ))
 
@@ -756,19 +755,19 @@ Example:
 
 (cort-deftest-with-macroexpand leaf/bind
   '(((leaf macrostep
-       :ensure t
+       :package t
        :bind (("C-c e" . macrostep-expand)))
      (prog1 'macrostep
        (autoload #'macrostep-expand "macrostep" nil t)
-       (leaf-handler-ensure macrostep macrostep nil)
+       (leaf-handler-package macrostep macrostep nil)
        (leaf-handler-bind macrostep '(:package macrostep :key "C-c e" :func macrostep-expand))))
 
     ((leaf macrostep
-       :ensure t
+       :package t
        :bind ("C-c e" . macrostep-expand))
      (prog1 'macrostep
        (autoload #'macrostep-expand "macrostep" nil t)
-       (leaf-handler-ensure macrostep macrostep nil)
+       (leaf-handler-package macrostep macrostep nil)
        (leaf-handler-bind macrostep '(:package macrostep :key "C-c e" :func macrostep-expand))))
 
     ((leaf color-moccur

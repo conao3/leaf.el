@@ -74,13 +74,6 @@ with values for these keywords."
 ;;  Customize backend
 ;;
 
-(defcustom leaf-backend-ensure (if (require 'feather nil t) 'feather 'package)
-  "Backend to process `:ensure' keyword."
-  :type '(choice (const :tag "Use `package.el'." 'package)
-                 (const :tag "Use `feather.el'." 'feather)
-                 (const :tag "No backend, disable `:ensure'." nil))
-  :group 'leaf)
-
 (defcustom leaf-backend-bind 'leaf-key
   "Backend to process `:bind' keyword."
   :type '(choice (const :tag "Use `leaf-key' implemented in `leaf'." 'leaf-key)
@@ -278,7 +271,8 @@ MESSAGE and ARGS are passed `format'."
      :unless         (when leaf--body `((unless ,@(if (= 1 (length leaf--value)) leaf--value `((and ,@leaf--value))) ,@leaf--body)))
      :if             (when leaf--body `((if     ,@(if (= 1 (length leaf--value)) leaf--value `((and ,@leaf--value))) (progn ,@leaf--body))))
 
-     :ensure         `(,@(mapcar (lambda (elm) `(leaf-handler-ensure ,leaf--name ,(car elm) ,(cdr elm))) leaf--value) ,@leaf--body)
+     :ensure         `(,@(mapcar (lambda (elm) `(leaf-handler-package ,leaf--name ,(car elm) ,(cdr elm))) leaf--value) ,@leaf--body)
+     :package        `(,@(mapcar (lambda (elm) `(leaf-handler-package ,leaf--name ,(car elm) ,(cdr elm))) leaf--value) ,@leaf--body)
 
      :after          (when leaf--body (let ((ret `(progn ,@leaf--body)))
                                         (dolist (elm leaf--value) (setq ret `(eval-after-load ',elm ',ret)))
@@ -344,7 +338,7 @@ Sort by `leaf-sort-leaf--values-plist' in this order.")
      (delete-dups (delq nil (leaf-flatten leaf--value))))
 
     ((memq leaf--key (cdr '(:dummy
-                            :ensure
+                            :ensure :package
                             :hook :mode :interpreter :magic :magic-fallback :defun
                             :setq :pre-setq :setq-default :custom :custom-face)))
      ;; Accept: (sym . val), ((sym sym ...) . val), (sym sym ... . val)
@@ -355,7 +349,7 @@ Sort by `leaf-sort-leaf--values-plist' in this order.")
                (cond
                 ((leaf-pairp elm)
                  elm)
-                ((memq leaf--key '(:ensure))
+                ((memq leaf--key '(:ensure :package))
                  (if (eq t elm) `(,leaf--name . nil) `(,elm . nil)))
                 ((memq leaf--key '(:hook :mode :interpreter :magic :magic-fallback :defun))
                  `(,elm . ,leaf--name))
@@ -536,27 +530,25 @@ NOTE: :package, :bind can accept list of these.
       (leaf-error ,(format "Error in `%s' block.  Error msg: %%s" name)
                   (error-message-string err)))))
 
-(defmacro leaf-handler-ensure (name pkg _pin)
-  "Meta handler for PKG from PIN in NAME leaf block."
-  (cond
-   ((eq leaf-backend-ensure 'package)
-    `(unless
-         (package-installed-p ',pkg)
-       (condition-case err
-           (progn
-             (unless (assoc 'leaf package-archive-contents)
-               (package-refresh-contents))
-             (package-install ',pkg))
-         (error
-          (condition-case err
-              (progn
-                (package-refresh-contents)
-                (package-install ',pkg))
-            (error
-             (leaf-error
-              ,(format "In `%s' block, failed to :ensure of %s.  Error msg: %%s"
-                       name pkg)
-              (error-message-string err))))))))))
+(defmacro leaf-handler-package (name pkg _pin)
+  "Handler ensure PKG via PIN in NAME leaf block."
+  `(unless
+       (package-installed-p ',pkg)
+     (condition-case err
+         (progn
+           (unless (assoc 'leaf package-archive-contents)
+             (package-refresh-contents))
+           (package-install ',pkg))
+       (error
+        (condition-case err
+            (progn
+              (package-refresh-contents)
+              (package-install ',pkg))
+          (error
+           (leaf-error
+            ,(format "In `%s' block, failed to :ensure of %s.  Error msg: %%s"
+                     name pkg)
+            (error-message-string err))))))))
 
 (defmacro leaf-handler-bind (_name elm)
   "Meta handler for NAME with ELM."
