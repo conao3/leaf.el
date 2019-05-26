@@ -248,9 +248,9 @@ MESSAGE and ARGS are passed `format'."
   (cdr
    '(:dummy
      :disabled       (unless (eval (car leaf--value)) `(,@leaf--body))
-     :leaf-no-error  (if (and leaf--body leaf--value) `((leaf-handler-leaf-no-error ,leaf--name ,@leaf--body)) `(,@leaf--body))
+     :leaf-no-error  (if (and leaf--body (eval (car leaf--value))) `((leaf-handler-leaf-no-error ,leaf--name ,@leaf--body)) `(,@leaf--body))
      :load-path      `(,@(mapcar (lambda (elm) `(add-to-list 'load-path ,elm)) leaf--value) ,@leaf--body)
-     :leaf-autoload  `(,@(when (car leaf--value) (mapcar (lambda (elm) `(autoload #',(car elm) ,(cdr elm) nil t)) (nreverse leaf--autoload))) ,@leaf--body)
+     :leaf-autoload  `(,@(when (car leaf--value) (mapcar (lambda (elm) `(autoload #',(car elm) ,(cdr elm) nil t)) (reverse leaf--autoload))) ,@leaf--body)
 
      :doc            `(,@leaf--body)
      :file           `(,@leaf--body)
@@ -294,7 +294,8 @@ MESSAGE and ARGS are passed `format'."
                        (mapc (lambda (elm) (leaf-register-autoload (cdr elm) leaf--name)) leaf--value)
                        `(,@(mapcar (lambda (elm) `(add-hook ',(car elm) #',(cdr elm))) leaf--value) ,@leaf--body))
 
-     :leaf-defer     (if (and leaf--body leaf--value) `((eval-after-load ',leaf--name '(progn ,@leaf--body))) `(,@leaf--body))
+     :leaf-defer     (if (and leaf--body (eval (car leaf--value)) (leaf-list-memq leaf-defer-keywords (leaf-plist-keys leaf--raw)))
+                         `((eval-after-load ',leaf--name '(progn ,@leaf--body))) `(,@leaf--body))
 
      :custom         `((custom-set-variables ,@(mapcar (lambda (elm) `'(,(car elm) ,(cdr elm) ,(format "Customized with leaf in %s block" leaf--name))) leaf--value)) ,@leaf--body)
      :custom-face    `((custom-set-faces     ,@(mapcar (lambda (elm) `'(,(car elm) ,(car (cddr elm)))) leaf--value)) ,@leaf--body)
@@ -327,18 +328,6 @@ Sort by `leaf-sort-leaf--values-plist' in this order.")
      ;; Note  : 'nil is just ignored
      ;;         remove duplicate element
      (delete-dups (delq nil (leaf-flatten leaf--value))))
-
-    ((memq leaf--key '(:leaf-defer))
-     ;; Accept: 't, 'nil, symbol and list of these (and nested)
-     ;; Return: 't, 'nil
-     ;; Note  : 't is returned when specified `leaf-defer-keywords'.
-     (and (delq nil (leaf-flatten leaf--value))
-          (leaf-list-memq leaf-defer-keywords (leaf-plist-keys leaf--raw))))
-
-    ((memq leaf--key '(:leaf-no-error))
-     ;; Accept: 't, 'nil, symbol and list of these (and nested)
-     ;; Return: 't, 'nil
-     (leaf-truep (delq nil (leaf-flatten leaf--value))))
 
     ((memq leaf--key (cdr '(:dummy
                             :ensure
@@ -395,7 +384,10 @@ Sort by `leaf-sort-leaf--values-plist' in this order.")
                          elm))
                      leaf--value)))
 
-    ((memq leaf--key '(:dummy :disabled :if :when :unless :doc :file :url :preface :init :config))
+    ((memq leaf--key `(cdr '(:dummy
+                             :disabled :if :when :unless
+                             :doc :file :url :preface :init :config
+                             :leaf-autoload :leaf-defer :leaf-no-error)))
      leaf--value)
 
     (t

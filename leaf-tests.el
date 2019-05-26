@@ -96,14 +96,15 @@
 (defmacro cort-deftest-with-macroexpand (name form)
   "Return `cort-deftest' compare by `equal' for NAME, FORM.
 
-Example
+Example:
   (p (cort-deftest-with-equal leaf/disabled
        '((asdf asdf)
          (uiop uiop))))
    => (cort-deftest leaf/disabled
-        '((:equal asdf asdf)
-          (:equal uiop uiop)))
-"
+        '((:equal 'asdf
+                  (macroexpand-1 'asdf))
+          (:equal 'uiop
+                  (macroexpand-1 'uiop))))"
   (declare (indent 1))
   `(cort-deftest ,name
      ',(mapcar (lambda (elm)
@@ -112,9 +113,33 @@ Example
                    (macroexpand-1 ',(car elm))))
                (cadr form))))
 
-(defmacro match-expansion-let (letform form expect)
-  (declare (indent 1))
-  `(:equal (let ,letform (macroexpand-1 ',form)) ,expect))
+(defmacro cort-deftest-with-macroexpand-let (name letform form)
+  "Return `cort-deftest' compare by `equal' for NAME, LETFORM FORM.
+
+Example:
+  (p (cort-deftest-with-macroexpand-let leaf/leaf
+         ((leaf-expand-leaf-no-error t))
+       '(((leaf leaf
+            :config (leaf-init))
+          (prog1 'leaf
+            (leaf-handler-leaf-no-error leaf
+              (leaf-init)))))))
+   => (cort-deftest leaf/leaf
+        '((:equal
+           '(prog1 'leaf
+              (leaf-handler-leaf-no-error leaf
+                (leaf-init)))
+           (let ((leaf-expand-leaf-no-error t))
+             (macroexpand-1
+              '(leaf leaf
+                 :config (leaf-init)))))))"
+  (declare (indent 2))
+  `(cort-deftest ,name
+     ',(mapcar (lambda (elm)
+                 `(:equal
+                   ',(cadr elm)
+                   (let ,letform (macroexpand-1 ',(car elm)))))
+               (cadr form))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
@@ -1516,6 +1541,78 @@ Example
        (require 'leaf)
        (leaf-pre-init)
        (leaf-pre-init-after)))))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;
+;;  System keywords
+;;
+
+(cort-deftest-with-macroexpand leaf/leaf-autoload
+  '(((leaf leaf
+       :commands leaf
+       :config (leaf-init))
+     (prog1 'leaf
+       (autoload (function leaf) "leaf" nil t)
+       (eval-after-load 'leaf
+         '(progn
+            (leaf-init)))))
+    ((leaf leaf
+       :leaf-autoload nil
+       :commands leaf
+       :config (leaf-init))
+     (prog1 'leaf
+       (eval-after-load 'leaf
+         '(progn
+            (leaf-init)))))))
+
+(cort-deftest-with-macroexpand leaf/leaf-defer
+  '(((leaf leaf
+       :commands leaf
+       :config (leaf-init))
+     (prog1 'leaf
+       (autoload (function leaf) "leaf" nil t)
+       (eval-after-load 'leaf
+         '(progn
+            (leaf-init)))))
+    ((leaf leaf
+       :leaf-defer nil
+       :commands leaf
+       :config (leaf-init))
+     (prog1 'leaf
+       (autoload (function leaf) "leaf" nil t)
+       (leaf-init)))))
+
+(cort-deftest-with-macroexpand-let leaf/leaf-no-error
+    ((leaf-expand-leaf-no-error t))
+  '(((leaf leaf
+       :config (leaf-init))
+     (prog1 'leaf
+       (leaf-handler-leaf-no-error leaf
+         (leaf-init))))
+
+    ((leaf leaf
+       :leaf-no-error nil
+       :config (leaf-init))
+     (prog1 'leaf
+       (leaf-init)))
+
+    ((leaf leaf
+       :leaf-no-error t nil
+       :config (leaf-init))
+     (prog1 'leaf
+       (leaf-handler-leaf-no-error leaf
+         (leaf-init))))
+
+    ((leaf-handler-leaf-no-error leaf
+       (leaf-load)
+       (leaf-init))
+     (condition-case err
+         (progn
+           (leaf-load)
+           (leaf-init))
+       (error
+        (leaf-error "Error in `leaf' block.  Error msg: %s"
+                    (error-message-string err)))))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
