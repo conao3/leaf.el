@@ -432,15 +432,15 @@ To set it to a specific map, *place the map name as a symbol* at the top of the 
 
 These keywords can also be used in lists. Note that these require a *symbol with the map name at the top of the list*.
 
+If you omit ~:package~, use leaf-block name as ~:package~ to lazy load.
+
 #+begin_src emacs-lisp
   (cort-deftest-with-macroexpand leaf/bind
     '(((leaf macrostep
          :package t
          :bind (("C-c e" . macrostep-expand)))
        (prog1 'macrostep
-         (autoload
-           #'macrostep-expand
-           "macrostep" nil t)
+         (autoload #'macrostep-expand "macrostep" nil t)
          (leaf-handler-package macrostep macrostep nil)
          (leaf-keys (("C-c e" . macrostep-expand)))))
 
@@ -448,9 +448,10 @@ These keywords can also be used in lists. Note that these require a *symbol with
          :package t
          :bind ("C-c e" . macrostep-expand))
        (prog1 'macrostep
-         (autoload #'macrostep-expand "macrostep" nil t)
+         (autoload (function macrostep-expand) "macrostep" nil t)
          (leaf-handler-package macrostep macrostep nil)
-         (leaf-keys ("C-c e" . macrostep-expand))))
+         (leaf-keys
+          (("C-c e" . macrostep-expand)))))
 
       ((leaf color-moccur
          :bind
@@ -458,12 +459,12 @@ These keywords can also be used in lists. Note that these require a *symbol with
          ("M-o" . isearch-moccur)
          ("M-O" . isearch-moccur-all))
        (prog1 'color-moccur
-         (autoload #'isearch-moccur-all "color-moccur" nil t)
-         (autoload #'isearch-moccur "color-moccur" nil t)
-         (autoload #'moccur "color-moccur" nil t)
-         (leaf-keys ("M-s O" . moccur))
-         (leaf-keys ("M-o" . isearch-moccur))
-         (leaf-keys ("M-O" . isearch-moccur-all))))
+         (autoload (function isearch-moccur-all) "color-moccur" nil t)
+         (autoload (function isearch-moccur) "color-moccur" nil t)
+         (autoload (function moccur) "color-moccur" nil t)
+         (leaf-keys (("M-s O" . moccur)
+                     ("M-o" . isearch-moccur)
+                     ("M-O" . isearch-moccur-all)))))
 
       ((leaf color-moccur
          :bind (("M-s O" . moccur)
@@ -483,17 +484,16 @@ These keywords can also be used in lists. Note that these require a *symbol with
          ("M-s o" . isearch-moccur)
          ("M-s i" . isearch-moccur-all))
        (prog1 'color-moccur
-         (autoload #'isearch-moccur-all "color-moccur" nil t)
-         (autoload #'isearch-moccur "color-moccur" nil t)
-         (leaf-keys ("M-s"))
-         (leaf-keys ("M-s o" . isearch-moccur))
-         (leaf-keys ("M-s i" . isearch-moccur-all))))
+         (autoload (function isearch-moccur-all) "color-moccur" nil t)
+         (autoload (function isearch-moccur) "color-moccur" nil t)
+         (leaf-keys (("M-s")
+                     ("M-s o" . isearch-moccur)
+                     ("M-s i" . isearch-moccur-all)))))
 
       ((leaf color-moccur
-         :bind
-         (("M-s" . nil)
-          ("M-s o" . isearch-moccur)
-          ("M-s i" . isearch-moccur-all)))
+         :bind (("M-s" . nil)
+                ("M-s o" . isearch-moccur)
+                ("M-s i" . isearch-moccur-all)))
        (prog1 'color-moccur
          (autoload #'isearch-moccur-all "color-moccur" nil t)
          (autoload #'isearch-moccur "color-moccur" nil t)
@@ -505,18 +505,36 @@ These keywords can also be used in lists. Note that these require a *symbol with
          :bind
          ("M-s O" . moccur)
          (:isearch-mode-map
+          ("M-o" . isearch-moccur)
+          ("M-O" . isearch-moccur-all)))
+       (prog1 'color-moccur
+         (autoload (function isearch-moccur-all) "color-moccur" nil t)
+         (autoload (function isearch-moccur) "color-moccur" nil t)
+         (autoload (function moccur) "color-moccur" nil t)
+         (leaf-keys
+          (:isearch-mode-map
+           :package color-moccur
+           ("M-o" . isearch-moccur)
+           ("M-O" . isearch-moccur-all)))
+         (leaf-keys (("M-s O" . moccur)))))
+
+      ((leaf color-moccur
+         :bind
+         ("M-s O" . moccur)
+         (:isearch-mode-map
           :package isearch
           ("M-o" . isearch-moccur)
           ("M-O" . isearch-moccur-all)))
        (prog1 'color-moccur
-         (autoload #'isearch-moccur-all "color-moccur" nil t)
-         (autoload #'isearch-moccur "color-moccur" nil t)
-         (autoload #'moccur "color-moccur" nil t)
-         (leaf-keys ("M-s O" . moccur))
-         (leaf-keys (:isearch-mode-map
-                     :package isearch
-                     ("M-o" . isearch-moccur)
-                     ("M-O" . isearch-moccur-all)))))
+         (autoload (function isearch-moccur-all) "color-moccur" nil t)
+         (autoload (function isearch-moccur) "color-moccur" nil t)
+         (autoload (function moccur) "color-moccur" nil t)
+         (leaf-keys
+          (:isearch-mode-map
+           :package isearch
+           ("M-o" . isearch-moccur)
+           ("M-O" . isearch-moccur-all)))
+         (leaf-keys (("M-s O" . moccur)))))
 
       ((leaf color-moccur
          :bind (("M-s O" . moccur)
@@ -525,14 +543,14 @@ These keywords can also be used in lists. Note that these require a *symbol with
                  ("M-o" . isearch-moccur)
                  ("M-O" . isearch-moccur-all))))
        (prog1 'color-moccur
-         (autoload #'isearch-moccur-all "color-moccur" nil t)
-         (autoload #'isearch-moccur "color-moccur" nil t)
-         (autoload #'moccur "color-moccur" nil t)
-         (leaf-keys (("M-s O" . moccur)
-                     (:isearch-mode-map
-                      :package isearch
-                      ("M-o" . isearch-moccur)
-                      ("M-O" . isearch-moccur-all))))))))
+         (autoload (function isearch-moccur-all) "color-moccur" nil t)
+         (autoload (function isearch-moccur) "color-moccur" nil t)
+         (autoload (function moccur) "color-moccur" nil t)
+         (leaf-keys (:isearch-mode-map
+                     :package isearch
+                     ("M-o" . isearch-moccur)
+                     ("M-O" . isearch-moccur-all)))
+         (leaf-keys (("M-s O" . moccur)))))))
 #+end_src
 
 ** COMMENT :defaults keyword
