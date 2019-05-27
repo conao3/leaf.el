@@ -1613,7 +1613,7 @@ Example:
 ;;  Support leaf macros
 ;;
 
-(cort-deftest-with-macroexpand leaf/package
+(cort-deftest-with-macroexpand leaf/handler-package
   '(((leaf macrostep :ensure t)
      (prog1 'macrostep
        (leaf-handler-package macrostep macrostep nil))
