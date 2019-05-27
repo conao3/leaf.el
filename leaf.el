@@ -582,7 +582,7 @@ BIND must not contain :{{map}}."
        (package-installed-p ',pkg)
      (condition-case err
          (progn
-           (unless (assoc 'leaf package-archive-contents)
+           (unless (assoc ',pkg package-archive-contents)
              (package-refresh-contents))
            (package-install ',pkg))
        (error
@@ -592,7 +592,7 @@ BIND must not contain :{{map}}."
               (package-install ',pkg))
           (error
            (leaf-error
-            ,(format "In `%s' block, failed to :ensure of %s.  Error msg: %%s"
+            ,(format "In `%s' block, failed to :package of %s.  Error msg: %%s"
                      name pkg)
             (error-message-string err))))))))
 
