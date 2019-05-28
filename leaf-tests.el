@@ -980,38 +980,38 @@ Example:
        :mode "\\.js\\'" "\\.p?html?\\'")
      (prog1 'web-mode
        (autoload #'web-mode "web-mode" nil t)
-       (add-to-list 'auto-mode-alist '("\\.js\\'" web-mode))
-       (add-to-list 'auto-mode-alist '("\\.p?html?\\'" web-mode))))
+       (add-to-list 'auto-mode-alist '("\\.js\\'" . web-mode))
+       (add-to-list 'auto-mode-alist '("\\.p?html?\\'" . web-mode))))
 
     ((leaf web-mode
        :mode ("\\.js\\'" "\\.p?html?\\'"))
      (prog1 'web-mode
        (autoload #'web-mode "web-mode" nil t)
-       (add-to-list 'auto-mode-alist '("\\.js\\'" web-mode))
-       (add-to-list 'auto-mode-alist '("\\.p?html?\\'" web-mode))))
+       (add-to-list 'auto-mode-alist '("\\.js\\'" . web-mode))
+       (add-to-list 'auto-mode-alist '("\\.p?html?\\'" . web-mode))))
 
     ;; ((leaf web-mode
     ;;    :mode ("\\.js\\'" ("\\.p?html?\\'")))
     ;;  (progn
     ;;    (autoload #'web-mode "web-mode" nil t)
-    ;;    (add-to-list 'auto-mode-alist '("\\.js\\'" web-mode))
-    ;;    (add-to-list 'auto-mode-alist '("\\.p?html?\\'" web-mode))))
+    ;;    (add-to-list 'auto-mode-alist '("\\.js\\'" . web-mode))
+    ;;    (add-to-list 'auto-mode-alist '("\\.p?html?\\'" . web-mode))))
 
     ;; ((leaf web-mode
     ;;    :mode (("\\.js\\'" "\\.p?html?\\'") . web-mode))
     ;;  (progn
     ;;    (autoload #'web-mode "web-mode" nil t)
-    ;;    (add-to-list 'auto-mode-alist '("\\.js\\'" web-mode))
-    ;;    (add-to-list 'auto-mode-alist '("\\.p?html?\\'" web-mode))))
+    ;;    (add-to-list 'auto-mode-alist '("\\.js\\'" . web-mode))
+    ;;    (add-to-list 'auto-mode-alist '("\\.p?html?\\'" . web-mode))))
 
     ;; ((leaf web-mode
     ;;    :mode (("\\.phtml?\\'" "\\.html?\\'" . web-html-mode) "\\.js\\'" . web-mode))
     ;;  (progn
     ;;    (autoload #'web-html-mode "web-mode" nil t)
     ;;    (autoload #'web-mode "web-mode" nil t)
-    ;;    (add-to-list 'auto-mode-alist '("\\.phtml?\\'" web-html-mode))
-    ;;    (add-to-list 'auto-mode-alist '("\\.html?\\'" web-html-mode))
-    ;;    (add-to-list 'auto-mode-alist '("\\.js\\'" web-mode))))
+    ;;    (add-to-list 'auto-mode-alist '("\\.phtml?\\'" . web-html-mode))
+    ;;    (add-to-list 'auto-mode-alist '("\\.html?\\'" . web-html-mode))
+    ;;    (add-to-list 'auto-mode-alist '("\\.js\\'" . web-mode))))
     ))
 
 (cort-deftest-with-macroexpand leaf/interpreter
@@ -1021,47 +1021,47 @@ Example:
      (prog1 'ruby-mode
        (autoload #'ruby-mode "ruby-mode" nil t)
        (autoload #'rb-mode "ruby-mode" nil t)
-       (add-to-list 'auto-mode-alist '("\\.rb\\'" ruby-mode))
-       (add-to-list 'auto-mode-alist '("\\.rb2\\'" ruby-mode))
-       (add-to-list 'auto-mode-alist '("\\.rbg\\'" rb-mode))
-       (add-to-list 'interpreter-mode-alist '("ruby" ruby-mode))))
+       (add-to-list 'auto-mode-alist '("\\.rb\\'" . ruby-mode))
+       (add-to-list 'auto-mode-alist '("\\.rb2\\'" . ruby-mode))
+       (add-to-list 'auto-mode-alist '("\\.rbg\\'" . rb-mode))
+       (add-to-list 'interpreter-mode-alist '("ruby" . ruby-mode))))
 
     ((leaf web-mode
        :interpreter "js" "p?html?")
      (prog1 'web-mode
        (autoload #'web-mode "web-mode" nil t)
-       (add-to-list 'interpreter-mode-alist '("js" web-mode))
-       (add-to-list 'interpreter-mode-alist '("p?html?" web-mode))))
+       (add-to-list 'interpreter-mode-alist '("js" . web-mode))
+       (add-to-list 'interpreter-mode-alist '("p?html?" . web-mode))))
 
     ((leaf web-mode
        :interpreter ("js" "p?html?"))
      (prog1 'web-mode
        (autoload #'web-mode "web-mode" nil t)
-       (add-to-list 'interpreter-mode-alist '("js" web-mode))
-       (add-to-list 'interpreter-mode-alist '("p?html?" web-mode))))
+       (add-to-list 'interpreter-mode-alist '("js" . web-mode))
+       (add-to-list 'interpreter-mode-alist '("p?html?" . web-mode))))
 
     ;; ((leaf web-mode
     ;;    :interpreter ("js" ("p?html?")))
     ;;  (progn
     ;;    (autoload #'web-mode "web-mode" nil t)
-    ;;    (add-to-list 'interpreter-mode-alist '("js" web-mode))
-    ;;    (add-to-list 'interpreter-mode-alist '("p?html?" web-mode))))
+    ;;    (add-to-list 'interpreter-mode-alist '("js" . web-mode))
+    ;;    (add-to-list 'interpreter-mode-alist '("p?html?" . web-mode))))
 
     ;; ((leaf web-mode
     ;;    :interpreter (("js" "p?html?") . web-mode))
     ;;  (progn
     ;;    (autoload #'web-mode "web-mode" nil t)
-    ;;    (add-to-list 'interpreter-mode-alist '("js" web-mode))
-    ;;    (add-to-list 'interpreter-mode-alist '("p?html?" web-mode))))
+    ;;    (add-to-list 'interpreter-mode-alist '("js" . web-mode))
+    ;;    (add-to-list 'interpreter-mode-alist '("p?html?" . web-mode))))
 
     ;; ((leaf web-mode
     ;;    :interpreter (("phtml?" "html?" . web-html-mode) "js" . web-mode))
     ;;  (progn
     ;;    (autoload #'web-html-mode "web-mode" nil t)
     ;;    (autoload #'web-mode "web-mode" nil t)
-    ;;    (add-to-list 'interpreter-mode-alist '("phtml?" web-html-mode))
-    ;;    (add-to-list 'interpreter-mode-alist '("html?" web-html-mode))
-    ;;    (add-to-list 'interpreter-mode-alist '("js" web-mode))))
+    ;;    (add-to-list 'interpreter-mode-alist '("phtml?" . web-html-mode))
+    ;;    (add-to-list 'interpreter-mode-alist '("html?" . web-html-mode))
+    ;;    (add-to-list 'interpreter-mode-alist '("js" . web-mode))))
     ))
 
 (cort-deftest-with-macroexpand leaf/magic
@@ -1071,7 +1071,7 @@ Example:
        (pdf-tools-install))
      (prog1 'pdf-tools
        (autoload #'pdf-view-mode "pdf-tools" nil t)
-       (add-to-list 'magic-mode-alist '("%PDF" pdf-view-mode))
+       (add-to-list 'magic-mode-alist '("%PDF" . pdf-view-mode))
        (eval-after-load 'pdf-tools
          '(progn
             (pdf-tools-install)))))
@@ -1080,38 +1080,38 @@ Example:
        :magic "js" "p?html?")
      (prog1 'web-mode
        (autoload #'web-mode "web-mode" nil t)
-       (add-to-list 'magic-mode-alist '("js" web-mode))
-       (add-to-list 'magic-mode-alist '("p?html?" web-mode))))
+       (add-to-list 'magic-mode-alist '("js" . web-mode))
+       (add-to-list 'magic-mode-alist '("p?html?" . web-mode))))
 
     ((leaf web-mode
        :magic ("js" "p?html?"))
      (prog1 'web-mode
        (autoload #'web-mode "web-mode" nil t)
-       (add-to-list 'magic-mode-alist '("js" web-mode))
-       (add-to-list 'magic-mode-alist '("p?html?" web-mode))))
+       (add-to-list 'magic-mode-alist '("js" . web-mode))
+       (add-to-list 'magic-mode-alist '("p?html?" . web-mode))))
 
     ;; ((leaf web-mode
     ;;    :magic ("js" ("p?html?")))
     ;;  (progn
     ;;    (autoload #'web-mode "web-mode" nil t)
-    ;;    (add-to-list 'magic-mode-alist '("js" web-mode))
-    ;;    (add-to-list 'magic-mode-alist '("p?html?" web-mode))))
+    ;;    (add-to-list 'magic-mode-alist '("js" . web-mode))
+    ;;    (add-to-list 'magic-mode-alist '("p?html?" . web-mode))))
 
     ;; ((leaf web-mode
     ;;    :magic (("js" "p?html?") . web-mode))
     ;;  (progn
     ;;    (autoload #'web-mode "web-mode" nil t)
-    ;;    (add-to-list 'magic-mode-alist '("js" web-mode))
-    ;;    (add-to-list 'magic-mode-alist '("p?html?" web-mode))))
+    ;;    (add-to-list 'magic-mode-alist '("js" . web-mode))
+    ;;    (add-to-list 'magic-mode-alist '("p?html?" . web-mode))))
 
     ;; ((leaf web-mode
     ;;    :magic (("phtml?" "html?" . web-html-mode) "js" . web-mode))
     ;;  (progn
     ;;    (autoload #'web-html-mode "web-mode" nil t)
     ;;    (autoload #'web-mode "web-mode" nil t)
-    ;;    (add-to-list 'magic-mode-alist '("phtml?" web-html-mode))
-    ;;    (add-to-list 'magic-mode-alist '("html?" web-html-mode))
-    ;;    (add-to-list 'magic-mode-alist '("js" web-mode))))
+    ;;    (add-to-list 'magic-mode-alist '("phtml?" . web-html-mode))
+    ;;    (add-to-list 'magic-mode-alist '("html?" . web-html-mode))
+    ;;    (add-to-list 'magic-mode-alist '("js" . web-mode))))
     ))
 
 (cort-deftest-with-macroexpand leaf/magic-fallback
@@ -1121,7 +1121,7 @@ Example:
        (pdf-tools-install))
      (prog1 'pdf-tools
        (autoload #'pdf-view-mode "pdf-tools" nil t)
-       (add-to-list 'magic-fallback-mode-alist '("%PDF" pdf-view-mode))
+       (add-to-list 'magic-fallback-mode-alist '("%PDF" . pdf-view-mode))
        (eval-after-load 'pdf-tools
          '(progn
             (pdf-tools-install)))))
@@ -1130,38 +1130,38 @@ Example:
        :magic-fallback "js" "p?html?")
      (prog1 'web-mode
        (autoload #'web-mode "web-mode" nil t)
-       (add-to-list 'magic-fallback-mode-alist '("js" web-mode))
-       (add-to-list 'magic-fallback-mode-alist '("p?html?" web-mode))))
+       (add-to-list 'magic-fallback-mode-alist '("js" . web-mode))
+       (add-to-list 'magic-fallback-mode-alist '("p?html?" . web-mode))))
 
     ((leaf web-mode
        :magic-fallback ("js" "p?html?"))
      (prog1 'web-mode
        (autoload #'web-mode "web-mode" nil t)
-       (add-to-list 'magic-fallback-mode-alist '("js" web-mode))
-       (add-to-list 'magic-fallback-mode-alist '("p?html?" web-mode))))
+       (add-to-list 'magic-fallback-mode-alist '("js" . web-mode))
+       (add-to-list 'magic-fallback-mode-alist '("p?html?" . web-mode))))
 
     ;; ((leaf web-mode
     ;;    :magic-fallback ("js" ("p?html?")))
     ;;  (progn
     ;;    (autoload #'web-mode "web-mode" nil t)
-    ;;    (add-to-list 'magic-fallback-mode-alist '("js" web-mode))
-    ;;    (add-to-list 'magic-fallback-mode-alist '("p?html?" web-mode))))
+    ;;    (add-to-list 'magic-fallback-mode-alist '("js" . web-mode))
+    ;;    (add-to-list 'magic-fallback-mode-alist '("p?html?" . web-mode))))
 
     ;; ((leaf web-mode
     ;;    :magic-fallback (("js" "p?html?") . web-mode))
     ;;  (progn
     ;;    (autoload #'web-mode "web-mode" nil t)
-    ;;    (add-to-list 'magic-fallback-mode-alist '("js" web-mode))
-    ;;    (add-to-list 'magic-fallback-mode-alist '("p?html?" web-mode))))
+    ;;    (add-to-list 'magic-fallback-mode-alist '("js" . web-mode))
+    ;;    (add-to-list 'magic-fallback-mode-alist '("p?html?" . web-mode))))
 
     ;; ((leaf web-mode
     ;;    :magic-fallback (("phtml?" "html?" . web-html-mode) "js" . web-mode))
     ;;  (progn
     ;;    (autoload #'web-html-mode "web-mode" nil t)
     ;;    (autoload #'web-mode "web-mode" nil t)
-    ;;    (add-to-list 'magic-fallback-mode-alist '("phtml?" web-html-mode))
-    ;;    (add-to-list 'magic-fallback-mode-alist '("html?" web-html-mode))
-    ;;    (add-to-list 'magic-fallback-mode-alist '("js" web-mode))))
+    ;;    (add-to-list 'magic-fallback-mode-alist '("phtml?" . web-html-mode))
+    ;;    (add-to-list 'magic-fallback-mode-alist '("html?" . web-html-mode))
+    ;;    (add-to-list 'magic-fallback-mode-alist '("js" . web-mode))))
     ))
 
 (cort-deftest-with-macroexpand leaf/hook
