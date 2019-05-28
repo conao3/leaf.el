@@ -499,7 +499,7 @@ For example:
   "Similar to `bind-key', but overrides any mode-specific bindings."
   `(leaf-key ,key ,command 'leaf-key-override-global-map))
 
-(defmacro leaf-keys (bind)
+(defmacro leaf-keys (bind &optional dryrun-name)
   "Bind multiple BIND for KEYMAP defined in PKG.
 BIND is (KEY . COMMAND) or (KEY . nil) to unbind KEY.
 
@@ -510,6 +510,11 @@ OPTIONAL:
   PKG is quoted package name which define KEYMAP.
   (wrap `eval-after-load' PKG)
 
+  If DRYRUN-NAME is non-nil, return list like
+  (LEAF_KEYS-FORMS (FN FN ...))
+
+  If omit :package of BIND, fill it in LEAF_KEYS-FORM.
+
 NOTE: BIND can also accept list of these."
   (let ((pairp (lambda (x)
                  (condition-case _err
@@ -517,37 +522,52 @@ NOTE: BIND can also accept list of these."
                           (or (stringp (eval (car x)))
                               (vectorp (eval (car x))))
                           (atom (cdr x)))
-                   (error nil)))))
-    (cond
-     ((funcall pairp bind)
-      `(leaf-key ,(car bind) #',(cdr bind)))
-     ((and (listp (car bind))
-           (funcall pairp (car bind)))
-      `(progn
-         ,@(mapcar (lambda (elm)
-                     (if (funcall pairp elm)
-                         `(leaf-key ,(car elm) #',(cdr elm))
-                       `(leaf-keys ,elm)))
-                   bind)))
-     ((keywordp (car bind))
-      (let* ((map (intern (substring (symbol-name (car bind)) 1)))
-             (pkg (leaf-plist-get :package (cdr bind)))
-             (pkgs (if (atom pkg) `(,pkg) pkg))
-             (elmbind (if pkg (nthcdr 3 bind) (nthcdr 1 bind)))
-             (elmbinds (if (funcall pairp (car elmbind))
-                           elmbind (car elmbind)))
-             (form `(progn
-                      ,@(mapcar
-                         (lambda (elm)
-                           `(leaf-key ,(car elm) #',(cdr elm) ',map))
-                         elmbinds))))
-        (when pkg
-          (dolist (elmpkg pkgs)
-            (setq form `(eval-after-load ',elmpkg ',form))))
-        form))
-     (t
-      `(progn
-         ,@(mapcar (lambda (elm) `(leaf-keys ,elm)) bind))))))
+                   (error nil))))
+        (recurfn) (forms) (bds) (fns))
+    (setq recurfn
+          (lambda (bind)
+            (cond
+             ((funcall pairp bind)
+              (push `(leaf-key ,(car bind) #',(cdr bind)) forms)
+              (push bind bds)
+              (push (cdr bind) fns))
+             ((and (listp (car bind))
+                   (funcall pairp (car bind)))
+              (mapcar (lambda (elm)
+                        (if (funcall pairp elm)
+                            (progn
+                              (push `(leaf-key ,(car elm) #',(cdr elm)) forms)
+                              (push elm bds)
+                              (push (cdr elm) fns))
+                          (funcall recurfn elm)))
+                      bind))
+             ((keywordp (car bind))
+              (let* ((map (intern (substring (symbol-name (car bind)) 1)))
+                     (pkg (leaf-plist-get :package (cdr bind)))
+                     (pkgs (if (atom pkg) `(,pkg) pkg))
+                     (elmbind (if pkg (nthcdr 3 bind) (nthcdr 1 bind)))
+                     (elmbinds (if (funcall pairp (car elmbind))
+                                   elmbind (car elmbind)))
+                     (form `(progn
+                              ,@(mapcar
+                                 (lambda (elm)
+                                   (push (cdr elm) fns)
+                                   `(leaf-key ,(car elm) #',(cdr elm) ',map))
+                                 elmbinds))))
+                (push (if pkg bind
+                        `(,(intern (concat ":" (symbol-name map)))
+                          :package ,dryrun-name
+                          ,@elmbinds))
+                      bds)
+                (when pkg
+                  (dolist (elmpkg pkgs)
+                    (setq form `(eval-after-load ',elmpkg ',form))))
+                (push form forms)))
+             (t
+              (mapcar (lambda (elm) (funcall recurfn elm)) bind)))))
+    (funcall recurfn bind)
+    (if dryrun-name `'(,(nreverse bds) ,(nreverse fns))
+      (if (cdr forms) `(progn ,@(nreverse forms)) (car forms)))))
 
 (defmacro leaf-keys* (bind)
   "Similar to `leaf-keys' but bind BIND to `leaf-key-override-global-map'.
