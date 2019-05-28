@@ -271,28 +271,28 @@ MESSAGE and ARGS are passed `format'."
                                         (dolist (elm leaf--value) (setq ret `(eval-after-load ',elm ',ret)))
                                         `(,ret)))
 
-     :commands       (progn (mapc (lambda (elm) (leaf-register-autoload elm leaf--name)) leaf--value) `(,@leaf--body))
+     :commands       (progn (leaf-register-autoload leaf--value leaf--name) `(,@leaf--body))
      :bind           (progn
-                       (mapc (lambda (elm) (leaf-register-autoload elm leaf--name)) (cadr leaf--value))
+                       (leaf-register-autoload (cadr leaf--value) leaf--name)
                        `((leaf-keys ,(car leaf--value)) ,@leaf--body))
      :bind*          (progn
-                       (mapc (lambda (elm) (leaf-register-autoload elm leaf--name)) (cadr leaf--value))
+                       (leaf-register-autoload (cadr leaf--value) leaf--name)
                        `((leaf-keys* ,(car leaf--value)) ,@leaf--body))
 
      :mode           (progn
-                       (mapc (lambda (elm) (leaf-register-autoload (cdr elm) leaf--name)) leaf--value)
+                       (leaf-register-autoload (mapcar #'cdr leaf--value) leaf--name)
                        `(,@(mapcar (lambda (elm) `(add-to-list 'auto-mode-alist '(,(car elm) ,(cdr elm)))) leaf--value) ,@leaf--body))
      :interpreter    (progn
-                       (mapc (lambda (elm) (leaf-register-autoload (cdr elm) leaf--name)) leaf--value)
+                       (leaf-register-autoload (mapcar #'cdr leaf--value) leaf--name)
                        `(,@(mapcar (lambda (elm) `(add-to-list 'interpreter-mode-alist '(,(car elm) ,(cdr elm)))) leaf--value) ,@leaf--body))
      :magic          (progn
-                       (mapc (lambda (elm) (leaf-register-autoload (cdr elm) leaf--name)) leaf--value)
+                       (leaf-register-autoload (mapcar #'cdr leaf--value) leaf--name)
                        `(,@(mapcar (lambda (elm) `(add-to-list 'magic-mode-alist '(,(car elm) ,(cdr elm)))) leaf--value) ,@leaf--body))
      :magic-fallback (progn
-                       (mapc (lambda (elm) (leaf-register-autoload (cdr elm) leaf--name)) leaf--value)
+                       (leaf-register-autoload (mapcar #'cdr leaf--value) leaf--name)
                        `(,@(mapcar (lambda (elm) `(add-to-list 'magic-fallback-mode-alist '(,(car elm) ,(cdr elm)))) leaf--value) ,@leaf--body))
      :hook           (progn
-                       (mapc (lambda (elm) (leaf-register-autoload (cdr elm) leaf--name)) leaf--value)
+                       (leaf-register-autoload (mapcar #'cdr leaf--value) leaf--name)
                        `(,@(mapcar (lambda (elm) `(add-hook ',(car elm) #',(cdr elm))) leaf--value) ,@leaf--body))
 
      :leaf-defer     (if (and leaf--body (eval (car leaf--value)) (leaf-list-memq leaf-defer-keywords (leaf-plist-keys leaf--raw)))
