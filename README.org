@@ -450,9 +450,10 @@ You don't need to put ~progn~ because ~leaf~ can receive multiple S-expressions,
 
 When defined globally, key bindings and their corresponding functions are specified in dotted pairs.
 
-To set it to a specific map, *place the map name as a symbol* at the top of the list.
+To set it to a specific map, *place the map name as a keyword or symbol* at the top of the list.
 
-These keywords can also be used in lists. Note that these require a *symbol with the map name at the top of the list*.
+These pair and list can also be used in list.
+Note that these require a *symbol with the map name at the top of the list*.
 
 If you omit ~:package~, use leaf-block name as ~:package~ to lazy load.
 
@@ -568,6 +569,23 @@ If you omit ~:package~, use leaf-block name as ~:package~ to lazy load.
          (autoload #'isearch-moccur-all "color-moccur" nil t)
          (leaf-keys (("M-s O" . moccur)
                      (:isearch-mode-map
+                      :package isearch
+                      ("M-o" . isearch-moccur)
+                      ("M-O" . isearch-moccur-all))))))
+
+      ;; you also use symbol instead of keyword to specify keymap
+      ((leaf color-moccur
+         :bind (("M-s O" . moccur)
+                (isearch-mode-map
+                 :package isearch
+                 ("M-o" . isearch-moccur)
+                 ("M-O" . isearch-moccur-all))))
+       (prog1 'color-moccur
+         (autoload #'moccur "color-moccur" nil t)
+         (autoload #'isearch-moccur "color-moccur" nil t)
+         (autoload #'isearch-moccur-all "color-moccur" nil t)
+         (leaf-keys (("M-s O" . moccur)
+                     (isearch-mode-map
                       :package isearch
                       ("M-o" . isearch-moccur)
                       ("M-O" . isearch-moccur-all))))))))
