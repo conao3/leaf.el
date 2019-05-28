@@ -274,10 +274,10 @@ MESSAGE and ARGS are passed `format'."
      :commands       (progn (mapc (lambda (elm) (leaf-register-autoload elm leaf--name)) leaf--value) `(,@leaf--body))
      :bind           (progn
                        (mapc (lambda (elm) (leaf-register-autoload elm leaf--name)) (cadr leaf--value))
-                       `(,@(mapcar (lambda (elm) `(leaf-keys ,elm)) (car leaf--value)) ,@leaf--body))
+                       `((leaf-keys ,(car leaf--value)) ,@leaf--body))
      :bind*          (progn
                        (mapc (lambda (elm) (leaf-register-autoload elm leaf--name)) (cadr leaf--value))
-                       `(,@(mapcar (lambda (elm) `(leaf-keys* ,elm)) (car leaf--value)) ,@leaf--body))
+                       `((leaf-keys* ,(car leaf--value)) ,@leaf--body))
 
      :mode           (progn
                        (mapc (lambda (elm) (leaf-register-autoload (cdr elm) leaf--name)) leaf--value)
@@ -357,66 +357,7 @@ Sort by `leaf-sort-leaf--values-plist' in this order.")
     ((memq leaf--key '(:bind :bind*))
      ;; Accept: `leaf-keys' accept form
      ;; Return: a pair like (leaf--value . (fn fn ...))
-     (let ((pairp (lambda (x)
-                    (condition-case _err
-                        (and (listp x)
-                             (or (stringp (eval (car x)))
-                                 (vectorp (eval (car x))))
-                             (atom (cdr x)))
-                      (error nil))))
-           (recurfn) (bds) (fns))
-       (setq recurfn
-             (lambda (bind)
-               (cond
-                ((funcall pairp bind)
-                 ;; `(leaf-key ,(car bind) #',(cdr bind))
-                 (push bind bds)
-                 (push (cdr bind) fns))
-                ((and (listp (car bind))
-                      (funcall pairp (car bind)))
-                 `(progn
-                    ,@(let ((flat))
-                        (prog1
-                            (mapcar (lambda (elm)
-                                      (if (funcall pairp elm)
-                                          ;; `(leaf-key ,(car elm) #',(cdr elm))
-                                          (progn
-                                            (push elm flat)
-                                            (push (cdr elm) fns))
-                                        ;; `(leaf-keys ,elm)
-                                        (funcall recurfn elm)))
-                                    bind)
-                          (push (nreverse flat) bds)))))
-                ((keywordp (car bind))
-                 (let* ((map (intern (substring (symbol-name (car bind)) 1)))
-                        (pkg (leaf-plist-get :package (cdr bind)))
-                        (pkgs (if (atom pkg) `(,pkg) pkg))
-                        (elmbind (if pkg (nthcdr 3 bind) (nthcdr 1 bind)))
-                        (elmbinds (if (funcall pairp (car elmbind))
-                                      elmbind (car elmbind)))
-                        (form `(progn
-                                 ,@(mapcar
-                                    (lambda (elm)
-                                      ;; `(leaf-key ,(car elm) #',(cdr elm) ',map)
-                                      (push (cdr elm) fns))
-                                    elmbinds))))
-                   (push (if pkg elm
-                                `(,(intern (concat ":" (symbol-name map)))
-                                  :package ,leaf--name
-                                  ,@elmbinds))
-                              bds)
-                   (when pkg
-                     (dolist (elmpkg pkgs)
-                       (setq form `(eval-after-load ',elmpkg ',form))))
-                   form))
-                (t
-                 `(progn
-                    ,@(mapcar (lambda (elm)
-                                ;; `(leaf-keys ,elm)
-                                (funcall recurfn elm))
-                              bind))))))
-       (funcall recurfn leaf--value)
-       `(,(nreverse bds) ,fns)))
+     (eval `(leaf-keys ,leaf--value ,leaf--name)))
 
     ((memq leaf--key (cdr '(:dummy
                             :disabled :if :when :unless
