@@ -248,7 +248,7 @@ MESSAGE and ARGS are passed `format'."
   (cdr
    '(:dummy
      :disabled       (unless (eval (car leaf--value)) `(,@leaf--body))
-     :leaf-protect  (if (and leaf--body (eval (car leaf--value))) `((leaf-handler-leaf-protect ,leaf--name ,@leaf--body)) `(,@leaf--body))
+     :leaf-protect   (if (and leaf--body (eval (car leaf--value))) `((leaf-handler-leaf-protect ,leaf--name ,@leaf--body)) `(,@leaf--body))
      :load-path      `(,@(mapcar (lambda (elm) `(add-to-list 'load-path ,elm)) leaf--value) ,@leaf--body)
      :leaf-autoload  `(,@(when (car leaf--value) (mapcar (lambda (elm) `(autoload #',(car elm) ,(cdr elm) nil t)) (reverse leaf--autoload))) ,@leaf--body)
 
