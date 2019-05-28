@@ -743,15 +743,15 @@ If you want to specify major-mode, pass dotted pair value.
          :mode "\\.js\\'" "\\.p?html?\\'")
        (prog1 'web-mode
          (autoload #'web-mode "web-mode" nil t)
-         (add-to-list 'auto-mode-alist '("\\.js\\'" web-mode))
-         (add-to-list 'auto-mode-alist '("\\.p?html?\\'" web-mode))))
+         (add-to-list 'auto-mode-alist '("\\.js\\'" . web-mode))
+         (add-to-list 'auto-mode-alist '("\\.p?html?\\'" . web-mode))))
 
       ((leaf web-mode
          :mode ("\\.js\\'" "\\.p?html?\\'"))
        (prog1 'web-mode
          (autoload #'web-mode "web-mode" nil t)
-         (add-to-list 'auto-mode-alist '("\\.js\\'" web-mode))
-         (add-to-list 'auto-mode-alist '("\\.p?html?\\'" web-mode))))))
+         (add-to-list 'auto-mode-alist '("\\.js\\'" . web-mode))
+         (add-to-list 'auto-mode-alist '("\\.p?html?\\'" . web-mode))))))
 
   (cort-deftest-with-macroexpand leaf/interpreter
     '(((leaf ruby-mode
@@ -760,24 +760,24 @@ If you want to specify major-mode, pass dotted pair value.
        (prog1 'ruby-mode
          (autoload #'ruby-mode "ruby-mode" nil t)
          (autoload #'rb-mode "ruby-mode" nil t)
-         (add-to-list 'auto-mode-alist '("\\.rb\\'" ruby-mode))
-         (add-to-list 'auto-mode-alist '("\\.rb2\\'" ruby-mode))
-         (add-to-list 'auto-mode-alist '("\\.rbg\\'" rb-mode))
-         (add-to-list 'interpreter-mode-alist '("ruby" ruby-mode))))
+         (add-to-list 'auto-mode-alist '("\\.rb\\'" . ruby-mode))
+         (add-to-list 'auto-mode-alist '("\\.rb2\\'" . ruby-mode))
+         (add-to-list 'auto-mode-alist '("\\.rbg\\'" . rb-mode))
+         (add-to-list 'interpreter-mode-alist '("ruby" . ruby-mode))))
 
       ((leaf web-mode
          :interpreter "js" "p?html?")
        (prog1 'web-mode
          (autoload #'web-mode "web-mode" nil t)
-         (add-to-list 'interpreter-mode-alist '("js" web-mode))
-         (add-to-list 'interpreter-mode-alist '("p?html?" web-mode))))
+         (add-to-list 'interpreter-mode-alist '("js" . web-mode))
+         (add-to-list 'interpreter-mode-alist '("p?html?" . web-mode))))
 
       ((leaf web-mode
          :interpreter ("js" "p?html?"))
        (prog1 'web-mode
          (autoload #'web-mode "web-mode" nil t)
-         (add-to-list 'interpreter-mode-alist '("js" web-mode))
-         (add-to-list 'interpreter-mode-alist '("p?html?" web-mode))))))
+         (add-to-list 'interpreter-mode-alist '("js" . web-mode))
+         (add-to-list 'interpreter-mode-alist '("p?html?" . web-mode))))))
 #+end_src
 
 ** :magic, :magic-fallback keywords
@@ -793,7 +793,7 @@ If you want to specify major-mode, pass dotted pair value.
          (pdf-tools-install))
        (prog1 'pdf-tools
          (autoload #'pdf-view-mode "pdf-tools" nil t)
-         (add-to-list 'magic-mode-alist '("%PDF" pdf-view-mode))
+         (add-to-list 'magic-mode-alist '("%PDF" . pdf-view-mode))
          (eval-after-load 'pdf-tools
            '(progn
               (pdf-tools-install)))))
@@ -802,15 +802,15 @@ If you want to specify major-mode, pass dotted pair value.
          :magic "js" "p?html?")
        (prog1 'web-mode
          (autoload #'web-mode "web-mode" nil t)
-         (add-to-list 'magic-mode-alist '("js" web-mode))
-         (add-to-list 'magic-mode-alist '("p?html?" web-mode))))
+         (add-to-list 'magic-mode-alist '("js" . web-mode))
+         (add-to-list 'magic-mode-alist '("p?html?" . web-mode))))
 
       ((leaf web-mode
          :magic ("js" "p?html?"))
        (prog1 'web-mode
          (autoload #'web-mode "web-mode" nil t)
-         (add-to-list 'magic-mode-alist '("js" web-mode))
-         (add-to-list 'magic-mode-alist '("p?html?" web-mode))))))
+         (add-to-list 'magic-mode-alist '("js" . web-mode))
+         (add-to-list 'magic-mode-alist '("p?html?" . web-mode))))))
 
   (cort-deftest-with-macroexpand leaf/magic-fallback
     '(((leaf pdf-tools
@@ -819,7 +819,7 @@ If you want to specify major-mode, pass dotted pair value.
          (pdf-tools-install))
        (prog1 'pdf-tools
          (autoload #'pdf-view-mode "pdf-tools" nil t)
-         (add-to-list 'magic-fallback-mode-alist '("%PDF" pdf-view-mode))
+         (add-to-list 'magic-fallback-mode-alist '("%PDF" . pdf-view-mode))
          (eval-after-load 'pdf-tools
            '(progn
               (pdf-tools-install)))))
@@ -828,15 +828,15 @@ If you want to specify major-mode, pass dotted pair value.
          :magic-fallback "js" "p?html?")
        (prog1 'web-mode
          (autoload #'web-mode "web-mode" nil t)
-         (add-to-list 'magic-fallback-mode-alist '("js" web-mode))
-         (add-to-list 'magic-fallback-mode-alist '("p?html?" web-mode))))
+         (add-to-list 'magic-fallback-mode-alist '("js" . web-mode))
+         (add-to-list 'magic-fallback-mode-alist '("p?html?" . web-mode))))
 
       ((leaf web-mode
          :magic-fallback ("js" "p?html?"))
        (prog1 'web-mode
          (autoload #'web-mode "web-mode" nil t)
-         (add-to-list 'magic-fallback-mode-alist '("js" web-mode))
-         (add-to-list 'magic-fallback-mode-alist '("p?html?" web-mode))))))
+         (add-to-list 'magic-fallback-mode-alist '("js" . web-mode))
+         (add-to-list 'magic-fallback-mode-alist '("p?html?" . web-mode))))))
 #+end_src
 
 ** :hook keyword
