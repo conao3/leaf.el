@@ -470,7 +470,7 @@ If you omit ~:package~, use leaf-block name as ~:package~ to lazy load.
          :package t
          :bind ("C-c e" . macrostep-expand))
        (prog1 'macrostep
-         (autoload (function macrostep-expand) "macrostep" nil t)
+         (autoload #'macrostep-expand "macrostep" nil t)
          (leaf-handler-package macrostep macrostep nil)
          (leaf-keys
           (("C-c e" . macrostep-expand)))))
@@ -481,9 +481,9 @@ If you omit ~:package~, use leaf-block name as ~:package~ to lazy load.
          ("M-o" . isearch-moccur)
          ("M-O" . isearch-moccur-all))
        (prog1 'color-moccur
-         (autoload (function isearch-moccur-all) "color-moccur" nil t)
-         (autoload (function isearch-moccur) "color-moccur" nil t)
-         (autoload (function moccur) "color-moccur" nil t)
+         (autoload #'moccur "color-moccur" nil t)
+         (autoload #'isearch-moccur "color-moccur" nil t)
+         (autoload #'isearch-moccur-all "color-moccur" nil t)
          (leaf-keys (("M-s O" . moccur)
                      ("M-o" . isearch-moccur)
                      ("M-O" . isearch-moccur-all)))))
@@ -493,9 +493,9 @@ If you omit ~:package~, use leaf-block name as ~:package~ to lazy load.
                 ("M-o" . isearch-moccur)
                 ("M-O" . isearch-moccur-all)))
        (prog1 'color-moccur
-         (autoload #'isearch-moccur-all "color-moccur" nil t)
-         (autoload #'isearch-moccur "color-moccur" nil t)
          (autoload #'moccur "color-moccur" nil t)
+         (autoload #'isearch-moccur "color-moccur" nil t)
+         (autoload #'isearch-moccur-all "color-moccur" nil t)
          (leaf-keys (("M-s O" . moccur)
                      ("M-o" . isearch-moccur)
                      ("M-O" . isearch-moccur-all)))))
@@ -506,8 +506,8 @@ If you omit ~:package~, use leaf-block name as ~:package~ to lazy load.
          ("M-s o" . isearch-moccur)
          ("M-s i" . isearch-moccur-all))
        (prog1 'color-moccur
-         (autoload (function isearch-moccur-all) "color-moccur" nil t)
-         (autoload (function isearch-moccur) "color-moccur" nil t)
+         (autoload #'isearch-moccur "color-moccur" nil t)
+         (autoload #'isearch-moccur-all "color-moccur" nil t)
          (leaf-keys (("M-s")
                      ("M-s o" . isearch-moccur)
                      ("M-s i" . isearch-moccur-all)))))
@@ -517,8 +517,8 @@ If you omit ~:package~, use leaf-block name as ~:package~ to lazy load.
                 ("M-s o" . isearch-moccur)
                 ("M-s i" . isearch-moccur-all)))
        (prog1 'color-moccur
-         (autoload #'isearch-moccur-all "color-moccur" nil t)
          (autoload #'isearch-moccur "color-moccur" nil t)
+         (autoload #'isearch-moccur-all "color-moccur" nil t)
          (leaf-keys (("M-s")
                      ("M-s o" . isearch-moccur)
                      ("M-s i" . isearch-moccur-all)))))
@@ -530,15 +530,14 @@ If you omit ~:package~, use leaf-block name as ~:package~ to lazy load.
           ("M-o" . isearch-moccur)
           ("M-O" . isearch-moccur-all)))
        (prog1 'color-moccur
-         (autoload (function isearch-moccur-all) "color-moccur" nil t)
-         (autoload (function isearch-moccur) "color-moccur" nil t)
-         (autoload (function moccur) "color-moccur" nil t)
-         (leaf-keys
-          (:isearch-mode-map
-           :package color-moccur
-           ("M-o" . isearch-moccur)
-           ("M-O" . isearch-moccur-all)))
-         (leaf-keys (("M-s O" . moccur)))))
+         (autoload #'moccur "color-moccur" nil t)
+         (autoload #'isearch-moccur "color-moccur" nil t)
+         (autoload #'isearch-moccur-all "color-moccur" nil t)
+         (leaf-keys (("M-s O" . moccur)
+                     (:isearch-mode-map
+                      :package color-moccur
+                      ("M-o" . isearch-moccur)
+                      ("M-O" . isearch-moccur-all))))))
 
       ((leaf color-moccur
          :bind
@@ -548,15 +547,14 @@ If you omit ~:package~, use leaf-block name as ~:package~ to lazy load.
           ("M-o" . isearch-moccur)
           ("M-O" . isearch-moccur-all)))
        (prog1 'color-moccur
-         (autoload (function isearch-moccur-all) "color-moccur" nil t)
-         (autoload (function isearch-moccur) "color-moccur" nil t)
-         (autoload (function moccur) "color-moccur" nil t)
-         (leaf-keys
-          (:isearch-mode-map
-           :package isearch
-           ("M-o" . isearch-moccur)
-           ("M-O" . isearch-moccur-all)))
-         (leaf-keys (("M-s O" . moccur)))))
+         (autoload #'moccur "color-moccur" nil t)
+         (autoload #'isearch-moccur "color-moccur" nil t)
+         (autoload #'isearch-moccur-all "color-moccur" nil t)
+         (leaf-keys (("M-s O" . moccur)
+                     (:isearch-mode-map
+                      :package isearch
+                      ("M-o" . isearch-moccur)
+                      ("M-O" . isearch-moccur-all))))))
 
       ((leaf color-moccur
          :bind (("M-s O" . moccur)
@@ -565,14 +563,14 @@ If you omit ~:package~, use leaf-block name as ~:package~ to lazy load.
                  ("M-o" . isearch-moccur)
                  ("M-O" . isearch-moccur-all))))
        (prog1 'color-moccur
-         (autoload (function isearch-moccur-all) "color-moccur" nil t)
-         (autoload (function isearch-moccur) "color-moccur" nil t)
-         (autoload (function moccur) "color-moccur" nil t)
-         (leaf-keys (:isearch-mode-map
-                     :package isearch
-                     ("M-o" . isearch-moccur)
-                     ("M-O" . isearch-moccur-all)))
-         (leaf-keys (("M-s O" . moccur)))))))
+         (autoload #'moccur "color-moccur" nil t)
+         (autoload #'isearch-moccur "color-moccur" nil t)
+         (autoload #'isearch-moccur-all "color-moccur" nil t)
+         (leaf-keys (("M-s O" . moccur)
+                     (:isearch-mode-map
+                      :package isearch
+                      ("M-o" . isearch-moccur)
+                      ("M-O" . isearch-moccur-all))))))))
 #+end_src
 
 ** COMMENT :defaults keyword
