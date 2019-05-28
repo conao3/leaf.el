@@ -5,7 +5,7 @@
 ;; Author: Naoya Yamashita <conao3@gmail.com>
 ;; Maintainer: Naoya Yamashita <conao3@gmail.com>
 ;; Keywords: lisp settings
-;; Version: 3.0.4
+;; Version: 3.0.5
 ;; URL: https://github.com/conao3/leaf.el
 ;; Package-Requires: ((emacs "24.0"))
 
@@ -482,8 +482,11 @@ NOTE: BIND can also accept list of these."
                               (push (cdr elm) fns))
                           (funcall recurfn elm)))
                       bind))
-             ((keywordp (car bind))
-              (let* ((map (intern (substring (symbol-name (car bind)) 1)))
+             ((or (keywordp (car bind))
+                  (symbolp (car bind)))
+              (let* ((map (if (keywordp (car bind))
+                              (intern (substring (symbol-name (car bind)) 1))
+                            (car bind)))
                      (pkg (leaf-plist-get :package (cdr bind)))
                      (pkgs (if (atom pkg) `(,pkg) pkg))
                      (elmbind (if pkg (nthcdr 3 bind) (nthcdr 1 bind)))
