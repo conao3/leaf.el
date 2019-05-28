@@ -523,10 +523,14 @@ BIND must not contain :{{map}}."
 ;;
 
 (defun leaf-register-autoload (fn pkg)
-  "Registry FN as autoload for PKG."
-  (let ((target `(,fn . ,(symbol-name pkg))))
-    (when (and fn (not (member target leaf--autoload)))
-      (setq leaf--autoload (cons target leaf--autoload)))))
+  "Registry FN as autoload for PKG.
+FN also accept list of FN."
+  (mapc
+   (lambda (elm)
+     (let ((target `(,elm . ,(symbol-name pkg))))
+       (when (and elm (not (member target leaf--autoload)))
+         (push target leaf--autoload))))
+   (if (listp fn) fn `(,fn))))
 
 (defmacro leaf-handler-leaf-protect (name &rest body)
   "Meta handler for :leaf-no-erorr in NAME leaf block."
