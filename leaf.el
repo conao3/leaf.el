@@ -5,7 +5,7 @@
 ;; Author: Naoya Yamashita <conao3@gmail.com>
 ;; Maintainer: Naoya Yamashita <conao3@gmail.com>
 ;; Keywords: lisp settings
-;; Version: 3.0.6
+;; Version: 3.0.7
 ;; URL: https://github.com/conao3/leaf.el
 ;; Package-Requires: ((emacs "24.0"))
 
@@ -281,16 +281,16 @@ MESSAGE and ARGS are passed `format'."
 
      :mode           (progn
                        (leaf-register-autoload (mapcar #'cdr leaf--value) leaf--name)
-                       `(,@(mapcar (lambda (elm) `(add-to-list 'auto-mode-alist '(,(car elm) ,(cdr elm)))) leaf--value) ,@leaf--body))
+                       `(,@(mapcar (lambda (elm) `(add-to-list 'auto-mode-alist '(,(car elm) . ,(cdr elm)))) leaf--value) ,@leaf--body))
      :interpreter    (progn
                        (leaf-register-autoload (mapcar #'cdr leaf--value) leaf--name)
-                       `(,@(mapcar (lambda (elm) `(add-to-list 'interpreter-mode-alist '(,(car elm) ,(cdr elm)))) leaf--value) ,@leaf--body))
+                       `(,@(mapcar (lambda (elm) `(add-to-list 'interpreter-mode-alist '(,(car elm) . ,(cdr elm)))) leaf--value) ,@leaf--body))
      :magic          (progn
                        (leaf-register-autoload (mapcar #'cdr leaf--value) leaf--name)
-                       `(,@(mapcar (lambda (elm) `(add-to-list 'magic-mode-alist '(,(car elm) ,(cdr elm)))) leaf--value) ,@leaf--body))
+                       `(,@(mapcar (lambda (elm) `(add-to-list 'magic-mode-alist '(,(car elm) . ,(cdr elm)))) leaf--value) ,@leaf--body))
      :magic-fallback (progn
                        (leaf-register-autoload (mapcar #'cdr leaf--value) leaf--name)
-                       `(,@(mapcar (lambda (elm) `(add-to-list 'magic-fallback-mode-alist '(,(car elm) ,(cdr elm)))) leaf--value) ,@leaf--body))
+                       `(,@(mapcar (lambda (elm) `(add-to-list 'magic-fallback-mode-alist '(,(car elm) . ,(cdr elm)))) leaf--value) ,@leaf--body))
      :hook           (progn
                        (leaf-register-autoload (mapcar #'cdr leaf--value) leaf--name)
                        `(,@(mapcar (lambda (elm) `(add-hook ',(car elm) #',(cdr elm))) leaf--value) ,@leaf--body))
