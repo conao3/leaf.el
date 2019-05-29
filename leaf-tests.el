@@ -25,8 +25,8 @@
 
 ;;; Code:
 
+(load "cort-test")
 (require 'leaf)
-(require 'cort-test)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
