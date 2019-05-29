@@ -272,6 +272,7 @@ MESSAGE and ARGS are passed `format'."
                                         `(,ret)))
 
      :commands       (progn (leaf-register-autoload leaf--value leaf--name) `(,@leaf--body))
+
      :bind           (progn
                        (leaf-register-autoload (cadr leaf--value) leaf--name)
                        `((leaf-keys ,(car leaf--value)) ,@leaf--body))
@@ -294,6 +295,9 @@ MESSAGE and ARGS are passed `format'."
      :hook           (progn
                        (leaf-register-autoload (mapcar #'cdr leaf--value) leaf--name)
                        `(,@(mapcar (lambda (elm) `(add-hook ',(car elm) #',(cdr elm))) leaf--value) ,@leaf--body))
+     :advice         (progn
+                       (leaf-register-autoload (cadr leaf--value) leaf--name)
+                       `(,@(mapcar (lambda (elm) `(advice-add ,@elm)) (car leaf--value)) ,@leaf--body))
 
      :leaf-defer     (if (and leaf--body (eval (car leaf--value)) (leaf-list-memq leaf-defer-keywords (leaf-plist-keys leaf--raw)))
                          `((eval-after-load ',leaf--name '(progn ,@leaf--body))) `(,@leaf--body))
@@ -358,6 +362,27 @@ Sort by `leaf-sort-leaf--values-plist' in this order.")
      ;; Accept: `leaf-keys' accept form
      ;; Return: a pair like (leaf--value . (fn fn ...))
      (eval `(leaf-keys ,leaf--value ,leaf--name)))
+
+    ((memq leaf--key '(:advice))
+     ;; Accept: (:where symbol fn), ((:where symbol fn) (:where symbol fn) ...)
+     ;; Return: (((advice) (advice) ...) (fn fn ...))
+     ;; Note  : fn is also accept lambda form
+     ;;         the arguments for `advice-add' and `:advice' are in different order.
+     (let ((val) (fns))
+       (setq val (mapcan
+                  (lambda (elm)
+                    (cond
+                     ((and (listp elm) (listp (car elm)))
+                      (mapcar
+                       (lambda (el)
+                         (let ((where (nth 0 el)) (sym (nth 1 el)) (fn (nth 2 el)))
+                           (setq fns (append fns `(,(nth 2 el)))) `(',sym ,where #',fn)))
+                       elm))
+                     ((listp elm)
+                      (let ((where (nth 0 elm)) (sym (nth 1 elm)) (fn (nth 2 elm)))
+                        (setq fns (append fns `(,(nth 2 elm)))) `((',sym ,where #',fn))))))
+                  leaf--value))
+       `(,val ,(delq nil (mapcar (lambda (elm) (when (symbolp elm) elm)) fns)))))
 
     ((memq leaf--key (cdr '(:dummy
                             :disabled :if :when :unless

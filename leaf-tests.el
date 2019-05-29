@@ -1220,6 +1220,74 @@ Example:
     ;;    (add-hook 'isearch-mode #'my-ace-jump-mode)))
     ))
 
+(cort-deftest-with-macroexpand leaf/advice
+  '(((leaf leaf
+       :preface
+       (defun matu (x)
+         (princ (format ">>%s<<" x))
+         nil)
+       (defun matu-around0 (f &rest args)
+         (prog2
+             (princ "around0 ==>")
+             (apply f args)
+           (princ "around0 <==")))
+       (defun matu-before0 (&rest args)
+         (princ "before0:"))
+       :advice
+       (:around matu matu-around0)
+       (:before matu matu-before0))
+     (prog1 'leaf
+       (autoload #'matu-around0 "leaf" nil t)
+       (autoload #'matu-before0 "leaf" nil t)
+       (defun matu (x)
+         (princ
+          (format ">>%s<<" x))
+         nil)
+       (defun matu-around0
+           (f &rest args)
+         (prog2
+             (princ "around0 ==>")
+             (apply f args)
+           (princ "around0 <==")))
+       (defun matu-before0
+           (&rest args)
+         (princ "before0:"))
+       (advice-add 'matu :around (function matu-around0))
+       (advice-add 'matu :before (function matu-before0))))
+
+    ((leaf leaf
+       :preface
+       (defun matu (x)
+         (princ (format ">>%s<<" x))
+         nil)
+       (defun matu-around0 (f &rest args)
+         (prog2
+             (princ "around0 ==>")
+             (apply f args)
+           (princ "around0 <==")))
+       (defun matu-before0 (&rest args)
+         (princ "before0:"))
+       :advice ((:around matu matu-around0)
+                (:before matu matu-before0)))
+     (prog1 'leaf
+       (autoload #'matu-around0 "leaf" nil t)
+       (autoload #'matu-before0 "leaf" nil t)
+       (defun matu (x)
+         (princ
+          (format ">>%s<<" x))
+         nil)
+       (defun matu-around0
+           (f &rest args)
+         (prog2
+             (princ "around0 ==>")
+             (apply f args)
+           (princ "around0 <==")))
+       (defun matu-before0
+           (&rest args)
+         (princ "before0:"))
+       (advice-add 'matu :around (function matu-around0))
+       (advice-add 'matu :before (function matu-before0))))))
+
 (cort-deftest-with-macroexpand leaf/commands
   '(((leaf leaf
        :commands leaf
