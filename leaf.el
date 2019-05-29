@@ -11,7 +11,7 @@
 
 ;;   Abobe declared this package requires Emacs-24, but it's for warning
 ;;   suppression, and will actually work from Emacs-22.
-;;   But :advice, :advice-remove are not work Emacs-24.4 or lower.
+;;   But :advice, :advice-remove are not work Emacs-24.3 or lower.
 
 ;; This program is free software: you can redistribute it and/or modify
 ;; it under the terms of the Affero GNU General Public License as
