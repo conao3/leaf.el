@@ -7,10 +7,11 @@
 ;; Keywords: lisp settings
 ;; Version: 3.0.9
 ;; URL: https://github.com/conao3/leaf.el
-;; Package-Requires: ((emacs "24.0"))
+;; Package-Requires: ((emacs "24.4"))
 
 ;;   Abobe declared this package requires Emacs-24, but it's for warning
 ;;   suppression, and will actually work from Emacs-22.
+;;   But :advice, :advice-remove are not work Emacs-24.4 or lower.
 
 ;; This program is free software; you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by
