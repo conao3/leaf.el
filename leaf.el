@@ -5,12 +5,13 @@
 ;; Author: Naoya Yamashita <conao3@gmail.com>
 ;; Maintainer: Naoya Yamashita <conao3@gmail.com>
 ;; Keywords: lisp settings
-;; Version: 3.0.9
+;; Version: 3.1.0
 ;; URL: https://github.com/conao3/leaf.el
-;; Package-Requires: ((emacs "24.0"))
+;; Package-Requires: ((emacs "24.4"))
 
 ;;   Abobe declared this package requires Emacs-24, but it's for warning
 ;;   suppression, and will actually work from Emacs-22.
+;;   But :advice, :advice-remove are not work Emacs-24.4 or lower.
 
 ;; This program is free software; you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by
@@ -120,7 +121,7 @@ MESSAGE and ARGS are passed `format'."
   (not (not var)))
 
 (defsubst leaf-pairp (var &optional allow)
-  "Return t if VAR is pair.  If ALLOW is non-nil, allow nil as last element"
+  "Return t if VAR is pair.  If ALLOW is non-nil, allow nil as last element."
   (and (listp var)
        (or (atom (cdr var))                  ; (a . b)
            (and (= 3 (safe-length var))      ; (a . 'b) => (a quote b)
@@ -154,7 +155,7 @@ MESSAGE and ARGS are passed `format'."
     (funcall fn lst)))
 
 (defun leaf-subst (old new lst)
-  "Substitute NEW for OLD in LST. "
+  "Substitute NEW for OLD in LST."
   (declare (indent 2))
   (mapcar (lambda (elm) (if (eq elm old) new elm)) lst))
 
@@ -216,6 +217,7 @@ MESSAGE and ARGS are passed `format'."
 ;;
 
 (defun leaf-plist-keys (plist)
+  "Get all keys of PLIST."
   (let ((count 1) ret)
     (dolist (elm plist)
       (when (= 1 (mod count 2))
@@ -416,7 +418,7 @@ Sort by `leaf-sort-leaf--values-plist' in this order.")
 
     (t
      leaf--value))
-  "Normalize rule")
+  "Normalize rule.")
 
 (eval
  `(progn
@@ -435,7 +437,7 @@ Sort by `leaf-sort-leaf--values-plist' in this order.")
 ;;
 
 (defvar leaf-key-override-global-map (make-keymap)
-  "leaf-override-global-mode keymap")
+  "The leaf-override-global-mode keymap.")
 
 (define-minor-mode leaf-key-override-global-mode
   "A minor mode so that keymap settings override other modes."
@@ -454,21 +456,20 @@ Elements have the form ((KEY . [MAP]) CMD ORIGINAL-CMD)")
   "Bind KEY to COMMAND in KEYMAP (`global-map' if not passed).
 
 KEY-NAME may be a vector, in which case it is passed straight to
-`define-key'. Or it may be a string to be interpreted as
-spelled-out keystrokes, e.g., \"C-c C-z\". See documentation of
-`edmacro-mode' for details.
+`define-key'.  Or it may be a string to be interpreted as spelled-out
+keystrokes.  See documentation of `edmacro-mode' for details.
 
 COMMAND must be an interactive function or lambda form.
 
 KEYMAP, if present, should be a keymap and not a quoted symbol.
 For example:
-  (bind-key \"M-h\" #'some-interactive-function my-mode-map)
+  (leaf-key \"M-h\" #'some-interactive-function my-mode-map)
 
-If PREDICATE is non-nil, it is a form evaluated to determine when
-a key should be bound. It must return non-nil in such cases.
-Emacs can evaluate this form at any time that it does redisplay
-or operates on menu data structures, so you should write it so it
-can safely be called at any time.
+If PREDICATE is non-nil, it is a form evaluated to determine when a
+key should be bound. It must return non-nil in such cases.  Emacs can
+evaluate this form at any time that it does redisplay or operates on
+menu data structures, so you should write it so it can safely be
+called at any time.
 
 You can also use [remap COMMAND] as KEY.
 For example:
@@ -486,7 +487,8 @@ For example:
        (define-key ,mmap ,(if vecp key `(kbd ,key)) ',command*))))
 
 (defmacro leaf-key* (key command)
-  "Similar to `bind-key', but overrides any mode-specific bindings."
+  "Similar to `leaf-key', but overrides any mode-specific bindings.
+Bind COMMAND at KEY."
   `(leaf-key ,key ,command 'leaf-key-override-global-map))
 
 (defmacro leaf-keys (bind &optional dryrun-name)
@@ -585,7 +587,7 @@ FN also accept list of FN."
    (if (listp fn) fn `(,fn))))
 
 (defmacro leaf-handler-leaf-protect (name &rest body)
-  "Meta handler for :leaf-no-erorr in NAME leaf block."
+  "Meta handler for :leaf-no-erorr in NAME for BODY leaf block."
   (declare (indent 1))
   `(condition-case err
        (progn ,@body)
@@ -649,7 +651,7 @@ Example:
   a       => (a)
   (a b c) => (a b c)
 
-  - when dotlistp is t
+  - when DOTLISTP is t
   a                 => (a)
   (a b c)           => (a b c)
   (a . b)           => ((a . b))
@@ -768,7 +770,7 @@ EXAMPLE:
 ;;
 
 (defun leaf-process-keywords (name plist raw)
-  "Process keywords for NAME.
+  "Process keywords for NAME via argument PLIST, RAW.
 NOTE:
 Not check PLIST, PLIST has already been carefully checked
 parent funcitons.
