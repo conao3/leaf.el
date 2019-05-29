@@ -24,6 +24,7 @@
   - [[https://github.com/conao3/leaf.el#commands-keyword][:commands keyword]]
   - [[https://github.com/conao3/leaf.el#after-keyword][:after keyword]]
   - [[https://github.com/conao3/leaf.el#bind-bind-keywords][:bind, :bind* keywords]]
+  - [[#advice-keyword][:advice keyword]]
 - [[https://github.com/conao3/leaf.el#configure-variables-keywords][Configure variables keywords]]
   - [[https://github.com/conao3/leaf.el#custom-custom-face--keywords][:custom :custom-face keywords]]
   - [[https://github.com/conao3/leaf.el#pre-setq-setq-setq-default-keywords][:pre-setq :setq :setq-default keywords]]
@@ -589,6 +590,132 @@ If you omit ~:package~, use leaf-block name as ~:package~ to lazy load.
                       :package isearch
                       ("M-o" . isearch-moccur)
                       ("M-O" . isearch-moccur-all))))))))
+#+end_src
+
+** :advice keyword
+~:advice~ provide frontend of ~advice-add~.
+
+This keyword accept list of ~(WHERE SYMBOL FUNCTION)~ or nested it.
+
+You can use all ~WHERE~ symbol such as
+(~:around~ ~:before~ ~:after~ ~:override~ ~:after-until~ ~:after-while~ ~:before-until~ ~:before-while~ ~:filter-args~ ~:filter-return~)
+
+~SYMBOL~ is the adviced function symbol, ~FUNCTION~ is advice function symbol or lambda form.
+
+#+begin_src emacs-lisp
+  (cort-deftest-with-macroexpand leaf/advice
+    '(((leaf leaf
+         :preface
+         (defun matu (x)
+           (princ (format ">>%s<<" x))
+           nil)
+         (defun matu-around0 (f &rest args)
+           (prog2
+               (princ "around0 ==>")
+               (apply f args)
+             (princ "around0 <==")))
+         (defun matu-before0 (&rest args)
+           (princ "before0:"))
+         :advice
+         (:around matu matu-around0)
+         (:before matu matu-before0))
+       (prog1 'leaf
+         (autoload #'matu-around0 "leaf" nil t)
+         (autoload #'matu-before0 "leaf" nil t)
+         (defun matu (x)
+           (princ
+            (format ">>%s<<" x))
+           nil)
+         (defun matu-around0
+             (f &rest args)
+           (prog2
+               (princ "around0 ==>")
+               (apply f args)
+             (princ "around0 <==")))
+         (defun matu-before0
+             (&rest args)
+           (princ "before0:"))
+         (advice-add 'matu :around #'matu-around0)
+         (advice-add 'matu :before #'matu-before0)))
+
+      ((leaf leaf
+         :preface
+         (defun matu (x)
+           (princ (format ">>%s<<" x))
+           nil)
+         (defun matu-around0 (f &rest args)
+           (prog2
+               (princ "around0 ==>")
+               (apply f args)
+             (princ "around0 <==")))
+         (defun matu-before0 (&rest args)
+           (princ "before0:"))
+         :advice ((:around matu matu-around0)
+                  (:before matu matu-before0)))
+       (prog1 'leaf
+         (autoload #'matu-around0 "leaf" nil t)
+         (autoload #'matu-before0 "leaf" nil t)
+         (defun matu (x)
+           (princ
+            (format ">>%s<<" x))
+           nil)
+         (defun matu-around0
+             (f &rest args)
+           (prog2
+               (princ "around0 ==>")
+               (apply f args)
+             (princ "around0 <==")))
+         (defun matu-before0
+             (&rest args)
+           (princ "before0:"))
+         (advice-add 'matu :around #'matu-around0)
+         (advice-add 'matu :before #'matu-before0)))
+
+      ((leaf leaf
+         :preface
+         (defun matu (x)
+           (princ (format ">>%s<<" x))
+           nil)
+         (defun matu-around0 (f &rest args)
+           (prog2
+               (princ "around0 ==>")
+               (apply f args)
+             (princ "around0 <==")))
+         (defun matu-before0 (&rest args)
+           (princ "before0:"))
+         :advice ((:around matu matu-around0)
+                  (:before matu matu-before0)
+                  (:around matu (lambda (f &rest args)
+                                  (prog2
+                                      (princ "around1 ==>")
+                                      (apply f args)
+                                    (princ "around1 <=="))))))
+       (prog1 'leaf
+         (autoload #'matu-around0 "leaf" nil t)
+         (autoload #'matu-before0 "leaf" nil t)
+         (defun matu
+             (x)
+           (princ
+            (format ">>%s<<" x))
+           nil)
+         (defun matu-around0
+             (f &rest args)
+           (prog2
+               (princ "around0 ==>")
+               (apply f args)
+             (princ "around0 <==")))
+         (defun matu-before0
+             (&rest args)
+           (princ "before0:"))
+         (advice-add 'matu :around #'matu-around0)
+         (advice-add 'matu :before #'matu-before0)
+         (advice-add 'matu :around (function
+                                    (lambda
+                                      (f &rest args)
+                                      (prog2
+                                          (princ "around1 ==>")
+                                          (apply f args)
+                                        (princ "around1 <==")))))))))
 #+end_src
 
 ** COMMENT :defaults keyword
