@@ -1,4 +1,4 @@
-;;; leaf.el --- Symplify your init.el configuration       -*- lexical-binding: t; -*-
+;;; leaf.el --- Symplify your init.el configuration, extended use-package       -*- lexical-binding: t; -*-
 
 ;; Copyright (C) 2018  Naoya Yamashita
 
