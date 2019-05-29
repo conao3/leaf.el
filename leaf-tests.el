@@ -1334,6 +1334,25 @@ Example:
                                         (apply f args)
                                       (princ "around1 <==")))))))))
 
+(cort-deftest-with-macroexpand leaf/advice-remove
+  '(((leaf leaf
+       :advice-remove
+       (matu matu-around0)
+       (matu matu-before0))
+     (prog1 'leaf
+       (autoload (function matu-before0) "leaf" nil t)
+       (autoload #'matu-around0 "leaf" nil t)
+       (advice-remove 'matu #'matu-around0)
+       (advice-remove 'matu #'matu-before0)))
+
+    ((leaf leaf
+       :advice-remove ((:around matu matu-around0)
+                       (:before matu matu-before0)))
+     (prog1 'leaf
+       (autoload #'matu "leaf" nil t)
+       (advice-remove ':around #'matu)
+       (advice-remove ':before #'matu)))))
+
 (cort-deftest-with-macroexpand leaf/commands
   '(((leaf leaf
        :commands leaf
