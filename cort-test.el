@@ -257,5 +257,5 @@ error testcase: (:cort-error EXPECTED-ERROR:ROR-TYPE FORM)"
       (princ (format cort-test-passed-message
                      testc (- testc failc errorc) failc errorc emacs-version)))))
 
-(provide 'cort-test)
+;; (provide 'cort-test)
 ;;; cort-test.el ends here
