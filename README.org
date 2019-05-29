@@ -24,7 +24,7 @@
   - [[https://github.com/conao3/leaf.el#commands-keyword][:commands keyword]]
   - [[https://github.com/conao3/leaf.el#after-keyword][:after keyword]]
   - [[https://github.com/conao3/leaf.el#bind-bind-keywords][:bind, :bind* keywords]]
-  - [[#advice-keyword][:advice keyword]]
+  - [[#advice-advice-remove-keywords][:advice, :advice-remove keyword]]
 - [[https://github.com/conao3/leaf.el#configure-variables-keywords][Configure variables keywords]]
   - [[https://github.com/conao3/leaf.el#custom-custom-face--keywords][:custom :custom-face keywords]]
   - [[https://github.com/conao3/leaf.el#pre-setq-setq-setq-default-keywords][:pre-setq :setq :setq-default keywords]]
@@ -592,15 +592,17 @@ If you omit ~:package~, use leaf-block name as ~:package~ to lazy load.
                       ("M-O" . isearch-moccur-all))))))))
 #+end_src
 
-** :advice keyword
-~:advice~ provide frontend of ~advice-add~.
+** :advice, :advice-remove keywords
+~:advice~ provide frontend of ~advice-add~, and ~:advice-remove~ provide frontend of ~advice-remove~.
 
-This keyword accept list of ~(WHERE SYMBOL FUNCTION)~ or nested it.
+~:advice~ keyword accept list of ~(WHERE SYMBOL FUNCTION)~ or nested it.
 
 You can use all ~WHERE~ symbol such as
 (~:around~ ~:before~ ~:after~ ~:override~ ~:after-until~ ~:after-while~ ~:before-until~ ~:before-while~ ~:filter-args~ ~:filter-return~)
 
 ~SYMBOL~ is the adviced function symbol, ~FUNCTION~ is advice function symbol or lambda form.
+
+~:advice-remove~ must not specify ~WHERE~ keyword.
 
 #+begin_src emacs-lisp
   (cort-deftest-with-macroexpand leaf/advice
@@ -716,6 +718,25 @@ You can use all ~WHERE~ symbol such as
                                           (princ "around1 ==>")
                                           (apply f args)
                                         (princ "around1 <==")))))))))
+
+  (cort-deftest-with-macroexpand leaf/advice-remove
+    '(((leaf leaf
+         :advice-remove
+         (matu matu-around0)
+         (matu matu-before0))
+       (prog1 'leaf
+         (autoload (function matu-before0) "leaf" nil t)
+         (autoload #'matu-around0 "leaf" nil t)
+         (advice-remove 'matu #'matu-around0)
+         (advice-remove 'matu #'matu-before0)))
+
+      ((leaf leaf
+         :advice-remove ((:around matu matu-around0)
+                         (:before matu matu-before0)))
+       (prog1 'leaf
+         (autoload #'matu "leaf" nil t)
+         (advice-remove ':around #'matu)
+         (advice-remove ':before #'matu)))))
 #+end_src
 
 ** COMMENT :defaults keyword
