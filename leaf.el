@@ -5,13 +5,13 @@
 ;; Author: Naoya Yamashita <conao3@gmail.com>
 ;; Maintainer: Naoya Yamashita <conao3@gmail.com>
 ;; Keywords: lisp settings
-;; Version: 3.1.2
+;; Version: 3.1.3
 ;; URL: https://github.com/conao3/leaf.el
 ;; Package-Requires: ((emacs "24.4"))
 
 ;;   Abobe declared this package requires Emacs-24, but it's for warning
 ;;   suppression, and will actually work from Emacs-22.
-;;   But :advice, :advice-remove are not work Emacs-24.4 or lower.
+;;   But :advice, :advice-remove are not work Emacs-24.3 or lower.
 
 ;; This program is free software: you can redistribute it and/or modify
 ;; it under the terms of the Affero GNU General Public License as
