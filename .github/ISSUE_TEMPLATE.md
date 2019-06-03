@@ -17,4 +17,3 @@
   (leaf-handler-leaf-protect hoge
     (hoge-init)))
 ```
-
