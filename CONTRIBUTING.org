@@ -87,3 +87,11 @@ If you get output like this, my request will be satisfied.
 #+end_src
 
 You also use ~make check~ to show all test log and ~make allcheck~ to show all test log of all Emacs.
+
+** Add testcase
+You solve some issue or you add some new keywords,
+you should add testcase to ensure leaf.el work well in the future.
+
+I don't care where it is. Create a new cort-test block or add a test to an existing testcase block.
+
+If testcases cited in the README, it should also be corrected.
