@@ -1,0 +1,97 @@
+#+author: conao3
+#+date: <2019-06-04 Tue>
+
+* Contributing leaf.el
+Here is how software developers can contribute to ~leaf.el~.
+
+~leaf.el~ is planning to attach to Emacs, so you need to sign FSF to promote it.
+
+** Copyright assignments
+Fill below form and send <assign@gnu.org>.
+You also find more information at org-mode [[https://orgmode.org/worg/org-contribute.html#copyright-issues][contribution page]].
+
+#+begin_example
+Please email the following information to assign@gnu.org, and we
+will send you the assignment form for your past and future changes.
+
+Please use your full legal name (in ASCII characters) as the subject
+line of the message.
+----------------------------------------------------------------------
+REQUEST: SEND FORM FOR PAST AND FUTURE CHANGES
+
+[What is the name of the program or package you're contributing to?]
+
+  leaf.el, which plan to include ELPA; Emacs official package archive.
+
+[Did you copy any files or text written by someone else in these changes?
+Even if that material is free software, we need to know about it.]
+
+[Do you have an employer who might have a basis to claim to own
+your changes?  Do you attend a school which might make such a claim?]
+
+[For the copyright registration, what country are you a citizen of?]
+
+[What year were you born?]
+
+[Please write your email address here.]
+
+[Please write your postal address here.]
+
+[Which files have you changed so far, and which new files have you written so far?]
+#+end_example
+
+** Testing leaf.el
+~leaf.el~ has a lot of testcase and *every commit* pass them.
+And you also solve all warnings of byte-compiler except backquote issue.
+
+#+begin_src bash
+  # fork leaf.el on GitHub.
+  cd /your/working/dir
+  git clone git@github.com:{you}/leaf.el.git
+  cd leaf.el
+
+  # install git-hook in /your/working/dir/leaf.el/.git
+  make
+
+  # Change leaf.el code and commit.
+  git add .
+  git commit      # Run test before commit automatically.
+  :               # If fail testcase, the commit is refused.
+
+  # push your repository and create pull-request.
+  git push origin master
+#+end_src
+
+If you get output like this, my request will be satisfied.
+#+begin_src bash
+  git commit
+    Loading subst-ksc...
+    Loading subst-gb2312...
+    Loading subst-big5...
+    Loading subst-jis...
+  
+    In toplevel form:
+    leaf.el:457:1:Warning: !! The file uses old-style backquotes !!
+    This functionality has been obsolete for more than 10 years already
+    and will be removed soon.  See (elisp)Backquote in the manual.
+    Wrote /Users/conao/dev/repos/leaf.el/.make/silent-emacs-23.4/leaf.elc
+    Wrote /Users/conao/dev/repos/leaf.el/.make/silent-emacs-22.1/leaf.elc
+    Wrote /Users/conao/dev/repos/leaf.el/.make/silent-emacs-24.5/leaf.elc
+  
+    ===== Run 172 Tests, 172 Expected,  0 Failed,  0 Errored on Emacs-22.1.1 =====
+    ===== Run 172 Tests, 172 Expected,  0 Failed,  0 Errored on Emacs-23.4.1 =====
+    ===== Run 177 Tests, 177 Expected,  0 Failed,  0 Errored on Emacs-24.5.1 =====
+    ===== Run 177 Tests, 177 Expected,  0 Failed,  0 Errored on Emacs-25.3.1 =====
+    ===== Run 177 Tests, 177 Expected,  0 Failed,  0 Errored on Emacs-26.1 =====
+    ===== Run 177 Tests, 177 Expected,  0 Failed,  0 Errored on Emacs-26.2 =====
+#+end_src
+
+You also use ~make check~ to show all test log and ~make allcheck~ to show all test log of all Emacs.
+
+** Add testcase
+You solve some issue or you add some new keywords,
+you should add testcase to ensure leaf.el work well in the future.
+
+I don't care where it is. Create a new cort-test block or add a test to an existing testcase block.
+
+If testcases cited in the README, it should also be corrected.
