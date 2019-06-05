@@ -639,8 +639,8 @@ EXAMPLE:
       :config (message \"a\"))"
   (let ((retplist))
     (dolist (key (leaf-plist-keys leaf-keywords))
-      (if (plist-member plist key)
-          (setq retplist `(,@retplist ,key ,(plist-get plist key)))))
+      (when (plist-member plist key)
+        (setq retplist `(,@retplist ,key ,(plist-get plist key)))))
     retplist))
 
 (defun leaf-merge-dupkey-values-plist (plist)
