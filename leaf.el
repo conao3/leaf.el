@@ -645,7 +645,12 @@ EXAMPLE:
   (let ((retplist))
     (dolist (key (leaf-plist-keys leaf-keywords))
       (when (plist-member plist key)
-        (setq retplist `(,@retplist ,key ,(plist-get plist key)))))
+        (setq retplist `(,@retplist ,key ,(plist-get plist key)))
+        (plist-put plist key nil)))
+    (while plist
+      (let* ((key (pop plist)) (val (pop plist)))
+        (when val
+          (signal 'error `(,(format "leaf: Unrecognized keyword %s" (symbol-name key)))))))
     retplist))
 
 (defun leaf-merge-dupkey-values-plist (plist)
