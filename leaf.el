@@ -97,7 +97,6 @@ MESSAGE and ARGS are passed `format'."
 MESSAGE and ARGS are passed `format'."
   (display-warning 'leaf (apply #'format `(,message ,@args)) :error))
 
-
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
 ;;  For legacy Emacs
