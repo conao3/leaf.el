@@ -143,10 +143,8 @@ MESSAGE and ARGS are passed `format'."
   "Return flatten list of LST."
   (let ((fn))
     (if (fboundp 'mapcan)
-        (setq fn (lambda (lst)
-                   (if (atom lst) `(,lst) (mapcan fn lst))))
-      (setq fn (lambda (lst)
-                 (if (atom lst) `(,lst) (apply #'append (mapcar fn lst))))))
+        (setq fn (lambda (lst) (if (atom lst) `(,lst) (mapcan fn lst))))
+      (setq fn (lambda (lst) (if (atom lst) `(,lst) (leaf-mapcaappend fn lst)))))
     (funcall fn lst)))
 
 (defun leaf-subst (old new lst)
