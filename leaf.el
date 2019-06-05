@@ -160,58 +160,6 @@ MESSAGE and ARGS are passed `format'."
   (declare (indent 2))
   (mapcar (lambda (elm) (if (eq elm old) new elm)) lst))
 
-(defun leaf-insert-before (lst belm target)
-  "Insert TARGET before BELM in LST."
-  (declare (indent 2))
-  (let ((retlst) (frg))
-    (dolist (elm lst)
-      (if (eq elm belm)
-          (setq frg t
-                retlst (append `(,belm ,target) retlst))
-        (setq retlst (cons elm retlst))))
-    (unless frg
-      (warn (format "%s is not found in given list" belm)))
-    (nreverse retlst)))
-
-(defun leaf-insert-after (lst aelm target)
-  "Insert TARGET after AELM in LST."
-  (declare (indent 2))
-  (let ((retlst) (frg))
-    (dolist (elm lst)
-      (if (eq elm aelm)
-          (setq frg t
-                retlst (append `(,target ,aelm) retlst))
-        (setq retlst (cons elm retlst))))
-    (unless frg
-      (warn (format "%s is not found in given list" aelm)))
-    (nreverse retlst)))
-
-(defun leaf-insert-list-before (lst belm targetlst)
-  "Insert TARGETLST before BELM in LST."
-  (declare (indent 2))
-  (let ((retlst) (frg))
-    (dolist (elm lst)
-      (if (eq elm belm)
-          (setq frg t
-                retlst (append `(,belm ,@(reverse targetlst)) retlst))
-        (setq retlst (cons elm retlst))))
-    (unless frg
-      (warn (format "%s is not found in given list" belm)))
-    (nreverse retlst)))
-
-(defun leaf-insert-list-after (lst aelm targetlst)
-  "Insert TARGETLST after AELM in LST."
-  (declare (indent 2))
-  (let ((retlst) (frg))
-    (dolist (elm lst)
-      (if (eq elm aelm)
-          (setq frg t
-                retlst (append `(,@(reverse targetlst) ,aelm) retlst))
-        (setq retlst (cons elm retlst))))
-    (unless frg
-      (warn (format "%s is not found in given list" aelm)))
-    (nreverse retlst)))
-
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
 ;;  General plist functions
