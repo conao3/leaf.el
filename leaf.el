@@ -168,7 +168,7 @@ MESSAGE and ARGS are passed `format'."
 (defun leaf-plist-get (key plist &optional default)
   "`plist-get' with DEFAULT value in PLIST search KEY."
   (declare (indent 1))
-  (or (and (member key plist) (plist-get plist key)) default))
+  (or (and (plist-member plist key) (plist-get plist key)) default))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
