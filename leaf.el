@@ -159,11 +159,10 @@ MESSAGE and ARGS are passed `format'."
 
 (defun leaf-plist-keys (plist)
   "Get all keys of PLIST."
-  (let ((count 1) ret)
-    (dolist (elm plist)
-      (when (= 1 (mod count 2))
-        (setq ret (cons elm ret)))
-      (setq count (1+ count)))
+  (let ((ret))
+    (while plist
+      (setq ret (cons (pop plist) ret))
+      (pop plist))
     (nreverse ret)))
 
 (defun leaf-plist-get (key plist &optional default)
