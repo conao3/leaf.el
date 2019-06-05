@@ -130,6 +130,12 @@ MESSAGE and ARGS are passed `format'."
   (or (leaf-pairp (last var))           ; (a b c . d) => (pairp '(c . d))
       (leaf-pairp (last var 3))))       ; (a b c . 'd) => (pairp '(c . 'd))
 
+(defsubst leaf-sym-or-keyword (keyword)
+  "Return normalizied `intern'ed symbol from keyword or symbol."
+  (if (keywordp keyword)
+      (intern (substring (symbol-name keyword) 1))
+    keyword))
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
 ;;  General list functions
@@ -474,9 +480,7 @@ NOTE: BIND can also accept list of these."
                       bind))
              ((or (keywordp (car bind))
                   (symbolp (car bind)))
-              (let* ((map (if (keywordp (car bind))
-                              (intern (substring (symbol-name (car bind)) 1))
-                            (car bind)))
+              (let* ((map (leaf-sym-or-keyword (car bind)))
                      (pkg (leaf-plist-get :package (cdr bind)))
                      (pkgs (if (atom pkg) `(,pkg) pkg))
                      (elmbind (if pkg (nthcdr 3 bind) (nthcdr 1 bind)))
