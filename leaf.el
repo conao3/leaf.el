@@ -653,14 +653,12 @@ EXAMPLE:
       :config ((message \"c\"))))
   => (:defer (t)
       :config ((message \"a\") (message \"b\") (message \"c\")))"
-  (let ((retplist) (key) (value))
+  (let ((retplist))
     (while plist
-      (setq key (pop plist))
-      (setq value (pop plist))
-
-      (if (plist-member retplist key)
-          (plist-put retplist key `(,@(plist-get retplist key) ,@value))
-        (setq retplist `(,@retplist ,key ,value))))
+      (let* ((key (pop plist)) (value (pop plist)))
+        (if (plist-member retplist key)
+            (plist-put retplist key `(,@(plist-get retplist key) ,@value))
+          (setq retplist `(,@retplist ,key ,value)))))
     retplist))
 
 (defun leaf-normalize-plist (plist &optional mergep evalp)
