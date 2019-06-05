@@ -116,10 +116,6 @@ MESSAGE and ARGS are passed `format'."
 ;;  General functions
 ;;
 
-(defsubst leaf-truep (var)
-  "Return t if VAR is non-nil."
-  (not (not var)))
-
 (defsubst leaf-pairp (var &optional allow)
   "Return t if VAR is pair.  If ALLOW is non-nil, allow nil as last element."
   (and (listp var)
@@ -141,8 +137,7 @@ MESSAGE and ARGS are passed `format'."
 
 (defsubst leaf-list-memq (symlist list)
   "Return t if LIST contained element of SYMLIST."
-  (leaf-truep
-   (delq nil (mapcar (lambda (x) (memq x list)) symlist))))
+  (delq nil (mapcar (lambda (x) (memq x list)) symlist)))
 
 (defun leaf-flatten (lst)
   "Return flatten list of LST."
