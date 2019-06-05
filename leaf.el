@@ -5,7 +5,7 @@
 ;; Author: Naoya Yamashita <conao3@gmail.com>
 ;; Maintainer: Naoya Yamashita <conao3@gmail.com>
 ;; Keywords: lisp settings
-;; Version: 3.1.7
+;; Version: 3.1.8
 ;; URL: https://github.com/conao3/leaf.el
 ;; Package-Requires: ((emacs "24.4"))
 
@@ -97,7 +97,6 @@ MESSAGE and ARGS are passed `format'."
 MESSAGE and ARGS are passed `format'."
   (display-warning 'leaf (apply #'format `(,message ,@args)) :error))
 
-
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
 ;;  For legacy Emacs
@@ -117,10 +116,6 @@ MESSAGE and ARGS are passed `format'."
 ;;  General functions
 ;;
 
-(defsubst leaf-truep (var)
-  "Return t if VAR is non-nil."
-  (not (not var)))
-
 (defsubst leaf-pairp (var &optional allow)
   "Return t if VAR is pair.  If ALLOW is non-nil, allow nil as last element."
   (and (listp var)
@@ -135,6 +130,12 @@ MESSAGE and ARGS are passed `format'."
   (or (leaf-pairp (last var))           ; (a b c . d) => (pairp '(c . d))
       (leaf-pairp (last var 3))))       ; (a b c . 'd) => (pairp '(c . 'd))
 
+(defsubst leaf-sym-or-keyword (keyword)
+  "Return normalizied `intern'ed symbol from keyword or symbol."
+  (if (keywordp keyword)
+      (intern (substring (symbol-name keyword) 1))
+    keyword))
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
 ;;  General list functions
@@ -142,75 +143,20 @@ MESSAGE and ARGS are passed `format'."
 
 (defsubst leaf-list-memq (symlist list)
   "Return t if LIST contained element of SYMLIST."
-  (leaf-truep
-   (delq nil (mapcar (lambda (x) (memq x list)) symlist))))
+  (delq nil (mapcar (lambda (x) (memq x list)) symlist)))
 
 (defun leaf-flatten (lst)
   "Return flatten list of LST."
   (let ((fn))
     (if (fboundp 'mapcan)
-        (setq fn (lambda (lst)
-                   (if (atom lst) `(,lst) (mapcan fn lst))))
-      (setq fn (lambda (lst)
-                 (if (atom lst) `(,lst) (apply #'append (mapcar fn lst))))))
+        (setq fn (lambda (lst) (if (atom lst) `(,lst) (mapcan fn lst))))
+      (setq fn (lambda (lst) (if (atom lst) `(,lst) (leaf-mapcaappend fn lst)))))
     (funcall fn lst)))
 
 (defun leaf-subst (old new lst)
   "Substitute NEW for OLD in LST."
   (declare (indent 2))
   (mapcar (lambda (elm) (if (eq elm old) new elm)) lst))
-
-(defun leaf-insert-before (lst belm target)
-  "Insert TARGET before BELM in LST."
-  (declare (indent 2))
-  (let ((retlst) (frg))
-    (dolist (elm lst)
-      (if (eq elm belm)
-          (setq frg t
-                retlst (append `(,belm ,target) retlst))
-        (setq retlst (cons elm retlst))))
-    (unless frg
-      (warn (format "%s is not found in given list" belm)))
-    (nreverse retlst)))
-
-(defun leaf-insert-after (lst aelm target)
-  "Insert TARGET after AELM in LST."
-  (declare (indent 2))
-  (let ((retlst) (frg))
-    (dolist (elm lst)
-      (if (eq elm aelm)
-          (setq frg t
-                retlst (append `(,target ,aelm) retlst))
-        (setq retlst (cons elm retlst))))
-    (unless frg
-      (warn (format "%s is not found in given list" aelm)))
-    (nreverse retlst)))
-
-(defun leaf-insert-list-before (lst belm targetlst)
-  "Insert TARGETLST before BELM in LST."
-  (declare (indent 2))
-  (let ((retlst) (frg))
-    (dolist (elm lst)
-      (if (eq elm belm)
-          (setq frg t
-                retlst (append `(,belm ,@(reverse targetlst)) retlst))
-        (setq retlst (cons elm retlst))))
-    (unless frg
-      (warn (format "%s is not found in given list" belm)))
-    (nreverse retlst)))
-
-(defun leaf-insert-list-after (lst aelm targetlst)
-  "Insert TARGETLST after AELM in LST."
-  (declare (indent 2))
-  (let ((retlst) (frg))
-    (dolist (elm lst)
-      (if (eq elm aelm)
-          (setq frg t
-                retlst (append `(,@(reverse targetlst) ,aelm) retlst))
-        (setq retlst (cons elm retlst))))
-    (unless frg
-      (warn (format "%s is not found in given list" aelm)))
-    (nreverse retlst)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
@@ -219,19 +165,16 @@ MESSAGE and ARGS are passed `format'."
 
 (defun leaf-plist-keys (plist)
   "Get all keys of PLIST."
-  (let ((count 1) ret)
-    (dolist (elm plist)
-      (when (= 1 (mod count 2))
-        (setq ret (cons elm ret)))
-      (setq count (1+ count)))
+  (let ((ret))
+    (while plist
+      (setq ret (cons (pop plist) ret))
+      (pop plist))
     (nreverse ret)))
 
 (defun leaf-plist-get (key plist &optional default)
   "`plist-get' with DEFAULT value in PLIST search KEY."
   (declare (indent 1))
-  (if (member key plist)
-      (plist-get plist key)
-    default))
+  (or (and (plist-member plist key) (plist-get plist key)) default))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
@@ -537,9 +480,7 @@ NOTE: BIND can also accept list of these."
                       bind))
              ((or (keywordp (car bind))
                   (symbolp (car bind)))
-              (let* ((map (if (keywordp (car bind))
-                              (intern (substring (symbol-name (car bind)) 1))
-                            (car bind)))
+              (let* ((map (leaf-sym-or-keyword (car bind)))
                      (pkg (leaf-plist-get :package (cdr bind)))
                      (pkgs (if (atom pkg) `(,pkg) pkg))
                      (elmbind (if pkg (nthcdr 3 bind) (nthcdr 1 bind)))
@@ -702,8 +643,8 @@ EXAMPLE:
       :config (message \"a\"))"
   (let ((retplist))
     (dolist (key (leaf-plist-keys leaf-keywords))
-      (if (plist-member plist key)
-          (setq retplist `(,@retplist ,key ,(plist-get plist key)))))
+      (when (plist-member plist key)
+        (setq retplist `(,@retplist ,key ,(plist-get plist key)))))
     retplist))
 
 (defun leaf-merge-dupkey-values-plist (plist)
@@ -716,14 +657,12 @@ EXAMPLE:
       :config ((message \"c\"))))
   => (:defer (t)
       :config ((message \"a\") (message \"b\") (message \"c\")))"
-  (let ((retplist) (key) (value))
+  (let ((retplist))
     (while plist
-      (setq key (pop plist))
-      (setq value (pop plist))
-
-      (if (plist-member retplist key)
-          (plist-put retplist key `(,@(plist-get retplist key) ,@value))
-        (setq retplist `(,@retplist ,key ,value))))
+      (let* ((key (pop plist)) (value (pop plist)))
+        (if (plist-member retplist key)
+            (plist-put retplist key `(,@(plist-get retplist key) ,@value))
+          (setq retplist `(,@retplist ,key ,value)))))
     retplist))
 
 (defun leaf-normalize-plist (plist &optional mergep evalp)
