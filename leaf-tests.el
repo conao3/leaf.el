@@ -1764,24 +1764,24 @@ Example:
 (cort-deftest-with-macroexpand leaf/handler-package
   '(((leaf macrostep :ensure t)
      (prog1 'macrostep
-       (leaf-handler-package macrostep macrostep nil))
+       (leaf-handler-package macrostep macrostep nil)))
 
-     ((leaf-handler-package macrostep macrostep nil)
-      (unless
-          (package-installed-p 'macrostep)
-        (condition-case err
-            (progn
-              (unless (assoc 'macrostep package-archive-contents)
-                (package-refresh-contents))
-              (package-install 'macrostep))
-          (error
-           (condition-case err
-               (progn
-                 (package-refresh-contents)
-                 (package-install 'macrostep))
-             (error
-              (leaf-error "In `macrostep' block, failed to :package of macrostep.  Error msg: %s"
-                          (error-message-string err)))))))))))
+    ((leaf-handler-package macrostep macrostep nil)
+     (unless (package-installed-p 'macrostep)
+       (condition-case err
+           (progn
+             (unless (assoc 'macrostep package-archive-contents)
+               (package-refresh-contents))
+             (package-install 'macrostep))
+         (error
+          (condition-case err
+              (progn
+                (package-refresh-contents)
+                (package-install 'macrostep))
+            (error
+             (signal 'error
+                     (format "In `macrostep' block, failed to :package of macrostep.  Error msg: %s"
+                             (error-message-string err)))))))))))
 
 (when (version< "24.0" emacs-version)
   (cort-deftest-with-macroexpand leaf/leaf-key

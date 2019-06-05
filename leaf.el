@@ -553,10 +553,11 @@ FN also accept list of FN."
               (package-refresh-contents)
               (package-install ',pkg))
           (error
-           (leaf-error
-            ,(format "In `%s' block, failed to :package of %s.  Error msg: %%s"
-                     name pkg)
-            (error-message-string err))))))))
+           (signal 'error
+                   (format
+                    ,(format "In `%s' block, failed to :package of %s.  Error msg: %%s"
+                             name pkg)
+                          (error-message-string err)))))))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
