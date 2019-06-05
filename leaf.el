@@ -5,7 +5,7 @@
 ;; Author: Naoya Yamashita <conao3@gmail.com>
 ;; Maintainer: Naoya Yamashita <conao3@gmail.com>
 ;; Keywords: lisp settings
-;; Version: 3.1.9
+;; Version: 3.2.0
 ;; URL: https://github.com/conao3/leaf.el
 ;; Package-Requires: ((emacs "24.4"))
 
@@ -645,7 +645,12 @@ EXAMPLE:
   (let ((retplist))
     (dolist (key (leaf-plist-keys leaf-keywords))
       (when (plist-member plist key)
-        (setq retplist `(,@retplist ,key ,(plist-get plist key)))))
+        (setq retplist `(,@retplist ,key ,(plist-get plist key)))
+        (plist-put plist key nil)))
+    (while plist
+      (let* ((key (pop plist)) (val (pop plist)))
+        (when val
+          (signal 'error `(,(format "leaf: Unrecognized keyword %s" (symbol-name key)))))))
     retplist))
 
 (defun leaf-merge-dupkey-values-plist (plist)
