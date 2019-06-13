@@ -971,6 +971,15 @@ Example:
      (prog1 'web-mode
        (autoload #'web-mode "web-mode" nil t)
        (add-to-list 'auto-mode-alist '("\\.js\\'" . web-mode))
+       (add-to-list 'auto-mode-alist '("\\.p?html?\\'" . web-mode))))
+
+    ((leaf web-mode
+       :mode (("\\.html\\'" . web-mode)
+              (("\\.js\\'" "\\.p?html?\\'") . web-mode)))
+     (prog1 'web-mode
+       (autoload #'web-mode "web-mode" nil t)
+       (add-to-list 'auto-mode-alist '("\\.html\\'" . web-mode))
+       (add-to-list 'auto-mode-alist '("\\.js\\'" . web-mode))
        (add-to-list 'auto-mode-alist '("\\.p?html?\\'" . web-mode))))))
 
 (cort-deftest-with-macroexpand leaf/interpreter
