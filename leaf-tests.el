@@ -94,6 +94,22 @@
 ;;  support macros for test definition
 ;;
 
+(defmacro cort-deftest-with-equal (name form)
+  "Return `cort-deftest' compare by `equal' for NAME, FORM.
+
+Example:
+  (p (cort-deftest-with-equal leaf/disabled
+       '((asdf asdf-fn)
+         (uiop uiop-fn))))
+   => (cort-deftest leaf/disabled
+        '((:equal 'asdf asdf-fn)
+          (:equal 'uiop uiop-fn)))"
+  (declare (indent 1))
+  `(cort-deftest ,name
+     ',(mapcar (lambda (elm)
+                 `(:equal ,(cadr elm) ,(car elm)))
+               (cadr form))))
+
 (defmacro cort-deftest-with-macroexpand (name form)
   "Return `cort-deftest' compare by `equal' for NAME, FORM.
 
@@ -258,25 +274,7 @@ Example:
        (leaf-handler-package leaf feather nil)
        (leaf-handler-package leaf leaf-key nil)
        (leaf-handler-package leaf leaf-browser nil)
-       (leaf-init)))
-
-    ;;    :package (((feather) leaf-key) leaf-browser)
-    ;;    :config (leaf-init))
-    ;;  (progn
-    ;;    (leaf-handler-package leaf 'feather nil)
-    ;;    (leaf-handler-package leaf 'leaf-key nil)
-    ;;    (leaf-handler-package leaf 'leaf-browser nil)
-    ;;    (leaf-init)))
-
-    ;; ((leaf leaf
-    ;;    :package (((feather . elpa-archive) leaf-key) leaf-browser . stable)
-    ;;    :config (leaf-init))
-    ;;  (progn
-    ;;    (leaf-handler-package leaf 'feather elpa-archive)
-    ;;    (leaf-handler-package leaf 'leaf-key stable)
-    ;;    (leaf-handler-package leaf 'leaf-browser stable)
-    ;;    (leaf-init)))
-    ))
+       (leaf-init)))))
 
 (cort-deftest-with-macroexpand leaf/doc
   '(((leaf leaf
@@ -412,34 +410,11 @@ Example:
        (declare-function leaf-normalize-plist "leaf")
        (declare-function leaf-merge-dupkey-values-plist "leaf")))
 
-    ;; ((leaf leaf
-    ;;    :defun (leaf
-    ;;             (leaf-normalize-plist
-    ;;              (leaf-merge-dupkey-values-plist))))
-    ;;  (progn
-    ;;    (declare-function leaf "leaf")
-    ;;    (declare-function leaf-normalize-plist "leaf")
-    ;;    (declare-function leaf-merge-dupkey-values-plist "leaf")))
-
-    ;; ((leaf leaf
-    ;;    :defun (lbrowser-open lbrowser-close . leaf-browser))
-    ;;  (progn
-    ;;    (declare-function lbrowser-open "leaf-browser")
-    ;;    (declare-function lbrowser-close "leaf-browser")))
-
-    ;; ((leaf leaf
-    ;;    :defun ((lbrowser-open (lbrowser-close) . leaf) . leaf-browser))
-    ;;  (progn
-    ;;    (declare-function lbrowser-open "leaf")
-    ;;    (declare-function lbrowser-close "leaf")))
-
-    ;; ((leaf leaf
-    ;;    :defun ((lbrowser-open (lbrowser-close) . leaf) leaf-asdf . leaf-browser))
-    ;;  (progn
-    ;;    (declare-function lbrowser-open "leaf")
-    ;;    (declare-function lbrowser-close "leaf")
-    ;;    (declare-function leaf-asdf "leaf-browser")))
-    ))
+    ((leaf leaf
+       :defun ((lbrowser-open lbrowser-close) . leaf-browser))
+     (prog1 'leaf
+       (declare-function lbrowser-open "leaf-browser")
+       (declare-function lbrowser-close "leaf-browser")))))
 
 (cort-deftest-with-macroexpand leaf/defvar
   '(((leaf leaf
@@ -698,7 +673,7 @@ Example:
 
     ;; ((leaf leaf
     ;;    :custom ((leaf-backend-bind leaf-backend-bind*) . 'bind-key))
-    ;;  (progn
+    ;;  (prog1 'leaf
     ;;    (custom-set-variables
     ;;     '(leaf-backend-bind 'bind-key "Customized with leaf in leaf block")
     ;;     '(leaf-backend-bind* 'bind-key "Customized with leaf in leaf block"))))
@@ -707,7 +682,7 @@ Example:
     ;;    :custom
     ;;    (leaf-backend-ensure . 'feather)
     ;;    ((leaf-backend-bind leaf-backend-bind*) . 'bind-key))
-    ;;  (progn
+    ;;  (prog1 'leaf
     ;;    (custom-set-variables
     ;;     '(leaf-backend-ensure 'feather "Customized with leaf in leaf block")
     ;;     '(leaf-backend-bind 'bind-key "Customized with leaf in leaf block")
@@ -716,7 +691,7 @@ Example:
     ;; ((leaf leaf
     ;;    :custom ((leaf-backend-ensure . 'feather)
     ;;             ((leaf-backend-bind leaf-backend-bind*) . 'bind-key)))
-    ;;  (progn
+    ;;  (prog1 'leaf
     ;;    (custom-set-variables
     ;;     '(leaf-backend-ensure 'feather "Customized with leaf in leaf block")
     ;;     '(leaf-backend-bind 'bind-key "Customized with leaf in leaf block")
@@ -745,10 +720,10 @@ Example:
     ;; ((leaf eruby-mode
     ;;    :custom-face
     ;;    ((default eruby-standard-face) . '((t (:slant italic)))))
-    ;;  (progn
+    ;;  (prog1 'eruby-mode
     ;;    (custom-set-faces
-    ;;     '(default (((t (:slant italic)))))
-    ;;     '(eruby-standard-face (((t (:slant italic))))))))
+    ;;     '(default ((t (:slant italic))))
+    ;;     '(eruby-standard-face ((t (:slant italic)))))))
     ))
 
 (cort-deftest-with-macroexpand leaf/bind
@@ -991,29 +966,12 @@ Example:
        (add-to-list 'auto-mode-alist '("\\.js\\'" . web-mode))
        (add-to-list 'auto-mode-alist '("\\.p?html?\\'" . web-mode))))
 
-    ;; ((leaf web-mode
-    ;;    :mode ("\\.js\\'" ("\\.p?html?\\'")))
-    ;;  (progn
-    ;;    (autoload #'web-mode "web-mode" nil t)
-    ;;    (add-to-list 'auto-mode-alist '("\\.js\\'" . web-mode))
-    ;;    (add-to-list 'auto-mode-alist '("\\.p?html?\\'" . web-mode))))
-
-    ;; ((leaf web-mode
-    ;;    :mode (("\\.js\\'" "\\.p?html?\\'") . web-mode))
-    ;;  (progn
-    ;;    (autoload #'web-mode "web-mode" nil t)
-    ;;    (add-to-list 'auto-mode-alist '("\\.js\\'" . web-mode))
-    ;;    (add-to-list 'auto-mode-alist '("\\.p?html?\\'" . web-mode))))
-
-    ;; ((leaf web-mode
-    ;;    :mode (("\\.phtml?\\'" "\\.html?\\'" . web-html-mode) "\\.js\\'" . web-mode))
-    ;;  (progn
-    ;;    (autoload #'web-html-mode "web-mode" nil t)
-    ;;    (autoload #'web-mode "web-mode" nil t)
-    ;;    (add-to-list 'auto-mode-alist '("\\.phtml?\\'" . web-html-mode))
-    ;;    (add-to-list 'auto-mode-alist '("\\.html?\\'" . web-html-mode))
-    ;;    (add-to-list 'auto-mode-alist '("\\.js\\'" . web-mode))))
-    ))
+    ((leaf web-mode
+       :mode (("\\.js\\'" "\\.p?html?\\'") . web-mode))
+     (prog1 'web-mode
+       (autoload #'web-mode "web-mode" nil t)
+       (add-to-list 'auto-mode-alist '("\\.js\\'" . web-mode))
+       (add-to-list 'auto-mode-alist '("\\.p?html?\\'" . web-mode))))))
 
 (cort-deftest-with-macroexpand leaf/interpreter
   '(((leaf ruby-mode
@@ -1041,29 +999,12 @@ Example:
        (add-to-list 'interpreter-mode-alist '("js" . web-mode))
        (add-to-list 'interpreter-mode-alist '("p?html?" . web-mode))))
 
-    ;; ((leaf web-mode
-    ;;    :interpreter ("js" ("p?html?")))
-    ;;  (progn
-    ;;    (autoload #'web-mode "web-mode" nil t)
-    ;;    (add-to-list 'interpreter-mode-alist '("js" . web-mode))
-    ;;    (add-to-list 'interpreter-mode-alist '("p?html?" . web-mode))))
-
-    ;; ((leaf web-mode
-    ;;    :interpreter (("js" "p?html?") . web-mode))
-    ;;  (progn
-    ;;    (autoload #'web-mode "web-mode" nil t)
-    ;;    (add-to-list 'interpreter-mode-alist '("js" . web-mode))
-    ;;    (add-to-list 'interpreter-mode-alist '("p?html?" . web-mode))))
-
-    ;; ((leaf web-mode
-    ;;    :interpreter (("phtml?" "html?" . web-html-mode) "js" . web-mode))
-    ;;  (progn
-    ;;    (autoload #'web-html-mode "web-mode" nil t)
-    ;;    (autoload #'web-mode "web-mode" nil t)
-    ;;    (add-to-list 'interpreter-mode-alist '("phtml?" . web-html-mode))
-    ;;    (add-to-list 'interpreter-mode-alist '("html?" . web-html-mode))
-    ;;    (add-to-list 'interpreter-mode-alist '("js" . web-mode))))
-    ))
+    ((leaf web-mode
+       :interpreter (("js" "p?html?") . web-mode))
+     (prog1 'web-mode
+       (autoload #'web-mode "web-mode" nil t)
+       (add-to-list 'interpreter-mode-alist '("js" . web-mode))
+       (add-to-list 'interpreter-mode-alist '("p?html?" . web-mode))))))
 
 (cort-deftest-with-macroexpand leaf/magic
   '(((leaf pdf-tools
@@ -1091,29 +1032,12 @@ Example:
        (add-to-list 'magic-mode-alist '("js" . web-mode))
        (add-to-list 'magic-mode-alist '("p?html?" . web-mode))))
 
-    ;; ((leaf web-mode
-    ;;    :magic ("js" ("p?html?")))
-    ;;  (progn
-    ;;    (autoload #'web-mode "web-mode" nil t)
-    ;;    (add-to-list 'magic-mode-alist '("js" . web-mode))
-    ;;    (add-to-list 'magic-mode-alist '("p?html?" . web-mode))))
-
-    ;; ((leaf web-mode
-    ;;    :magic (("js" "p?html?") . web-mode))
-    ;;  (progn
-    ;;    (autoload #'web-mode "web-mode" nil t)
-    ;;    (add-to-list 'magic-mode-alist '("js" . web-mode))
-    ;;    (add-to-list 'magic-mode-alist '("p?html?" . web-mode))))
-
-    ;; ((leaf web-mode
-    ;;    :magic (("phtml?" "html?" . web-html-mode) "js" . web-mode))
-    ;;  (progn
-    ;;    (autoload #'web-html-mode "web-mode" nil t)
-    ;;    (autoload #'web-mode "web-mode" nil t)
-    ;;    (add-to-list 'magic-mode-alist '("phtml?" . web-html-mode))
-    ;;    (add-to-list 'magic-mode-alist '("html?" . web-html-mode))
-    ;;    (add-to-list 'magic-mode-alist '("js" . web-mode))))
-    ))
+    ((leaf web-mode
+       :magic (("js" "p?html?") . web-mode))
+     (prog1 'web-mode
+       (autoload #'web-mode "web-mode" nil t)
+       (add-to-list 'magic-mode-alist '("js" . web-mode))
+       (add-to-list 'magic-mode-alist '("p?html?" . web-mode))))))
 
 (cort-deftest-with-macroexpand leaf/magic-fallback
   '(((leaf pdf-tools
@@ -1141,29 +1065,12 @@ Example:
        (add-to-list 'magic-fallback-mode-alist '("js" . web-mode))
        (add-to-list 'magic-fallback-mode-alist '("p?html?" . web-mode))))
 
-    ;; ((leaf web-mode
-    ;;    :magic-fallback ("js" ("p?html?")))
-    ;;  (progn
-    ;;    (autoload #'web-mode "web-mode" nil t)
-    ;;    (add-to-list 'magic-fallback-mode-alist '("js" . web-mode))
-    ;;    (add-to-list 'magic-fallback-mode-alist '("p?html?" . web-mode))))
-
-    ;; ((leaf web-mode
-    ;;    :magic-fallback (("js" "p?html?") . web-mode))
-    ;;  (progn
-    ;;    (autoload #'web-mode "web-mode" nil t)
-    ;;    (add-to-list 'magic-fallback-mode-alist '("js" . web-mode))
-    ;;    (add-to-list 'magic-fallback-mode-alist '("p?html?" . web-mode))))
-
-    ;; ((leaf web-mode
-    ;;    :magic-fallback (("phtml?" "html?" . web-html-mode) "js" . web-mode))
-    ;;  (progn
-    ;;    (autoload #'web-html-mode "web-mode" nil t)
-    ;;    (autoload #'web-mode "web-mode" nil t)
-    ;;    (add-to-list 'magic-fallback-mode-alist '("phtml?" . web-html-mode))
-    ;;    (add-to-list 'magic-fallback-mode-alist '("html?" . web-html-mode))
-    ;;    (add-to-list 'magic-fallback-mode-alist '("js" . web-mode))))
-    ))
+    ((leaf web-mode
+       :magic-fallback (("js" "p?html?") . web-mode))
+     (prog1 'web-mode
+       (autoload #'web-mode "web-mode" nil t)
+       (add-to-list 'magic-fallback-mode-alist '("js" . web-mode))
+       (add-to-list 'magic-fallback-mode-alist '("p?html?" . web-mode))))))
 
 (cort-deftest-with-macroexpand leaf/hook
   '(((leaf ace-jump-mode
@@ -1189,13 +1096,6 @@ Example:
        (add-hook 'cc-mode-hook #'ace-jump-mode)
        (add-hook 'prog-mode-hook #'ace-jump-mode)))
 
-    ;; ((leaf ace-jump-mode
-    ;;    :hook (cc-mode-hook (prog-mode-hook)))
-    ;;  (progn
-    ;;    (autoload #'ace-jump-mode "ace-jump-mode" nil t)
-    ;;    (add-hook 'cc-mode-hook #'ace-jump-mode)
-    ;;    (add-hook 'prog-mode-hook #'ace-jump-mode)))
-
     ((leaf ace-jump-mode
        :hook cc-mode-hook (prog-mode-hook . my-ace-jump-mode))
      (prog1 'ace-jump-mode
@@ -1204,22 +1104,12 @@ Example:
        (add-hook 'cc-mode-hook #'ace-jump-mode)
        (add-hook 'prog-mode-hook #'my-ace-jump-mode)))
 
-    ;; ((leaf ace-jump-mode
-    ;;    :hook ((cc-mode-hook prog-mode-hook) . my-ace-jump-mode))
-    ;;  (progn
-    ;;    (autoload #'my-ace-jump-mode "ace-jump-mode" nil t)
-    ;;    (add-hook 'cc-mode-hook #'my-ace-jump-mode)
-    ;;    (add-hook 'prog-mode-hook #'my-ace-jump-mode)))
-
-    ;; ((leaf ace-jump-mode
-    ;;    :hook ((cc-mode-hook prog-mode-hook . ace-jump-mode) isearch-mode . my-ace-jump-mode))
-    ;;  (progn
-    ;;    (autoload #'ace-jump-mode "ace-jump-mode" nil t)
-    ;;    (autoload #'my-ace-jump-mode "ace-jump-mode" nil t)
-    ;;    (add-hook 'cc-mode-hook #'ace-jump-mode)
-    ;;    (add-hook 'prog-mode-hook #'ace-jump-mode)
-    ;;    (add-hook 'isearch-mode #'my-ace-jump-mode)))
-    ))
+    ((leaf ace-jump-mode
+       :hook ((cc-mode-hook prog-mode-hook) . my-ace-jump-mode))
+     (prog1 'ace-jump-mode
+       (autoload #'my-ace-jump-mode "ace-jump-mode" nil t)
+       (add-hook 'cc-mode-hook #'my-ace-jump-mode)
+       (add-hook 'prog-mode-hook #'my-ace-jump-mode)))))
 
 (cort-deftest-with-macroexpand leaf/advice
   '(((leaf leaf
@@ -1419,25 +1309,9 @@ Example:
        (require 'leaf)))
 
     ;; ((leaf leaf
-    ;;    :pre-setq (leaf-backend-bind leaf-backend-bind* . 'bind-key)
-    ;;    :require t)
-    ;;  (progn
-    ;;    (setq leaf-backend-bind 'bind-key)
-    ;;    (setq leaf-backend-bind* 'bind-key)
-    ;;    (require 'leaf)))
-
-    ;; ((leaf leaf
-    ;;    :pre-setq ((leaf-backend-bind) leaf-backend-bind* . 'bind-key)
-    ;;    :require t)
-    ;;  (progn
-    ;;    (setq leaf-backend-bind 'bind-key)
-    ;;    (setq leaf-backend-bind* 'bind-key)
-    ;;    (require 'leaf)))
-
-    ;; ((leaf leaf
     ;;    :pre-setq ((leaf-backend-bind leaf-backend-bind*) . 'bind-key)
     ;;    :require t)
-    ;;  (progn
+    ;;  (prog1 'leaf
     ;;    (setq leaf-backend-bind 'bind-key)
     ;;    (setq leaf-backend-bind* 'bind-key)
     ;;    (require 'leaf)))
@@ -1569,25 +1443,9 @@ Example:
        (setq leaf-backend-bind* 'bind-key)))
 
     ;; ((leaf leaf
-    ;;    :setq (leaf-backend-bind leaf-backend-bind* . 'bind-key)
-    ;;    :require t)
-    ;;  (progn
-    ;;    (require 'leaf)
-    ;;    (setq leaf-backend-bind 'bind-key)
-    ;;    (setq leaf-backend-bind* 'bind-key)))
-
-    ;; ((leaf leaf
-    ;;    :setq ((leaf-backend-bind) leaf-backend-bind* . 'bind-key)
-    ;;    :require t)
-    ;;  (progn
-    ;;    (require 'leaf)
-    ;;    (setq leaf-backend-bind 'bind-key)
-    ;;    (setq leaf-backend-bind* 'bind-key)))
-
-    ;; ((leaf leaf
     ;;    :setq ((leaf-backend-bind leaf-backend-bind*) . 'bind-key)
     ;;    :require t)
-    ;;  (progn
+    ;;  (prog1 'leaf
     ;;    (require 'leaf)
     ;;    (setq leaf-backend-bind 'bind-key)
     ;;    (setq leaf-backend-bind* 'bind-key)))
@@ -1623,25 +1481,9 @@ Example:
        (setq-default leaf-backend-bind* 'bind-key)))
 
     ;; ((leaf leaf
-    ;;    :setq-default (leaf-backend-bind leaf-backend-bind* . 'bind-key)
-    ;;    :require t)
-    ;;  (progn
-    ;;    (require 'leaf)
-    ;;    (setq-default leaf-backend-bind 'bind-key)
-    ;;    (setq-default leaf-backend-bind* 'bind-key)))
-
-    ;; ((leaf leaf
-    ;;    :setq-default ((leaf-backend-bind) leaf-backend-bind* . 'bind-key)
-    ;;    :require t)
-    ;;  (progn
-    ;;    (require 'leaf)
-    ;;    (setq-default leaf-backend-bind 'bind-key)
-    ;;    (setq-default leaf-backend-bind* 'bind-key)))
-
-    ;; ((leaf leaf
     ;;    :setq-default ((leaf-backend-bind leaf-backend-bind*) . 'bind-key)
     ;;    :require t)
-    ;;  (progn
+    ;;  (prog1 'leaf
     ;;    (require 'leaf)
     ;;    (setq-default leaf-backend-bind 'bind-key)
     ;;    (setq-default leaf-backend-bind* 'bind-key)))
@@ -2117,6 +1959,51 @@ Example:
       (:leaf-key-override-global-map
        ("C-c C-n" . go-run)
        ("C-c ." . go-test-current-test))))))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;
+;;  Misc functions
+;;
+
+(cort-deftest-with-equal leaf/normalize-list-in-list--normal
+  '(((leaf-normalize-list-in-list 'a)                   '(a))
+    ((leaf-normalize-list-in-list '(a b c))             '(a b c))
+    ((leaf-normalize-list-in-list '(a . b))             '(a . b))
+    ((leaf-normalize-list-in-list '(a . nil))           '(a . nil))
+    ((leaf-normalize-list-in-list '(a . 'b))            '(a . 'b))
+    ((leaf-normalize-list-in-list '(a . 'nil))          '(a . 'nil))
+    ((leaf-normalize-list-in-list '(a))                 '(a . nil))
+    ((leaf-normalize-list-in-list '((a . b) (c . d)))   '((a . b) (c . d)))
+    ((leaf-normalize-list-in-list '((a . 'b) (c . 'd))) '((a . 'b) (c . 'd)))
+    ((leaf-normalize-list-in-list '((a) (b) (c)))       '((a) (b) (c)))
+    ((leaf-normalize-list-in-list '((a b c) . d))       '((a b c) . d))
+    ((leaf-normalize-list-in-list '((a b c) . 'd))      '((a b c) . 'd))))
+
+(cort-deftest-with-equal leaf/normalize-list-in-list--dotlist
+  '(((leaf-normalize-list-in-list 'a                   'dotlist) '(a))
+    ((leaf-normalize-list-in-list '(a b c)             'dotlist) '(a b c))
+    ((leaf-normalize-list-in-list '(a . b)             'dotlist) '((a . b)))
+    ((leaf-normalize-list-in-list '(a . nil)           'dotlist) '((a . nil)))
+    ((leaf-normalize-list-in-list '(a . 'b)            'dotlist) '((a . 'b)))
+    ((leaf-normalize-list-in-list '(a . 'nil)          'dotlist) '((a . 'nil)))
+    ((leaf-normalize-list-in-list '(a)                 'dotlist) '((a . nil)))
+    ((leaf-normalize-list-in-list '((a . b) (c . d))   'dotlist) '((a . b) (c . d)))
+    ((leaf-normalize-list-in-list '((a . 'b) (c . 'd)) 'dotlist) '((a . 'b) (c . 'd)))
+    ((leaf-normalize-list-in-list '((a) (b) (c))       'dotlist) '((a) (b) (c)))
+    ((leaf-normalize-list-in-list '((a b c) . d)       'dotlist) '(((a b c) . d)))
+    ((leaf-normalize-list-in-list '((a b c) . 'd)      'dotlist) '(((a b c) . 'd)))))
+
+(cort-deftest-with-equal normalize-list-in-list--distribute
+  '(((leaf-normalize-list-in-list 'a                         'dotlist 'distribute) '(a))
+    ((leaf-normalize-list-in-list '(a b c)                   'dotlist 'distribute) '(a b c))
+    ((leaf-normalize-list-in-list '(a . b)                   'dotlist 'distribute) '((a . b)))
+    ((leaf-normalize-list-in-list '(a . 'b)                  'dotlist 'distribute) '((a . 'b)))
+    ((leaf-normalize-list-in-list '((a . b) (c . d))         'dotlist 'distribute) '((a . b) (c . d)))
+    ((leaf-normalize-list-in-list '((a . 'b) (c . 'd))       'dotlist 'distribute) '((a . 'b) (c . 'd)))
+    ((leaf-normalize-list-in-list '((a b c) . d)             'dotlist 'distribute) '((a . d) (b . d) (c . d)))
+    ((leaf-normalize-list-in-list '((a b c) . 'd)            'dotlist 'distribute) '((a . 'd) (b . 'd) (c . 'd)))
+    ((leaf-normalize-list-in-list '((x . y) ((a b c) . d))   'dotlist 'distribute) '((x . y) (a . d) (b . d) (c . d)))
+    ((leaf-normalize-list-in-list '((x . 'y) ((a b c) . 'd)) 'dotlist 'distribute) '((x . 'y) (a . 'd) (b . 'd) (c . 'd)))))
 
 (provide 'leaf-tests)
 ;;; leaf-tests.el ends here

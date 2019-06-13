@@ -125,10 +125,10 @@ MESSAGE and ARGS are passed `format'."
                     (eq 'function (cadr var)))))
        (if allow t (not (null (cdr var)))))) ; (a . nil) => (a)
 
-(defsubst leaf-dotlistp (var)
-  "Return t if VAR is doted list (last arg of list is not 'nil)."
-  (or (leaf-pairp (last var))           ; (a b c . d) => (pairp '(c . d))
-      (leaf-pairp (last var 3))))       ; (a b c . 'd) => (pairp '(c . 'd))
+(defsubst leaf-dotlistp (var &optional allow)
+  "Return t if VAR is doted list.  If ALLOW is non-nil, allow nil as last element."
+  (or (leaf-pairp (last var) allow)          ; (a b c . d) => (pairp '(c . d))
+      (leaf-pairp (last var 3) allow)))      ; (a b c . 'd) => (pairp '(c . 'd))
 
 (defsubst leaf-sym-or-keyword (keyword)
   "Return normalizied `intern'ed symbol from keyword or symbol."
@@ -305,7 +305,9 @@ Sort by `leaf-sort-leaf--values-plist' in this order.")
                 (t
                  elm)))
              (mapcan (lambda (elm)
-                       (leaf-normalize-list-in-list elm 'dotlistp))
+                       (leaf-normalize-list-in-list
+                        elm 'dotlistp
+                        (not (memq leaf--key '(:setq :pre-setq :setq-default :custom :custom-face)))))
                      leaf--value)))
 
     ((memq leaf--key '(:bind :bind*))
@@ -586,27 +588,50 @@ FN also accept list of FN."
   "Append leaf default values to PLIST."
   (append plist leaf-defaults leaf-system-defaults))
 
-(defun leaf-normalize-list-in-list (lst &optional dotlistp)
+(defun leaf-normalize-list-in-list (lst &optional dotlistp distribute)
   "Return normalized list from LST.
-Example:
-  - when dotlistp is nil
-  a       => (a)
-  (a b c) => (a b c)
 
-  - when DOTLISTP is t
-  a                 => (a)
-  (a b c)           => (a b c)
-  (a . b)           => ((a . b))
-  ((a . b) (c . d)) => ((a . b) (c . d))
-  (a . nil)         => ((a . nil))
-  (a)               => ((a . nil))
-  ((a) (b) (c))     => ((a) (b) (c))"
-  (if (or (atom lst)
-          (and dotlistp
-               (leaf-pairp lst dotlistp)
-               (not (leaf-pairp (car lst) dotlistp))))
-      (list lst)
-    lst))
+Example:
+  - when DOTLISTP is nil
+    a                 => (a)
+    (a b c)           => (a b c)
+    (a . b)           => (a . b)
+    (a . nil)         => (a . nil)
+    (a)               => (a . nil)
+    ((a . b) (c . d)) => ((a . b) (c . d))
+    ((a) (b) (c))     => ((a) (b) (c))
+    ((a b c) . d)     => ((a b c) . d)
+
+  - when DOTLISTP is non-nil
+    a                 => (a)
+    (a b c)           => (a b c)
+    (a . b)           => ((a . b))
+    (a . nil)         => ((a . nil))
+    (a)               => ((a . nil))
+    ((a . b) (c . d)) => ((a . b) (c . d))
+    ((a) (b) (c))     => ((a) (b) (c))
+    ((a b c) . d)     => (((a b c) . d))
+
+  - when DISTRIBUTE is non-nil (NEED DOTLISTP is also non-nil)
+    ((a b c) . d)           => ((a . d) (b . d) (c . d))
+    ((x . y) ((a b c) . d)) => ((x . y) (a . d) (b . d) (c . d))"
+  (cond
+   ((not dotlistp)
+    (if (atom lst) (list lst) lst))
+   ((and dotlistp (not distribute))
+    (if (or (atom lst)
+            (and (leaf-pairp lst 'allow)
+                 (not (leaf-pairp (car lst) 'allow)))) ; not list of pairs
+        (list lst) lst))
+   ((and dotlistp distribute)
+    (if (and (listp lst)
+             (and (listp (car lst)) (leaf-dotlistp lst)))
+        (let ((dist (cdr lst)))
+          (mapcar (lambda (elm) `(,elm . ,dist)) (car lst)))
+      (if (or (atom lst) (leaf-dotlistp lst))
+          (list lst)
+        (funcall (if (fboundp 'mapcan) #'mapcan #'leaf-mapcaappend)
+                 (lambda (elm) (leaf-normalize-list-in-list elm t t)) lst))))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
