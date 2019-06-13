@@ -1768,11 +1768,10 @@ Example:
 
     ((leaf-handler-package macrostep macrostep nil)
      (unless (package-installed-p 'macrostep)
+       (unless (assoc 'macrostep package-archive-contents)
+         (package-refresh-contents))
        (condition-case err
-           (progn
-             (unless (assoc 'macrostep package-archive-contents)
-               (package-refresh-contents))
-             (package-install 'macrostep))
+           (package-install 'macrostep)
          (error
           (condition-case err
               (progn

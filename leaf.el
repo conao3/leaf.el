@@ -540,13 +540,11 @@ FN also accept list of FN."
 
 (defmacro leaf-handler-package (name pkg _pin)
   "Handler ensure PKG via PIN in NAME leaf block."
-  `(unless
-       (package-installed-p ',pkg)
+  `(unless (package-installed-p ',pkg)
+     (unless (assoc ',pkg package-archive-contents)
+       (package-refresh-contents))
      (condition-case err
-         (progn
-           (unless (assoc ',pkg package-archive-contents)
-             (package-refresh-contents))
-           (package-install ',pkg))
+         (package-install ',pkg)
        (error
         (condition-case err
             (progn
@@ -557,7 +555,7 @@ FN also accept list of FN."
                    (format
                     ,(format "In `%s' block, failed to :package of %s.  Error msg: %%s"
                              name pkg)
-                          (error-message-string err)))))))))
+                    (error-message-string err)))))))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
