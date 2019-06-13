@@ -5,7 +5,7 @@
 ;; Author: Naoya Yamashita <conao3@gmail.com>
 ;; Maintainer: Naoya Yamashita <conao3@gmail.com>
 ;; Keywords: lisp settings
-;; Version: 3.2.2
+;; Version: 3.2.3
 ;; URL: https://github.com/conao3/leaf.el
 ;; Package-Requires: ((emacs "24.4"))
 
@@ -742,6 +742,7 @@ Don't call this function directory."
               leaf--body)
           (eval (plist-get leaf-keywords leaf--key)))))))
 
+;;;###autoload
 (defmacro leaf (name &rest args)
   "Symplify your `.emacs' configuration for package NAME with ARGS."
   (declare (indent defun))
