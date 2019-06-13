@@ -1,4 +1,4 @@
-;;; leaf.el --- Symplify your init.el configuration, extended use-package       -*- lexical-binding: t; -*-
+;;; leaf.el --- Simplify your init.el configuration, extended use-package       -*- lexical-binding: t; -*-
 
 ;; Copyright (C) 2018  Naoya Yamashita
 
@@ -9,7 +9,7 @@
 ;; URL: https://github.com/conao3/leaf.el
 ;; Package-Requires: ((emacs "24.4"))
 
-;;   Abobe declared this package requires Emacs-24, but it's for warning
+;;   Above declared this package requires Emacs-24, but it's for warning
 ;;   suppression, and will actually work from Emacs-22.
 ;;   But :advice, :advice-remove are not work Emacs-24.3 or lower.
 
