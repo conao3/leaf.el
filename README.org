@@ -1,11 +1,11 @@
-#+author: conao
+#+author: conao3
 #+date: <2018-10-25 Thu>
 
 [[https://github.com/conao3/leaf.el][https://raw.githubusercontent.com/conao3/files/master/blob/headers/png/leaf.el.png]]
 [[https://github.com/conao3/leaf.el/blob/master/LICENSE][https://img.shields.io/github/license/conao3/leaf.el.svg?style=flat-square]]
 [[https://github.com/conao3/leaf.el/releases][https://img.shields.io/github/tag/conao3/leaf.el.svg?style=flat-square]]
 [[https://travis-ci.org/conao3/leaf.el][https://img.shields.io/travis/conao3/leaf.el/master.svg?style=flat-square]]
-[[https://app.codacy.com/project/conao3/leaf.el/dashboard][https://img.shields.io/codacy/grade/1a6befcbdfdb4b1fb37a6f7f040a75b2.svg?logo=codacy&style=flat-square]]
+[[https://app.codacy.com/project/conao3/leaf.el/dashboard][https://img.shields.io/codacy/grade/3ad51a9fc08e48f98b6eb75f8571f0b0.svg?logo=codacy&style=flat-square]]
 [[https://www.patreon.com/conao3][https://img.shields.io/badge/patreon-@conao3-orange.svg?logo=patreon&style=flat-square]]
 [[https://twitter.com/conao_3][https://img.shields.io/badge/twitter-@conao__3-blue.svg?logo=twitter&style=flat-square]]
 [[https://conao3-support.slack.com/join/shared_invite/enQtNjUzMDMxODcyMjE1LWUwMjhiNTU3Yjk3ODIwNzAxMTgwOTkxNmJiN2M4OTZkMWY0NjI4ZTg4MTVlNzcwNDY2ZjVjYmRiZmJjZDU4MDE][https://img.shields.io/badge/chat-on_slack-blue.svg?logo=slack&style=flat-square]]
@@ -19,23 +19,23 @@
 - [[https://github.com/conao3/leaf.el#basic-keywords][Basic keywords]]
   - [[https://github.com/conao3/leaf.el#none-keyword][none (keyword)]]
   - [[https://github.com/conao3/leaf.el#require-keyword][:require keyword]]
-  - [[https://github.com/conao3/leaf.el#ensure-keyword][:ensure keyword]]
-  - [[https://github.com/conao3/leaf.el#preface-init-config-keywords][:preface :init :config keywords]]
+  - [[https://github.com/conao3/leaf.el#ensure-package-keywords][:ensure, :package keywords]]
+  - [[https://github.com/conao3/leaf.el#preface-init-config-keywords][:preface, :init, :config keywords]]
   - [[https://github.com/conao3/leaf.el#commands-keyword][:commands keyword]]
   - [[https://github.com/conao3/leaf.el#after-keyword][:after keyword]]
   - [[https://github.com/conao3/leaf.el#bind-bind-keywords][:bind, :bind* keywords]]
   - [[#advice-advice-remove-keywords][:advice, :advice-remove keyword]]
 - [[https://github.com/conao3/leaf.el#configure-variables-keywords][Configure variables keywords]]
-  - [[https://github.com/conao3/leaf.el#custom-custom-face--keywords][:custom :custom-face keywords]]
-  - [[https://github.com/conao3/leaf.el#pre-setq-setq-setq-default-keywords][:pre-setq :setq :setq-default keywords]]
+  - [[https://github.com/conao3/leaf.el#custom-custom-face-keywords][:custom, :custom-face keywords]]
+  - [[https://github.com/conao3/leaf.el#pre-setq-setq-setq-default-keywords][:pre-setq, :setq, :setq-default keywords]]
 - [[https://github.com/conao3/leaf.el#configure-list-keywords][Configure list keywords]]
-  - [[https://github.com/conao3/leaf.el#mode-interpreter-keywords][:mode :interpreter keywords]]
-  - [[https://github.com/conao3/leaf.el#magic-magic-fallback-keywords][:magic :magic-fallback keywords]]
+  - [[https://github.com/conao3/leaf.el#mode-interpreter-keywords][:mode, :interpreter keywords]]
+  - [[https://github.com/conao3/leaf.el#magic-magic-fallback-keywords][:magic, :magic-fallback keywords]]
   - [[https://github.com/conao3/leaf.el#hook-keyword][:hook keyword]]
   - [[https://github.com/conao3/leaf.el#load-path-keyword][:load-path keyword]]
 - [[https://github.com/conao3/leaf.el#condition-keywords][Condition keywords]]
-  - [[https://github.com/conao3/leaf.el#disabled-keywords][:disabled keyword]]
-  - [[https://github.com/conao3/leaf.el#if-when-unless-keywords][:if :when :unless keywords]]
+  - [[https://github.com/conao3/leaf.el#disabled-keyword][:disabled keyword]]
+  - [[https://github.com/conao3/leaf.el#if-when-unless-keywords][:if, :when, :unless keywords]]
 - [[https://github.com/conao3/leaf.el#byte-compile-keywords][Byte compile keywords]]
   - [[https://github.com/conao3/leaf.el#defun-defvar-keywords][:defun, :defvar keywords]]
 - [[https://github.com/conao3/leaf.el#documentation-keywords][Documentation keywords]]
@@ -57,7 +57,6 @@
   - [[#license][License]]
   - [[#author][Author]]
   - [[#contributors][Contributors]]
-  - [[#welcome-pr][Welcome PR]]
   - [[#special-thanks][Special Thanks]]
 
 * Description
@@ -82,37 +81,104 @@ These packages will be installed by the package manager and will probably report
 ~leaf~ processes this and cancels the configuration for that package.
 It then attempts to process the next package.)
 
+Currently, ~leaf.el~ and ~leaf-keywords.el~ has below rich keywords.
+
+#+begin_src emacs-lisp
+  (leaf-plist-keys leaf-keywords)
+  ;; => (:disabled
+  ;;     :leaf-protect
+  ;;     :load-path :leaf-autoload
+  ;;     :doc :file :url
+  ;;     :defun :defvar
+  ;;     :preface
+  ;;     :when :unless :if
+  ;;     :ensure :package :el-get
+  ;;     :after
+  ;;     :commands
+  ;;     :bind :bind* :mode :interpreter :magic :magic-fallback :hook
+  ;;     :advice :advice-remove
+  ;;     :hydra :combo :combo* :smartrep :smartrep* :chord :chord*
+  ;;     :leaf-defer
+  ;;     :pre-setq :init
+  ;;     :require
+  ;;     :custom :custom-face :setq :setq-default
+  ;;     :diminish :delight
+  ;;     :config)
+#+end_src
+
 * Install
-Put ~leaf.el~ at any folder added ~load-path~.
-Then ~(require 'leaf)~ and use like ~use-pacakge~.
+** MELPA
+~leaf.el~ and ~leaf-keywords.el~ can install with package.el from MELPA, so sample instration code is below.
 
 In order to work from Emacs-22, the package manager and the key binding manager
 that accompanies ~leaf~ must also be developed with the assumption that they will work from Emacs-22.
 
 I have plans to develop it, but it's not finished yet.
-It is now necessary to use these packages to avoid trouble.
 
 Package to be developed
-- [[https://github.com/conao3/feather.el][feather.el]] instead of package.el
+  - [[https://github.com/conao3/feather.el][feather.el]] instead of ~package.el~
+  - leaf-key.el instead of ~bind-key~ -> (Achieved! Now ~leaf~ builtin)
 
+#+begin_src emacs-lisp
+  (prog1 "prepare leaf"
+    (prog1 "package"
+      (custom-set-variables
+       '(package-archives '(("org"   . "https://orgmode.org/elpa/")
+                            ("melpa" . "https://melpa.org/packages/")
+                            ("gnu"   . "https://elpa.gnu.org/packages/"))))
+      (package-initialize))
+
+    (prog1 "leaf"
+      (unless (package-installed-p 'leaf)
+        (unless (assoc 'leaf package-archive-contents)
+          (package-refresh-contents))
+        (condition-case err
+            (package-install 'leaf)
+          (error
+           (package-refresh-contents)       ; renew local melpa cache if fail
+           (package-install 'leaf))))
+
+      (leaf leaf-keywords
+        :ensure t
+        :config (leaf-keywords-init)))
+
+    (prog1 "optional packages for leaf-keywords"
+      ;; optional packages if you want to use :hydra, :el-get,,,
+      (leaf hydra :ensure t)
+      (leaf el-get :ensure t
+        :custom ((el-get-git-shallow-clone  . t)))))
+#+end_src
+
+** Manual install
+Put ~leaf.el~ at any folder added ~load-path~.
+Then ~(require 'leaf)~ and use like ~use-pacakge~.
+
+(In this example, you installed/loaded leaf directly, so you can configure ~package.el~ using ~leaf~.)
 #+BEGIN_SRC emacs-lisp
   ;; add to load-path
   ;; (locate-user-emacs-file "site-lisp/leaf.el")
   ;;  => "~/.emacs.d/local/26.1/site-lisp/leaf.el"
 
-  (prog1 "Load leaf.el"
+  (prog1 "leaf"
     (add-to-list 'load-path (locate-user-emacs-file "site-lisp/leaf.el"))
     (require 'leaf)
-    (leaf leaf
-      :doc "Symplify your init.el configuration"
-      :doc "Initialize leaf dependent packages"
-      :config
-      (leaf package
+    
+    (leaf package
         :custom ((package-archives . '(("org"   . "https://orgmode.org/elpa/")
                                        ("melpa" . "https://melpa.org/packages/")
                                        ("gnu"   . "https://elpa.gnu.org/packages/"))))
         :config
-        (package-initialize))))
+        (package-initialize))
+
+    (leaf leaf-keywords
+      :ensure t
+      :config (leaf-keywords-init))
+
+    (prog1 "optional packages for leaf-keywords"
+      ;; optional packages if you want to use :hydra, :el-get,,,
+      (leaf hydra :ensure t)
+      (leaf el-get :ensure t
+        :custom ((el-get-git-shallow-clone  . t)))))
 #+END_SRC
 
 * Usage
@@ -154,6 +220,7 @@ We expect FORM will be expanded to EXPECT.
 * Basic keywords
 ** none (keyword)
 *Unlike use-package*, ~leaf~ will convert to ~nil~ when used without any keywords.
+
 #+begin_src emacs-lisp
   (cort-deftest-with-macroexpand leaf/none
     '(((leaf leaf)
