@@ -742,6 +742,7 @@ Don't call this function directory."
               leaf--body)
           (eval (plist-get leaf-keywords leaf--key)))))))
 
+;;;###autoload
 (defmacro leaf (name &rest args)
   "Symplify your `.emacs' configuration for package NAME with ARGS."
   (declare (indent defun))
