@@ -968,6 +968,22 @@ If you want to specify major-mode, pass dotted pair value.
        (prog1 'web-mode
          (autoload #'web-mode "web-mode" nil t)
          (add-to-list 'auto-mode-alist '("\\.js\\'" . web-mode))
+         (add-to-list 'auto-mode-alist '("\\.p?html?\\'" . web-mode))))
+
+      ((leaf web-mode
+         :mode (("\\.js\\'" "\\.p?html?\\'") . web-mode))
+       (prog1 'web-mode
+         (autoload #'web-mode "web-mode" nil t)
+         (add-to-list 'auto-mode-alist '("\\.js\\'" . web-mode))
+         (add-to-list 'auto-mode-alist '("\\.p?html?\\'" . web-mode))))
+
+      ((leaf web-mode
+         :mode (("\\.html\\'" . web-mode)
+                (("\\.js\\'" "\\.p?html?\\'") . web-mode)))
+       (prog1 'web-mode
+         (autoload #'web-mode "web-mode" nil t)
+         (add-to-list 'auto-mode-alist '("\\.html\\'" . web-mode))
+         (add-to-list 'auto-mode-alist '("\\.js\\'" . web-mode))
          (add-to-list 'auto-mode-alist '("\\.p?html?\\'" . web-mode))))))
 
   (cort-deftest-with-macroexpand leaf/interpreter
@@ -991,6 +1007,13 @@ If you want to specify major-mode, pass dotted pair value.
 
       ((leaf web-mode
          :interpreter ("js" "p?html?"))
+       (prog1 'web-mode
+         (autoload #'web-mode "web-mode" nil t)
+         (add-to-list 'interpreter-mode-alist '("js" . web-mode))
+         (add-to-list 'interpreter-mode-alist '("p?html?" . web-mode))))
+
+      ((leaf web-mode
+         :interpreter (("js" "p?html?") . web-mode))
        (prog1 'web-mode
          (autoload #'web-mode "web-mode" nil t)
          (add-to-list 'interpreter-mode-alist '("js" . web-mode))
@@ -1027,6 +1050,13 @@ If you want to specify major-mode, pass dotted pair value.
        (prog1 'web-mode
          (autoload #'web-mode "web-mode" nil t)
          (add-to-list 'magic-mode-alist '("js" . web-mode))
+         (add-to-list 'magic-mode-alist '("p?html?" . web-mode))))
+
+      ((leaf web-mode
+         :magic (("js" "p?html?") . web-mode))
+       (prog1 'web-mode
+         (autoload #'web-mode "web-mode" nil t)
+         (add-to-list 'magic-mode-alist '("js" . web-mode))
          (add-to-list 'magic-mode-alist '("p?html?" . web-mode))))))
 
   (cort-deftest-with-macroexpand leaf/magic-fallback
@@ -1050,6 +1080,13 @@ If you want to specify major-mode, pass dotted pair value.
 
       ((leaf web-mode
          :magic-fallback ("js" "p?html?"))
+       (prog1 'web-mode
+         (autoload #'web-mode "web-mode" nil t)
+         (add-to-list 'magic-fallback-mode-alist '("js" . web-mode))
+         (add-to-list 'magic-fallback-mode-alist '("p?html?" . web-mode))))
+
+      ((leaf web-mode
+         :magic-fallback (("js" "p?html?") . web-mode))
        (prog1 'web-mode
          (autoload #'web-mode "web-mode" nil t)
          (add-to-list 'magic-fallback-mode-alist '("js" . web-mode))
@@ -1093,8 +1130,16 @@ It makes easy to jump definition.
          (autoload #'ace-jump-mode "ace-jump-mode" nil t)
          (autoload #'my-ace-jump-mode "ace-jump-mode" nil t)
          (add-hook 'cc-mode-hook #'ace-jump-mode)
+         (add-hook 'prog-mode-hook #'my-ace-jump-mode)))
+
+      ((leaf ace-jump-mode
+         :hook ((cc-mode-hook prog-mode-hook) . my-ace-jump-mode))
+       (prog1 'ace-jump-mode
+         (autoload #'my-ace-jump-mode "ace-jump-mode" nil t)
+         (add-hook 'cc-mode-hook #'my-ace-jump-mode)
          (add-hook 'prog-mode-hook #'my-ace-jump-mode)))))
 #+end_src
+
 ** :load-path keyword
 *Unlike use-package*, you must specify the full path.
 
@@ -1301,7 +1346,13 @@ This is usually done by a ~declare-function~ and an empty ~defvar~, and ~leaf~ p
        (prog1 'leaf
          (declare-function leaf "leaf")
          (declare-function leaf-normalize-plist "leaf")
-         (declare-function leaf-merge-dupkey-values-plist "leaf")))))
+         (declare-function leaf-merge-dupkey-values-plist "leaf")))
+
+      ((leaf leaf
+         :defun ((lbrowser-open lbrowser-close) . leaf-browser))
+       (prog1 'leaf
+         (declare-function lbrowser-open "leaf-browser")
+         (declare-function lbrowser-close "leaf-browser")))))
 
   (cort-deftest-with-macroexpand leaf/defvar
     '(((leaf leaf
