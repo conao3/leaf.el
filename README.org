@@ -9,6 +9,8 @@
 [[https://www.patreon.com/conao3][https://img.shields.io/badge/patreon-@conao3-orange.svg?logo=patreon&style=flat-square]]
 [[https://twitter.com/conao_3][https://img.shields.io/badge/twitter-@conao__3-blue.svg?logo=twitter&style=flat-square]]
 [[https://conao3-support.slack.com/join/shared_invite/enQtNjUzMDMxODcyMjE1LWUwMjhiNTU3Yjk3ODIwNzAxMTgwOTkxNmJiN2M4OTZkMWY0NjI4ZTg4MTVlNzcwNDY2ZjVjYmRiZmJjZDU4MDE][https://img.shields.io/badge/chat-on_slack-blue.svg?logo=slack&style=flat-square]]
+[[https://melpa.org/#/leaf][https://melpa.org/packages/leaf-badge.svg]]
+[[https://stable.melpa.org/#/leaf][https://stable.melpa.org/packages/leaf-badge.svg]]
 
 * Table of Contents
 - [[#description][Description]]
