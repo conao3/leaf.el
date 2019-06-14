@@ -592,8 +592,12 @@ FN also accept list of FN."
 
 ;;;###autoload
 (defun leaf-available-keywords ()
+  (interactive)
   "Return current available `leaf' keywords list."
-  (leaf-plist-keys leaf-keywords))
+  (let ((ret (leaf-plist-keys leaf-keywords)))
+    (if (called-interactively-p 'interactive)
+        (message (prin1-to-string ret))
+      ret)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
