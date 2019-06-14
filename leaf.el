@@ -5,7 +5,7 @@
 ;; Author: Naoya Yamashita <conao3@gmail.com>
 ;; Maintainer: Naoya Yamashita <conao3@gmail.com>
 ;; Keywords: lisp settings
-;; Version: 3.2.7
+;; Version: 3.2.8
 ;; URL: https://github.com/conao3/leaf.el
 ;; Package-Requires: ((emacs "24.4"))
 
@@ -592,8 +592,12 @@ FN also accept list of FN."
 
 ;;;###autoload
 (defun leaf-available-keywords ()
+  (interactive)
   "Return current available `leaf' keywords list."
-  (leaf-plist-keys leaf-keywords))
+  (let ((ret (leaf-plist-keys leaf-keywords)))
+    (if (called-interactively-p 'interactive)
+        (message (prin1-to-string ret))
+      ret)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
