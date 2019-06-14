@@ -5,7 +5,7 @@
 ;; Author: Naoya Yamashita <conao3@gmail.com>
 ;; Maintainer: Naoya Yamashita <conao3@gmail.com>
 ;; Keywords: lisp settings
-;; Version: 3.2.6
+;; Version: 3.2.7
 ;; URL: https://github.com/conao3/leaf.el
 ;; Package-Requires: ((emacs "24.4"))
 
@@ -589,6 +589,11 @@ FN also accept list of FN."
     (emacs-lisp-mode)
     (indent-region (point-min) (point-max))
     (buffer-substring-no-properties (point-min) (point-max))))
+
+;;;###autoload
+(defun leaf-available-keywords ()
+  "Return current available `leaf' keywords list."
+  (leaf-plist-keys leaf-keywords))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
