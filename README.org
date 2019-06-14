@@ -86,7 +86,7 @@ It then attempts to process the next package.)
 Currently, ~leaf.el~ and ~leaf-keywords.el~ has below rich keywords.
 
 #+begin_src emacs-lisp
-  (leaf-plist-keys leaf-keywords)
+  (leaf-available-keywords)
   ;; => (:disabled
   ;;     :leaf-protect
   ;;     :load-path :leaf-autoload
