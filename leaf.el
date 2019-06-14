@@ -76,6 +76,17 @@ with values for these keywords."
 ;;  Customize backend
 ;;
 
+(defcustom leaf-expand-minimally nil
+  "If non-nil, make the expanded code as minimal as possible.
+This disabled `leaf-expand-minimally-suppress-keywords'."
+  :type 'boolean
+  :group 'leaf)
+
+(defcustom leaf-expand-minimally-suppress-keywords '(:leaf-protect)
+  "Suppress keywords when `leaf-expand-minimally' is non-nil."
+  :type 'sexp
+  :group 'leaf)
+
 (defcustom leaf-options-ensure-default-pin nil
   "Option :ensure pin default.
 'nil is using package manager default."
@@ -586,7 +597,11 @@ FN also accept list of FN."
 
 (defun leaf-append-defaults (plist)
   "Append leaf default values to PLIST."
-  (append plist leaf-defaults leaf-system-defaults))
+  (append (and leaf-expand-minimally
+               (funcall (if (fboundp 'mapcan) #'mapcan #'leaf-mapcaappend)
+                        (lambda (elm) `(,elm nil))
+                        leaf-expand-minimally-suppress-keywords))
+          plist leaf-defaults leaf-system-defaults))
 
 (defun leaf-normalize-list-in-list (lst &optional dotlistp distribute)
   "Return normalized list from LST.
