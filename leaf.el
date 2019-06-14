@@ -590,6 +590,11 @@ FN also accept list of FN."
     (indent-region (point-min) (point-max))
     (buffer-substring-no-properties (point-min) (point-max))))
 
+;;;###autoload
+(defun leaf-available-keywords ()
+  "Return current available `leaf' keywords list."
+  (leaf-plist-keys leaf-keywords))
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
 ;;  General list functions for leaf
