@@ -1538,6 +1538,14 @@ Example:
 ;;  System keywords
 ;;
 
+(cort-deftest-with-macroexpand-let leaf/leaf-expand-minimally
+    ((leaf-expand-leaf-protect t)
+     (leaf-expand-minimally    t))
+  '(((leaf leaf
+       :config (leaf-init))
+     (prog1 'leaf
+       (leaf-init)))))
+
 (cort-deftest-with-macroexpand leaf/leaf-autoload
   '(((leaf leaf
        :commands leaf

@@ -192,6 +192,7 @@ You declaratively tell the ~leaf~ to configure the package using special keyword
 * Customize
 - leaf-defaults: Default arguments for all leaf-block.
 - leaf-expand-{{keyword}}: If nil, not to expand that keyword.
+- leaf-expand-minimally: If nil, disable keywords that are not needed for debugging.
 
 * Syntaxes
 All below examples are excerpts from ~leaf-tests.el~.
@@ -1547,6 +1548,7 @@ In some cases, you may want to disable this auto-expansion.
            '(progn
               (leaf-init)))))))
 #+end_src
+
 * Information
 ** Donation
 I love OSS and I am dreaming of working on it as *full-time* job.
