@@ -64,7 +64,7 @@
 * Description
 ~leaf.el~ is yet another [[https://github.com/jwiegley/use-package][use-package]].
 
-~leaf~ solves the stress of using ~use-package~ for 2 years.
+~leaf~ solves the stress that I feel while using the use-package for 2.5 years.
 By developing from scratch, we have a cleaner and more predictable implementation than ~use-package~.
 
 This makes it easy to maintain and add new keywords. (see [[https://github.com/conao3/leaf-keywords.el][leaf-keywords.el]])
