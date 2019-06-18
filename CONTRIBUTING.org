@@ -65,25 +65,36 @@ And you also solve all warnings of byte-compiler except backquote issue.
 If you get output like this, my request will be satisfied.
 #+begin_src bash
   git commit
-    Loading subst-ksc...
-    Loading subst-gb2312...
-    Loading subst-big5...
-    Loading subst-jis...
-  
-    In toplevel form:
-    leaf.el:457:1:Warning: !! The file uses old-style backquotes !!
-    This functionality has been obsolete for more than 10 years already
-    and will be removed soon.  See (elisp)Backquote in the manual.
-    Wrote /Users/conao/dev/repos/leaf.el/.make/silent-emacs-23.4/leaf.elc
-    Wrote /Users/conao/dev/repos/leaf.el/.make/silent-emacs-22.1/leaf.elc
-    Wrote /Users/conao/dev/repos/leaf.el/.make/silent-emacs-24.5/leaf.elc
-  
-    ===== Run 172 Tests, 172 Expected,  0 Failed,  0 Errored on Emacs-22.1.1 =====
-    ===== Run 172 Tests, 172 Expected,  0 Failed,  0 Errored on Emacs-23.4.1 =====
-    ===== Run 177 Tests, 177 Expected,  0 Failed,  0 Errored on Emacs-24.5.1 =====
-    ===== Run 177 Tests, 177 Expected,  0 Failed,  0 Errored on Emacs-25.3.1 =====
-    ===== Run 177 Tests, 177 Expected,  0 Failed,  0 Errored on Emacs-26.1 =====
-    ===== Run 177 Tests, 177 Expected,  0 Failed,  0 Errored on Emacs-26.2 =====
+      docker run -itd --name B06273B-emacs-test--ubuntu-min-23.4 conao3/emacs:ubuntu-min-23.4 /bin/sh > /dev/null
+      docker run -itd --name B06273B-emacs-test--ubuntu-min-24.1 conao3/emacs:ubuntu-min-24.1 /bin/sh > /dev/null
+      docker run -itd --name B06273B-emacs-test--ubuntu-min-24.5 conao3/emacs:ubuntu-min-24.5 /bin/sh > /dev/null
+      docker run -itd --name B06273B-emacs-test--ubuntu-min-25.1 conao3/emacs:ubuntu-min-25.1 /bin/sh > /dev/null
+      docker run -itd --name B06273B-emacs-test--alpine-min-25.3 conao3/emacs:alpine-min-25.3 /bin/sh > /dev/null
+      docker run -itd --name B06273B-emacs-test--alpine-min-26.1 conao3/emacs:alpine-min-26.1 /bin/sh > /dev/null
+      docker run -itd --name B06273B-emacs-test--alpine-min-26.2 conao3/emacs:alpine-min-26.2 /bin/sh > /dev/null
+      Loading /test/cort-test.el (source)...
+
+      In toplevel form:
+      leaf.el:413:1:Warning: !! The file uses old-style backquotes !!
+      This functionality has been obsolete for more than 10 years already
+      and will be removed soon.  See (elisp)Backquote in the manual.
+      Wrote /test/leaf.elc
+      Wrote /test/leaf.elc
+      Wrote /test/leaf.elc
+      Loading /test/cort-test.el (source)...
+      Loading /test/cort-test.el (source)...
+      Loading /test/cort-test.el (source)...
+      Loading /test/cort-test.el (source)...
+      Loading /test/cort-test.el (source)...
+      Loading /test/cort-test.el (source)...
+
+      ===== Run 215 Tests, 215 Expected,  0 Failed,  0 Errored on Emacs-23.4.1 =====
+      ===== Run 220 Tests, 220 Expected,  0 Failed,  0 Errored on Emacs-24.1.1 =====
+      ===== Run 220 Tests, 220 Expected,  0 Failed,  0 Errored on Emacs-24.5.1 =====
+      ===== Run 220 Tests, 220 Expected,  0 Failed,  0 Errored on Emacs-25.1.1 =====
+      ===== Run 220 Tests, 220 Expected,  0 Failed,  0 Errored on Emacs-25.3.1 =====
+      ===== Run 220 Tests, 220 Expected,  0 Failed,  0 Errored on Emacs-26.1 =====
+      ===== Run 220 Tests, 220 Expected,  0 Failed,  0 Errored on Emacs-26.2 =====
 #+end_src
 
 You also use ~make check~ to show all test log and ~make allcheck~ to show all test log of all Emacs.
