@@ -52,7 +52,7 @@
   - [[#contribution][Contribution]]
     - [[#leafel-mechanism][leaf.el mechanism]]
     - [[#adding-new-keywords][Adding new keywords]]
-    - [[#why-we-support-emacs-22][Why We support Emacs-22?]]
+    - [[#why-we-support-emacs-22][Why We support Emacs-22? (Now, dropped)]]
   - [[#migration][Migration]]
     - [[#leaf-v10-to-v20][leaf v2.0 to v3.0]]
     - [[#leaf-v10-to-v20][leaf v1.0 to v2.0]]
@@ -74,10 +74,10 @@ This makes it easy to maintain and add new keywords. (see [[https://github.com/c
 The quickest way to solve problem is to use ~macroexpand-1~ to see the unfolded result if it is not what you intended.
 And also there are also a number of samples in this README and more in the [[https://github.com/conao3/leaf.el/blob/master/leaf-tests.el][test file]].
 
-In addition, since it works with Emacs-22, you can use your usual init.el as usual,
+In addition, since it works with Emacs-23, you can use your usual init.el as usual,
 even if you are temporarily using fossil-like Emacs on loan.
 
-(Of course, there are not many packages that work perfectly with Emacs-22.
+(Of course, there are not many packages that work perfectly with Emacs-23.
 These packages will be installed by the package manager and will probably report an error.
 
 ~leaf~ processes this and cancels the configuration for that package.
@@ -112,8 +112,8 @@ Currently, ~leaf.el~ and ~leaf-keywords.el~ has below rich keywords.
 ** MELPA
 ~leaf.el~ and ~leaf-keywords.el~ can install with package.el from MELPA, so sample instration code is below.
 
-In order to work from Emacs-22, the package manager and the key binding manager
-that accompanies ~leaf~ must also be developed with the assumption that they will work from Emacs-22.
+In order to work from Emacs-23, the package manager and the key binding manager
+that accompanies ~leaf~ must also be developed with the assumption that they will work from Emacs-23.
 
 I have plans to develop it, but it's not finished yet.
 
@@ -1629,7 +1629,14 @@ Note that leaf only contains keywords for packages that come with the Emacs stan
 and that keywords that depend on external packages are added to its repository.
 
 *** Why We support Emacs-22?
-Bundling Emacs-22.1 on macOS 10.13 (High Sierra), we support this.
++Bundling Emacs-22.1 on macOS 10.13 (High Sierra), we support this.+
+
+The Emacs-22 docker image is not available and is not [[https://github.com/conao3/leaf.el/issues/262][currently being tested]].
+So We don't know if it works or not.
+
+If we can get the Emacs-22 docker image, we will resume support for Emacs-22.
+
+Now, ~leaf~ support Emacs-23 or above.
 
 ** Migration
 *** leaf v2.0 to v3.0
