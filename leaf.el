@@ -5,12 +5,12 @@
 ;; Author: Naoya Yamashita <conao3@gmail.com>
 ;; Maintainer: Naoya Yamashita <conao3@gmail.com>
 ;; Keywords: lisp settings
-;; Version: 3.2.9
+;; Version: 3.3.0
 ;; URL: https://github.com/conao3/leaf.el
 ;; Package-Requires: ((emacs "24.4"))
 
 ;;   Above declared this package requires Emacs-24, but it's for warning
-;;   suppression, and will actually work from Emacs-22.
+;;   suppression, and will actually work from Emacs-23.
 ;;   But :advice, :advice-remove are not work Emacs-24.3 or lower.
 
 ;; This program is free software: you can redistribute it and/or modify
@@ -40,7 +40,7 @@
 ;;
 ;; It also has a key management system and package management uses the
 ;; package.el.  With minimal external dependencies and careful implementation,
-;; this package is guaranteed to be fully functional from Emacs-22, now, and
+;; this package is guaranteed to be fully functional from Emacs-23, now, and
 ;; in future Emacs.
 ;;
 ;; More information is [[https://github.com/conao3/leaf.el][here]]
