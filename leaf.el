@@ -306,7 +306,7 @@ Sort by `leaf-sort-leaf--values-plist' in this order.")
      (mapcar (lambda (elm)
                (cond
                 ((leaf-pairp elm)
-                 (if (eq t (car elm)) `(,leaf--name . (cdr elm)) elm))
+                 (if (eq t (car elm)) `(,leaf--name . ,(cdr elm)) elm))
                 ((memq leaf--key '(:ensure :package))
                  (if (eq t elm) `(,leaf--name . nil) `(,elm . nil)))
                 ((memq leaf--key '(:hook :mode :interpreter :magic :magic-fallback :defun))
