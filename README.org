@@ -1694,6 +1694,7 @@ If you want to request explicitly use the ~:require t~ flag.
 ** Contributors
 - Kzflute ([[https://github.com/Kzflute][Kzflute]])
 - KeenS ([[https://github.com/KeenS][κeen]])
+- Dario Gjorgjevski ([[https://github.com/d125q][d125q]])
 
 ** Special Thanks
 Advice and comments given by [[http://emacs-jp.github.io/][Emacs-JP]]'s forum member has been a great help  in developing ~leaf.el~.
