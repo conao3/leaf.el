@@ -6,7 +6,7 @@
 [[https://github.com/conao3/leaf.el/releases][https://img.shields.io/github/tag/conao3/leaf.el.svg?style=flat-square]]
 [[https://travis-ci.org/conao3/leaf.el][https://img.shields.io/travis/conao3/leaf.el/master.svg?style=flat-square]]
 [[https://app.codacy.com/project/conao3/leaf.el/dashboard][https://img.shields.io/codacy/grade/3ad51a9fc08e48f98b6eb75f8571f0b0.svg?logo=codacy&style=flat-square]]
-[[https://www.patreon.com/conao3][https://img.shields.io/badge/patreon-@conao3-orange.svg?logo=patreon&style=flat-square]]
+[[https://www.patreon.com/conao3][https://img.shields.io/badge/patreon-become%20a%20patron-orange.svg?logo=patreon&style=flat-square]]
 [[https://twitter.com/conao_3][https://img.shields.io/badge/twitter-@conao__3-blue.svg?logo=twitter&style=flat-square]]
 [[https://conao3-support.slack.com/join/shared_invite/enQtNjUzMDMxODcyMjE1LWUwMjhiNTU3Yjk3ODIwNzAxMTgwOTkxNmJiN2M4OTZkMWY0NjI4ZTg4MTVlNzcwNDY2ZjVjYmRiZmJjZDU4MDE][https://img.shields.io/badge/chat-on_slack-blue.svg?logo=slack&style=flat-square]]
 [[https://melpa.org/#/leaf][https://melpa.org/packages/leaf-badge.svg]]
@@ -94,7 +94,7 @@ Currently, ~leaf.el~ and ~leaf-keywords.el~ has below rich keywords.
   ;;     :defun :defvar
   ;;     :preface
   ;;     :when :unless :if
-  ;;     :ensure :package :el-get
+  ;;     :ensure :package :straight :el-get
   ;;     :after
   ;;     :commands
   ;;     :bind :bind* :mode :interpreter :magic :magic-fallback :hook
@@ -122,33 +122,27 @@ Package to be developed
   - leaf-key.el instead of ~bind-key~ -> (Achieved! Now ~leaf~ builtin)
 
 #+begin_src emacs-lisp
-  (prog1 "prepare leaf"
-    (prog1 "package"
+  (prog1 "leaf"
+    (prog1 "install leaf"
       (custom-set-variables
        '(package-archives '(("org"   . "https://orgmode.org/elpa/")
                             ("melpa" . "https://melpa.org/packages/")
                             ("gnu"   . "https://elpa.gnu.org/packages/"))))
-      (package-initialize))
-
-    (prog1 "leaf"
+      (package-initialize)
       (unless (package-installed-p 'leaf)
-        (unless (assoc 'leaf package-archive-contents)
-          (package-refresh-contents))
-        (condition-case err
-            (package-install 'leaf)
-          (error
-           (package-refresh-contents)       ; renew local melpa cache if fail
-           (package-install 'leaf))))
+        (package-refresh-contents)
+        (package-install 'leaf)))
 
-      (leaf leaf-keywords
-        :ensure t
-        :config (leaf-keywords-init)))
-
-    (prog1 "optional packages for leaf-keywords"
+    (leaf leaf-keywords
+      :ensure t
+      :config
       ;; optional packages if you want to use :hydra, :el-get,,,
       (leaf hydra :ensure t)
       (leaf el-get :ensure t
-        :custom ((el-get-git-shallow-clone  . t)))))
+        :custom ((el-get-git-shallow-clone . t)))
+
+      ;; initialize leaf-keywords.el
+      (leaf-keywords-init)))
 #+end_src
 
 ** Manual install
@@ -164,7 +158,7 @@ Then ~(require 'leaf)~ and use like ~use-pacakge~.
   (prog1 "leaf"
     (add-to-list 'load-path (locate-user-emacs-file "site-lisp/leaf.el"))
     (require 'leaf)
-    
+
     (leaf package
         :custom ((package-archives . '(("org"   . "https://orgmode.org/elpa/")
                                        ("melpa" . "https://melpa.org/packages/")
@@ -174,13 +168,14 @@ Then ~(require 'leaf)~ and use like ~use-pacakge~.
 
     (leaf leaf-keywords
       :ensure t
-      :config (leaf-keywords-init))
-
-    (prog1 "optional packages for leaf-keywords"
+      :config
       ;; optional packages if you want to use :hydra, :el-get,,,
       (leaf hydra :ensure t)
       (leaf el-get :ensure t
-        :custom ((el-get-git-shallow-clone  . t)))))
+        :custom ((el-get-git-shallow-clone  . t)))
+
+      ;; initialize leaf-keywords.el
+      (leaf-keywords-init)))
 #+END_SRC
 
 * Usage
