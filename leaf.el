@@ -5,7 +5,7 @@
 ;; Author: Naoya Yamashita <conao3@gmail.com>
 ;; Maintainer: Naoya Yamashita <conao3@gmail.com>
 ;; Keywords: lisp settings
-;; Version: 3.3.2
+;; Version: 3.3.3
 ;; URL: https://github.com/conao3/leaf.el
 ;; Package-Requires: ((emacs "24.4"))
 
@@ -306,7 +306,7 @@ Sort by `leaf-sort-leaf--values-plist' in this order.")
      (mapcar (lambda (elm)
                (cond
                 ((leaf-pairp elm)
-                 (if (eq t (car elm)) `(,leaf--name . (cdr elm)) elm))
+                 (if (eq t (car elm)) `(,leaf--name . ,(cdr elm)) elm))
                 ((memq leaf--key '(:ensure :package))
                  (if (eq t elm) `(,leaf--name . nil) `(,elm . nil)))
                 ((memq leaf--key '(:hook :mode :interpreter :magic :magic-fallback :defun))

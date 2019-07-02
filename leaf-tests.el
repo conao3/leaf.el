@@ -274,7 +274,12 @@ Example:
        (leaf-handler-package leaf feather nil)
        (leaf-handler-package leaf leaf-key nil)
        (leaf-handler-package leaf leaf-browser nil)
-       (leaf-init)))))
+       (leaf-init)))
+
+    ((leaf leaf
+       :package (t . pin))
+     (prog1 'leaf
+       (leaf-handler-package leaf leaf pin)))))
 
 (cort-deftest-with-macroexpand leaf/doc
   '(((leaf leaf

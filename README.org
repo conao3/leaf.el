@@ -330,7 +330,12 @@ you can also use ~:ensure~ as ~:package~.
          (leaf-handler-package leaf feather nil)
          (leaf-handler-package leaf leaf-key nil)
          (leaf-handler-package leaf leaf-browser nil)
-         (leaf-init)))))
+         (leaf-init)))
+
+    ((leaf leaf
+       :package (t . pin))
+     (prog1 'leaf
+       (leaf-handler-package leaf leaf pin)))))
 
   (cort-deftest-with-macroexpand leaf/handler-package
     '(((leaf macrostep :ensure t)
@@ -1684,6 +1689,7 @@ If you want to request explicitly use the ~:require t~ flag.
 ** Contributors
 - Kzflute ([[https://github.com/Kzflute][Kzflute]])
 - KeenS ([[https://github.com/KeenS][κeen]])
+- Dario Gjorgjevski ([[https://github.com/d125q][d125q]])
 
 ** Special Thanks
 Advice and comments given by [[http://emacs-jp.github.io/][Emacs-JP]]'s forum member has been a great help  in developing ~leaf.el~.
