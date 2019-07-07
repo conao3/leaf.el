@@ -98,16 +98,6 @@ This disabled `leaf-expand-minimally-suppress-keywords'."
 ;;  Support functions
 ;;
 
-(defun leaf-warn (message &rest args)
-  "Minor change from `warn' for `leaf'.
-MESSAGE and ARGS are passed `format'."
-  (display-warning 'leaf (apply #'format `(,message ,@args))))
-
-(defun leaf-error (message &rest args)
-  "Minor change from `error' for `leaf'.
-MESSAGE and ARGS are passed `format'."
-  (display-warning 'leaf (apply #'format `(,message ,@args)) :error))
-
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
 ;;  For legacy Emacs
@@ -548,8 +538,8 @@ FN also accept list of FN."
   `(condition-case err
        (progn ,@body)
      (error
-      (leaf-error ,(format "Error in `%s' block.  Error msg: %%s" name)
-                  (error-message-string err)))))
+      (display-warning 'leaf (format ,(format "Error in `%s' block.  Error msg: %%s" name)
+                                     (error-message-string err))))))
 
 (defmacro leaf-handler-package (name pkg _pin)
   "Handler ensure PKG via PIN in NAME leaf block."
