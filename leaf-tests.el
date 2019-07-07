@@ -1617,8 +1617,9 @@ Example:
            (leaf-load)
            (leaf-init))
        (error
-        (leaf-error "Error in `leaf' block.  Error msg: %s"
-                    (error-message-string err)))))))
+        (display-warning 'leaf
+                         (format "Error in `leaf' block.  Error msg: %s"
+                                 (error-message-string err))))))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
