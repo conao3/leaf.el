@@ -1329,6 +1329,29 @@ Example:
     ;;    (setq leaf-backend-bind 'bind-key)
     ;;    (setq leaf-backend-bind* 'bind-key)
     ;;    (require 'leaf)))
+
+    ;; ((leaf lsp-mode
+    ;;    :pre-setq ((lsp-print-io lsp-trace lsp-print-performance) . nil)
+    ;;    :require t)
+    ;;  (prog1 'leaf
+    ;;    (setq lsp-print-io nil)
+    ;;    (setq lsp-trace nil)
+    ;;    (setq lsp-print-performance nil)
+    ;;    (require 'leaf)))
+
+    ;; ((leaf lsp-mode
+    ;;    :pre-setq ((lsp-use-native-json . t)
+    ;;               ((lsp-enable-folding lsp-enable-snippet) . t)
+    ;;               ((lsp-print-io lsp-trace lsp-print-performance) . nil))
+    ;;    :require t)
+    ;;  (prog1 'leaf
+    ;;    (setq lsp-use-native-json t)
+    ;;    (setq lsp-enable-folding t)
+    ;;    (setq lsp-enable-snippet t)
+    ;;    (setq lsp-print-io nil)
+    ;;    (setq lsp-trace nil)
+    ;;    (setq lsp-print-performance nil)
+    ;;    (require 'leaf)))
     ))
 
 (cort-deftest-with-macroexpand leaf/init
