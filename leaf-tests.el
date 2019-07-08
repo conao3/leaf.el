@@ -2011,6 +2011,34 @@ Example:
 ;;  Misc functions
 ;;
 
+(cort-deftest-with-equal leaf/pairp
+  '(((leaf-pairp nil) nil)
+    ((leaf-pairp t)   nil)
+    ((leaf-pairp 'a)  nil)
+
+    ((leaf-pairp '(nil . nil)) nil)
+    ((leaf-pairp '(a . nil))   nil)
+    ((leaf-pairp '(a . t))     t)
+    ((leaf-pairp '(a . 'b))    t)
+    ;; ((leaf-pairp '(a . `b))    t)
+    ((leaf-pairp '(a . #'b))   t)
+    ;; ((leaf-pairp '(a . (lambda (elm) elm))) t)
+    ))
+
+(cort-deftest-with-equal leaf/pairp-allow-nil
+  '(((leaf-pairp nil 'allow-nil) t)
+    ((leaf-pairp t   'allow-nil) nil)
+    ((leaf-pairp 'a  'allow-nil) nil)
+
+    ((leaf-pairp '(nil . nil) 'allow-nil) t)
+    ((leaf-pairp '(a . nil)   'allow-nil) t)
+    ((leaf-pairp '(a . t)     'allow-nil) t)
+    ((leaf-pairp '(a . 'b)    'allow-nil) t)
+    ;; ((leaf-pairp '(a . `b)    'allow-nil) t)
+    ((leaf-pairp '(a . #'b)   'allow-nil) t)
+    ;; ((leaf-pairp '(a . (lambda (elm) elm))) t)
+    ))
+
 (cort-deftest-with-equal leaf/normalize-list-in-list--normal
   '(((leaf-normalize-list-in-list 'a)                   '(a))
     ((leaf-normalize-list-in-list '(a b c))             '(a b c))
