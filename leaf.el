@@ -122,13 +122,16 @@ This disabled `leaf-expand-minimally-suppress-keywords'."
   (and (listp var)
        (or (atom (cdr var))                  ; (a . b)
            (and (= 3 (safe-length var))      ; (a . 'b) => (a quote b)
-                (member `',(cadr var) `('quote ',backquote-backquote-symbol 'function))))
+                (member `',(cadr var) `('quote ',backquote-backquote-symbol 'function)))
+           (and (= 4 (safe-length var))      ; (a . (lambda (elm) elm)) => (a lambda elm elm)
+                (member `',(cadr var) '('lambda))))
        (if allow t (not (null (cdr var)))))) ; (a . nil) => (a)
 
 (defsubst leaf-dotlistp (var &optional allow)
   "Return t if VAR is doted list.  If ALLOW is non-nil, allow nil as last element."
   (or (leaf-pairp (last var) allow)          ; (a b c . d) => (pairp '(c . d))
-      (leaf-pairp (last var 3) allow)))      ; (a b c . 'd) => (pairp '(c . 'd))
+      (leaf-pairp (last var 3) allow)        ; (a b c . 'd) => (pairp '(c . 'd))
+      (leaf-pairp (last var 4) allow)))      ; (a b c . (lambda (v) v)) => (pairp '(c . (lambda (v) v)))
 
 (defsubst leaf-sym-or-keyword (keyword)
   "Return normalizied `intern'ed symbol from keyword or symbol."

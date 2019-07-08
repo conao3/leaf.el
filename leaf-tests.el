@@ -2022,8 +2022,7 @@ Example:
     ((leaf-pairp '(a . 'b))    t)
     ((leaf-pairp '(a . `b))    t)
     ((leaf-pairp '(a . #'b))   t)
-    ;; ((leaf-pairp '(a . (lambda (elm) elm))) t)
-    ))
+    ((leaf-pairp '(a . (lambda (elm) elm))) t)))
 
 (cort-deftest-with-equal leaf/pairp-allow-nil
   '(((leaf-pairp nil 'allow-nil) t)
@@ -2036,8 +2035,7 @@ Example:
     ((leaf-pairp '(a . 'b)    'allow-nil) t)
     ((leaf-pairp '(a . `b)    'allow-nil) t)
     ((leaf-pairp '(a . #'b)   'allow-nil) t)
-    ;; ((leaf-pairp '(a . (lambda (elm) elm))) t)
-    ))
+    ((leaf-pairp '(a . (lambda (elm) elm))) t)))
 
 (cort-deftest-with-equal leaf/normalize-list-in-list--normal
   '(((leaf-normalize-list-in-list 'a)                   '(a))
