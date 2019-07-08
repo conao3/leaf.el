@@ -122,8 +122,7 @@ This disabled `leaf-expand-minimally-suppress-keywords'."
   (and (listp var)
        (or (atom (cdr var))                  ; (a . b)
            (and (= 3 (safe-length var))      ; (a . 'b) => (a quote b)
-                (or (eq 'quote (cadr var))
-                    (eq 'function (cadr var)))))
+                (member `',(cadr var) `('quote ',backquote-backquote-symbol 'function))))
        (if allow t (not (null (cdr var)))))) ; (a . nil) => (a)
 
 (defsubst leaf-dotlistp (var &optional allow)
