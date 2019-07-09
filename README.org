@@ -877,7 +877,33 @@ The value set to ~custom-face~ should also be quoed to emphasize uniformity as ~
          :custom ((cursor-type . nil)))
        (prog1 'buffer\.c
          (custom-set-variables
-          '(cursor-type nil "Customized with leaf in buffer.c block"))))))
+          '(cursor-type nil "Customized with leaf in buffer.c block"))))
+
+      ((leaf leaf
+         :custom ((leaf-backend-bind leaf-backend-bind*) . 'bind-key))
+       (prog1 'leaf
+         (custom-set-variables
+          '(leaf-backend-bind 'bind-key "Customized with leaf in leaf block")
+          '(leaf-backend-bind* 'bind-key "Customized with leaf in leaf block"))))
+
+      ((leaf leaf
+         :custom
+         (leaf-backend-ensure . 'feather)
+         ((leaf-backend-bind leaf-backend-bind*) . 'bind-key))
+       (prog1 'leaf
+         (custom-set-variables
+          '(leaf-backend-ensure 'feather "Customized with leaf in leaf block")
+          '(leaf-backend-bind 'bind-key "Customized with leaf in leaf block")
+          '(leaf-backend-bind* 'bind-key "Customized with leaf in leaf block"))))
+
+      ((leaf leaf
+         :custom ((leaf-backend-ensure . 'feather)
+                  ((leaf-backend-bind leaf-backend-bind*) . 'bind-key)))
+       (prog1 'leaf
+         (custom-set-variables
+          '(leaf-backend-ensure 'feather "Customized with leaf in leaf block")
+          '(leaf-backend-bind 'bind-key "Customized with leaf in leaf block")
+          '(leaf-backend-bind* 'bind-key "Customized with leaf in leaf block"))))))
 
   (cort-deftest-with-macroexpand leaf/custom-face
     '(((leaf eruby-mode
@@ -885,6 +911,14 @@ The value set to ~custom-face~ should also be quoed to emphasize uniformity as ~
          (eruby-standard-face . '((t (:slant italic)))))
        (prog1 'eruby-mode
          (custom-set-faces
+          '(eruby-standard-face ((t (:slant italic)))))))
+
+      ((leaf eruby-mode
+         :custom-face
+         ((default eruby-standard-face) . '((t (:slant italic)))))
+       (prog1 'eruby-mode
+         (custom-set-faces
+          '(default ((t (:slant italic))))
           '(eruby-standard-face ((t (:slant italic)))))))))
 #+end_src
 
@@ -896,7 +930,7 @@ the ~:pre-setq~ keyword is also provided to accommodate them.
 
 The argument specified for ~:pre-setq~ is expanded before ~:require~.
 
-You can of course configure multiple variables adn set the evaluation result of some S expression to variable.
+You can of course configure multiple variables and set the evaluation result of some S expression to variable.
 #+begin_src emacs-lisp
   (cort-deftest-with-macroexpand leaf/setq
     '(((leaf alloc
@@ -921,6 +955,14 @@ You can of course configure multiple variables adn set the evaluation result of 
          :setq
          (leaf-backend-bind . 'bind-key)
          (leaf-backend-bind* . 'bind-key)
+         :require t)
+       (prog1 'leaf
+         (require 'leaf)
+         (setq leaf-backend-bind 'bind-key)
+         (setq leaf-backend-bind* 'bind-key)))
+
+      ((leaf leaf
+         :setq ((leaf-backend-bind leaf-backend-bind*) . 'bind-key)
          :require t)
        (prog1 'leaf
          (require 'leaf)
