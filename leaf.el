@@ -655,10 +655,8 @@ Example:
     ((a) (b) (c))     => ((a) (b) (c))
     ((a b c) . d)           => ((a . d) (b . d) (c . d))
     ((x . y) ((a b c) . d)) => ((x . y) (a . d) (b . d) (c . d))"
-  (cond
-   ((not dotlistp)
-    (if (atom lst) (list lst) lst))
-   (dotlistp
+  (if (not dotlistp)
+      (if (atom lst) (list lst) lst)
     (cond
      ((atom lst) `((,lst . ,provval)))
      ((listp lst)
@@ -674,7 +672,7 @@ Example:
         (funcall (if (fboundp 'mapcan) #'mapcan #'leaf-mapcaappend)
                  (lambda (elm)
                    (leaf-normalize-list-in-list elm t (or prov provval)))
-                 (leaf-safe-butlast lst butlast-n))))))))
+                 (leaf-safe-butlast lst butlast-n)))))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
