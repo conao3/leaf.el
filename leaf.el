@@ -139,6 +139,34 @@ This disabled `leaf-expand-minimally-suppress-keywords'."
       (intern (substring (symbol-name keyword) 1))
     keyword))
 
+(defun leaf-copy-list (list)
+  "Return a copy of LIST, which may be a dotted list.  see `cl-copy-list'.
+The elements of LIST are not copied, just the list structure itself."
+  (if (consp list)
+      (let ((res nil))
+	(while (consp list) (push (pop list) res))
+	(prog1 (nreverse res) (setcdr res list)))
+    (car list)))
+
+(defun leaf-safe-mapcar (fn seq)
+  "Apply FN to each element of SEQ, and make a list of the results.
+The result is a list just as long as SEQUENCE.
+SEQUENCE may be a list, a vector, a bool-vector, or a string.
+Unlike `mapcar', it works well with dotlist (last cdr is non-nil list)."
+  (when (cdr (last seq))
+    (setq seq (leaf-copy-list seq))
+    (setcdr (last seq) nil))
+  (mapcar fn seq))
+
+(defun leaf-safe-butlast (list &optional n)
+  "Return a copy of LIST with the last N elements removed.
+If N is omitted or nil, the last element is removed from the copy.
+Unlike `butlast', it works well with dotlist (last cdr is non-nil list)."
+  (when (cdr (last list))
+    (setq list (leaf-copy-list list))
+    (setcdr (last list) nil))
+  (butlast list n))
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
 ;;  General list functions
@@ -300,9 +328,9 @@ Sort by `leaf-sort-leaf--values-plist' in this order.")
                 ((leaf-pairp elm)
                  (if (eq t (car elm)) `(,leaf--name . ,(cdr elm)) elm))
                 ((memq leaf--key '(:ensure :package))
-                 (if (eq t elm) `(,leaf--name . nil) `(,elm . nil)))
+                 (if (equal '(t) elm) `(,leaf--name . nil) `(,@elm . nil)))
                 ((memq leaf--key '(:hook :mode :interpreter :magic :magic-fallback :defun))
-                 `(,elm . ,leaf--name))
+                 `(,@elm . ,leaf--name))
                 ((memq leaf--key '(:setq :pre-setq :setq-default :custom :custom-face))
                  elm)
                 (t
@@ -604,8 +632,9 @@ FN also accept list of FN."
                         leaf-expand-minimally-suppress-keywords))
           plist leaf-defaults leaf-system-defaults))
 
-(defun leaf-normalize-list-in-list (lst &optional dotlistp distribute)
+(defun leaf-normalize-list-in-list (lst &optional dotlistp distribute provval)
   "Return normalized list from LST.
+PROVVAL is provisionary value.
 
 Example:
   - when DOTLISTP is nil
@@ -640,14 +669,22 @@ Example:
                  (not (leaf-pairp (car lst) 'allow)))) ; not list of pairs
         (list lst) lst))
    ((and dotlistp distribute)
-    (if (and (listp lst)
-             (and (listp (car lst)) (leaf-dotlistp lst)))
-        (let ((dist (cdr lst)))
-          (mapcar (lambda (elm) `(,elm . ,dist)) (car lst)))
-      (if (or (atom lst) (leaf-dotlistp lst))
-          (list lst)
+    (cond
+     ((atom lst) `((,lst . ,provval)))
+     ((listp lst)
+      (let* ((butlast-n 0)
+             (prov
+              (cond
+               ((cdr (last lst))
+                (cdr (last lst)))
+               ((member `',(car (last lst 2)) `('quote ',backquote-backquote-symbol 'function))
+                (last lst (setq butlast-n 2)))
+               ((member `',(car (last lst 3)) `('lambda))
+                (last lst (setq butlast-n 3))))))
         (funcall (if (fboundp 'mapcan) #'mapcan #'leaf-mapcaappend)
-                 (lambda (elm) (leaf-normalize-list-in-list elm t t)) lst))))))
+                 (lambda (elm)
+                   (leaf-normalize-list-in-list elm t t (or prov provval)))
+                 (leaf-safe-butlast lst butlast-n))))))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
