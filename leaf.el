@@ -283,14 +283,76 @@ Unlike `butlast', it works well with dotlist (last cdr is non-nil list)."
                          `((eval-after-load ',leaf--name '(progn ,@leaf--body))) `(,@leaf--body))
 
      :pre-setq       `(,@(mapcar (lambda (elm) `(setq ,(car elm) ,(cdr elm))) leaf--value) ,@leaf--body)
+
+     ;; Pre-`setq' variables from a plstore.
+     :pl-pre-setq
+     `((setq
+	,@(mapcan
+	   (lambda (elm)
+	     `(,(car elm)		; Variable.
+	       (plist-get		; Value.
+		(cdr (plstore-get
+		      ,(cdr elm)
+		      ,(symbol-name leaf--name)))
+		,(intern (concat ":" (symbol-name (car elm)))))))
+	   leaf--value))
+       ,@leaf--body)
+
      :init           `(,@leaf--value ,@leaf--body)
 
      :require        `(,@(mapcar (lambda (elm) `(require ',elm)) leaf--value) ,@leaf--body)
 
      :custom         `((custom-set-variables ,@(mapcar (lambda (elm) `'(,(car elm) ,(cdr elm) ,(format "Customized with leaf in %s block" leaf--name))) leaf--value)) ,@leaf--body)
      :custom-face    `((custom-set-faces     ,@(mapcar (lambda (elm) `'(,(car elm) ,(car (cddr elm)))) leaf--value)) ,@leaf--body)
+
+     ;; Customize variables from a plstore.
+     :pl-custom
+     `((custom-set-variables
+	,@(mapcar
+	   (lambda (elm)
+	     `'(,(car elm)		; Variable.
+		(plist-get		; Value.
+		 (cdr (plstore-get
+		       ,(cdr elm)
+		       ,(symbol-name leaf--name)))
+		 ,(intern (concat ":" (symbol-name (car elm)))))
+		,(format		; Comment.
+		  "Customized in leaf `%s' from plstore `%s'"
+		  leaf--name (symbol-name (cdr elm)))))
+	   leaf--value))
+       ,@leaf--body)
+
      :setq           `(,@(mapcar (lambda (elm) `(setq ,(car elm) ,(cdr elm))) leaf--value) ,@leaf--body)
      :setq-default   `(,@(mapcar (lambda (elm) `(setq-default ,(car elm) ,(cdr elm))) leaf--value) ,@leaf--body)
+
+     ;; `setq' variables from a plstore.
+     :pl-setq
+     `((setq
+	,@(mapcan
+	   (lambda (elm)
+	     `(,(car elm)		; Variable.
+	       (plist-get		; Value.
+		(cdr (plstore-get
+		      ,(cdr elm)
+		      ,(symbol-name leaf--name)))
+		,(intern (concat ":" (symbol-name (car elm)))))))
+	   leaf--value))
+       ,@leaf--body)
+
+     ;; `setq-default' variables from a plstore.
+     :pl-setq-default
+     `((setq-default
+	,@(mapcan
+	   (lambda (elm)
+	     `(,(car elm)		; Variable.
+	       (plist-get		; Value.
+		(cdr (plstore-get
+		      ,(cdr elm)
+		      ,(symbol-name leaf--name)))
+		,(intern (concat ":" (symbol-name (car elm)))))))
+	   leaf--value))
+       ,@leaf--body)
+
      :config         `(,@leaf--value ,@leaf--body)
      ))
   "Special keywords and conversion rule to be processed by `leaf'.
@@ -318,7 +380,8 @@ Sort by `leaf-sort-leaf--values-plist' in this order.")
     ((memq leaf--key (cdr '(:dummy
                             :ensure :package
                             :hook :mode :interpreter :magic :magic-fallback :defun
-                            :setq :pre-setq :setq-default :custom :custom-face)))
+                            :setq :pre-setq :setq-default :custom :custom-face
+			    :pl-setq :pl-pre-setq :pl-setq-default :pl-custom)))
      ;; Accept: (sym . val), ((sym sym ...) . val), (sym sym ... . val)
      ;; Return: list of pair (sym . val)
      ;; Note  : atom ('t, 'nil, symbol) is just ignored
