@@ -335,11 +335,9 @@ Sort by `leaf-sort-leaf--values-plist' in this order.")
                  elm)
                 (t
                  elm)))
-             (mapcan (lambda (elm)
-                       (leaf-normalize-list-in-list
-                        elm 'dotlistp
-                        (not (memq leaf--key '(:setq :pre-setq :setq-default :custom :custom-face)))))
-                     leaf--value)))
+             (mapcan
+              (lambda (elm) (leaf-normalize-list-in-list elm 'dotlistp))
+              leaf--value)))
 
     ((memq leaf--key '(:bind :bind*))
      ;; Accept: `leaf-keys' accept form
@@ -632,7 +630,7 @@ FN also accept list of FN."
                         leaf-expand-minimally-suppress-keywords))
           plist leaf-defaults leaf-system-defaults))
 
-(defun leaf-normalize-list-in-list (lst &optional dotlistp distribute provval)
+(defun leaf-normalize-list-in-list (lst &optional dotlistp provval)
   "Return normalized list from LST.
 PROVVAL is provisionary value.
 
@@ -648,27 +646,19 @@ Example:
     ((a b c) . d)     => ((a b c) . d)
 
   - when DOTLISTP is non-nil
-    a                 => (a)
-    (a b c)           => (a b c)
+    a                 => ((a))
+    (a b c)           => ((a) (b) (c))
     (a . b)           => ((a . b))
     (a . nil)         => ((a . nil))
     (a)               => ((a . nil))
     ((a . b) (c . d)) => ((a . b) (c . d))
     ((a) (b) (c))     => ((a) (b) (c))
-    ((a b c) . d)     => (((a b c) . d))
-
-  - when DISTRIBUTE is non-nil (NEED DOTLISTP is also non-nil)
     ((a b c) . d)           => ((a . d) (b . d) (c . d))
     ((x . y) ((a b c) . d)) => ((x . y) (a . d) (b . d) (c . d))"
   (cond
    ((not dotlistp)
     (if (atom lst) (list lst) lst))
-   ((and dotlistp (not distribute))
-    (if (or (atom lst)
-            (and (leaf-pairp lst 'allow)
-                 (not (leaf-pairp (car lst) 'allow)))) ; not list of pairs
-        (list lst) lst))
-   ((and dotlistp distribute)
+   (dotlistp
     (cond
      ((atom lst) `((,lst . ,provval)))
      ((listp lst)
@@ -683,7 +673,7 @@ Example:
                 (last lst (setq butlast-n 3))))))
         (funcall (if (fboundp 'mapcan) #'mapcan #'leaf-mapcaappend)
                  (lambda (elm)
-                   (leaf-normalize-list-in-list elm t t (or prov provval)))
+                   (leaf-normalize-list-in-list elm t (or prov provval)))
                  (leaf-safe-butlast lst butlast-n))))))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
