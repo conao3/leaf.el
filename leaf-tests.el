@@ -676,43 +676,31 @@ Example:
        (custom-set-variables
         '(cursor-type nil "Customized with leaf in buffer.c block"))))
 
-    ;; ((leaf leaf
-    ;;    :custom ((leaf-backend-bind leaf-backend-bind*) . 'bind-key))
-    ;;  (prog1 'leaf
-    ;;    (custom-set-variables
-    ;;     '(leaf-backend-bind 'bind-key "Customized with leaf in leaf block")
-    ;;     '(leaf-backend-bind* 'bind-key "Customized with leaf in leaf block"))))
+    ((leaf leaf
+       :custom ((leaf-backend-bind leaf-backend-bind*) . 'bind-key))
+     (prog1 'leaf
+       (custom-set-variables
+        '(leaf-backend-bind 'bind-key "Customized with leaf in leaf block")
+        '(leaf-backend-bind* 'bind-key "Customized with leaf in leaf block"))))
 
-    ;; ((leaf leaf
-    ;;    :custom
-    ;;    (leaf-backend-ensure . 'feather)
-    ;;    ((leaf-backend-bind leaf-backend-bind*) . 'bind-key))
-    ;;  (prog1 'leaf
-    ;;    (custom-set-variables
-    ;;     '(leaf-backend-ensure 'feather "Customized with leaf in leaf block")
-    ;;     '(leaf-backend-bind 'bind-key "Customized with leaf in leaf block")
-    ;;     '(leaf-backend-bind* 'bind-key "Customized with leaf in leaf block"))))
+    ((leaf leaf
+       :custom
+       (leaf-backend-ensure . 'feather)
+       ((leaf-backend-bind leaf-backend-bind*) . 'bind-key))
+     (prog1 'leaf
+       (custom-set-variables
+        '(leaf-backend-ensure 'feather "Customized with leaf in leaf block")
+        '(leaf-backend-bind 'bind-key "Customized with leaf in leaf block")
+        '(leaf-backend-bind* 'bind-key "Customized with leaf in leaf block"))))
 
-    ;; ((leaf leaf
-    ;;    :custom ((leaf-backend-ensure . 'feather)
-    ;;             ((leaf-backend-bind leaf-backend-bind*) . 'bind-key)))
-    ;;  (prog1 'leaf
-    ;;    (custom-set-variables
-    ;;     '(leaf-backend-ensure 'feather "Customized with leaf in leaf block")
-    ;;     '(leaf-backend-bind 'bind-key "Customized with leaf in leaf block")
-    ;;     '(leaf-backend-bind* 'bind-key "Customized with leaf in leaf block"))))
-
-    ;; ((leaf leaf
-    ;;    :custom ((leaf-backend-ensure . 'feather)
-    ;;             (((leaf-backend-bind leaf-backend-bind*) . 'leaf-key)
-    ;;              leaf-backend-bind-key . 'bind-key)))
-    ;;  (progn
-    ;;    (custom-set-variables
-    ;;     '(leaf-backend-ensure 'feather "Customized with leaf in leaf block")
-    ;;     '(leaf-backend-bind 'leaf-key "Customized with leaf in leaf block")
-    ;;     '(leaf-backend-bind* 'leaf-key "Customized with leaf in leaf block")
-    ;;     '(leaf-backend-bind-key 'bind-key "Customized with leaf in leaf block"))))
-    ))
+    ((leaf leaf
+       :custom ((leaf-backend-ensure . 'feather)
+                ((leaf-backend-bind leaf-backend-bind*) . 'bind-key)))
+     (prog1 'leaf
+       (custom-set-variables
+        '(leaf-backend-ensure 'feather "Customized with leaf in leaf block")
+        '(leaf-backend-bind 'bind-key "Customized with leaf in leaf block")
+        '(leaf-backend-bind* 'bind-key "Customized with leaf in leaf block"))))))
 
 (cort-deftest-with-macroexpand leaf/custom-face
   '(((leaf eruby-mode
@@ -722,14 +710,13 @@ Example:
        (custom-set-faces
         '(eruby-standard-face ((t (:slant italic)))))))
 
-    ;; ((leaf eruby-mode
-    ;;    :custom-face
-    ;;    ((default eruby-standard-face) . '((t (:slant italic)))))
-    ;;  (prog1 'eruby-mode
-    ;;    (custom-set-faces
-    ;;     '(default ((t (:slant italic))))
-    ;;     '(eruby-standard-face ((t (:slant italic)))))))
-    ))
+    ((leaf eruby-mode
+       :custom-face
+       ((default eruby-standard-face) . '((t (:slant italic)))))
+     (prog1 'eruby-mode
+       (custom-set-faces
+        '(default ((t (:slant italic))))
+        '(eruby-standard-face ((t (:slant italic)))))))))
 
 (cort-deftest-with-macroexpand leaf/bind
   '(((leaf macrostep
@@ -797,45 +784,47 @@ Example:
                    ("M-s o" . isearch-moccur)
                    ("M-s i" . isearch-moccur-all)))))
 
-    ;; ((leaf color-moccur
-    ;;    :bind (("M-s O" . moccur)
-    ;;           (("M-o" . isearch-moccur)
-    ;;            (("M-O" . isearch-moccur-all)))))
-    ;;  (progn
-    ;;    (autoload #'moccur "color-moccur" nil t)
-    ;;    (autoload #'isearch-moccur "color-moccur" nil t)
-    ;;    (autoload #'isearch-moccur-all "color-moccur" nil t)
-    ;;    (leaf-handler-bind color-moccur '(:package color-moccur ("M-s O" . moccur)))
-    ;;    (leaf-handler-bind color-moccur '(:package color-moccur ("M-o" . isearch-moccur)))
-    ;;    (leaf-handler-bind color-moccur '(:package color-moccur ("M-O" . isearch-moccur-all)))))
+    ((leaf color-moccur
+       :bind (("M-s O" . moccur)
+              (("M-o" . isearch-moccur)
+               (("M-O" . isearch-moccur-all)))))
+     (prog1 'color-moccur
+       (autoload #'moccur "color-moccur" nil t)
+       (autoload #'isearch-moccur "color-moccur" nil t)
+       (autoload #'isearch-moccur-all "color-moccur" nil t)
+       (leaf-keys (("M-s O" . moccur)
+                   ("M-o" . isearch-moccur)
+                   ("M-O" . isearch-moccur-all)))))
 
-    ;; ((leaf color-moccur
-    ;;    :bind (("M-s O" . moccur)
-    ;;           (("M-o" . isearch-moccur)
-    ;;            (("M-O" . isearch-moccur-all))
-    ;;            ("M-s" . isearch-moccur-some))))
-    ;;  (progn
-    ;;    (autoload #'moccur "color-moccur" nil t)
-    ;;    (autoload #'isearch-moccur "color-moccur" nil t)
-    ;;    (autoload #'isearch-moccur-all "color-moccur" nil t)
-    ;;    (autoload #'isearch-moccur-some "color-moccur" nil t)
-    ;;    (leaf-handler-bind color-moccur '(:package color-moccur ("M-s O" . moccur)))
-    ;;    (leaf-handler-bind color-moccur '(:package color-moccur ("M-o" . isearch-moccur)))
-    ;;    (leaf-handler-bind color-moccur '(:package color-moccur ("M-O" . isearch-moccur-all)))
-    ;;    (leaf-handler-bind color-moccur '(:package color-moccur ("M-s" . isearch-moccur-some)))))
+    ((leaf color-moccur
+       :bind (("M-s O" . moccur)
+              (("M-o" . isearch-moccur)
+               (("M-O" . isearch-moccur-all))
+               ("M-s" . isearch-moccur-some))))
+     (prog1 'color-moccur
+       (autoload #'moccur "color-moccur" nil t)
+       (autoload #'isearch-moccur "color-moccur" nil t)
+       (autoload #'isearch-moccur-all "color-moccur" nil t)
+       (autoload #'isearch-moccur-some "color-moccur" nil t)
+       (leaf-keys (("M-s O" . moccur)
+                   ("M-o" . isearch-moccur)
+                   ("M-O" . isearch-moccur-all)
+                   ("M-s" . isearch-moccur-some)))))
 
-    ;; ((leaf color-moccur
-    ;;    :bind (("M-s O" . moccur)
-    ;;           (:isearch-mode-map
-    ;;            ("M-o" . isearch-moccur)
-    ;;            ("M-O" . isearch-moccur-all))))
-    ;;  (progn
-    ;;    (autoload #'moccur "color-moccur" nil t)
-    ;;    (autoload #'isearch-moccur "color-moccur" nil t)
-    ;;    (autoload #'isearch-moccur-all "color-moccur" nil t)
-    ;;    (leaf-handler-bind color-moccur '(:package color-moccur ("M-s O" . moccur)))
-    ;;    (leaf-handler-bind color-moccur '(:map isearch-mode-map :package color-moccur ("M-o" . isearch-moccur)))
-    ;;    (leaf-handler-bind color-moccur '(:map isearch-mode-map :package color-moccur ("M-O" . isearch-moccur-all)))))
+    ((leaf color-moccur
+       :bind (("M-s O" . moccur)
+              (:isearch-mode-map
+               ("M-o" . isearch-moccur)
+               ("M-O" . isearch-moccur-all))))
+     (prog1 'color-moccur
+       (autoload #'moccur "color-moccur" nil t)
+       (autoload #'isearch-moccur "color-moccur" nil t)
+       (autoload #'isearch-moccur-all "color-moccur" nil t)
+       (leaf-keys (("M-s O" . moccur)
+                   (:isearch-mode-map
+                    :package color-moccur
+                    ("M-o" . isearch-moccur)
+                    ("M-O" . isearch-moccur-all))))))
 
     ((leaf color-moccur
        :bind
@@ -928,33 +917,32 @@ Example:
                     ("M-o" . isearch-moccur)
                     ("M-O" . isearch-moccur-all)))))
 
-    ;; ((leaf color-moccur
-    ;;    :bind* (("M-s O" . moccur)
-    ;;            (("M-o" . isearch-moccur)
-    ;;             (("M-O" . isearch-moccur-all)))))
-    ;;  (progn
-    ;;    (autoload #'moccur "color-moccur" nil t)
-    ;;    (autoload #'isearch-moccur "color-moccur" nil t)
-    ;;    (autoload #'isearch-moccur-all "color-moccur" nil t)
-    ;;    (leaf-handler-bind* color-moccur '(:package color-moccur ("M-s O" . moccur)))
-    ;;    (leaf-handler-bind* color-moccur '(:package color-moccur ("M-o" . isearch-moccur)))
-    ;;    (leaf-handler-bind* color-moccur '(:package color-moccur ("M-O" . isearch-moccur-all)))))
+    ((leaf color-moccur
+       :bind* (("M-s O" . moccur)
+               (("M-o" . isearch-moccur)
+                (("M-O" . isearch-moccur-all)))))
+     (prog1 'color-moccur
+       (autoload #'moccur "color-moccur" nil t)
+       (autoload #'isearch-moccur "color-moccur" nil t)
+       (autoload #'isearch-moccur-all "color-moccur" nil t)
+       (leaf-keys* (("M-s O" . moccur)
+                    ("M-o" . isearch-moccur)
+                    ("M-O" . isearch-moccur-all)))))
 
-    ;; ((leaf color-moccur
-    ;;    :bind* (("M-s O" . moccur)
-    ;;            (("M-o" . isearch-moccur)
-    ;;             (("M-O" . isearch-moccur-all))
-    ;;             ("M-s" . isearch-moccur-some))))
-    ;;  (progn
-    ;;    (autoload #'moccur "color-moccur" nil t)
-    ;;    (autoload #'isearch-moccur "color-moccur" nil t)
-    ;;    (autoload #'isearch-moccur-all "color-moccur" nil t)
-    ;;    (autoload #'isearch-moccur-some "color-moccur" nil t)
-    ;;    (leaf-handler-bind* color-moccur '(:package color-moccur ("M-s O" . moccur)))
-    ;;    (leaf-handler-bind* color-moccur '(:package color-moccur ("M-o" . isearch-moccur)))
-    ;;    (leaf-handler-bind* color-moccur '(:package color-moccur ("M-O" . isearch-moccur-all)))
-    ;;    (leaf-handler-bind* color-moccur '(:package color-moccur ("M-s" . isearch-moccur-some)))))
-    ))
+    ((leaf color-moccur
+       :bind* (("M-s O" . moccur)
+               (("M-o" . isearch-moccur)
+                (("M-O" . isearch-moccur-all))
+                ("M-s" . isearch-moccur-some))))
+     (prog1 'color-moccur
+       (autoload #'moccur "color-moccur" nil t)
+       (autoload #'isearch-moccur "color-moccur" nil t)
+       (autoload #'isearch-moccur-all "color-moccur" nil t)
+       (autoload #'isearch-moccur-some "color-moccur" nil t)
+       (leaf-keys* (("M-s O" . moccur)
+                    ("M-o" . isearch-moccur)
+                    ("M-O" . isearch-moccur-all)
+                    ("M-s" . isearch-moccur-some)))))))
 
 (cort-deftest-with-macroexpand leaf/mode
   '(((leaf web-mode
@@ -1322,14 +1310,36 @@ Example:
        (setq leaf-backend-bind* 'bind-key)
        (require 'leaf)))
 
-    ;; ((leaf leaf
-    ;;    :pre-setq ((leaf-backend-bind leaf-backend-bind*) . 'bind-key)
-    ;;    :require t)
-    ;;  (prog1 'leaf
-    ;;    (setq leaf-backend-bind 'bind-key)
-    ;;    (setq leaf-backend-bind* 'bind-key)
-    ;;    (require 'leaf)))
-    ))
+    ((leaf leaf
+       :pre-setq ((leaf-backend-bind leaf-backend-bind*) . 'bind-key)
+       :require t)
+     (prog1 'leaf
+       (setq leaf-backend-bind 'bind-key)
+       (setq leaf-backend-bind* 'bind-key)
+       (require 'leaf)))
+
+    ((leaf lsp-mode
+       :pre-setq ((lsp-print-io lsp-trace lsp-print-performance) . nil)
+       :require t)
+     (prog1 'lsp-mode
+       (setq lsp-print-io nil)
+       (setq lsp-trace nil)
+       (setq lsp-print-performance nil)
+       (require 'lsp-mode)))
+
+    ((leaf lsp-mode
+       :pre-setq ((lsp-use-native-json . t)
+                  ((lsp-enable-folding lsp-enable-snippet) . t)
+                  ((lsp-print-io lsp-trace lsp-print-performance) . nil))
+       :require t)
+     (prog1 'lsp-mode
+       (setq lsp-use-native-json t)
+       (setq lsp-enable-folding t)
+       (setq lsp-enable-snippet t)
+       (setq lsp-print-io nil)
+       (setq lsp-trace nil)
+       (setq lsp-print-performance nil)
+       (require 'lsp-mode)))))
 
 (cort-deftest-with-macroexpand leaf/init
   '(((leaf leaf
@@ -1456,14 +1466,13 @@ Example:
        (setq leaf-backend-bind 'bind-key)
        (setq leaf-backend-bind* 'bind-key)))
 
-    ;; ((leaf leaf
-    ;;    :setq ((leaf-backend-bind leaf-backend-bind*) . 'bind-key)
-    ;;    :require t)
-    ;;  (prog1 'leaf
-    ;;    (require 'leaf)
-    ;;    (setq leaf-backend-bind 'bind-key)
-    ;;    (setq leaf-backend-bind* 'bind-key)))
-    ))
+    ((leaf leaf
+       :setq ((leaf-backend-bind leaf-backend-bind*) . 'bind-key)
+       :require t)
+     (prog1 'leaf
+       (require 'leaf)
+       (setq leaf-backend-bind 'bind-key)
+       (setq leaf-backend-bind* 'bind-key)))))
 
 (cort-deftest-with-macroexpand leaf/setq-default
   '(((leaf alloc
@@ -1494,14 +1503,13 @@ Example:
        (setq-default leaf-backend-bind 'bind-key)
        (setq-default leaf-backend-bind* 'bind-key)))
 
-    ;; ((leaf leaf
-    ;;    :setq-default ((leaf-backend-bind leaf-backend-bind*) . 'bind-key)
-    ;;    :require t)
-    ;;  (prog1 'leaf
-    ;;    (require 'leaf)
-    ;;    (setq-default leaf-backend-bind 'bind-key)
-    ;;    (setq-default leaf-backend-bind* 'bind-key)))
-    ))
+    ((leaf leaf
+       :setq-default ((leaf-backend-bind leaf-backend-bind*) . 'bind-key)
+       :require t)
+     (prog1 'leaf
+       (require 'leaf)
+       (setq-default leaf-backend-bind 'bind-key)
+       (setq-default leaf-backend-bind* 'bind-key)))))
 
 (cort-deftest-with-macroexpand leaf/config
   '(((leaf leaf
@@ -1988,6 +1996,32 @@ Example:
 ;;  Misc functions
 ;;
 
+(cort-deftest-with-equal leaf/pairp
+  '(((leaf-pairp nil) nil)
+    ((leaf-pairp t)   nil)
+    ((leaf-pairp 'a)  nil)
+
+    ((leaf-pairp '(nil . nil)) nil)
+    ((leaf-pairp '(a . nil))   nil)
+    ((leaf-pairp '(a . t))     t)
+    ((leaf-pairp '(a . 'b))    t)
+    ((leaf-pairp '(a . `b))    t)
+    ((leaf-pairp '(a . #'b))   t)
+    ((leaf-pairp '(a . (lambda (elm) elm))) t)))
+
+(cort-deftest-with-equal leaf/pairp-allow-nil
+  '(((leaf-pairp nil 'allow-nil) t)
+    ((leaf-pairp t   'allow-nil) nil)
+    ((leaf-pairp 'a  'allow-nil) nil)
+
+    ((leaf-pairp '(nil . nil) 'allow-nil) t)
+    ((leaf-pairp '(a . nil)   'allow-nil) t)
+    ((leaf-pairp '(a . t)     'allow-nil) t)
+    ((leaf-pairp '(a . 'b)    'allow-nil) t)
+    ((leaf-pairp '(a . `b)    'allow-nil) t)
+    ((leaf-pairp '(a . #'b)   'allow-nil) t)
+    ((leaf-pairp '(a . (lambda (elm) elm))) t)))
+
 (cort-deftest-with-equal leaf/normalize-list-in-list--normal
   '(((leaf-normalize-list-in-list 'a)                   '(a))
     ((leaf-normalize-list-in-list '(a b c))             '(a b c))
@@ -2002,31 +2036,67 @@ Example:
     ((leaf-normalize-list-in-list '((a b c) . d))       '((a b c) . d))
     ((leaf-normalize-list-in-list '((a b c) . 'd))      '((a b c) . 'd))))
 
-(cort-deftest-with-equal leaf/normalize-list-in-list--dotlist
-  '(((leaf-normalize-list-in-list 'a                   'dotlist) '(a))
-    ((leaf-normalize-list-in-list '(a b c)             'dotlist) '(a b c))
-    ((leaf-normalize-list-in-list '(a . b)             'dotlist) '((a . b)))
-    ((leaf-normalize-list-in-list '(a . nil)           'dotlist) '((a . nil)))
-    ((leaf-normalize-list-in-list '(a . 'b)            'dotlist) '((a . 'b)))
-    ((leaf-normalize-list-in-list '(a . 'nil)          'dotlist) '((a . 'nil)))
-    ((leaf-normalize-list-in-list '(a)                 'dotlist) '((a . nil)))
-    ((leaf-normalize-list-in-list '((a . b) (c . d))   'dotlist) '((a . b) (c . d)))
-    ((leaf-normalize-list-in-list '((a . 'b) (c . 'd)) 'dotlist) '((a . 'b) (c . 'd)))
-    ((leaf-normalize-list-in-list '((a) (b) (c))       'dotlist) '((a) (b) (c)))
-    ((leaf-normalize-list-in-list '((a b c) . d)       'dotlist) '(((a b c) . d)))
-    ((leaf-normalize-list-in-list '((a b c) . 'd)      'dotlist) '(((a b c) . 'd)))))
-
 (cort-deftest-with-equal normalize-list-in-list--distribute
-  '(((leaf-normalize-list-in-list 'a                         'dotlist 'distribute) '(a))
-    ((leaf-normalize-list-in-list '(a b c)                   'dotlist 'distribute) '(a b c))
-    ((leaf-normalize-list-in-list '(a . b)                   'dotlist 'distribute) '((a . b)))
-    ((leaf-normalize-list-in-list '(a . 'b)                  'dotlist 'distribute) '((a . 'b)))
-    ((leaf-normalize-list-in-list '((a . b) (c . d))         'dotlist 'distribute) '((a . b) (c . d)))
-    ((leaf-normalize-list-in-list '((a . 'b) (c . 'd))       'dotlist 'distribute) '((a . 'b) (c . 'd)))
-    ((leaf-normalize-list-in-list '((a b c) . d)             'dotlist 'distribute) '((a . d) (b . d) (c . d)))
-    ((leaf-normalize-list-in-list '((a b c) . 'd)            'dotlist 'distribute) '((a . 'd) (b . 'd) (c . 'd)))
-    ((leaf-normalize-list-in-list '((x . y) ((a b c) . d))   'dotlist 'distribute) '((x . y) (a . d) (b . d) (c . d)))
-    ((leaf-normalize-list-in-list '((x . 'y) ((a b c) . 'd)) 'dotlist 'distribute) '((x . 'y) (a . 'd) (b . 'd) (c . 'd)))))
+  '(((leaf-normalize-list-in-list 'a                         'dotlist) '((a)))
+    ((leaf-normalize-list-in-list '(a)                       'dotlist) '((a . nil)))
+    ((leaf-normalize-list-in-list '(a b c)                   'dotlist) '((a . nil) (b . nil) (c . nil)))
+    ((leaf-normalize-list-in-list '(a . b)                   'dotlist) '((a . b)))
+    ((leaf-normalize-list-in-list '(a . nil)                 'dotlist) '((a . nil)))
+    ((leaf-normalize-list-in-list '(a . 'nil)                'dotlist) '((a . 'nil)))
+    ((leaf-normalize-list-in-list '(a . 'b)                  'dotlist) '((a . 'b)))
+    ((leaf-normalize-list-in-list '(a . `b)                  'dotlist) '((a . `b)))
+    ((leaf-normalize-list-in-list '(a . #'b)                 'dotlist) '((a . #'b)))
+    ((leaf-normalize-list-in-list '(a . '(b c))              'dotlist) '((a . '(b c))))
+    ((leaf-normalize-list-in-list '(a . `(b ,c))             'dotlist) '((a . `(b ,c))))
+    ((leaf-normalize-list-in-list '(a . (lambda (v) v))      'dotlist) '((a . (lambda (v) v))))
+    ((leaf-normalize-list-in-list '(a . '(lambda (v) v))     'dotlist) '((a . '(lambda (v) v))))
+    ((leaf-normalize-list-in-list '(a . #'(lambda (v) v))    'dotlist) '((a . #'(lambda (v) v))))
+
+    ((leaf-normalize-list-in-list '(a z . b)                 'dotlist) '((a . b) (z . b)))
+    ((leaf-normalize-list-in-list '(a z . nil)               'dotlist) '((a . nil) (z . nil)))
+    ((leaf-normalize-list-in-list '(a z . 'nil)              'dotlist) '((a . 'nil) (z . 'nil)))
+    ((leaf-normalize-list-in-list '(a z . 'b)                'dotlist) '((a . 'b) (z . 'b)))
+    ((leaf-normalize-list-in-list '(a z . `b)                'dotlist) '((a . `b) (z . `b)))
+    ((leaf-normalize-list-in-list '(a z . #'b)               'dotlist) '((a . #'b) (z . #'b)))
+    ((leaf-normalize-list-in-list '(a z . '(b c))            'dotlist) '((a . '(b c)) (z . '(b c))))
+    ((leaf-normalize-list-in-list '(a z . `(b ,c))           'dotlist) '((a . `(b ,c)) (z . `(b ,c))))
+    ((leaf-normalize-list-in-list '(a z . (lambda (v) v))    'dotlist) '((a . (lambda (v) v)) (z . (lambda (v) v))))
+    ((leaf-normalize-list-in-list '(a z . '(lambda (v) v))   'dotlist) '((a . '(lambda (v) v)) (z . '(lambda (v) v))))
+    ((leaf-normalize-list-in-list '(a z . #'(lambda (v) v))  'dotlist) '((a . #'(lambda (v) v)) (z . #'(lambda (v) v))))
+
+    ((leaf-normalize-list-in-list '((a) (b))                 'dotlist) '((a . nil) (b . nil)))
+    ((leaf-normalize-list-in-list '((a . b) (c . nil))       'dotlist) '((a . b) (c . nil)))
+    ((leaf-normalize-list-in-list '((a . b) (c . d))         'dotlist) '((a . b) (c . d)))
+    ((leaf-normalize-list-in-list '((a . 'b) (c . 'd))       'dotlist) '((a . 'b) (c . 'd)))
+    ((leaf-normalize-list-in-list '((a . 'b) (c . #'d))      'dotlist) '((a . 'b) (c . #'d)))
+    ((leaf-normalize-list-in-list '((a . 'b) (c . '(d e)))   'dotlist) '((a . 'b) (c . '(d e))))
+    ((leaf-normalize-list-in-list '((a . 'b) (c . `(d ,e)))  'dotlist) '((a . 'b) (c . `(d ,e))))
+    ((leaf-normalize-list-in-list '((a . 'b) (c . (lambda (v) v))) 'dotlist) '((a . 'b) (c . (lambda (v) v))))
+    ((leaf-normalize-list-in-list '((a . 'b) (c . '(lambda (v) v))) 'dotlist) '((a . 'b) (c . '(lambda (v) v))))
+    ((leaf-normalize-list-in-list '((a . 'b) (c . #'(lambda (v) v))) 'dotlist) '((a . 'b) (c . #'(lambda (v) v))))
+
+    ((leaf-normalize-list-in-list '((a) (b z))                 'dotlist) '((a . nil) (b . nil) (z . nil)))
+    ((leaf-normalize-list-in-list '((a . b) (c z . nil))       'dotlist) '((a . b) (c . nil) (z . nil)))
+    ((leaf-normalize-list-in-list '((a . b) (c z . d))         'dotlist) '((a . b) (c . d) (z . d)))
+    ((leaf-normalize-list-in-list '((a . 'b) (c z . 'd))       'dotlist) '((a . 'b) (c . 'd) (z . 'd)))
+    ((leaf-normalize-list-in-list '((a . 'b) (c z . #'d))      'dotlist) '((a . 'b) (c . #'d) (z . #'d)))
+    ((leaf-normalize-list-in-list '((a . 'b) (c z . '(d e)))   'dotlist) '((a . 'b) (c . '(d e)) (z . '(d e))))
+    ((leaf-normalize-list-in-list '((a . 'b) (c z . `(d ,e)))  'dotlist) '((a . 'b) (c . `(d ,e)) (z . `(d ,e))))
+    ((leaf-normalize-list-in-list '((a . 'b) (c z . (lambda (v) v))) 'dotlist) '((a . 'b) (c . (lambda (v) v)) (z . (lambda (v) v))))
+    ((leaf-normalize-list-in-list '((a . 'b) (c z . '(lambda (v) v))) 'dotlist) '((a . 'b) (c . '(lambda (v) v)) (z . '(lambda (v) v))))
+    ((leaf-normalize-list-in-list '((a . 'b) (c z . #'(lambda (v) v))) 'dotlist) '((a . 'b) (c . #'(lambda (v) v)) (z . #'(lambda (v) v))))
+
+    ((leaf-normalize-list-in-list '((a b c) . nil)           'dotlist) '((a . nil) (b . nil) (c . nil)))
+    ((leaf-normalize-list-in-list '((a b c) . d)             'dotlist) '((a . d) (b . d) (c . d)))
+    ((leaf-normalize-list-in-list '((a b c) . 'd)            'dotlist) '((a . 'd) (b . 'd) (c . 'd)))
+    ((leaf-normalize-list-in-list '((a b c) . #'d)           'dotlist) '((a . #'d) (b . #'d) (c . #'d)))
+    ((leaf-normalize-list-in-list '((a b c) . (lambda (v) v)) 'dotlist) '((a . (lambda (v) v)) (b . (lambda (v) v)) (c . (lambda (v) v))))
+    ((leaf-normalize-list-in-list '((x . 'y) ((a b c) . nil)) 'dotlist) '((x . 'y) (a . nil) (b . nil) (c . nil)))
+    ((leaf-normalize-list-in-list '((x . y) ((a b c) . d))   'dotlist) '((x . y) (a . d) (b . d) (c . d)))
+    ((leaf-normalize-list-in-list '((x . 'y) ((a b c) . d)) 'dotlist) '((x . 'y) (a . d) (b . d) (c . d)))
+    ((leaf-normalize-list-in-list '((x . 'y) ((a b c) . 'd)) 'dotlist) '((x . 'y) (a . 'd) (b . 'd) (c . 'd)))
+    ((leaf-normalize-list-in-list '((x . 'y) ((a b c) . #'d)) 'dotlist) '((x . 'y) (a . #'d) (b . #'d) (c . #'d)))
+    ((leaf-normalize-list-in-list '((x . 'y) ((a b c) . (lambda (v) v))) 'dotlist) '((x . 'y) (a . (lambda (v) v)) (b . (lambda (v) v)) (c . (lambda (v) v))))))
 
 (provide 'leaf-tests)
 ;;; leaf-tests.el ends here
