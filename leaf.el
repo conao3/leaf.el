@@ -844,4 +844,9 @@ Don't call this function directory."
 (font-lock-add-keywords 'emacs-lisp-mode leaf-font-lock-keywords)
 
 (provide 'leaf)
+
+;; Local Variables:
+;; indent-tabs-mode: nil
+;; End:
+
 ;;; leaf.el ends here
