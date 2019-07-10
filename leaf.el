@@ -144,8 +144,8 @@ This disabled `leaf-expand-minimally-suppress-keywords'."
 The elements of LIST are not copied, just the list structure itself."
   (if (consp list)
       (let ((res nil))
-	(while (consp list) (push (pop list) res))
-	(prog1 (nreverse res) (setcdr res list)))
+        (while (consp list) (push (pop list) res))
+        (prog1 (nreverse res) (setcdr res list)))
     (car list)))
 
 (defun leaf-safe-mapcar (fn seq)
@@ -293,7 +293,7 @@ Unlike `butlast', it works well with dotlist (last cdr is non-nil list)."
               (plist-get               ; Value.
                (cdr (plstore-get
                      ,(cdr elm)
-		     ,(format "leaf-%s" leaf--name)))
+                     ,(format "leaf-%s" leaf--name)))
                ,(intern (format ":%s" (car elm))))))
           leaf--value)
        ,@leaf--body)
@@ -314,8 +314,8 @@ Unlike `butlast', it works well with dotlist (last cdr is non-nil list)."
                 (plist-get              ; Value.
                  (cdr (plstore-get
                        ,(cdr elm)
-		       ,(format "leaf-%s" leaf--name)))
-		 ,(intern (format ":%s" (car elm))))
+                       ,(format "leaf-%s" leaf--name)))
+                 ,(intern (format ":%s" (car elm))))
                 ,(format                ; Comment.
                   "Customized in leaf `%s' from plstore `%s'"
                   leaf--name (symbol-name (cdr elm)))))
@@ -334,8 +334,8 @@ Unlike `butlast', it works well with dotlist (last cdr is non-nil list)."
               (plist-get               ; Value.
                (cdr (plstore-get
                      ,(cdr elm)
-		     ,(format "leaf-%s" leaf--name)))
-	       ,(intern (format ":%s" (car elm))))))
+                     ,(format "leaf-%s" leaf--name)))
+               ,(intern (format ":%s" (car elm))))))
           leaf--value)
        ,@leaf--body)
 
@@ -348,8 +348,8 @@ Unlike `butlast', it works well with dotlist (last cdr is non-nil list)."
               (plist-get               ; Value.
                (cdr (plstore-get
                      ,(cdr elm)
-		     ,(format "leaf-%s" leaf--name)))
-	       ,(intern (format ":%s" (car elm))))))
+                     ,(format "leaf-%s" leaf--name)))
+               ,(intern (format ":%s" (car elm))))))
           leaf--value)
        ,@leaf--body)
 
