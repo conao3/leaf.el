@@ -765,7 +765,24 @@ Example:
            (cdr
             (plstore-get another-plstore "leaf-erc"))
            :erc-nick)
-          "Customized in leaf `erc' from plstore `another-plstore'"))))))
+          "Customized in leaf `erc' from plstore `another-plstore'"))))
+
+    ((leaf erc
+       :pl-custom erc-nick erc-password)
+     (prog1 'erc
+       (custom-set-variables
+        '(erc-nick
+          (plist-get
+           (cdr
+            (plstore-get leaf-default-plstore "leaf-erc"))
+           :erc-nick)
+          "Customized in leaf `erc' from plstore `leaf-default-plstore'")
+        '(erc-password
+          (plist-get
+           (cdr
+            (plstore-get leaf-default-plstore "leaf-erc"))
+           :erc-password)
+          "Customized in leaf `erc' from plstore `leaf-default-plstore'"))))))
 
 (cort-deftest-with-macroexpand leaf/bind
   '(((leaf macrostep
