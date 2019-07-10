@@ -2218,4 +2218,9 @@ Example:
     ((leaf-normalize-list-in-list '((x . 'y) ((a b c) . (lambda (v) v))) 'dotlist) '((x . 'y) (a . (lambda (v) v)) (b . (lambda (v) v)) (c . (lambda (v) v))))))
 
 (provide 'leaf-tests)
+
+;; Local Variables:
+;; indent-tabs-mode: nil
+;; End:
+
 ;;; leaf-tests.el ends here

@@ -5,7 +5,7 @@
 ;; Author: Naoya Yamashita <conao3@gmail.com>
 ;; Maintainer: Naoya Yamashita <conao3@gmail.com>
 ;; Keywords: lisp settings
-;; Version: 3.3.6
+;; Version: 3.3.7
 ;; URL: https://github.com/conao3/leaf.el
 ;; Package-Requires: ((emacs "24.4"))
 
@@ -844,4 +844,9 @@ Don't call this function directory."
 (font-lock-add-keywords 'emacs-lisp-mode leaf-font-lock-keywords)
 
 (provide 'leaf)
+
+;; Local Variables:
+;; indent-tabs-mode: nil
+;; End:
+
 ;;; leaf.el ends here
