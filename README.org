@@ -42,6 +42,8 @@
   - [[https://github.com/conao3/leaf.el#defun-defvar-keywords][:defun, :defvar keywords]]
 - [[https://github.com/conao3/leaf.el#documentation-keywords][Documentation keywords]]
   - [[https://github.com/conao3/leaf.el#doc-file-url-keywords][:doc, :file, :url keywords]]
+- [[https://github.com/conao3/leaf.el#misc-keywords][Misc keywords]]
+  - [[https://github.com/conao3/leaf.el#pl-pre-setq-pl-setq-pl-setq-default-pl-custom-keywords][:pl-pre-setq, :pl-setq, :pl-setq-default, :pl-custom keywords]]
 - [[#system-keywords][System keywords]]
   - [[#leaf-protect-keyword][:leaf-protect keyword]]
   - [[#leaf-defer-keyword][:leaf-defer keyword]]
@@ -1479,6 +1481,141 @@ The arguments specified for this keyword have no effect on the result of the con
        (prog1 'leaf
          (leaf-init)))))
 #+END_SRC
+* Misc keywords
+** :pl-pre-setq, :pl-setq, :pl-setq-default, :pl-custom keywords
+Those keywords provide configure variables with [[https://github.com/emacs-mirror/emacs/blob/master/lisp/plstore.el][plstore.el]].
+~plstore~ provide plist based data managing and encryption.
+
+The keywords for plstore corresponding to ~:pre-setq~, ~:setq~, ~:setq-default~ and ~:custom~ are
+~:pl-pre-setq~, ~:pl-setq~, ~:pl-setq-default~ and ~:pl-custom~.
+
+Before those keyword using, prepare below plstore data and store it.
+
+#+begin_src emacs-lisp
+  (("leaf-sql"
+    :secret-sql-connection-alist (("Postgres/d125q"
+                                   (sql-product 'postgres)
+                                   (sql-user "d125q")
+                                   (sql-password "password")
+                                   (sql-server "server")
+                                   (sql-port 5432)
+                                   (sql-database "database"))
+                                  ("MySQL/d125q"
+                                   (sql-product 'mysql)
+                                   (sql-user "d125q")
+                                   (sql-password "password")
+                                   (sql-server "server")
+                                   (sql-port 3306)
+                                   (sql-database "database"))))
+   ("leaf-erc"
+    :secret-erc-password           "password"
+    :secret-erc-nickserv-passwords '((freenode (("nick-one" . "password")
+                                                ("nick-two" . "password")))
+                                     (DALnet   (("nickname" . "password"))))
+    :secret-erc-user-full-name     "Naoya Yamashita"
+    :secret-erc-nick               "conao3")))
+#+end_src
+
+If you save plist file named as ~~/.emacs.d/plstore.plist~, open plstore file and decription if needed (then type password).
+
+#+begin_src emacs-lisp
+  (leaf plstore
+    :setq `(some-plstore . ,(plstore-open (expand-file-name "~/.emacs.d/plstore.plist"))))
+#+end_src
+
+~leaf~ expand ~plstore~ related keywords as below.
+Before using those keywords, we recommended that you check how ~plstore~ works in ~*scratch*~ and not through ~leaf~.
+
+#+begin_src emacs-lisp
+  (cort-deftest-with-macroexpand leaf/pl-custom
+    ;; Emulate customizing `sql-connection-alist' with value taken from
+    ;; `some-plstore'.
+    '(((leaf sql
+         :pl-custom
+         (sql-connection-alist . some-plstore))
+       (prog1 'sql
+         (custom-set-variables
+          '(sql-connection-alist
+            (plist-get
+             (cdr
+              (plstore-get some-plstore "leaf-sql"))
+             :sql-connection-alist)
+            "Customized in leaf `sql' from plstore `some-plstore'"))))
+      ;; Emulate customizing `erc-password' and `erc-nickserv-passwords'
+      ;; with values taken from `some-plstore', and `erc-user-full-name'
+      ;; and `erc-nick' with values taken from `another-plstore'.
+      ((leaf erc
+         :pl-custom
+         ((erc-password erc-nickserv-passwords) . some-plstore)
+         ((erc-user-full-name erc-nick) . another-plstore))
+       (prog1 'erc
+         (custom-set-variables
+          '(erc-password
+            (plist-get
+             (cdr
+              (plstore-get some-plstore "leaf-erc"))
+             :erc-password)
+            "Customized in leaf `erc' from plstore `some-plstore'")
+          '(erc-nickserv-passwords
+            (plist-get
+             (cdr
+              (plstore-get some-plstore "leaf-erc"))
+             :erc-nickserv-passwords)
+            "Customized in leaf `erc' from plstore `some-plstore'")
+          '(erc-user-full-name
+            (plist-get
+             (cdr
+              (plstore-get another-plstore "leaf-erc"))
+             :erc-user-full-name)
+            "Customized in leaf `erc' from plstore `another-plstore'")
+          '(erc-nick
+            (plist-get
+             (cdr
+              (plstore-get another-plstore "leaf-erc"))
+             :erc-nick)
+            "Customized in leaf `erc' from plstore `another-plstore'"))))))
+
+  (cort-deftest-with-macroexpand leaf/pl-setq
+    ;; Emulate setting `sql-connection-alist' with value taken from
+    ;; `some-plstore'.
+    '(((leaf sql
+         :pl-setq
+         (sql-connection-alist . some-plstore))
+       (prog1 'sql
+         (setq sql-connection-alist
+               (plist-get
+                (cdr
+                 (plstore-get some-plstore "leaf-sql"))
+                :sql-connection-alist))))
+      ;; Emulate setting `erc-password' and `erc-nickserv-passwords'
+      ;; with values taken from `some-plstore', and `erc-user-full-name'
+      ;; and `erc-nick' with values taken from `another-plstore'.
+      ((leaf erc
+         :pl-setq
+         ((erc-password erc-nickserv-passwords) . some-plstore)
+         ((erc-user-full-name erc-nick) . another-plstore))
+       (prog1 'erc
+         (setq erc-password
+               (plist-get
+                (cdr
+                 (plstore-get some-plstore "leaf-erc"))
+                :erc-password))
+         (setq erc-nickserv-passwords
+               (plist-get
+                (cdr
+                 (plstore-get some-plstore "leaf-erc"))
+                :erc-nickserv-passwords))
+         (setq erc-user-full-name
+               (plist-get
+                (cdr
+                 (plstore-get another-plstore "leaf-erc"))
+                :erc-user-full-name))
+         (setq erc-nick
+               (plist-get
+                (cdr
+                 (plstore-get another-plstore "leaf-erc"))
+                :erc-nick))))))
+#+end_src
 
 * System keywords
 System keywords enabled by defalts on all leaf-block.

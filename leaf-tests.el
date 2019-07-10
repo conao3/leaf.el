@@ -718,6 +718,55 @@ Example:
         '(default ((t (:slant italic))))
         '(eruby-standard-face ((t (:slant italic)))))))))
 
+;; Tests for `:pl-custom'.
+(cort-deftest-with-macroexpand leaf/pl-custom
+  ;; Emulate customizing `sql-connection-alist' with value taken from
+  ;; `some-plstore'.
+  '(((leaf sql
+       :pl-custom
+       (sql-connection-alist . some-plstore))
+     (prog1 'sql
+       (custom-set-variables
+        '(sql-connection-alist
+          (plist-get
+           (cdr
+            (plstore-get some-plstore "leaf-sql"))
+           :sql-connection-alist)
+          "Customized in leaf `sql' from plstore `some-plstore'"))))
+    ;; Emulate customizing `erc-password' and `erc-nickserv-passwords'
+    ;; with values taken from `some-plstore', and `erc-user-full-name'
+    ;; and `erc-nick' with values taken from `another-plstore'.
+    ((leaf erc
+       :pl-custom
+       ((erc-password erc-nickserv-passwords) . some-plstore)
+       ((erc-user-full-name erc-nick) . another-plstore))
+     (prog1 'erc
+       (custom-set-variables
+        '(erc-password
+          (plist-get
+           (cdr
+            (plstore-get some-plstore "leaf-erc"))
+           :erc-password)
+          "Customized in leaf `erc' from plstore `some-plstore'")
+        '(erc-nickserv-passwords
+          (plist-get
+           (cdr
+            (plstore-get some-plstore "leaf-erc"))
+           :erc-nickserv-passwords)
+          "Customized in leaf `erc' from plstore `some-plstore'")
+        '(erc-user-full-name
+          (plist-get
+           (cdr
+            (plstore-get another-plstore "leaf-erc"))
+           :erc-user-full-name)
+          "Customized in leaf `erc' from plstore `another-plstore'")
+        '(erc-nick
+          (plist-get
+           (cdr
+            (plstore-get another-plstore "leaf-erc"))
+           :erc-nick)
+          "Customized in leaf `erc' from plstore `another-plstore'"))))))
+
 (cort-deftest-with-macroexpand leaf/bind
   '(((leaf macrostep
        :package t
@@ -1474,6 +1523,48 @@ Example:
        (setq leaf-backend-bind 'bind-key)
        (setq leaf-backend-bind* 'bind-key)))))
 
+;; Tests for `:pl-setq'.
+(cort-deftest-with-macroexpand leaf/pl-setq
+  ;; Emulate setting `sql-connection-alist' with value taken from
+  ;; `some-plstore'.
+  '(((leaf sql
+       :pl-setq
+       (sql-connection-alist . some-plstore))
+     (prog1 'sql
+       (setq sql-connection-alist
+             (plist-get
+              (cdr
+               (plstore-get some-plstore "leaf-sql"))
+              :sql-connection-alist))))
+    ;; Emulate setting `erc-password' and `erc-nickserv-passwords'
+    ;; with values taken from `some-plstore', and `erc-user-full-name'
+    ;; and `erc-nick' with values taken from `another-plstore'.
+    ((leaf erc
+       :pl-setq
+       ((erc-password erc-nickserv-passwords) . some-plstore)
+       ((erc-user-full-name erc-nick) . another-plstore))
+     (prog1 'erc
+       (setq erc-password
+             (plist-get
+              (cdr
+               (plstore-get some-plstore "leaf-erc"))
+              :erc-password))
+       (setq erc-nickserv-passwords
+             (plist-get
+              (cdr
+               (plstore-get some-plstore "leaf-erc"))
+              :erc-nickserv-passwords))
+       (setq erc-user-full-name
+             (plist-get
+              (cdr
+               (plstore-get another-plstore "leaf-erc"))
+              :erc-user-full-name))
+       (setq erc-nick
+             (plist-get
+              (cdr
+               (plstore-get another-plstore "leaf-erc"))
+              :erc-nick))))))
+
 (cort-deftest-with-macroexpand leaf/setq-default
   '(((leaf alloc
        :setq-default `((gc-cons-threshold . ,(* 512 1024 1024))
@@ -1510,6 +1601,34 @@ Example:
        (require 'leaf)
        (setq-default leaf-backend-bind 'bind-key)
        (setq-default leaf-backend-bind* 'bind-key)))))
+
+;; Tests for `:pl-setq-default'.
+(cort-deftest-with-macroexpand leaf/pl-setq-default
+  ;; Emulate setting `indent-tabs-mode' with a default value taken
+  ;; from `some-plstore'.
+  '(((leaf indent
+       :pl-setq-default
+       (indent-tabs-mode . some-plstore))
+     (prog1 'indent
+       (setq-default indent-tabs-mode
+                     (plist-get
+                      (cdr
+                       (plstore-get some-plstore "leaf-indent"))
+                      :indent-tabs-mode))))))
+
+(cort-deftest-with-macroexpand leaf/pl-pre-setq
+  ;; Emulate setting `indent-tabs-mode' with a default value taken
+  ;; from `some-plstore'.
+  '(((leaf indent
+       :pl-pre-setq (indent-tabs-mode . some-plstore)
+       :require t)
+     (prog1 'indent
+       (setq indent-tabs-mode
+             (plist-get
+              (cdr
+               (plstore-get some-plstore "leaf-indent"))
+              :indent-tabs-mode))
+       (require 'indent)))))
 
 (cort-deftest-with-macroexpand leaf/config
   '(((leaf leaf
