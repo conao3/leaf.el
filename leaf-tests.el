@@ -1548,18 +1548,18 @@ Example:
              (plist-get
               (cdr
                (plstore-get some-plstore "erc"))
-              :erc-password)
-             erc-nickserv-passwords
+              :erc-password))
+       (setq erc-nickserv-passwords
              (plist-get
               (cdr
                (plstore-get some-plstore "erc"))
-              :erc-nickserv-passwords)
-             erc-user-full-name
+              :erc-nickserv-passwords))
+       (setq erc-user-full-name
              (plist-get
               (cdr
                (plstore-get another-plstore "erc"))
-              :erc-user-full-name)
-             erc-nick
+              :erc-user-full-name))
+       (setq erc-nick
              (plist-get
               (cdr
                (plstore-get another-plstore "erc"))

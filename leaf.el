@@ -286,16 +286,16 @@ Unlike `butlast', it works well with dotlist (last cdr is non-nil list)."
 
      ;; Pre-`setq' variables from a plstore.
      :pl-pre-setq
-     `((setq
-        ,@(mapcan
-           (lambda (elm)
-             `(,(car elm)               ; Variable.
-               (plist-get               ; Value.
-                (cdr (plstore-get
-                      ,(cdr elm)
-                      ,(symbol-name leaf--name)))
-                ,(intern (concat ":" (symbol-name (car elm)))))))
-           leaf--value))
+     `(,@(mapcar
+          (lambda (elm)
+            `(setq
+              ,(car elm)               ; Variable.
+              (plist-get               ; Value.
+               (cdr (plstore-get
+                     ,(cdr elm)
+                     ,(symbol-name leaf--name)))
+               ,(intern (concat ":" (symbol-name (car elm)))))))
+          leaf--value)
        ,@leaf--body)
 
      :init           `(,@leaf--value ,@leaf--body)
@@ -327,30 +327,30 @@ Unlike `butlast', it works well with dotlist (last cdr is non-nil list)."
 
      ;; `setq' variables from a plstore.
      :pl-setq
-     `((setq
-        ,@(mapcan
-           (lambda (elm)
-             `(,(car elm)               ; Variable.
-               (plist-get               ; Value.
-                (cdr (plstore-get
-                      ,(cdr elm)
-                      ,(symbol-name leaf--name)))
-                ,(intern (concat ":" (symbol-name (car elm)))))))
-           leaf--value))
+     `(,@(mapcar
+          (lambda (elm)
+            `(setq
+              ,(car elm)               ; Variable.
+              (plist-get               ; Value.
+               (cdr (plstore-get
+                     ,(cdr elm)
+                     ,(symbol-name leaf--name)))
+               ,(intern (concat ":" (symbol-name (car elm)))))))
+          leaf--value)
        ,@leaf--body)
 
      ;; `setq-default' variables from a plstore.
      :pl-setq-default
-     `((setq-default
-        ,@(mapcan
-           (lambda (elm)
-             `(,(car elm)               ; Variable.
-               (plist-get               ; Value.
-                (cdr (plstore-get
-                      ,(cdr elm)
-                      ,(symbol-name leaf--name)))
-                ,(intern (concat ":" (symbol-name (car elm)))))))
-           leaf--value))
+     `(,@(mapcar
+          (lambda (elm)
+            `(setq-default
+              ,(car elm)               ; Variable.
+              (plist-get               ; Value.
+               (cdr (plstore-get
+                     ,(cdr elm)
+                     ,(symbol-name leaf--name)))
+               ,(intern (concat ":" (symbol-name (car elm)))))))
+          leaf--value)
        ,@leaf--body)
 
      :config         `(,@leaf--value ,@leaf--body)
