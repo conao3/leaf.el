@@ -293,8 +293,8 @@ Unlike `butlast', it works well with dotlist (last cdr is non-nil list)."
               (plist-get               ; Value.
                (cdr (plstore-get
                      ,(cdr elm)
-                     ,(concat "leaf-" (symbol-name leaf--name))))
-               ,(intern (concat ":" (symbol-name (car elm)))))))
+		     ,(format "leaf-%s" leaf--name)))
+               ,(intern (format ":%s" (car elm))))))
           leaf--value)
        ,@leaf--body)
 
@@ -314,8 +314,8 @@ Unlike `butlast', it works well with dotlist (last cdr is non-nil list)."
                 (plist-get              ; Value.
                  (cdr (plstore-get
                        ,(cdr elm)
-		       ,(concat "leaf-" (symbol-name leaf--name))))
-                 ,(intern (concat ":" (symbol-name (car elm)))))
+		       ,(format "leaf-%s" leaf--name)))
+		 ,(intern (format ":%s" (car elm))))
                 ,(format                ; Comment.
                   "Customized in leaf `%s' from plstore `%s'"
                   leaf--name (symbol-name (cdr elm)))))
@@ -334,8 +334,8 @@ Unlike `butlast', it works well with dotlist (last cdr is non-nil list)."
               (plist-get               ; Value.
                (cdr (plstore-get
                      ,(cdr elm)
-		     ,(concat "leaf-" (symbol-name leaf--name))))
-               ,(intern (concat ":" (symbol-name (car elm)))))))
+		     ,(format "leaf-%s" leaf--name)))
+	       ,(intern (format ":%s" (car elm))))))
           leaf--value)
        ,@leaf--body)
 
@@ -348,8 +348,8 @@ Unlike `butlast', it works well with dotlist (last cdr is non-nil list)."
               (plist-get               ; Value.
                (cdr (plstore-get
                      ,(cdr elm)
-		     ,(concat "leaf-" (symbol-name leaf--name))))
-               ,(intern (concat ":" (symbol-name (car elm)))))))
+		     ,(format "leaf-%s" leaf--name)))
+	       ,(intern (format ":%s" (car elm))))))
           leaf--value)
        ,@leaf--body)
 
