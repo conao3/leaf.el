@@ -1616,6 +1616,20 @@ Example:
                        (plstore-get some-plstore "leaf-indent"))
                       :indent-tabs-mode))))))
 
+(cort-deftest-with-macroexpand leaf/pl-pre-setq
+  ;; Emulate setting `indent-tabs-mode' with a default value taken
+  ;; from `some-plstore'.
+  '(((leaf indent
+       :pl-pre-setq (indent-tabs-mode . some-plstore)
+       :require t)
+     (prog1 'indent
+       (setq indent-tabs-mode
+             (plist-get
+              (cdr
+               (plstore-get some-plstore "leaf-indent"))
+              :indent-tabs-mode))
+       (require 'indent)))))
+
 (cort-deftest-with-macroexpand leaf/config
   '(((leaf leaf
        :init (leaf-pre-init)
