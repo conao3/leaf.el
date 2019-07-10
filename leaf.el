@@ -5,7 +5,7 @@
 ;; Author: Naoya Yamashita <conao3@gmail.com>
 ;; Maintainer: Naoya Yamashita <conao3@gmail.com>
 ;; Keywords: lisp settings
-;; Version: 3.3.9
+;; Version: 3.4.0
 ;; URL: https://github.com/conao3/leaf.el
 ;; Package-Requires: ((emacs "24.4"))
 
@@ -73,7 +73,7 @@ with values for these keywords."
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
-;;  Customize backend
+;;  Customize variables
 ;;
 
 (defcustom leaf-expand-minimally nil
@@ -90,6 +90,15 @@ This disabled `leaf-expand-minimally-suppress-keywords'."
 (defcustom leaf-options-ensure-default-pin nil
   "Option :ensure pin default.
 'nil is using package manager default."
+  :type 'sexp
+  :group 'leaf)
+
+(defcustom leaf-default-plstore
+  (let ((path (locate-user-emacs-file "leaf-plstore.plist")))
+    (when (file-readable-p path)
+      (plstore-open path)))
+  "Default value if omit store variable in plsore related keywords.
+This variable must be result of `plstore-open'."
   :type 'sexp
   :group 'leaf)
 
@@ -324,8 +333,8 @@ Sort by `leaf-sort-leaf--values-plist' in this order.")
     ((memq leaf--key (cdr '(:dummy
                             :ensure :package
                             :hook :mode :interpreter :magic :magic-fallback :defun
-                            :setq :pre-setq :setq-default :custom :custom-face
-                            :pl-setq :pl-pre-setq :pl-setq-default :pl-custom)))
+                            :pl-setq :pl-pre-setq :pl-setq-default :pl-custom
+                            :setq :pre-setq :setq-default :custom :custom-face)))
      ;; Accept: (sym . val), ((sym sym ...) . val), (sym sym ... . val)
      ;; Return: list of pair (sym . val)
      ;; Note  : atom ('t, 'nil, symbol) is just ignored
@@ -338,6 +347,8 @@ Sort by `leaf-sort-leaf--values-plist' in this order.")
                  (if (equal '(t) elm) `(,leaf--name . nil) `(,@elm . nil)))
                 ((memq leaf--key '(:hook :mode :interpreter :magic :magic-fallback :defun))
                  `(,@elm . ,leaf--name))
+                ((memq leaf--key '(:pl-custom :pl-pre-setq :pl-setq :pl-setq-default))
+                 `(,@elm . leaf-default-plstore))
                 ((memq leaf--key '(:setq :pre-setq :setq-default :custom :custom-face))
                  elm)
                 (t
