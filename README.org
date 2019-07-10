@@ -1517,11 +1517,10 @@ Before those keyword using, prepare below plstore data and store it.
 #+end_src
 
 If you save plist file named as ~~/.emacs.d/plstore.plist~, open plstore file and decription if needed (then type password).
-(Because we want this ~setq~ to be evaluated at run time, you must use the ~:config~ keyword and explicitly write the S-expression.)
+
 #+begin_src emacs-lisp
   (leaf plstore
-    :config
-    (setq some-plstore (plstore-open (expand-file-name "~/.emacs.d/plstore.plist"))))
+    :setq `(some-plstore . ,(plstore-open (expand-file-name "~/.emacs.d/plstore.plist"))))
 #+end_src
 
 ~leaf~ expand ~plstore~ related keywords as below.
