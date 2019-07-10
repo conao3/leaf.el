@@ -93,7 +93,10 @@ This disabled `leaf-expand-minimally-suppress-keywords'."
   :type 'sexp
   :group 'leaf)
 
-(defcustom leaf-default-plstore nil
+(defcustom leaf-default-plstore
+  (let ((path (locate-user-emacs-file "leaf-plstore.plist")))
+    (when (file-readable-p path)
+      (plstore-open path)))
   "Default value if omit store variable in plsore related keywords.
 This variable must be result of `plstore-open'."
   :type 'sexp
