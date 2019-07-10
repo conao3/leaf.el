@@ -251,6 +251,41 @@ Example:
      (prog1 'leaf
        (leaf-init)))))
 
+(cort-deftest-with-macroexpand leaf/ensure
+  '(
+    ;; 't will be converted leaf--name
+    ((leaf leaf
+       :ensure t
+       :config (leaf-init))
+     (prog1 'leaf
+       (leaf-handler-package leaf leaf nil)
+       (leaf-init)))
+
+    ;; multi symbols will be accepted
+    ((leaf leaf
+       :ensure t leaf-browser
+       :config (leaf-init))
+     (prog1 'leaf
+       (leaf-handler-package leaf leaf nil)
+       (leaf-handler-package leaf leaf-browser nil)
+       (leaf-init)))
+
+    ;; multi symbols in list will be accepted
+    ((leaf leaf
+       :ensure (feather leaf-key leaf-browser)
+       :config (leaf-init))
+     (prog1 'leaf
+       (leaf-handler-package leaf feather nil)
+       (leaf-handler-package leaf leaf-key nil)
+       (leaf-handler-package leaf leaf-browser nil)
+       (leaf-init)))
+
+    ;; ensure from pin
+    ((leaf leaf
+       :ensure (t . pin))
+     (prog1 'leaf
+       (leaf-handler-package leaf leaf pin)))))
+
 (cort-deftest-with-macroexpand leaf/package
   '(((leaf leaf
        :package t
@@ -282,7 +317,9 @@ Example:
        (leaf-handler-package leaf leaf pin)))))
 
 (cort-deftest-with-macroexpand leaf/doc
-  '(((leaf leaf
+  '(
+    ;; any sexp will be ignored
+    ((leaf leaf
        :doc "Symplify init.el configuration"
        :config (leaf-init))
      (prog1 'leaf
@@ -329,7 +366,9 @@ Example:
        (leaf-init)))))
 
 (cort-deftest-with-macroexpand leaf/load-path
-  '(((leaf leaf
+  '(
+    ;; string will be accepted
+    ((leaf leaf
        :load-path "~/.emacs.d/elpa-archive/leaf.el/"
        :require t
        :config (leaf-init))
@@ -338,6 +377,7 @@ Example:
        (require 'leaf)
        (leaf-init)))
 
+    ;; multi strings will be accepted
     ((leaf leaf
        :load-path
        "~/.emacs.d/elpa-archive/leaf.el/"
@@ -350,6 +390,7 @@ Example:
        (require 'leaf)
        (leaf-init)))
 
+    ;; multi strings in list will be accepted
     ((leaf leaf
        :load-path ("~/.emacs.d/elpa-archive/leaf.el/"
                    "~/.emacs.d/elpa-archive/leaf-browser.el/")
@@ -361,6 +402,7 @@ Example:
        (require 'leaf)
        (leaf-init)))
 
+    ;; nested strings is supported
     ((leaf leaf
        :load-path ("~/.emacs.d/elpa-archive/leaf.el/"
                    ("~/.emacs.d/elpa-archive/leaf.el/"
@@ -373,6 +415,7 @@ Example:
        (require 'leaf)
        (leaf-init)))
 
+    ;; duplicated value is ignored
     ((leaf leaf
        :load-path ("~/.emacs.d/elpa-archive/leaf.el/"
                    ("~/.emacs.d/elpa-archive/leaf.el/"
@@ -386,6 +429,7 @@ Example:
        (require 'leaf)
        (leaf-init)))
 
+    ;; use backquote and comma to configure with result of sexp
     ((leaf leaf
        :load-path ("~/.emacs.d/elpa-archive/leaf.el/")
        :load-path `(,(mapcar (lambda (elm)
@@ -401,13 +445,22 @@ Example:
        (leaf-init)))))
 
 (cort-deftest-with-macroexpand leaf/defun
-  '(((leaf leaf
+  '(
+    ;; symbol will be accepted and use leaf--name
+    ((leaf leaf
+       :defun leaf)
+     (prog1 'leaf
+       (declare-function leaf "leaf")))
+
+    ;; multi symbols will be accepted
+    ((leaf leaf
        :defun leaf leaf-normalize-plist leaf-merge-dupkey-values-plist)
      (prog1 'leaf
        (declare-function leaf "leaf")
        (declare-function leaf-normalize-plist "leaf")
        (declare-function leaf-merge-dupkey-values-plist "leaf")))
 
+    ;; multi symbols in list will be accepted
     ((leaf leaf
        :defun (leaf leaf-normalize-plist leaf-merge-dupkey-values-plist))
      (prog1 'leaf
@@ -415,6 +468,13 @@ Example:
        (declare-function leaf-normalize-plist "leaf")
        (declare-function leaf-merge-dupkey-values-plist "leaf")))
 
+    ;; cons-cell will be accepted
+    ((leaf leaf
+       :defun (lbrowser-open . leaf-browser))
+     (prog1 'leaf
+       (declare-function lbrowser-open "leaf-browser")))
+
+    ;; distribution feature is supported
     ((leaf leaf
        :defun ((lbrowser-open lbrowser-close) . leaf-browser))
      (prog1 'leaf
@@ -422,68 +482,45 @@ Example:
        (declare-function lbrowser-close "leaf-browser")))))
 
 (cort-deftest-with-macroexpand leaf/defvar
-  '(((leaf leaf
-       :defvar leaf leaf-normalize-plist leaf-merge-dupkey-values-plist)
-     (prog1 'leaf
-       (defvar leaf)
-       (defvar leaf-normalize-plist)
-       (defvar leaf-merge-dupkey-values-plist)))
-
+  '(
+    ;; symbol will be accepted
     ((leaf leaf
-       :defvar (leaf leaf-normalize-plist leaf-merge-dupkey-values-plist))
+       :defvar leaf-var)
      (prog1 'leaf
-       (defvar leaf)
-       (defvar leaf-normalize-plist)
-       (defvar leaf-merge-dupkey-values-plist)))
+       (defvar leaf-var)))
 
+    ;; multi symbols will be accepted
     ((leaf leaf
-       :defvar (leaf
-                 (leaf-normalize-plist
-                  (leaf-merge-dupkey-values-plist))))
+       :defvar leaf-var1 leaf-var2 leaf-var3)
      (prog1 'leaf
-       (defvar leaf)
-       (defvar leaf-normalize-plist)
-       (defvar leaf-merge-dupkey-values-plist)))))
+       (defvar leaf-var1)
+       (defvar leaf-var2)
+       (defvar leaf-var3)))
+
+    ;; multi symbols in list will be accepted
+    ((leaf leaf
+       :defvar (leaf-var1 leaf-var2 leaf-var3))
+     (prog1 'leaf
+       (defvar leaf-var1)
+       (defvar leaf-var2)
+       (defvar leaf-var3)))
+
+    ;; nested list will be accepted
+    ;; duplicated values will be ignored
+    ((leaf leaf
+       :defvar (leaf-var1 (leaf-var1 leaf-var2 leaf-var3)))
+     (prog1 'leaf
+       (defvar leaf-var1)
+       (defvar leaf-var2)
+       (defvar leaf-var3)))))
 
 (cort-deftest-with-macroexpand leaf/preface
-  '(((leaf leaf
-       :init (leaf-pre-init)
-       :require t
-       :config (leaf-init))
-     (prog1 'leaf
-       (leaf-pre-init)
-       (require 'leaf)
-       (leaf-init)))
-
+  '(
+    ;; sexp will be expanded in order of :preface, :when, :require, :init, :config. 
     ((leaf leaf
-       :preface (progn
-                  (leaf-pre-init)
-                  (leaf-pre-init-after))
        :require t
-       :config (leaf-init))
-     (prog1 'leaf
-       (progn
-         (leaf-pre-init)
-         (leaf-pre-init-after))
-       (require 'leaf)
-       (leaf-init)))
-
-    ((leaf leaf
-       :preface
-       (leaf-pre-init)
-       (leaf-pre-init-after)
-       :require t
-       :config (leaf-init))
-     (prog1 'leaf
-       (leaf-pre-init)
-       (leaf-pre-init-after)
-       (require 'leaf)
-       (leaf-init)))
-
-    ((leaf leaf
        :preface (preface-init)
        :when (some-condition)
-       :require t
        :init (package-preconfig)
        :config (package-init))
      (prog1 'leaf
@@ -491,10 +528,49 @@ Example:
        (when (some-condition)
          (package-preconfig)
          (require 'leaf)
+         (package-init))))
+
+    ;; multi sexp will be accepted
+    ((leaf leaf
+       :preface
+       (leaf-pre-init)
+       (leaf-pre-init-after)
+       :when (some-condition)
+       :require t
+       :init (package-preconfig)
+       :config (package-init))
+     (prog1 'leaf
+       (leaf-pre-init)
+       (leaf-pre-init-after)
+       (when
+           (some-condition)
+         (package-preconfig)
+         (require 'leaf)
+         (package-init))))
+
+    ;; you can use `progn' if you prefer it
+    ((leaf leaf
+       :preface (progn
+                  (leaf-pre-init)
+                  (leaf-pre-init-after))
+       :when (some-condition)
+       :require t
+       :init (package-preconfig)
+       :config (package-init))
+     (prog1 'leaf
+       (progn
+         (leaf-pre-init)
+         (leaf-pre-init-after))
+       (when
+           (some-condition)
+         (package-preconfig)
+         (require 'leaf)
          (package-init))))))
 
 (cort-deftest-with-macroexpand leaf/if
-  '(((leaf leaf
+  '(
+    ;; single xexp will accepted
+    ((leaf leaf
        :if leafp
        :require t
        :config (leaf-init))
@@ -504,6 +580,7 @@ Example:
              (require 'leaf)
              (leaf-init)))))
 
+    ;; multi sexp will accepted and eval them in `and'
     ((leaf leaf
        :if leafp leaf-avairablep (window-system)
        :require t
@@ -514,6 +591,7 @@ Example:
              (require 'leaf)
              (leaf-init)))))
 
+    ;; you can use other condition keywords same time
     ((leaf leaf
        :if leafp leaf-avairablep (window-system)
        :when leaf-browserp
@@ -526,6 +604,7 @@ Example:
                (require 'leaf)
                (leaf-init))))))
 
+    ;; you want eval sexp before any conditions, you can use :preface
     ((leaf leaf
        :if leafp leaf-avairablep (window-system)
        :when leaf-browserp
@@ -543,7 +622,9 @@ Example:
                (leaf-init))))))))
 
 (cort-deftest-with-macroexpand leaf/when
-  '(((leaf leaf
+  '(
+    ;; same as :if
+    ((leaf leaf
        :when leafp
        :require t
        :config (leaf-init))
@@ -562,7 +643,9 @@ Example:
          (leaf-init))))))
 
 (cort-deftest-with-macroexpand leaf/unless
-  '(((leaf leaf
+  '(
+    ;; same as :if
+    ((leaf leaf
        :unless leafp
        :require t
        :config (leaf-init))
@@ -581,7 +664,9 @@ Example:
          (leaf-init))))))
 
 (cort-deftest-with-macroexpand leaf/after
-  '(((leaf leaf-browser
+  '(
+    ;; 't will be converted leaf--name
+    ((leaf leaf-browser
        :after leaf
        :require t
        :config (leaf-browser-init))
@@ -591,6 +676,7 @@ Example:
             (require 'leaf-browser)
             (leaf-browser-init)))))
 
+    ;; multi symbols will be accepted
     ((leaf leaf-browser
        :after leaf org orglyth
        :require t
@@ -603,6 +689,7 @@ Example:
                   (require 'leaf-browser)
                   (leaf-browser-init)))))))
 
+    ;; multi symbols in list will be accepted
     ((leaf leaf-browser
        :after leaf (org orglyth)
        :require t
@@ -615,101 +702,95 @@ Example:
                   (require 'leaf-browser)
                   (leaf-browser-init)))))))
 
+    ;; duplicated symbol will be ignored
     ((leaf leaf-browser
-       :after leaf (org orglyth
-                        (org
-                         (org
-                          (org-ex))))
+       :after leaf (org orglyth) org org
        :require t
        :config (leaf-browser-init))
      (prog1 'leaf-browser
-       (eval-after-load 'org-ex
-         '(eval-after-load 'orglyth
-            '(eval-after-load 'org
-               '(eval-after-load 'leaf
-                  '(progn
-                     (require 'leaf-browser)
-                     (leaf-browser-init))))))))))
+       (eval-after-load 'orglyth
+         '(eval-after-load 'org
+            '(eval-after-load 'leaf
+               '(progn
+                  (require 'leaf-browser)
+                  (leaf-browser-init)))))))))
 
 (cort-deftest-with-macroexpand leaf/custom
-  '(((leaf flyspell-correct-ivy
-       :bind (("C-M-i" . flyspell-correct-wrapper))
-       :custom ((flyspell-correct-interface . #'flyspell-correct-ivy)))
-     (prog1 'flyspell-correct-ivy
-       (autoload #'flyspell-correct-wrapper "flyspell-correct-ivy" nil t)
-       (leaf-keys (("C-M-i" . flyspell-correct-wrapper)))
-       (eval-after-load 'flyspell-correct-ivy
-         '(progn
-            (custom-set-variables
-             '(flyspell-correct-interface #'flyspell-correct-ivy "Customized with leaf in flyspell-correct-ivy block"))))))
-
-    ((leaf leaf
-       :custom ((leaf-backend-ensure . 'feather)))
-     (prog1 'leaf
-       (custom-set-variables
-        '(leaf-backend-ensure 'feather "Customized with leaf in leaf block"))))
-
-    ((leaf leaf
-       :custom ((leaf-backend-ensure . 'feather)
-                (leaf-backend-bind   . 'bind-key)
-                (leaf-backend-bind*  . 'bind-key)))
-     (prog1 'leaf
-       (custom-set-variables
-        '(leaf-backend-ensure 'feather "Customized with leaf in leaf block")
-        '(leaf-backend-bind 'bind-key "Customized with leaf in leaf block")
-        '(leaf-backend-bind* 'bind-key "Customized with leaf in leaf block"))))
-
-    ((leaf leaf
+  '(
+    ;; multi cons-cell will be accepted
+    ((leaf foo-package
        :custom
-       (leaf-backend-ensure . 'feather)
-       (leaf-backend-bind   . 'bind-key)
-       (leaf-backend-bind*  . 'bind-key))
-     (prog1 'leaf
+       (foo-package-to-enable   . t)
+       (foo-package-to-disable  . nil)
+       (foo-package-to-symbol   . 'symbol)
+       (foo-package-to-function . #'ignore)
+       (foo-package-to-lambda   . (lambda (elm) (message elm))))
+     (prog1 'foo-package
        (custom-set-variables
-        '(leaf-backend-ensure 'feather "Customized with leaf in leaf block")
-        '(leaf-backend-bind 'bind-key "Customized with leaf in leaf block")
-        '(leaf-backend-bind* 'bind-key "Customized with leaf in leaf block"))))
+        '(foo-package-to-enable t "Customized with leaf in foo-package block")
+        '(foo-package-to-disable nil "Customized with leaf in foo-package block")
+        '(foo-package-to-symbol 'symbol "Customized with leaf in foo-package block")
+        '(foo-package-to-function #'ignore "Customized with leaf in foo-package block")
+        '(foo-package-to-lambda (lambda (elm) (message elm)) "Customized with leaf in foo-package block"))))
 
-    ((leaf buffer.c
-       :custom ((cursor-type . nil)))
-     (prog1 'buffer\.c
+    ;; multi cons-cell in list will be accepted
+    ((leaf foo-package
+       :custom ((foo-package-to-enable   . t)
+                (foo-package-to-disable  . nil)
+                (foo-package-to-symbol   . 'symbol)
+                (foo-package-to-function . #'ignore)
+                (foo-package-to-lambda   . (lambda (elm) (message elm)))))
+     (prog1 'foo-package
        (custom-set-variables
-        '(cursor-type nil "Customized with leaf in buffer.c block"))))
+        '(foo-package-to-enable t "Customized with leaf in foo-package block")
+        '(foo-package-to-disable nil "Customized with leaf in foo-package block")
+        '(foo-package-to-symbol 'symbol "Customized with leaf in foo-package block")
+        '(foo-package-to-function #'ignore "Customized with leaf in foo-package block")
+        '(foo-package-to-lambda (lambda (elm) (message elm)) "Customized with leaf in foo-package block"))))
 
-    ((leaf leaf
-       :custom ((leaf-backend-bind leaf-backend-bind*) . 'bind-key))
-     (prog1 'leaf
+    ;; distribution feature is supported
+    ((leaf foo-package
+       :custom (((to-enable1 to-enable2 to-enable3) . t)
+                ((to-disable1 to-disable2 to-disable3) . nil)))
+     (prog1 'foo-package
        (custom-set-variables
-        '(leaf-backend-bind 'bind-key "Customized with leaf in leaf block")
-        '(leaf-backend-bind* 'bind-key "Customized with leaf in leaf block"))))
+        '(to-enable1 t "Customized with leaf in foo-package block")
+        '(to-enable2 t "Customized with leaf in foo-package block")
+        '(to-enable3 t "Customized with leaf in foo-package block")
+        '(to-disable1 nil "Customized with leaf in foo-package block")
+        '(to-disable2 nil "Customized with leaf in foo-package block")
+        '(to-disable3 nil "Customized with leaf in foo-package block"))))
 
-    ((leaf leaf
+    ;; and mix specification is accepted
+    ((leaf foo-package
        :custom
-       (leaf-backend-ensure . 'feather)
-       ((leaf-backend-bind leaf-backend-bind*) . 'bind-key))
-     (prog1 'leaf
+       (foo-package-to-function . #'ignore)
+       ((to-symbol1 to-symbol2) . 'baz)
+       (((to-enable1 to-enable2 to-enable3) . t)
+        ((to-disable1 to-disable2 to-disable3) . nil)))
+     (prog1 'foo-package
        (custom-set-variables
-        '(leaf-backend-ensure 'feather "Customized with leaf in leaf block")
-        '(leaf-backend-bind 'bind-key "Customized with leaf in leaf block")
-        '(leaf-backend-bind* 'bind-key "Customized with leaf in leaf block"))))
-
-    ((leaf leaf
-       :custom ((leaf-backend-ensure . 'feather)
-                ((leaf-backend-bind leaf-backend-bind*) . 'bind-key)))
-     (prog1 'leaf
-       (custom-set-variables
-        '(leaf-backend-ensure 'feather "Customized with leaf in leaf block")
-        '(leaf-backend-bind 'bind-key "Customized with leaf in leaf block")
-        '(leaf-backend-bind* 'bind-key "Customized with leaf in leaf block"))))))
+        '(foo-package-to-function #'ignore "Customized with leaf in foo-package block")
+        '(to-symbol1 'baz "Customized with leaf in foo-package block")
+        '(to-symbol2 'baz "Customized with leaf in foo-package block")
+        '(to-enable1 t "Customized with leaf in foo-package block")
+        '(to-enable2 t "Customized with leaf in foo-package block")
+        '(to-enable3 t "Customized with leaf in foo-package block")
+        '(to-disable1 nil "Customized with leaf in foo-package block")
+        '(to-disable2 nil "Customized with leaf in foo-package block")
+        '(to-disable3 nil "Customized with leaf in foo-package block"))))))
 
 (cort-deftest-with-macroexpand leaf/custom-face
-  '(((leaf eruby-mode
+  '(
+    ;; cons-cell will be accepted
+    ((leaf eruby-mode
        :custom-face
        (eruby-standard-face . '((t (:slant italic)))))
      (prog1 'eruby-mode
        (custom-set-faces
         '(eruby-standard-face ((t (:slant italic)))))))
 
+    ;; distribution feature is supported
     ((leaf eruby-mode
        :custom-face
        ((default eruby-standard-face) . '((t (:slant italic)))))
@@ -719,9 +800,9 @@ Example:
         '(eruby-standard-face ((t (:slant italic)))))))))
 
 (cort-deftest-with-macroexpand leaf/pl-custom
-  ;; Emulate customizing `sql-connection-alist' with value taken from
-  ;; `some-plstore'.
-  '(((leaf sql
+  '(
+    ;; Emulate customizing `sql-connection-alist' with value taken from `some-plstore'.
+    ((leaf sql
        :pl-custom
        (sql-connection-alist . some-plstore))
      (prog1 'sql
@@ -731,6 +812,7 @@ Example:
                                  (plstore-get some-plstore "leaf-sql"))
                                 :sql-connection-alist)
                                "Customized in leaf `sql' from plstore `some-plstore'"))))
+
     ;; Emulate customizing `erc-password' and `erc-nickserv-passwords'
     ;; with values taken from `some-plstore', and `erc-user-full-name'
     ;; and `erc-nick' with values taken from `another-plstore'.
@@ -761,6 +843,7 @@ Example:
                                   :erc-nick)
                                  "Customized in leaf `erc' from plstore `another-plstore'"))))
 
+    ;; you can use symbol to configure with `leaf-default-plstore'.
     ((leaf erc
        :pl-custom erc-nick erc-password)
      (prog1 'erc
@@ -777,23 +860,17 @@ Example:
                        "Customized in leaf `erc' from plstore `leaf-default-plstore'"))))))
 
 (cort-deftest-with-macroexpand leaf/bind
-  '(((leaf macrostep
-       :package t
-       :bind (("C-c e" . macrostep-expand)))
+  '(
+    ;; cons-cell will be accepted
+    ((leaf macrostep
+       :ensure t
+       :bind ("C-c e" . macrostep-expand))
      (prog1 'macrostep
        (autoload #'macrostep-expand "macrostep" nil t)
        (leaf-handler-package macrostep macrostep nil)
        (leaf-keys (("C-c e" . macrostep-expand)))))
 
-    ((leaf macrostep
-       :package t
-       :bind ("C-c e" . macrostep-expand))
-     (prog1 'macrostep
-       (autoload #'macrostep-expand "macrostep" nil t)
-       (leaf-handler-package macrostep macrostep nil)
-       (leaf-keys
-        (("C-c e" . macrostep-expand)))))
-
+    ;; multi cons-cell will be accepted
     ((leaf color-moccur
        :bind
        ("M-s O" . moccur)
@@ -807,6 +884,7 @@ Example:
                    ("M-o" . isearch-moccur)
                    ("M-O" . isearch-moccur-all)))))
 
+    ;; multi cons-cell in list will be accepted
     ((leaf color-moccur
        :bind (("M-s O" . moccur)
               ("M-o" . isearch-moccur)
@@ -819,18 +897,7 @@ Example:
                    ("M-o" . isearch-moccur)
                    ("M-O" . isearch-moccur-all)))))
 
-    ((leaf color-moccur
-       :bind
-       ("M-s" . nil)
-       ("M-s o" . isearch-moccur)
-       ("M-s i" . isearch-moccur-all))
-     (prog1 'color-moccur
-       (autoload #'isearch-moccur "color-moccur" nil t)
-       (autoload #'isearch-moccur-all "color-moccur" nil t)
-       (leaf-keys (("M-s")
-                   ("M-s o" . isearch-moccur)
-                   ("M-s i" . isearch-moccur-all)))))
-
+    ;; bind to nil to unbind shortcut
     ((leaf color-moccur
        :bind (("M-s" . nil)
               ("M-s o" . isearch-moccur)
@@ -842,18 +909,7 @@ Example:
                    ("M-s o" . isearch-moccur)
                    ("M-s i" . isearch-moccur-all)))))
 
-    ((leaf color-moccur
-       :bind (("M-s O" . moccur)
-              (("M-o" . isearch-moccur)
-               (("M-O" . isearch-moccur-all)))))
-     (prog1 'color-moccur
-       (autoload #'moccur "color-moccur" nil t)
-       (autoload #'isearch-moccur "color-moccur" nil t)
-       (autoload #'isearch-moccur-all "color-moccur" nil t)
-       (leaf-keys (("M-s O" . moccur)
-                   ("M-o" . isearch-moccur)
-                   ("M-O" . isearch-moccur-all)))))
-
+    ;; nested cons-cell list will be accepted
     ((leaf color-moccur
        :bind (("M-s O" . moccur)
               (("M-o" . isearch-moccur)
@@ -869,6 +925,7 @@ Example:
                    ("M-O" . isearch-moccur-all)
                    ("M-s" . isearch-moccur-some)))))
 
+    ;; use keyword at first element to bind specific map
     ((leaf color-moccur
        :bind (("M-s O" . moccur)
               (:isearch-mode-map
@@ -884,6 +941,7 @@ Example:
                     ("M-o" . isearch-moccur)
                     ("M-O" . isearch-moccur-all))))))
 
+    ;; specific map at top-level will be accepted
     ((leaf color-moccur
        :bind
        ("M-s O" . moccur)
@@ -900,23 +958,7 @@ Example:
                     ("M-o" . isearch-moccur)
                     ("M-O" . isearch-moccur-all))))))
 
-    ((leaf color-moccur
-       :bind
-       ("M-s O" . moccur)
-       (:isearch-mode-map
-        :package isearch
-        ("M-o" . isearch-moccur)
-        ("M-O" . isearch-moccur-all)))
-     (prog1 'color-moccur
-       (autoload #'moccur "color-moccur" nil t)
-       (autoload #'isearch-moccur "color-moccur" nil t)
-       (autoload #'isearch-moccur-all "color-moccur" nil t)
-       (leaf-keys (("M-s O" . moccur)
-                   (:isearch-mode-map
-                    :package isearch
-                    ("M-o" . isearch-moccur)
-                    ("M-O" . isearch-moccur-all))))))
-
+    ;; use :package to deffering :iserch-mode-map declared
     ((leaf color-moccur
        :bind (("M-s O" . moccur)
               (:isearch-mode-map
@@ -933,6 +975,7 @@ Example:
                     ("M-o" . isearch-moccur)
                     ("M-O" . isearch-moccur-all))))))
 
+    ;; you can use symbol instead of keyword to specify map
     ((leaf color-moccur
        :bind (("M-s O" . moccur)
               (isearch-mode-map
@@ -950,7 +993,9 @@ Example:
                     ("M-O" . isearch-moccur-all))))))))
 
 (cort-deftest-with-macroexpand leaf/bind*
-  '(((leaf color-moccur
+  '(
+    ;; bind* to bind override any key-bind map
+    ((leaf color-moccur
        :bind*
        ("M-s O" . moccur)
        ("M-o" . isearch-moccur)
@@ -1003,13 +1048,23 @@ Example:
                     ("M-s" . isearch-moccur-some)))))))
 
 (cort-deftest-with-macroexpand leaf/mode
-  '(((leaf web-mode
+  '(
+    ;; string will be accepted and use leaf--name
+    ((leaf web-mode
+       :mode "\\.js\\'")
+     (prog1 'web-mode
+       (autoload #'web-mode "web-mode" nil t)
+       (add-to-list 'auto-mode-alist '("\\.js\\'" . web-mode))))
+
+    ;; multi strings will be accepted
+    ((leaf web-mode
        :mode "\\.js\\'" "\\.p?html?\\'")
      (prog1 'web-mode
        (autoload #'web-mode "web-mode" nil t)
        (add-to-list 'auto-mode-alist '("\\.js\\'" . web-mode))
        (add-to-list 'auto-mode-alist '("\\.p?html?\\'" . web-mode))))
 
+    ;; multi strings in list will be accepted
     ((leaf web-mode
        :mode ("\\.js\\'" "\\.p?html?\\'"))
      (prog1 'web-mode
@@ -1017,24 +1072,36 @@ Example:
        (add-to-list 'auto-mode-alist '("\\.js\\'" . web-mode))
        (add-to-list 'auto-mode-alist '("\\.p?html?\\'" . web-mode))))
 
+    ;; cons-cell will be accepted
     ((leaf web-mode
-       :mode (("\\.js\\'" "\\.p?html?\\'") . web-mode))
+       :mode ("\\.js\\'" . web-strict-mode))
      (prog1 'web-mode
-       (autoload #'web-mode "web-mode" nil t)
-       (add-to-list 'auto-mode-alist '("\\.js\\'" . web-mode))
-       (add-to-list 'auto-mode-alist '("\\.p?html?\\'" . web-mode))))
+       (autoload #'web-strict-mode "web-mode" nil t)
+       (add-to-list 'auto-mode-alist '("\\.js\\'" . web-strict-mode))))
 
+    ;; distribution feature is supported
     ((leaf web-mode
-       :mode (("\\.html\\'" . web-mode)
-              (("\\.js\\'" "\\.p?html?\\'") . web-mode)))
+       :mode (("\\.js\\'" "\\.p?html?\\'") . web-strict-mode))
+     (prog1 'web-mode
+       (autoload #'web-strict-mode "web-mode" nil t)
+       (add-to-list 'auto-mode-alist '("\\.js\\'" . web-strict-mode))
+       (add-to-list 'auto-mode-alist '("\\.p?html?\\'" . web-strict-mode))))
+
+    ;; mix specification will be accepted
+    ((leaf web-mode
+       :mode ("\\.html\\'"
+              (("\\.js\\'" "\\.p?html?\\'") . web-strict-mode)))
      (prog1 'web-mode
        (autoload #'web-mode "web-mode" nil t)
+       (autoload #'web-strict-mode "web-mode" nil t)
        (add-to-list 'auto-mode-alist '("\\.html\\'" . web-mode))
-       (add-to-list 'auto-mode-alist '("\\.js\\'" . web-mode))
-       (add-to-list 'auto-mode-alist '("\\.p?html?\\'" . web-mode))))))
+       (add-to-list 'auto-mode-alist '("\\.js\\'" . web-strict-mode))
+       (add-to-list 'auto-mode-alist '("\\.p?html?\\'" . web-strict-mode))))))
 
 (cort-deftest-with-macroexpand leaf/interpreter
-  '(((leaf ruby-mode
+  '(
+    ;; same as :mode
+    ((leaf ruby-mode
        :mode "\\.rb\\'" "\\.rb2\\'" ("\\.rbg\\'" . rb-mode)
        :interpreter "ruby")
      (prog1 'ruby-mode
@@ -1067,7 +1134,9 @@ Example:
        (add-to-list 'interpreter-mode-alist '("p?html?" . web-mode))))))
 
 (cort-deftest-with-macroexpand leaf/magic
-  '(((leaf pdf-tools
+  '(
+    ;; same as :mode
+    ((leaf pdf-tools
        :magic ("%PDF" . pdf-view-mode)
        :config
        (pdf-tools-install))
@@ -1100,7 +1169,9 @@ Example:
        (add-to-list 'magic-mode-alist '("p?html?" . web-mode))))))
 
 (cort-deftest-with-macroexpand leaf/magic-fallback
-  '(((leaf pdf-tools
+  '(
+    ;; same as :mode
+    ((leaf pdf-tools
        :magic-fallback ("%PDF" . pdf-view-mode)
        :config
        (pdf-tools-install))
@@ -1133,7 +1204,9 @@ Example:
        (add-to-list 'magic-fallback-mode-alist '("p?html?" . web-mode))))))
 
 (cort-deftest-with-macroexpand leaf/hook
-  '(((leaf ace-jump-mode
+  '(
+    ;; symbol will be accepted
+    ((leaf ace-jump-mode
        :hook cc-mode-hook
        :config (ace-jump-mode))
      (prog1 'ace-jump-mode
@@ -1143,12 +1216,7 @@ Example:
          '(progn
             (ace-jump-mode)))))
 
-    ((leaf ace-jump-mode
-       :hook cc-mode-hook)
-     (prog1 'ace-jump-mode
-       (autoload #'ace-jump-mode "ace-jump-mode" nil t)
-       (add-hook 'cc-mode-hook #'ace-jump-mode)))
-
+    ;; multi symbols will be accepted
     ((leaf ace-jump-mode
        :hook cc-mode-hook prog-mode-hook)
      (prog1 'ace-jump-mode
@@ -1156,14 +1224,14 @@ Example:
        (add-hook 'cc-mode-hook #'ace-jump-mode)
        (add-hook 'prog-mode-hook #'ace-jump-mode)))
 
+    ;; cons-cell will be accepted
     ((leaf ace-jump-mode
-       :hook cc-mode-hook (prog-mode-hook . my-ace-jump-mode))
+       :hook (prog-mode-hook . my-ace-jump-mode))
      (prog1 'ace-jump-mode
-       (autoload #'ace-jump-mode "ace-jump-mode" nil t)
        (autoload #'my-ace-jump-mode "ace-jump-mode" nil t)
-       (add-hook 'cc-mode-hook #'ace-jump-mode)
        (add-hook 'prog-mode-hook #'my-ace-jump-mode)))
 
+    ;; distribution feature is supported
     ((leaf ace-jump-mode
        :hook ((cc-mode-hook prog-mode-hook) . my-ace-jump-mode))
      (prog1 'ace-jump-mode
@@ -1172,7 +1240,10 @@ Example:
        (add-hook 'prog-mode-hook #'my-ace-jump-mode)))))
 
 (cort-deftest-with-macroexpand leaf/advice
-  '(((leaf leaf
+  '(
+    ;; define advice function(s) in :preface
+    ;; list like ({{place}} {{adviced-function}} {{advice-function}}) will be accepted
+    ((leaf leaf
        :preface
        (defun matu (x)
          (princ (format ">>%s<<" x))
@@ -1206,6 +1277,7 @@ Example:
        (advice-add 'matu :around #'matu-around0)
        (advice-add 'matu :before #'matu-before0)))
 
+    ;; multi lists like ({{place}} {{adviced-function}} {{advice-function}}) in list is accepted
     ((leaf leaf
        :preface
        (defun matu (x)
@@ -1239,6 +1311,7 @@ Example:
        (advice-add 'matu :around #'matu-around0)
        (advice-add 'matu :before #'matu-before0)))
 
+    ;; you can use `lambda' in {{function}} place
     ((leaf leaf
        :preface
        (defun matu (x)
@@ -1286,26 +1359,32 @@ Example:
                                       (princ "around1 <==")))))))))
 
 (cort-deftest-with-macroexpand leaf/advice-remove
-  '(((leaf leaf
+  '(
+    ;; list like ({{adviced-function}} {{advice-function}}) will be accepted
+    ((leaf leaf
        :advice-remove
        (matu matu-around0)
        (matu matu-before0))
      (prog1 'leaf
-       (autoload (function matu-before0) "leaf" nil t)
+       (autoload #'matu-before0 "leaf" nil t)
        (autoload #'matu-around0 "leaf" nil t)
        (advice-remove 'matu #'matu-around0)
        (advice-remove 'matu #'matu-before0)))
 
+    ;; multi lists like ({{adviced-function}} {{advice-function}}) in list will be accepted
     ((leaf leaf
-       :advice-remove ((:around matu matu-around0)
-                       (:before matu matu-before0)))
+       :advice-remove ((matu matu-around0)
+                       (matu matu-before0)))
      (prog1 'leaf
-       (autoload #'matu "leaf" nil t)
-       (advice-remove ':around #'matu)
-       (advice-remove ':before #'matu)))))
+       (autoload #'matu-before0 "leaf" nil t)
+       (autoload #'matu-around0 "leaf" nil t)
+       (advice-remove 'matu #'matu-around0)
+       (advice-remove 'matu #'matu-before0)))))
 
 (cort-deftest-with-macroexpand leaf/commands
-  '(((leaf leaf
+  '(
+    ;; specify a symbol to set to autoload function
+    ((leaf leaf
        :commands leaf
        :config (leaf-init))
      (prog1 'leaf
@@ -1314,6 +1393,7 @@ Example:
          '(progn
             (leaf-init)))))
 
+    ;; multi symbols will be accepted
     ((leaf leaf
        :commands leaf leaf-pairp leaf-plist-get)
      (prog1 'leaf
@@ -1321,26 +1401,27 @@ Example:
        (autoload #'leaf-pairp "leaf" nil t)
        (autoload #'leaf-plist-get "leaf" nil t)))
 
+    ;; multi symbols in list will be accepted
     ((leaf leaf
-       :commands leaf (leaf-pairp leaf-plist-get))
+       :commands (leaf leaf-pairp leaf-plist-get))
      (prog1 'leaf
        (autoload #'leaf "leaf" nil t)
        (autoload #'leaf-pairp "leaf" nil t)
        (autoload #'leaf-plist-get "leaf" nil t)))
 
+    ;; It is accepted even if you specify symbol and list at the same time
     ((leaf leaf
-       :commands leaf (leaf-pairp leaf-plist-get (leaf
-                                                   (leaf-pairp
-                                                    (leaf-pairp
-                                                     (leaf-insert-after))))))
+       :commands leaf (leaf-pairp leaf-plist-get (leaf-insert-list-after)))
      (prog1 'leaf
        (autoload #'leaf "leaf" nil t)
        (autoload #'leaf-pairp "leaf" nil t)
        (autoload #'leaf-plist-get "leaf" nil t)
-       (autoload #'leaf-insert-after "leaf" nil t)))))
+       (autoload #'leaf-insert-list-after "leaf" nil t)))))
 
 (cort-deftest-with-macroexpand leaf/pre-setq
-  '(((leaf alloc
+  '(
+    ;; :pre-setq setq before `require'
+    ((leaf alloc
        :pre-setq `((gc-cons-threshold . ,(* 512 1024 1024))
                    (garbage-collection-messages . t))
        :require t)
@@ -1435,15 +1516,20 @@ Example:
        (leaf-init)))))
 
 (cort-deftest-with-macroexpand leaf/require
-  '(((leaf leaf
+  '(
+    ;; 't will be converted leaf--name 
+    ((leaf leaf
        :init (leaf-pre-init)
+       :when leaf-workable-p
        :require t
        :config (leaf-init))
      (prog1 'leaf
-       (leaf-pre-init)
-       (require 'leaf)
-       (leaf-init)))
+       (when leaf-workable-p
+         (leaf-pre-init)
+         (require 'leaf)
+         (leaf-init))))
 
+    ;; 'nil will be just ignored it
     ((leaf leaf
        :init (leaf-pre-init)
        :require nil
@@ -1452,6 +1538,7 @@ Example:
        (leaf-pre-init)
        (leaf-init)))
 
+    ;; multi symbols will be accepted
     ((leaf leaf
        :init (leaf-pre-init)
        :require leaf leaf-polyfill
@@ -1462,6 +1549,7 @@ Example:
        (require 'leaf-polyfill)
        (leaf-init)))
 
+    ;; multi keywords will be accepted
     ((leaf leaf
        :init (leaf-pre-init)
        :require t
@@ -1473,16 +1561,7 @@ Example:
        (require 'leaf-polyfill)
        (leaf-init)))
 
-    ((leaf leaf
-       :init (leaf-pre-init)
-       :require t leaf-polyfill
-       :config (leaf-init))
-     (prog1 'leaf
-       (leaf-pre-init)
-       (require 'leaf)
-       (require 'leaf-polyfill)
-       (leaf-init)))
-
+    ;; multi symbols in list will be accepted
     ((leaf leaf
        :init (leaf-pre-init)
        :require (leaf leaf-polyfill leaf-sub leaf-subsub)
@@ -1496,15 +1575,27 @@ Example:
        (leaf-init)))))
 
 (cort-deftest-with-macroexpand leaf/setq
-  '(((leaf alloc
-       :setq `((gc-cons-threshold . ,(* 512 1024 1024))
-               (garbage-collection-messages . t))
+  '(
+    ;; cons-cell will be accepted
+    ((leaf alloc
+       :setq (gc-cons-threshold . 536870912)
+       :require t)
+     (prog1 'alloc
+       (require 'alloc)
+       (setq gc-cons-threshold 536870912)))
+
+    ;; multi cons-cell will be accepted
+    ((leaf alloc
+       :setq
+       (gc-cons-threshold . 536870912)
+       (garbage-collection-messages . t)
        :require t)
      (prog1 'alloc
        (require 'alloc)
        (setq gc-cons-threshold 536870912)
        (setq garbage-collection-messages t)))
 
+    ;; multi cons-cell in list will be accepted
     ((leaf alloc
        :setq ((gc-cons-threshold . 536870912)
               (garbage-collection-messages . t))
@@ -1514,16 +1605,17 @@ Example:
        (setq gc-cons-threshold 536870912)
        (setq garbage-collection-messages t)))
 
-    ((leaf leaf
-       :setq
-       (leaf-backend-bind . 'bind-key)
-       (leaf-backend-bind* . 'bind-key)
+    ;; use backquote and comma to set result of sexp
+    ((leaf alloc
+       :setq `((gc-cons-threshold . ,(* 512 1024 1024))
+               (garbage-collection-messages . t))
        :require t)
-     (prog1 'leaf
-       (require 'leaf)
-       (setq leaf-backend-bind 'bind-key)
-       (setq leaf-backend-bind* 'bind-key)))
+     (prog1 'alloc
+       (require 'alloc)
+       (setq gc-cons-threshold 536870912)
+       (setq garbage-collection-messages t)))
 
+    ;; distribution feature is supported
     ((leaf leaf
        :setq ((leaf-backend-bind leaf-backend-bind*) . 'bind-key)
        :require t)
@@ -1532,11 +1624,10 @@ Example:
        (setq leaf-backend-bind 'bind-key)
        (setq leaf-backend-bind* 'bind-key)))))
 
-;; Tests for `:pl-setq'.
 (cort-deftest-with-macroexpand leaf/pl-setq
-  ;; Emulate setting `sql-connection-alist' with value taken from
-  ;; `some-plstore'.
-  '(((leaf sql
+  '(
+    ;; Emulate setting `sql-connection-alist' with value taken from `some-plstore'.
+    ((leaf sql
        :pl-setq
        (sql-connection-alist . some-plstore))
      (prog1 'sql
@@ -1570,7 +1661,9 @@ Example:
                                      :erc-nick))))))
 
 (cort-deftest-with-macroexpand leaf/setq-default
-  '(((leaf alloc
+  '(
+    ;; :setq-default to `setq-default'
+    ((leaf alloc
        :setq-default `((gc-cons-threshold . ,(* 512 1024 1024))
                        (garbage-collection-messages . t))
        :require t)
@@ -1606,7 +1699,6 @@ Example:
        (setq-default leaf-backend-bind 'bind-key)
        (setq-default leaf-backend-bind* 'bind-key)))))
 
-;; Tests for `:pl-setq-default'.
 (cort-deftest-with-macroexpand leaf/pl-setq-default
   ;; Emulate setting `indent-tabs-mode' with a default value taken
   ;; from `some-plstore'.
@@ -1758,10 +1850,15 @@ Example:
 ;;
 
 (cort-deftest-with-macroexpand leaf/handler-package
-  '(((leaf macrostep :ensure t)
+  '(
+    ;; simple :ensure expandion example
+    ((leaf macrostep :ensure t)
      (prog1 'macrostep
        (leaf-handler-package macrostep macrostep nil)))
 
+    ;; `leaf-handler-package' expandion example.
+    ;; If `macrostep' isn't installed, try to install.
+    ;; If fail install, update local cache and retry to install.
     ((leaf-handler-package macrostep macrostep nil)
      (unless (package-installed-p 'macrostep)
        (unless (assoc 'macrostep package-archive-contents)
