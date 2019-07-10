@@ -476,7 +476,7 @@ You don't need to put ~progn~ because ~leaf~ can receive multiple S-expressions,
 ** :after keyword
 ~:after~ keyword configure loading order.
 
-*Currently it does not support ~:or~ in ~:after~ like use-package.*
+*Currently it does not support :or in :after like use-package.*
 #+begin_src emacs-lisp
   (cort-deftest-with-macroexpand leaf/after
     '(
@@ -1583,7 +1583,7 @@ If you omit right value, ~leaf~ uses plstore file at =~/.emacs.d/leaf-plstore.pl
     :secret-erc-nick               "conao3")))
 #+end_src
 
-If you save plist file named as ~~/.emacs.d/plstore.plist~, open plstore file and decription if needed (then type password).
+If you save plist file named as =~/.emacs.d/plstore.plist=, open plstore file and decription if needed (then type password).
 
 #+begin_src emacs-lisp
   (leaf plstore
