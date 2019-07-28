@@ -1243,7 +1243,13 @@ Example:
     ((leaf hook
        :hook (foo-hook . (lambda () (foo))))
      (prog1 'hook
-       (add-hook 'foo-hook #'(lambda nil (foo)))))))
+       (add-hook 'foo-hook #'(lambda nil (foo)))))
+
+    ;; lambda sexp with many sexps
+    ((leaf hook
+       :hook (foo-hook . (lambda () (foo) (bar) (baz))))
+     (prog1 'hook
+       (add-hook 'foo-hook #'(lambda nil (foo) (bar) (baz)))))))
 
 (cort-deftest-with-macroexpand leaf/advice
   '(

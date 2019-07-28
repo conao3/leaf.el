@@ -5,7 +5,7 @@
 ;; Author: Naoya Yamashita <conao3@gmail.com>
 ;; Maintainer: Naoya Yamashita <conao3@gmail.com>
 ;; Keywords: lisp settings
-;; Version: 3.4.2
+;; Version: 3.4.3
 ;; URL: https://github.com/conao3/leaf.el
 ;; Package-Requires: ((emacs "24.4"))
 
@@ -130,17 +130,16 @@ This variable must be result of `plstore-open'."
   "Return t if VAR is pair.  If ALLOW is non-nil, allow nil as last element."
   (and (listp var)
        (or (atom (cdr var))                  ; (a . b)
+           (member 'lambda var)              ; (a . (lambda (elm) elm)) => (a lambda elm elm)
            (and (= 3 (safe-length var))      ; (a . 'b) => (a quote b)
-                (member `',(cadr var) `('quote ',backquote-backquote-symbol 'function)))
-           (and (= 4 (safe-length var))      ; (a . (lambda (elm) elm)) => (a lambda elm elm)
-                (member `',(cadr var) '('lambda))))
+                (member `',(cadr var) `('quote ',backquote-backquote-symbol 'function))))
        (if allow t (not (null (cdr var)))))) ; (a . nil) => (a)
 
 (defsubst leaf-dotlistp (var &optional allow)
   "Return t if VAR is doted list.  If ALLOW is non-nil, allow nil as last element."
-  (or (leaf-pairp (last var) allow)          ; (a b c . d) => (pairp '(c . d))
-      (leaf-pairp (last var 3) allow)        ; (a b c . 'd) => (pairp '(c . 'd))
-      (leaf-pairp (last var 4) allow)))      ; (a b c . (lambda (v) v)) => (pairp '(c . (lambda (v) v)))
+  (or (leaf-pairp var allow)                 ; (a b c . (lambda (v) v)) => (pairp '(c . (lambda (v) v)))
+      (leaf-pairp (last var) allow)          ; (a b c . d) => (pairp '(c . d))
+      (leaf-pairp (last var 3) allow)))      ; (a b c . 'd) => (pairp '(c . 'd))
 
 (defsubst leaf-sym-or-keyword (keyword)
   "Return normalizied `intern'ed symbol from keyword or symbol."
@@ -683,10 +682,10 @@ Example:
               (cond
                ((cdr (last lst))
                 (cdr (last lst)))
+               ((member 'lambda lst)
+                (last lst (setq butlast-n (length (member 'lambda lst)))))
                ((member `',(car (last lst 2)) `('quote ',backquote-backquote-symbol 'function))
-                (last lst (setq butlast-n 2)))
-               ((member `',(car (last lst 3)) `('lambda))
-                (last lst (setq butlast-n 3))))))
+                (last lst (setq butlast-n 2))))))
         (funcall (if (fboundp 'mapcan) #'mapcan #'leaf-mapcaappend)
                  (lambda (elm)
                    (leaf-normalize-list-in-list elm t (or prov provval)))
