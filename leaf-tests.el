@@ -1239,6 +1239,7 @@ Example:
        (add-hook 'cc-mode-hook #'my-ace-jump-mode)
        (add-hook 'prog-mode-hook #'my-ace-jump-mode)))
 
+    ;; lambda sexp is supported
     ((leaf hook
        :hook (foo-hook . (lambda () (foo))))
      (prog1 'hook
