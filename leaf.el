@@ -574,7 +574,7 @@ FN also accept list of FN."
   (mapc
    (lambda (elm)
      (let ((target `(,elm . ,(symbol-name pkg))))
-       (when (and elm (not (member target leaf--autoload)))
+       (when (and elm (symbolp elm) (not (member target leaf--autoload)))
          (push target leaf--autoload))))
    (if (listp fn) fn `(,fn))))
 
