@@ -5,7 +5,7 @@
 ;; Author: Naoya Yamashita <conao3@gmail.com>
 ;; Maintainer: Naoya Yamashita <conao3@gmail.com>
 ;; Keywords: lisp settings
-;; Version: 3.4.1
+;; Version: 3.4.2
 ;; URL: https://github.com/conao3/leaf.el
 ;; Package-Requires: ((emacs "24.4"))
 
@@ -574,7 +574,7 @@ FN also accept list of FN."
   (mapc
    (lambda (elm)
      (let ((target `(,elm . ,(symbol-name pkg))))
-       (when (and elm (not (member target leaf--autoload)))
+       (when (and elm (symbolp elm) (not (member target leaf--autoload)))
          (push target leaf--autoload))))
    (if (listp fn) fn `(,fn))))
 

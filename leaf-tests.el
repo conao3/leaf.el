@@ -1237,7 +1237,13 @@ Example:
      (prog1 'ace-jump-mode
        (autoload #'my-ace-jump-mode "ace-jump-mode" nil t)
        (add-hook 'cc-mode-hook #'my-ace-jump-mode)
-       (add-hook 'prog-mode-hook #'my-ace-jump-mode)))))
+       (add-hook 'prog-mode-hook #'my-ace-jump-mode)))
+
+    ;; lambda sexp is supported
+    ((leaf hook
+       :hook (foo-hook . (lambda () (foo))))
+     (prog1 'hook
+       (add-hook 'foo-hook #'(lambda nil (foo)))))))
 
 (cort-deftest-with-macroexpand leaf/advice
   '(
