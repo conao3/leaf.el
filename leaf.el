@@ -71,6 +71,17 @@ with values for these keywords."
   :type 'sexp
   :group 'leaf)
 
+(defcustom leaf-form-regexp `(concat ,(eval-when-compile
+                                        (concat "^\\s-*("
+                                                (regexp-opt '("leaf") t)
+                                                "\\s-+\\("))
+                                     (or (bound-and-true-p lisp-mode-symbol-regexp)
+                                         "\\(?:\\sw\\|\\s_\\|\\\\.\\)+") "\\)")
+  "Regexp for finding leaf forms in files.
+This is used by `leaf-imenu-suppot'."
+  :type 'sexp
+  :group 'leaf)
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
 ;;  Customize variables
@@ -100,6 +111,20 @@ This disabled `leaf-expand-minimally-suppress-keywords'."
   "Default value if omit store variable in plsore related keywords.
 This variable must be result of `plstore-open'."
   :type 'sexp
+  :group 'leaf)
+
+(defcustom leaf-enable-imenu-support nil
+  "If non-nil, cause imenu to see `leaf' declarations."
+  :type 'boolean
+  :set (lambda (sym value)
+         (set sym value)
+         (eval-after-load 'lisp-mode
+           (if value
+               `(add-to-list 'lisp-imenu-generic-expression
+                             (list "Leaf" ,leaf-form-regexp 2))
+             `(setq lisp-imenu-generic-expression
+                    (remove (list "Leaf" ,leaf-form-regexp 2)
+                            lisp-imenu-generic-expression)))))
   :group 'leaf)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
