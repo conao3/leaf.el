@@ -362,9 +362,9 @@ Since ~:ensure~ is to use ~package.el~ by default, ~:ensure~ and ~:package~ prod
                   (package-refresh-contents)
                   (package-install 'macrostep))
               (error
-               (signal 'error
-                       (format "In `macrostep' block, failed to :package of macrostep.  Error msg: %s"
-                               (error-message-string err)))))))))))
+               (display-warning 'leaf
+                                (format "In `macrostep' block, failed to :package of macrostep.  Error msg: %s"
+                                        (error-message-string err)))))))))))
 #+end_src
 
 ** :preface, :init, :config keywords

@@ -5,7 +5,7 @@
 ;; Author: Naoya Yamashita <conao3@gmail.com>
 ;; Maintainer: Naoya Yamashita <conao3@gmail.com>
 ;; Keywords: lisp settings
-;; Version: 3.4.4
+;; Version: 3.4.5
 ;; URL: https://github.com/conao3/leaf.el
 ;; Package-Requires: ((emacs "24.4"))
 
@@ -599,11 +599,11 @@ FN also accept list of FN."
               (package-refresh-contents)
               (package-install ',pkg))
           (error
-           (signal 'error
-                   (format
-                    ,(format "In `%s' block, failed to :package of %s.  Error msg: %%s"
-                             name pkg)
-                    (error-message-string err)))))))))
+           (display-warning 'leaf
+                            (format
+                             ,(format "In `%s' block, failed to :package of %s.  Error msg: %%s"
+                                      name pkg)
+                             (error-message-string err)))))))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
