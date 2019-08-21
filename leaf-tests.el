@@ -1883,9 +1883,9 @@ Example:
                 (package-refresh-contents)
                 (package-install 'macrostep))
             (error
-             (signal 'error
-                     (format "In `macrostep' block, failed to :package of macrostep.  Error msg: %s"
-                             (error-message-string err)))))))))))
+             (display-warning 'leaf
+                              (format "In `macrostep' block, failed to :package of macrostep.  Error msg: %s"
+                                      (error-message-string err)))))))))))
 
 (when (version< "24.0" emacs-version)
   (cort-deftest-with-macroexpand leaf/leaf-key
