@@ -113,7 +113,7 @@ This variable must be result of `plstore-open'."
   :type 'sexp
   :group 'leaf)
 
-(defcustom leaf-enable-imenu-support nil
+(defcustom leaf-enable-imenu-support t
   "If non-nil, cause imenu to see `leaf' declarations."
   :type 'boolean
   :set (lambda (sym value)
