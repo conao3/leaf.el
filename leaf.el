@@ -5,7 +5,7 @@
 ;; Author: Naoya Yamashita <conao3@gmail.com>
 ;; Maintainer: Naoya Yamashita <conao3@gmail.com>
 ;; Keywords: lisp settings
-;; Version: 3.4.6
+;; Version: 3.4.7
 ;; URL: https://github.com/conao3/leaf.el
 ;; Package-Requires: ((emacs "24.4"))
 
@@ -312,6 +312,10 @@ Unlike `butlast', it works well with dotlist (last cdr is non-nil list)."
                         (leaf-register-autoload (cadr leaf--value) leaf--name)
                         `(,@(mapcar (lambda (elm) `(advice-remove ,@elm)) (car leaf--value)) ,@leaf--body))
 
+     :custom          `((custom-set-variables ,@(mapcar (lambda (elm) `'(,(car elm) ,(cdr elm) ,(format "Customized with leaf in %s block" leaf--name))) leaf--value)) ,@leaf--body)
+     :pl-custom       `((custom-set-variables ,@(mapcar (lambda (elm) `'(,(car elm) (plist-get (cdr (plstore-get ,(cdr elm) ,(format "leaf-%s" leaf--name))) ,(intern (format ":%s" (car elm)))) ,(format "Customized in leaf `%s' from plstore `%s'" leaf--name (symbol-name (cdr elm))))) leaf--value)) ,@leaf--body)
+     :custom-face     `((custom-set-faces     ,@(mapcar (lambda (elm) `'(,(car elm) ,(car (cddr elm)))) leaf--value)) ,@leaf--body)
+
      :leaf-defer      (if (and leaf--body (eval (car leaf--value)) (leaf-list-memq leaf-defer-keywords (leaf-plist-keys leaf--raw)))
                           `((eval-after-load ',leaf--name '(progn ,@leaf--body))) `(,@leaf--body))
 
@@ -322,9 +326,6 @@ Unlike `butlast', it works well with dotlist (last cdr is non-nil list)."
 
      :require         `(,@(mapcar (lambda (elm) `(require ',elm)) leaf--value) ,@leaf--body)
 
-     :custom          `((custom-set-variables ,@(mapcar (lambda (elm) `'(,(car elm) ,(cdr elm) ,(format "Customized with leaf in %s block" leaf--name))) leaf--value)) ,@leaf--body)
-     :custom-face     `((custom-set-faces     ,@(mapcar (lambda (elm) `'(,(car elm) ,(car (cddr elm)))) leaf--value)) ,@leaf--body)
-     :pl-custom       `((custom-set-variables ,@(mapcar (lambda (elm) `'(,(car elm) (plist-get (cdr (plstore-get ,(cdr elm) ,(format "leaf-%s" leaf--name))) ,(intern (format ":%s" (car elm)))) ,(format "Customized in leaf `%s' from plstore `%s'" leaf--name (symbol-name (cdr elm))))) leaf--value)) ,@leaf--body)
      :setq            `(,@(mapcar (lambda (elm) `(setq ,(car elm) ,(cdr elm))) leaf--value) ,@leaf--body)
      :setq-default    `(,@(mapcar (lambda (elm) `(setq-default ,(car elm) ,(cdr elm))) leaf--value) ,@leaf--body)
      :pl-setq         `(,@(mapcar (lambda (elm) `(setq ,(car elm) (plist-get (cdr (plstore-get ,(cdr elm) ,(format "leaf-%s" leaf--name))) ,(intern (format ":%s" (car elm)))))) leaf--value) ,@leaf--body)
