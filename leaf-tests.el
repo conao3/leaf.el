@@ -24,20 +24,14 @@
 
 ;;
 
+
 ;;; Code:
 
 (load "cort-test")
 (require 'leaf)
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;
-;;  test settings
-;;
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;
-;;  support legacy Emacs
-;;
+
+;;;; General polyfill
 
 (when (not (fboundp 'autoload-do-load))
   (defun autoload-do-load (fundef &optional funname macro-only)
@@ -89,10 +83,8 @@
                   form))))))))
      (t form))))
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;
-;;  support macros for test definition
-;;
+
+;;;; support macros for test definition
 
 (defmacro cort-deftest-with-equal (name form)
   "Return `cort-deftest' compare by `equal' for NAME, FORM.
@@ -158,10 +150,8 @@ Example:
                    (let ,letform (macroexpand-1 ',(car elm)))))
                (cadr form))))
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;
-;;  test definition
-;;
+
+;;;; test definition
 
 (custom-set-variables '(leaf-backend-bind   'bind-key)
                       '(leaf-expand-leaf-protect nil))
@@ -1773,10 +1763,8 @@ Example:
        (leaf-pre-init)
        (leaf-pre-init-after)))))
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;
-;;  System keywords
-;;
+
+;;;; System keywords
 
 (cort-deftest-with-macroexpand-let leaf/leaf-expand-minimally
     ((leaf-expand-leaf-protect t)
@@ -1856,10 +1844,8 @@ Example:
                          (format "Error in `leaf' block.  Error msg: %s"
                                  (error-message-string err))))))))
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;
-;;  Support leaf macros
-;;
+
+;;;; Support leaf macros
 
 (cort-deftest-with-macroexpand leaf/handler-package
   '(
@@ -2223,10 +2209,8 @@ Example:
        ("C-c C-n" . go-run)
        ("C-c ." . go-test-current-test))))))
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;
-;;  Misc functions
-;;
+
+;;;; Misc functions
 
 (cort-deftest-with-equal leaf/pairp
   '(((leaf-pairp nil) nil)

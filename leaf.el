@@ -45,6 +45,7 @@
 ;;
 ;; More information is [[https://github.com/conao3/leaf.el][here]]
 
+
 ;;; Code:
 
 (defgroup leaf nil
@@ -247,6 +248,9 @@ Sort by `leaf-sort-leaf--values-plist' in this order.")
      leaf--value))
   "Normalize rule.")
 
+
+;;;; Customize variables
+
 (defcustom leaf-defaults '()
   "Default values for each leaf packages."
   :type 'sexp
@@ -266,11 +270,6 @@ Sort by `leaf-sort-leaf--values-plist' in this order.")
 with values for these keywords."
   :type 'sexp
   :group 'leaf)
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;
-;;  Customize variables
-;;
 
 (defcustom leaf-expand-minimally nil
   "If non-nil, make the expanded code as minimal as possible.
@@ -320,15 +319,10 @@ This variable must be result of `plstore-open'."
                               lisp-imenu-generic-expression))))))
   :group 'leaf)
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;
-;;  Support functions
-;;
+
+;;;; General polyfill
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;
-;;  For legacy Emacs
-;;
+;;; Polyfill for legacy Emacs
 
 (defun leaf-mapcaappend (func seq &rest rest)
   "Another implementation for `mapcan' for FUNC SEQ REST.
@@ -340,10 +334,7 @@ This variable must be result of `plstore-open'."
   (unless (fboundp 'mapcan)
     (defalias 'mapcan 'leaf-mapcaappend)))
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;
-;;  General functions
-;;
+;;; predictors
 
 (defsubst leaf-pairp (var &optional allow)
   "Return t if VAR is pair.  If ALLOW is non-nil, allow nil as last element."
@@ -360,11 +351,22 @@ This variable must be result of `plstore-open'."
       (leaf-pairp (last var) allow)          ; (a b c . d) => (pairp '(c . d))
       (leaf-pairp (last var 3) allow)))      ; (a b c . 'd) => (pairp '(c . 'd))
 
-(defsubst leaf-sym-or-keyword (keyword)
-  "Return normalizied `intern'ed symbol from keyword or symbol."
-  (if (keywordp keyword)
-      (intern (substring (symbol-name keyword) 1))
-    keyword))
+;;; General list functions
+
+(defsubst leaf-list-memq (symlist list)
+  "Return t if LIST contained element of SYMLIST."
+  (delq nil (mapcar (lambda (x) (memq x list)) symlist)))
+
+(defun leaf-flatten (lst)
+  "Return flatten list of LST."
+  (let ((fn))
+    (setq fn (lambda (lst) (if (atom lst) `(,lst) (mapcan fn lst))))
+    (funcall fn lst)))
+
+(defun leaf-subst (old new lst)
+  "Substitute NEW for OLD in LST."
+  (declare (indent 2))
+  (mapcar (lambda (elm) (if (eq elm old) new elm)) lst))
 
 (defun leaf-copy-list (list)
   "Return a copy of LIST, which may be a dotted list.  see `cl-copy-list'.
@@ -394,30 +396,7 @@ Unlike `butlast', it works well with dotlist (last cdr is non-nil list)."
     (setcdr (last list) nil))
   (butlast list n))
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;
-;;  General list functions
-;;
-
-(defsubst leaf-list-memq (symlist list)
-  "Return t if LIST contained element of SYMLIST."
-  (delq nil (mapcar (lambda (x) (memq x list)) symlist)))
-
-(defun leaf-flatten (lst)
-  "Return flatten list of LST."
-  (let ((fn))
-    (setq fn (lambda (lst) (if (atom lst) `(,lst) (mapcan fn lst))))
-    (funcall fn lst)))
-
-(defun leaf-subst (old new lst)
-  "Substitute NEW for OLD in LST."
-  (declare (indent 2))
-  (mapcar (lambda (elm) (if (eq elm old) new elm)) lst))
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;
-;;  General plist functions
-;;
+;;; General plist functions
 
 (defun leaf-plist-keys (plist)
   "Get all keys of PLIST."
@@ -432,10 +411,43 @@ Unlike `butlast', it works well with dotlist (last cdr is non-nil list)."
   (declare (indent 1))
   (or (and (plist-member plist key) (plist-get plist key)) default))
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;
-;;  Key management
-;;
+;;; et cetera
+
+(defsubst leaf-sym-or-keyword (keyword)
+  "Return normalizied `intern'ed symbol from keyword or symbol."
+  (if (keywordp keyword)
+      (intern (substring (symbol-name keyword) 1))
+    keyword))
+
+
+;;;; General functions for leaf
+
+;;;###autoload
+(defun leaf-to-string (sexp)
+  "Return format string of `leaf' SEXP like `pp-to-string'."
+  (with-temp-buffer
+    (insert (replace-regexp-in-string
+             (eval
+              `(rx (group
+                    (or ,@(mapcar #'symbol-name leaf-keywords)))))
+             "\n\\1"
+             (prin1-to-string sexp)))
+    (delete-trailing-whitespace)
+    (emacs-lisp-mode)
+    (indent-region (point-min) (point-max))
+    (buffer-substring-no-properties (point-min) (point-max))))
+
+;;;###autoload
+(defun leaf-available-keywords ()
+  (interactive)
+  "Return current available `leaf' keywords list."
+  (let ((ret (leaf-plist-keys leaf-keywords)))
+    (if (called-interactively-p 'interactive)
+        (message (prin1-to-string ret))
+      ret)))
+
+
+;;;; Key management
 
 (defvar leaf-key-override-global-map (make-keymap)
   "The leaf-override-global-mode keymap.")
@@ -570,10 +582,8 @@ BIND must not contain :{{map}}."
                    `(,bind) bind)))
     `(leaf-keys (:leaf-key-override-global-map ,@binds))))
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;
-;;  Handler
-;;
+
+;;;; Handler
 
 (defun leaf-register-autoload (fn pkg)
   "Registry FN as autoload for PKG.
@@ -613,39 +623,8 @@ FN also accept list of FN."
                                       name pkg)
                              (error-message-string err)))))))))
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;
-;;  Formatting leaf
-;;
-
-;;;###autoload
-(defun leaf-to-string (sexp)
-  "Return format string of `leaf' SEXP like `pp-to-string'."
-  (with-temp-buffer
-    (insert (replace-regexp-in-string
-             (eval
-              `(rx (group
-                    (or ,@(mapcar #'symbol-name leaf-keywords)))))
-             "\n\\1"
-             (prin1-to-string sexp)))
-    (delete-trailing-whitespace)
-    (emacs-lisp-mode)
-    (indent-region (point-min) (point-max))
-    (buffer-substring-no-properties (point-min) (point-max))))
-
-;;;###autoload
-(defun leaf-available-keywords ()
-  (interactive)
-  "Return current available `leaf' keywords list."
-  (let ((ret (leaf-plist-keys leaf-keywords)))
-    (if (called-interactively-p 'interactive)
-        (message (prin1-to-string ret))
-      ret)))
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;
-;;  General list functions for leaf
-;;
+
+;;; General list functions for leaf
 
 (defun leaf-append-defaults (plist)
   "Append leaf default values to PLIST."
@@ -698,10 +677,7 @@ Example:
            (leaf-normalize-list-in-list elm t (or prov provval)))
          (leaf-safe-butlast lst butlast-n)))))))
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;
-;;  Pseudo-plist functions
-;;
+;;; Pseudo-plist functions
 
 ;; pseudo-PLIST is list separated value with :keyword.
 ;;   such as (:key1 v1 v2 :key2 v3 :key3 v4 v5 v6)
@@ -799,10 +775,8 @@ EXAMPLE:
     ;; merge value for duplicated key if MERGEP is t
     (if mergep (leaf-merge-dupkey-values-plist retplist) retplist)))
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;
-;;  Main macro
-;;
+
+;;;; Main macro
 
 (eval
  `(progn
@@ -854,10 +828,8 @@ Don't call this function directory."
     `(prog1 ',name
        ,@(leaf-process-keywords name args* args*))))
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;
-;;  Font lock
-;;
+
+;;;; Font lock
 
 (defconst leaf-warn-font-lock-keywords
   `((,(rx (group "leaf-" (or "warn" "error")))
