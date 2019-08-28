@@ -158,30 +158,6 @@ Example:
                    (let ,letform (macroexpand-1 ',(car elm)))))
                (cadr form))))
 
-(defmacro cort-deftest-for-leaf-form-regexp (name form)
-  "Return `cort-deftest' compare by `equal' for NAME, FORM.
-Example:
-  (p (cort-deftest-for-leaf-form-regexp leaf/leaf-form-regexp
-       '((\"(leaf package-name)\" \"package-name\"))))
-  => (cort-deftest leaf/leaf-form-regexp
-        '((:equal
-           (let
-               ((leaf-form-string \"(leaf package-name\"))
-             (string-match
-              (eval leaf-form-regexp)
-              leaf-form-string)
-             (match-string 2 leaf-form-string))
-             \"package-name\")))"
-  (declare (indent 1))
-  `(cort-deftest ,name
-     ',(mapcar (lambda (elm)
-                 `(:equal
-                   (let ((leaf-form-string ,(car elm)))
-                     (string-match (eval leaf-form-regexp) leaf-form-string)
-                     (match-string 2 leaf-form-string))
-                   ,(cadr elm)))
-               (cadr form))))
-
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
 ;;  test definition
@@ -2353,16 +2329,58 @@ Example:
     ((leaf-normalize-list-in-list '((x . 'y) ((a b c) . #'d)) 'dotlist) '((x . 'y) (a . #'d) (b . #'d) (c . #'d)))
     ((leaf-normalize-list-in-list '((x . 'y) ((a b c) . (lambda (v) v))) 'dotlist) '((x . 'y) (a . (lambda (v) v)) (b . (lambda (v) v)) (c . (lambda (v) v))))))
 
-(cort-deftest-for-leaf-form-regexp leaf/leaf-form-regexp
-  '(("(leaf package-name)" "package-name")
-    ("(leaf package-name :config (leaf-init))" "package-name")
-    ("(leaf foo-package
-       :custom
-       (foo-package-to-enable   . t)
-       (foo-package-to-disable  . nil)
-       (foo-package-to-symbol   . 'symbol)
-       (foo-package-to-function . #'ignore)
-       (foo-package-to-lambda   . (lambda (elm) (message elm))))" "foo-package")))
+(cort-deftest-with-equal leaf/leaf-form-regexp
+  '(((with-temp-buffer
+       (require 'imenu)
+       (emacs-lisp-mode)
+       (insert
+        (pp-to-string
+         '(leaf package-foo)))
+       (mapcar 'car (cdr (assoc "Leaf" (funcall imenu-create-index-function)))))
+     '("package-foo"))
+
+    ((with-temp-buffer
+       (require 'imenu)
+       (emacs-lisp-mode)
+       (insert
+        (pp-to-string
+         '(leaf package-foo :config (leaf-init))))
+       (mapcar 'car (cdr (assoc "Leaf" (funcall imenu-create-index-function)))))
+     '("package-foo"))
+
+    ((with-temp-buffer
+       (require 'imenu)
+       (emacs-lisp-mode)
+       (insert
+        (pp-to-string
+         '(leaf package-foo
+            :custom
+            (foo-package-to-enable   . t)
+            (foo-package-to-disable  . nil)
+            (foo-package-to-symbol   . 'symbol)
+            (foo-package-to-function . #'ignore)
+            (foo-package-to-lambda   . (lambda (elm) (message elm))))))
+       (mapcar 'car (cdr (assoc "Leaf" (funcall imenu-create-index-function)))))
+     '("package-foo"))
+
+    ((with-temp-buffer
+       (require 'imenu)
+       (emacs-lisp-mode)
+       (insert
+        (pp-to-string
+         '(leaf package-foo
+            :custom
+            (foo-package-to-enable   . t)
+            (foo-package-to-disable  . nil)
+            (foo-package-to-symbol   . 'symbol)
+            (foo-package-to-function . #'ignore)
+            (foo-package-to-lambda   . (lambda (elm) (message elm)))
+            :config
+            (leaf package-bar
+              :init
+              (leaf package-baz)))))
+       (mapcar 'car (cdr (assoc "Leaf" (funcall imenu-create-index-function)))))
+     '("package-foo" "package-bar" "package-baz"))))
 
 ;; (provide 'leaf-tests)
 
