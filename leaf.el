@@ -53,7 +53,7 @@
   :group 'lisp)
 
 (defmacro leaf-list (&rest args)
-  "Make list.
+  "Make list from ARGS.
 Same as `list' but this macro does not evaluate any arguments."
   `(quote ,args))
 
@@ -252,12 +252,12 @@ Sort by `leaf-sort-leaf--values-plist' in this order.")
 ;;;; Customize variables
 
 (defcustom leaf-defaults '()
-  "Default values for each leaf packages."
+  "The value that are interpreted as specified for all `leaf' blocks."
   :type 'sexp
   :group 'leaf)
 
 (defcustom leaf-system-defaults '(:leaf-autoload t :leaf-defer t :leaf-protect t)
-  "Default values for each leaf packages for `leaf' system."
+  "The value for all `leaf' blocks for leaf system."
   :type 'sexp
   :group 'leaf)
 
@@ -265,15 +265,15 @@ Sort by `leaf-sort-leaf--values-plist' in this order.")
                                 :bind :bind*
                                 :mode :interpreter :magic :magic-fallback
                                 :hook :commands)
-  "Specifies a keyword to perform a deferred load.
-`leaf' blocks are lazily loaded by their package name
-with values for these keywords."
+  "The specified keyword is interpreted as a defer keyword.
+`leaf' blocks containing the keywords are interpreted as lazy loadable.
+To stop this function, specify ':leaf-defer nil'"
   :type 'sexp
   :group 'leaf)
 
 (defcustom leaf-expand-minimally nil
   "If non-nil, make the expanded code as minimal as possible.
-This disabled `leaf-expand-minimally-suppress-keywords'."
+If non-nil, disabled keywords of `leaf-expand-minimally-suppress-keywords'."
   :type 'boolean
   :group 'leaf)
 
@@ -283,8 +283,9 @@ This disabled `leaf-expand-minimally-suppress-keywords'."
   :group 'leaf)
 
 (defcustom leaf-options-ensure-default-pin nil
-  "Option :ensure pin default.
-'nil is using package manager default."
+  "Set the default pin with :ensure.
+'nil is using package manager default.
+This feature is not yet implemented."
   :type 'sexp
   :group 'leaf)
 
@@ -292,13 +293,14 @@ This disabled `leaf-expand-minimally-suppress-keywords'."
   (let ((path (locate-user-emacs-file "leaf-plstore.plist")))
     (when (file-readable-p path)
       (plstore-open path)))
-  "Default value if omit store variable in plsore related keywords.
+  "Default value if omit store variable in plstore related keywords.
 This variable must be result of `plstore-open'."
   :type 'sexp
   :group 'leaf)
 
 (defcustom leaf-enable-imenu-support t
-  "If non-nil, cause imenu to see `leaf' declarations."
+  "If non-nil, enable `imenu' integrations.
+Ref: `lisp-imenu-generic-expression'."
   :type 'boolean
   :set (lambda (sym value)
          (set sym value)
@@ -324,11 +326,15 @@ This variable must be result of `plstore-open'."
 
 ;;; Polyfill for legacy Emacs
 
-(defun leaf-mapcaappend (func seq &rest rest)
-  "Another implementation for `mapcan' for FUNC SEQ REST.
-`mapcan' uses `nconc', but Emacs-22 doesn't support it."
+(defun leaf-mapcaappend (func seq)
+  "Another implementation for `mapcan'.
+`mapcan' uses `nconc', but Emacs-22 doesn't support it.
+
+Apply FUNC to each element of SEQ, and concatenate
+the results by altering them (using `nconc').
+SEQ may be a list, a vector, a 'bool-vector, or a string."
   (declare (indent 2))
-  (apply #'append (apply #'mapcar func seq rest)))
+  (apply #'append (apply #'mapcar func seq nil)))
 
 (eval-and-compile
   (unless (fboundp 'mapcan)
@@ -337,7 +343,8 @@ This variable must be result of `plstore-open'."
 ;;; predictors
 
 (defsubst leaf-pairp (var &optional allow)
-  "Return t if VAR is pair.  If ALLOW is non-nil, allow nil as last element."
+  "Return t if VAR is pair.
+If ALLOW is non-nil, allow nil as the last element."
   (and (listp var)
        (or (atom (cdr var))                  ; (a . b)
            (member 'lambda var)              ; (a . (lambda (elm) elm)) => (a lambda elm elm)
@@ -346,7 +353,8 @@ This variable must be result of `plstore-open'."
        (if allow t (not (null (cdr var)))))) ; (a . nil) => (a)
 
 (defsubst leaf-dotlistp (var &optional allow)
-  "Return t if VAR is doted list.  If ALLOW is non-nil, allow nil as last element."
+  "Return t if VAR is doted list.
+If ALLOW is non-nil, allow nil as the last element."
   (or (leaf-pairp var allow)                 ; (a b c . (lambda (v) v)) => (pairp '(c . (lambda (v) v)))
       (leaf-pairp (last var) allow)          ; (a b c . d) => (pairp '(c . d))
       (leaf-pairp (last var 3) allow)))      ; (a b c . 'd) => (pairp '(c . 'd))
@@ -380,7 +388,7 @@ The elements of LIST are not copied, just the list structure itself."
 (defun leaf-safe-mapcar (fn seq)
   "Apply FN to each element of SEQ, and make a list of the results.
 The result is a list just as long as SEQUENCE.
-SEQUENCE may be a list, a vector, a bool-vector, or a string.
+SEQ may be a list, a vector, a 'bool-vector, or a string.
 Unlike `mapcar', it works well with dotlist (last cdr is non-nil list)."
   (when (cdr (last seq))
     (setq seq (leaf-copy-list seq))
@@ -414,7 +422,7 @@ Unlike `butlast', it works well with dotlist (last cdr is non-nil list)."
 ;;; et cetera
 
 (defsubst leaf-sym-or-keyword (keyword)
-  "Return normalizied `intern'ed symbol from keyword or symbol."
+  "Return normalizied `intern'ed symbol from KEYWORD or SYMBOL."
   (if (keywordp keyword)
       (intern (substring (symbol-name keyword) 1))
     keyword))
@@ -439,8 +447,8 @@ Unlike `butlast', it works well with dotlist (last cdr is non-nil list)."
 
 ;;;###autoload
 (defun leaf-available-keywords ()
-  (interactive)
   "Return current available `leaf' keywords list."
+  (interactive)
   (let ((ret (leaf-plist-keys leaf-keywords)))
     (if (called-interactively-p 'interactive)
         (message (prin1-to-string ret))
@@ -586,7 +594,7 @@ BIND must not contain :{{map}}."
 ;;;; Handler
 
 (defun leaf-register-autoload (fn pkg)
-  "Registry FN as autoload for PKG.
+  "Registor FN as autoload for PKG.
 FN also accept list of FN."
   (mapc
    (lambda (elm)
@@ -596,7 +604,7 @@ FN also accept list of FN."
    (if (listp fn) fn `(,fn))))
 
 (defmacro leaf-handler-leaf-protect (name &rest body)
-  "Meta handler for :leaf-no-erorr in NAME for BODY leaf block."
+  "Meta handler for :leaf-protect in NAME for BODY `leaf' block."
   (declare (indent 1))
   `(condition-case err
        (progn ,@body)
@@ -627,7 +635,7 @@ FN also accept list of FN."
 ;;; General list functions for leaf
 
 (defun leaf-append-defaults (plist)
-  "Append leaf default values to PLIST."
+  "Append leaf default values to PLIST and return it."
   (append (when leaf-expand-minimally
             (mapcan (lambda (elm) `(,elm nil))
                     leaf-expand-minimally-suppress-keywords))
@@ -792,9 +800,9 @@ EXAMPLE:
 (defun leaf-process-keywords (name plist raw)
   "Process keywords for NAME via argument PLIST, RAW.
 NOTE:
-Not check PLIST, PLIST has already been carefully checked
-parent funcitons.
-Don't call this function directory."
+  Not check PLIST, PLIST has already been carefully checked
+  parent funcitons.
+  Don't call this function directory."
   (when plist
     (let* ((leaf--name    name)
            (leaf--key     (pop plist))
