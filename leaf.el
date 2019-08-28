@@ -432,22 +432,6 @@ Unlike `butlast', it works well with dotlist (last cdr is non-nil list)."
   (declare (indent 1))
   (or (and (plist-member plist key) (plist-get plist key)) default))
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;
-;;  leaf keywords definition
-;;
-
-(eval
- `(progn
-    ,@(mapcar
-       (lambda (elm)
-         (let ((keyname (substring (symbol-name elm) 1)))
-           `(defcustom ,(intern (format "leaf-expand-%s" keyname)) t
-              ,(format "If nil, do not expand values for :%s." keyname)
-              :type 'boolean
-              :group 'leaf)))
-       (leaf-plist-keys leaf-keywords))))
-
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
 ;;  Key management
@@ -819,6 +803,17 @@ EXAMPLE:
 ;;
 ;;  Main macro
 ;;
+
+(eval
+ `(progn
+    ,@(mapcar
+       (lambda (elm)
+         (let ((keyname (substring (symbol-name elm) 1)))
+           `(defcustom ,(intern (format "leaf-expand-%s" keyname)) t
+              ,(format "If nil, do not expand values for :%s." keyname)
+              :type 'boolean
+              :group 'leaf)))
+       (leaf-available-keywords))))
 
 (defun leaf-process-keywords (name plist raw)
   "Process keywords for NAME via argument PLIST, RAW.
