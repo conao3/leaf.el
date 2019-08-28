@@ -71,17 +71,6 @@ with values for these keywords."
   :type 'sexp
   :group 'leaf)
 
-(defcustom leaf-form-regexp `(concat ,(eval-when-compile
-                                        (concat "^\\s-*("
-                                                (regexp-opt '("leaf") t)
-                                                "\\s-+\\("))
-                                     (or (bound-and-true-p lisp-mode-symbol-regexp)
-                                         "\\(?:\\sw\\|\\s_\\|\\\\.\\)+") "\\)")
-  "Regexp for finding leaf forms in files.
-This is used by `leaf-imenu-suppot'."
-  :type 'sexp
-  :group 'leaf)
-
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
 ;;  Customize variables
@@ -119,12 +108,20 @@ This variable must be result of `plstore-open'."
   :set (lambda (sym value)
          (set sym value)
          (eval-after-load 'lisp-mode
-           (if value
-               `(add-to-list 'lisp-imenu-generic-expression
-                             (list "Leaf" ,leaf-form-regexp 2))
-             `(setq lisp-imenu-generic-expression
-                    (remove (list "Leaf" ,leaf-form-regexp 2)
-                            lisp-imenu-generic-expression)))))
+           (let ((regexp (eval-when-compile
+                           (require 'regexp-opt)
+                           (concat "^\\s-*("
+                                   (regexp-opt '("leaf") t)
+                                   "\\s-+\\("
+                                   (or (bound-and-true-p lisp-mode-symbol-regexp)
+                                       "\\(?:\\sw\\|\\s_\\|\\\\.\\)+")
+                                   "\\)"))))
+             (if value
+                 `(add-to-list 'lisp-imenu-generic-expression
+                               (list "Leaf" ,regexp 2))
+               `(setq lisp-imenu-generic-expression
+                      (remove (list "Leaf" ,regexp 2)
+                              lisp-imenu-generic-expression))))))
   :group 'leaf)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
