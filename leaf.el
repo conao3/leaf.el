@@ -1,6 +1,6 @@
 ;;; leaf.el --- Simplify your init.el configuration, extended use-package       -*- lexical-binding: t; -*-
 
-;; Copyright (C) 2018  Naoya Yamashita
+;; Copyright (C) 2018-2019  Naoya Yamashita <conao3@gmail.com>
 
 ;; Author: Naoya Yamashita <conao3@gmail.com>
 ;; Maintainer: Naoya Yamashita <conao3@gmail.com>
@@ -20,12 +20,12 @@
 
 ;; This program is distributed in the hope that it will be useful, but
 ;; WITHOUT ANY WARRANTY; without even the implied warranty of
-;; MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the Affero
-;; GNU General Public License for more details.
+;; MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+;; See the Affero GNU General Public License for more details.
 
 ;; You should have received a copy of the Affero GNU General Public
-;; License along with this program.  If not, see
-;; <https://www.gnu.org/licenses/>.
+;; License along with this program.
+;; If not, see <https://www.gnu.org/licenses/>.
 
 ;;; Commentary:
 
