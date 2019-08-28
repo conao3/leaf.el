@@ -56,196 +56,6 @@
 Same as `list' but this macro does not evaluate any arguments."
   `(quote ,args))
 
-(defcustom leaf-defaults '()
-  "Default values for each leaf packages."
-  :type 'sexp
-  :group 'leaf)
-
-(defcustom leaf-system-defaults '(:leaf-autoload t :leaf-defer t :leaf-protect t)
-  "Default values for each leaf packages for `leaf' system."
-  :type 'sexp
-  :group 'leaf)
-
-(defcustom leaf-defer-keywords (list
-                                :bind :bind*
-                                :mode :interpreter :magic :magic-fallback
-                                :hook :commands)
-  "Specifies a keyword to perform a deferred load.
-`leaf' blocks are lazily loaded by their package name
-with values for these keywords."
-  :type 'sexp
-  :group 'leaf)
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;
-;;  Customize variables
-;;
-
-(defcustom leaf-expand-minimally nil
-  "If non-nil, make the expanded code as minimal as possible.
-This disabled `leaf-expand-minimally-suppress-keywords'."
-  :type 'boolean
-  :group 'leaf)
-
-(defcustom leaf-expand-minimally-suppress-keywords '(:leaf-protect)
-  "Suppress keywords when `leaf-expand-minimally' is non-nil."
-  :type 'sexp
-  :group 'leaf)
-
-(defcustom leaf-options-ensure-default-pin nil
-  "Option :ensure pin default.
-'nil is using package manager default."
-  :type 'sexp
-  :group 'leaf)
-
-(defcustom leaf-default-plstore
-  (let ((path (locate-user-emacs-file "leaf-plstore.plist")))
-    (when (file-readable-p path)
-      (plstore-open path)))
-  "Default value if omit store variable in plsore related keywords.
-This variable must be result of `plstore-open'."
-  :type 'sexp
-  :group 'leaf)
-
-(defcustom leaf-enable-imenu-support t
-  "If non-nil, cause imenu to see `leaf' declarations."
-  :type 'boolean
-  :set (lambda (sym value)
-         (set sym value)
-         (eval-after-load 'lisp-mode
-           (let ((regexp (eval-when-compile
-                           (require 'regexp-opt)
-                           (concat "^\\s-*("
-                                   (regexp-opt '("leaf") t)
-                                   "\\s-+\\("
-                                   (or (bound-and-true-p lisp-mode-symbol-regexp)
-                                       "\\(?:\\sw\\|\\s_\\|\\\\.\\)+")
-                                   "\\)"))))
-             (if value
-                 `(add-to-list 'lisp-imenu-generic-expression
-                               '("Leaf" ,regexp 2))
-               `(setq lisp-imenu-generic-expression
-                      (remove '("Leaf" ,regexp 2)
-                              lisp-imenu-generic-expression))))))
-  :group 'leaf)
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;
-;;  Support functions
-;;
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;
-;;  For legacy Emacs
-;;
-
-(defun leaf-mapcaappend (func seq &rest rest)
-  "Another implementation for `mapcan' for FUNC SEQ REST.
-`mapcan' uses `nconc', but Emacs-22 doesn't support it."
-  (declare (indent 2))
-  (apply #'append (apply #'mapcar func seq rest)))
-
-(eval-and-compile
-  (unless (fboundp 'mapcan)
-    (defalias 'mapcan 'leaf-mapcaappend)))
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;
-;;  General functions
-;;
-
-(defsubst leaf-pairp (var &optional allow)
-  "Return t if VAR is pair.  If ALLOW is non-nil, allow nil as last element."
-  (and (listp var)
-       (or (atom (cdr var))                  ; (a . b)
-           (member 'lambda var)              ; (a . (lambda (elm) elm)) => (a lambda elm elm)
-           (and (= 3 (safe-length var))      ; (a . 'b) => (a quote b)
-                (member `',(cadr var) `('quote ',backquote-backquote-symbol 'function))))
-       (if allow t (not (null (cdr var)))))) ; (a . nil) => (a)
-
-(defsubst leaf-dotlistp (var &optional allow)
-  "Return t if VAR is doted list.  If ALLOW is non-nil, allow nil as last element."
-  (or (leaf-pairp var allow)                 ; (a b c . (lambda (v) v)) => (pairp '(c . (lambda (v) v)))
-      (leaf-pairp (last var) allow)          ; (a b c . d) => (pairp '(c . d))
-      (leaf-pairp (last var 3) allow)))      ; (a b c . 'd) => (pairp '(c . 'd))
-
-(defsubst leaf-sym-or-keyword (keyword)
-  "Return normalizied `intern'ed symbol from keyword or symbol."
-  (if (keywordp keyword)
-      (intern (substring (symbol-name keyword) 1))
-    keyword))
-
-(defun leaf-copy-list (list)
-  "Return a copy of LIST, which may be a dotted list.  see `cl-copy-list'.
-The elements of LIST are not copied, just the list structure itself."
-  (if (consp list)
-      (let ((res nil))
-        (while (consp list) (push (pop list) res))
-        (prog1 (nreverse res) (setcdr res list)))
-    (car list)))
-
-(defun leaf-safe-mapcar (fn seq)
-  "Apply FN to each element of SEQ, and make a list of the results.
-The result is a list just as long as SEQUENCE.
-SEQUENCE may be a list, a vector, a bool-vector, or a string.
-Unlike `mapcar', it works well with dotlist (last cdr is non-nil list)."
-  (when (cdr (last seq))
-    (setq seq (leaf-copy-list seq))
-    (setcdr (last seq) nil))
-  (mapcar fn seq))
-
-(defun leaf-safe-butlast (list &optional n)
-  "Return a copy of LIST with the last N elements removed.
-If N is omitted or nil, the last element is removed from the copy.
-Unlike `butlast', it works well with dotlist (last cdr is non-nil list)."
-  (when (cdr (last list))
-    (setq list (leaf-copy-list list))
-    (setcdr (last list) nil))
-  (butlast list n))
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;
-;;  General list functions
-;;
-
-(defsubst leaf-list-memq (symlist list)
-  "Return t if LIST contained element of SYMLIST."
-  (delq nil (mapcar (lambda (x) (memq x list)) symlist)))
-
-(defun leaf-flatten (lst)
-  "Return flatten list of LST."
-  (let ((fn))
-    (setq fn (lambda (lst) (if (atom lst) `(,lst) (mapcan fn lst))))
-    (funcall fn lst)))
-
-(defun leaf-subst (old new lst)
-  "Substitute NEW for OLD in LST."
-  (declare (indent 2))
-  (mapcar (lambda (elm) (if (eq elm old) new elm)) lst))
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;
-;;  General plist functions
-;;
-
-(defun leaf-plist-keys (plist)
-  "Get all keys of PLIST."
-  (let ((ret))
-    (while plist
-      (setq ret (cons (pop plist) ret))
-      (pop plist))
-    (nreverse ret)))
-
-(defun leaf-plist-get (key plist &optional default)
-  "`plist-get' with DEFAULT value in PLIST search KEY."
-  (declare (indent 1))
-  (or (and (plist-member plist key) (plist-get plist key)) default))
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;
-;;  leaf keywords definition
-;;
-
 (defvar leaf--raw)
 (defvar leaf--name)
 (defvar leaf--key)
@@ -436,6 +246,196 @@ Sort by `leaf-sort-leaf--values-plist' in this order.")
     (t
      leaf--value))
   "Normalize rule.")
+
+(defcustom leaf-defaults '()
+  "Default values for each leaf packages."
+  :type 'sexp
+  :group 'leaf)
+
+(defcustom leaf-system-defaults '(:leaf-autoload t :leaf-defer t :leaf-protect t)
+  "Default values for each leaf packages for `leaf' system."
+  :type 'sexp
+  :group 'leaf)
+
+(defcustom leaf-defer-keywords (list
+                                :bind :bind*
+                                :mode :interpreter :magic :magic-fallback
+                                :hook :commands)
+  "Specifies a keyword to perform a deferred load.
+`leaf' blocks are lazily loaded by their package name
+with values for these keywords."
+  :type 'sexp
+  :group 'leaf)
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;
+;;  Customize variables
+;;
+
+(defcustom leaf-expand-minimally nil
+  "If non-nil, make the expanded code as minimal as possible.
+This disabled `leaf-expand-minimally-suppress-keywords'."
+  :type 'boolean
+  :group 'leaf)
+
+(defcustom leaf-expand-minimally-suppress-keywords '(:leaf-protect)
+  "Suppress keywords when `leaf-expand-minimally' is non-nil."
+  :type 'sexp
+  :group 'leaf)
+
+(defcustom leaf-options-ensure-default-pin nil
+  "Option :ensure pin default.
+'nil is using package manager default."
+  :type 'sexp
+  :group 'leaf)
+
+(defcustom leaf-default-plstore
+  (let ((path (locate-user-emacs-file "leaf-plstore.plist")))
+    (when (file-readable-p path)
+      (plstore-open path)))
+  "Default value if omit store variable in plsore related keywords.
+This variable must be result of `plstore-open'."
+  :type 'sexp
+  :group 'leaf)
+
+(defcustom leaf-enable-imenu-support t
+  "If non-nil, cause imenu to see `leaf' declarations."
+  :type 'boolean
+  :set (lambda (sym value)
+         (set sym value)
+         (eval-after-load 'lisp-mode
+           (let ((regexp (eval-when-compile
+                           (require 'regexp-opt)
+                           (concat "^\\s-*("
+                                   (regexp-opt '("leaf") t)
+                                   "\\s-+\\("
+                                   (or (bound-and-true-p lisp-mode-symbol-regexp)
+                                       "\\(?:\\sw\\|\\s_\\|\\\\.\\)+")
+                                   "\\)"))))
+             (if value
+                 `(add-to-list 'lisp-imenu-generic-expression
+                               '("Leaf" ,regexp 2))
+               `(setq lisp-imenu-generic-expression
+                      (remove '("Leaf" ,regexp 2)
+                              lisp-imenu-generic-expression))))))
+  :group 'leaf)
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;
+;;  Support functions
+;;
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;
+;;  For legacy Emacs
+;;
+
+(defun leaf-mapcaappend (func seq &rest rest)
+  "Another implementation for `mapcan' for FUNC SEQ REST.
+`mapcan' uses `nconc', but Emacs-22 doesn't support it."
+  (declare (indent 2))
+  (apply #'append (apply #'mapcar func seq rest)))
+
+(eval-and-compile
+  (unless (fboundp 'mapcan)
+    (defalias 'mapcan 'leaf-mapcaappend)))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;
+;;  General functions
+;;
+
+(defsubst leaf-pairp (var &optional allow)
+  "Return t if VAR is pair.  If ALLOW is non-nil, allow nil as last element."
+  (and (listp var)
+       (or (atom (cdr var))                  ; (a . b)
+           (member 'lambda var)              ; (a . (lambda (elm) elm)) => (a lambda elm elm)
+           (and (= 3 (safe-length var))      ; (a . 'b) => (a quote b)
+                (member `',(cadr var) `('quote ',backquote-backquote-symbol 'function))))
+       (if allow t (not (null (cdr var)))))) ; (a . nil) => (a)
+
+(defsubst leaf-dotlistp (var &optional allow)
+  "Return t if VAR is doted list.  If ALLOW is non-nil, allow nil as last element."
+  (or (leaf-pairp var allow)                 ; (a b c . (lambda (v) v)) => (pairp '(c . (lambda (v) v)))
+      (leaf-pairp (last var) allow)          ; (a b c . d) => (pairp '(c . d))
+      (leaf-pairp (last var 3) allow)))      ; (a b c . 'd) => (pairp '(c . 'd))
+
+(defsubst leaf-sym-or-keyword (keyword)
+  "Return normalizied `intern'ed symbol from keyword or symbol."
+  (if (keywordp keyword)
+      (intern (substring (symbol-name keyword) 1))
+    keyword))
+
+(defun leaf-copy-list (list)
+  "Return a copy of LIST, which may be a dotted list.  see `cl-copy-list'.
+The elements of LIST are not copied, just the list structure itself."
+  (if (consp list)
+      (let ((res nil))
+        (while (consp list) (push (pop list) res))
+        (prog1 (nreverse res) (setcdr res list)))
+    (car list)))
+
+(defun leaf-safe-mapcar (fn seq)
+  "Apply FN to each element of SEQ, and make a list of the results.
+The result is a list just as long as SEQUENCE.
+SEQUENCE may be a list, a vector, a bool-vector, or a string.
+Unlike `mapcar', it works well with dotlist (last cdr is non-nil list)."
+  (when (cdr (last seq))
+    (setq seq (leaf-copy-list seq))
+    (setcdr (last seq) nil))
+  (mapcar fn seq))
+
+(defun leaf-safe-butlast (list &optional n)
+  "Return a copy of LIST with the last N elements removed.
+If N is omitted or nil, the last element is removed from the copy.
+Unlike `butlast', it works well with dotlist (last cdr is non-nil list)."
+  (when (cdr (last list))
+    (setq list (leaf-copy-list list))
+    (setcdr (last list) nil))
+  (butlast list n))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;
+;;  General list functions
+;;
+
+(defsubst leaf-list-memq (symlist list)
+  "Return t if LIST contained element of SYMLIST."
+  (delq nil (mapcar (lambda (x) (memq x list)) symlist)))
+
+(defun leaf-flatten (lst)
+  "Return flatten list of LST."
+  (let ((fn))
+    (setq fn (lambda (lst) (if (atom lst) `(,lst) (mapcan fn lst))))
+    (funcall fn lst)))
+
+(defun leaf-subst (old new lst)
+  "Substitute NEW for OLD in LST."
+  (declare (indent 2))
+  (mapcar (lambda (elm) (if (eq elm old) new elm)) lst))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;
+;;  General plist functions
+;;
+
+(defun leaf-plist-keys (plist)
+  "Get all keys of PLIST."
+  (let ((ret))
+    (while plist
+      (setq ret (cons (pop plist) ret))
+      (pop plist))
+    (nreverse ret)))
+
+(defun leaf-plist-get (key plist &optional default)
+  "`plist-get' with DEFAULT value in PLIST search KEY."
+  (declare (indent 1))
+  (or (and (plist-member plist key) (plist-get plist key)) default))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;
+;;  leaf keywords definition
+;;
 
 (eval
  `(progn
