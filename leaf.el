@@ -5,7 +5,7 @@
 ;; Author: Naoya Yamashita <conao3@gmail.com>
 ;; Maintainer: Naoya Yamashita <conao3@gmail.com>
 ;; Keywords: lisp settings
-;; Version: 3.4.9
+;; Version: 3.5.0
 ;; URL: https://github.com/conao3/leaf.el
 ;; Package-Requires: ((emacs "24.4"))
 
@@ -140,8 +140,9 @@ This variable must be result of `plstore-open'."
   (declare (indent 2))
   (apply #'append (apply #'mapcar func seq rest)))
 
-(unless (fboundp 'mapcan)
-  (defalias 'mapcan 'leaf-mapcaappend))
+(eval-and-compile
+  (unless (fboundp 'mapcan)
+    (defalias 'mapcan 'leaf-mapcaappend)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
@@ -209,9 +210,7 @@ Unlike `butlast', it works well with dotlist (last cdr is non-nil list)."
 (defun leaf-flatten (lst)
   "Return flatten list of LST."
   (let ((fn))
-    (if (fboundp 'mapcan)
-        (setq fn (lambda (lst) (if (atom lst) `(,lst) (mapcan fn lst))))
-      (setq fn (lambda (lst) (if (atom lst) `(,lst) (leaf-mapcaappend fn lst)))))
+    (setq fn (lambda (lst) (if (atom lst) `(,lst) (mapcan fn lst))))
     (funcall fn lst)))
 
 (defun leaf-subst (old new lst)
@@ -662,10 +661,9 @@ FN also accept list of FN."
 
 (defun leaf-append-defaults (plist)
   "Append leaf default values to PLIST."
-  (append (and leaf-expand-minimally
-               (funcall (if (fboundp 'mapcan) #'mapcan #'leaf-mapcaappend)
-                        (lambda (elm) `(,elm nil))
-                        leaf-expand-minimally-suppress-keywords))
+  (append (when leaf-expand-minimally
+            (mapcan (lambda (elm) `(,elm nil))
+                    leaf-expand-minimally-suppress-keywords))
           plist leaf-defaults leaf-system-defaults))
 
 (defun leaf-normalize-list-in-list (lst &optional dotlistp provval)
@@ -707,10 +705,10 @@ Example:
                 (last lst (setq butlast-n (length (member 'lambda lst)))))
                ((member `',(car (last lst 2)) `('quote ',backquote-backquote-symbol 'function))
                 (last lst (setq butlast-n 2))))))
-        (funcall (if (fboundp 'mapcan) #'mapcan #'leaf-mapcaappend)
-                 (lambda (elm)
-                   (leaf-normalize-list-in-list elm t (or prov provval)))
-                 (leaf-safe-butlast lst butlast-n)))))))
+        (mapcan
+         (lambda (elm)
+           (leaf-normalize-list-in-list elm t (or prov provval)))
+         (leaf-safe-butlast lst butlast-n)))))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
