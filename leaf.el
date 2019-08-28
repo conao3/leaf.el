@@ -784,6 +784,21 @@ EXAMPLE:
     (if mergep (leaf-merge-dupkey-values-plist retplist) retplist)))
 
 
+;;;; Font lock
+
+(defconst leaf-warn-font-lock-keywords
+  `((,(rx (group "leaf-" (or "warn" "error")))
+     (1 font-lock-warning-face))))
+
+(defconst leaf-font-lock-keywords
+  '(("(\\(leaf\\)\\_>[ \t']*\\(\\(?:\\sw\\|\\s_\\)+\\)?"
+     (1 font-lock-keyword-face)
+     (2 font-lock-constant-face nil t))))
+
+(font-lock-add-keywords 'emacs-lisp-mode leaf-warn-font-lock-keywords)
+(font-lock-add-keywords 'emacs-lisp-mode leaf-font-lock-keywords)
+
+
 ;;;; Main macro
 
 (eval
@@ -835,21 +850,6 @@ NOTE:
                   (leaf-append-defaults args) 'merge 'eval))))
     `(prog1 ',name
        ,@(leaf-process-keywords name args* args*))))
-
-
-;;;; Font lock
-
-(defconst leaf-warn-font-lock-keywords
-  `((,(rx (group "leaf-" (or "warn" "error")))
-     (1 font-lock-warning-face))))
-
-(defconst leaf-font-lock-keywords
-  '(("(\\(leaf\\)\\_>[ \t']*\\(\\(?:\\sw\\|\\s_\\)+\\)?"
-     (1 font-lock-keyword-face)
-     (2 font-lock-constant-face nil t))))
-
-(font-lock-add-keywords 'emacs-lisp-mode leaf-warn-font-lock-keywords)
-(font-lock-add-keywords 'emacs-lisp-mode leaf-font-lock-keywords)
 
 (provide 'leaf)
 
