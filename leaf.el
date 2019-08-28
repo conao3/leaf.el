@@ -118,9 +118,9 @@ This variable must be result of `plstore-open'."
                                    "\\)"))))
              (if value
                  `(add-to-list 'lisp-imenu-generic-expression
-                               (list "Leaf" ,regexp 2))
+                               '("Leaf" ,regexp 2))
                `(setq lisp-imenu-generic-expression
-                      (remove (list "Leaf" ,regexp 2)
+                      (remove '("Leaf" ,regexp 2)
                               lisp-imenu-generic-expression))))))
   :group 'leaf)
 
