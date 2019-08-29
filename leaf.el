@@ -471,7 +471,7 @@ Unlike `butlast', it works well with dotlist (last cdr is non-nil list)."
 
 (defvar leaf-key-bindlist nil
   "List of bindings performed by `leaf-key'.
-Elements have the form ((KEY . [MAP]) CMD ORIGINAL-CMD)")
+Elements have the form (MAP KEY CMD ORIGINAL-CMD)")
 
 (defmacro leaf-key (key command &optional keymap)
   "Bind KEY to COMMAND in KEYMAP (`global-map' if not passed).
@@ -503,7 +503,7 @@ For example:
          (_mvec    (if (vectorp key*) key* (read-kbd-macro key*)))
          (mstr     (if (stringp key*) key* (key-description key*))))
     `(let* ((old (lookup-key ,mmap ,(if vecp key `(kbd ,key))))
-            (value ,(list '\` `((,mstr . ,mmap) ,command*  ,',(and old (not (numberp old)) old)))))
+            (value ,(list '\` `(,mmap ,mstr ,command* ,',(and old (not (numberp old)) old)))))
        (push value leaf-key-bindlist)
        (define-key ,mmap ,(if vecp key `(kbd ,key)) ',command*))))
 
