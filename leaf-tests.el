@@ -1905,6 +1905,12 @@ Example:
          (push value leaf-key-bindlist)
          (define-key global-map (vector 'key-chord 105 106) 'undo))))))
 
+;; required `tabulated-list'
+;; there are only tested running (leaf-key-describe-bindings) with no error
+(when (version<= "24.4" emacs-version)
+  (cort-deftest leaf/leaf-key-describe
+    '((:equal (leaf-key-describe-bindings) (leaf-key-describe-bindings)))))
+
 (cort-deftest-with-macroexpand leaf/leaf-key*
   '(((leaf-key* "C-M-i" 'flyspell-correct-wrapper)
      (leaf-key "C-M-i" 'flyspell-correct-wrapper 'leaf-key-override-global-map))
