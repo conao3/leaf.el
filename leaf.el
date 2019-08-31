@@ -5,7 +5,7 @@
 ;; Author: Naoya Yamashita <conao3@gmail.com>
 ;; Maintainer: Naoya Yamashita <conao3@gmail.com>
 ;; Keywords: lisp settings
-;; Version: 3.5.2
+;; Version: 3.5.3
 ;; URL: https://github.com/conao3/leaf.el
 ;; Package-Requires: ((emacs "24.4"))
 
@@ -471,7 +471,7 @@ Unlike `butlast', it works well with dotlist (last cdr is non-nil list)."
 
 (defvar leaf-key-bindlist nil
   "List of bindings performed by `leaf-key'.
-Elements have the form ((KEY . [MAP]) CMD ORIGINAL-CMD)")
+Elements have the form (MAP KEY CMD ORIGINAL-CMD)")
 
 (defmacro leaf-key (key command &optional keymap)
   "Bind KEY to COMMAND in KEYMAP (`global-map' if not passed).
@@ -503,7 +503,7 @@ For example:
          (_mvec    (if (vectorp key*) key* (read-kbd-macro key*)))
          (mstr     (if (stringp key*) key* (key-description key*))))
     `(let* ((old (lookup-key ,mmap ,(if vecp key `(kbd ,key))))
-            (value ,(list '\` `((,mstr . ,mmap) ,command*  ,',(and old (not (numberp old)) old)))))
+            (value ,(list '\` `(,mmap ,mstr ,command* ,',(and old (not (numberp old)) old)))))
        (push value leaf-key-bindlist)
        (define-key ,mmap ,(if vecp key `(kbd ,key)) ',command*))))
 
@@ -589,6 +589,46 @@ BIND must not contain :{{map}}."
   (let ((binds (if (and (atom (car bind)) (atom (cdr bind)))
                    `(,bind) bind)))
     `(leaf-keys (:leaf-key-override-global-map ,@binds))))
+
+(eval
+ (eval-and-compile
+   (when (featurep 'tabulated-list)
+     '(progn
+        (require 'tabulated-list)
+
+        (define-derived-mode leaf-key-list-mode tabulated-list-mode "Leaf-key Bindings"
+          "Major mode for listing bindings configured via `leaf-key'."
+          (setq-local tabulated-list-format [("Map"     20 t)
+                                             ("Key"     20 t)
+                                             ("Command" 40 t)
+                                             ("Before Command" 0 t)])
+          (setq-local tabulated-list-entries
+                      (let ((id 0)
+                            (res)
+                            (formatfn (lambda (elm)
+                                        (if (stringp elm)
+                                            elm
+                                          (prin1-to-string (if (eq elm nil) '--- elm))))))
+                        (dolist (elm leaf-key-bindlist)
+                          (setq id (1+ id))
+                          (push `(,id [,(funcall formatfn (nth 0 elm))
+                                       ,(funcall formatfn (nth 1 elm))
+                                       ,(funcall formatfn (nth 2 elm))
+                                       ,(funcall formatfn (nth 3 elm))])
+                                res))
+                        (nreverse res)))
+          (setq-local tabulated-list-sort-key '("Map" . nil))
+          (tabulated-list-print)
+          (tabulated-list-init-header))
+
+;;;###autoload
+        (defun leaf-key-describe-bindings ()
+          "Display all the bindings configured via `leaf-key'."
+          (interactive)
+          (let ((buf (get-buffer-create "*Leaf-key bindings*")))
+            (with-current-buffer buf
+              (leaf-key-list-mode))
+            (display-buffer buf)))))))
 
 
 ;;;; Handler
