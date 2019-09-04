@@ -1886,10 +1886,10 @@ Now, ~leaf~ support Emacs-23 or above.
 
 ** Migration
 *** leaf v2.0 to v3.0
-**** Drop bind-key.el support for :bind and faether.el support for :ensure
+**** Drop bind-key.el support for :bind and feather.el support for :ensure
 To make ~leaf~ dependent only on packages that are itself and packages attached to and Emacs,
 we have removed the back-end selection for ~bind-key~ and ~leaf-key~ for ~:bind~
-and the back-end selection for ~package.el~, ~feathre.el~, and ~el-get~ for ~:ensure~.
+and the back-end selection for ~package.el~, ~feather.el~, and ~el-get~ for ~:ensure~.
 
 You should now use the external package specific keywords, such as
 ~:bind-key~ and ~:el-get~, ~:feather~, defined in [[https://github.com/conao3/leaf-keywords.el][leaf-keywords.el]].
