@@ -431,21 +431,6 @@ Unlike `butlast', it works well with dotlist (last cdr is non-nil list)."
 ;;;; General functions for leaf
 
 ;;;###autoload
-(defun leaf-to-string (sexp)
-  "Return format string of `leaf' SEXP like `pp-to-string'."
-  (with-temp-buffer
-    (insert (replace-regexp-in-string
-             (eval
-              `(rx (group
-                    (or ,@(mapcar #'symbol-name leaf-keywords)))))
-             "\n\\1"
-             (prin1-to-string sexp)))
-    (delete-trailing-whitespace)
-    (emacs-lisp-mode)
-    (indent-region (point-min) (point-max))
-    (buffer-substring-no-properties (point-min) (point-max))))
-
-;;;###autoload
 (defun leaf-available-keywords ()
   "Return current available `leaf' keywords list."
   (interactive)
@@ -453,6 +438,21 @@ Unlike `butlast', it works well with dotlist (last cdr is non-nil list)."
     (if (called-interactively-p 'interactive)
         (message (prin1-to-string ret))
       ret)))
+
+;;;###autoload
+(defun leaf-to-string (sexp)
+  "Return format string of `leaf' SEXP like `pp-to-string'."
+  (with-temp-buffer
+    (insert (replace-regexp-in-string
+             (eval
+              `(rx (group
+                    (or ,@(mapcar #'symbol-name (leaf-available-keywords))))))
+             "\n\\1"
+             (prin1-to-string sexp)))
+    (delete-trailing-whitespace)
+    (emacs-lisp-mode)
+    (indent-region (point-min) (point-max))
+    (buffer-substring-no-properties (point-min) (point-max))))
 
 
 ;;;; Key management
