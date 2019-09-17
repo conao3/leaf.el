@@ -507,6 +507,36 @@ Unlike `butlast', it works well with dotlist (last cdr is non-nil list)."
                    sexp)))))
       (display-buffer buf))))
 
+;;;###autoload
+(defun leaf-expand ()
+  "Expand `leaf' at point."
+  (interactive)
+  (let* ((buf (get-buffer-create leaf-expand-buffer-name))
+         (raw (save-excursion
+                (condition-case _err
+                    (while (not (looking-at "(leaf "))
+                      (backward-up-list 1))
+                  (error nil))
+                (buffer-substring-no-properties
+                 (line-beginning-position) (scan-sexps (point) 1))))
+         (sexp (read raw)))
+    (with-current-buffer buf
+      (erase-buffer)
+      (insert
+       (format "%s\n\n;; %s\n\n%s"
+               raw
+               (make-string 80 ?-)
+               (let ((eval-expression-print-length nil)
+                     (eval-expression-print-level  nil)
+                     (print-quoted t))
+                 (pp-to-string
+                  (funcall
+                   (if (fboundp 'macroexpand-1) 'macroexpand-1 'macroexpand)
+                   sexp)))))
+      (emacs-lisp-mode)
+      (indent-region (point-min) (point-max))
+      (display-buffer buf))))
+
 
 ;;;; Key management
 
