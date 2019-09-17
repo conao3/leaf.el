@@ -492,7 +492,8 @@ Unlike `butlast', it works well with dotlist (last cdr is non-nil list)."
                   (error nil))
                 (buffer-substring-no-properties
                  (line-beginning-position) (scan-sexps (point) 1))))
-         (sexp (read raw)))
+         (sexp (read raw))
+         (leaf-expand-minimally t))
     (with-current-buffer buf
       (erase-buffer)
       (insert
@@ -519,7 +520,8 @@ Unlike `butlast', it works well with dotlist (last cdr is non-nil list)."
                   (error nil))
                 (buffer-substring-no-properties
                  (line-beginning-position) (scan-sexps (point) 1))))
-         (sexp (read raw)))
+         (sexp (read raw))
+         (leaf-expand-minimally t))
     (with-current-buffer buf
       (erase-buffer)
       (insert
