@@ -5,7 +5,7 @@
 ;; Author: Naoya Yamashita <conao3@gmail.com>
 ;; Maintainer: Naoya Yamashita <conao3@gmail.com>
 ;; Keywords: lisp settings
-;; Version: 3.5.4
+;; Version: 3.5.5
 ;; URL: https://github.com/conao3/leaf.el
 ;; Package-Requires: ((emacs "24.4"))
 
@@ -453,6 +453,91 @@ Unlike `butlast', it works well with dotlist (last cdr is non-nil list)."
     (emacs-lisp-mode)
     (indent-region (point-min) (point-max))
     (buffer-substring-no-properties (point-min) (point-max))))
+
+(defvar leaf-expand-buffer-name "*Leaf Expand*")
+(defvar leaf-expand-issue-template
+  "## Description
+
+<!-- Please write a description of your issue -->
+
+## Issue leaf-block
+```elisp
+%s
+```
+
+## `macroexpand-1` leaf-block
+```elisp
+%s
+```
+
+## Expected leaf-block
+
+<!-- Please write a Expected leaf-block -->
+
+```elisp
+
+
+```
+")
+
+;;;###autoload
+(defun leaf-create-issue-template ()
+  "Create issue template buffer."
+  (interactive)
+  (let* ((buf (get-buffer-create leaf-expand-buffer-name))
+         (raw (save-excursion
+                (condition-case _err
+                    (while (not (looking-at "(leaf "))
+                      (backward-up-list 1))
+                  (error nil))
+                (buffer-substring-no-properties
+                 (line-beginning-position) (scan-sexps (point) 1))))
+         (sexp (read raw))
+         (leaf-expand-minimally t))
+    (with-current-buffer buf
+      (erase-buffer)
+      (insert
+       (format leaf-expand-issue-template
+               raw
+               (let ((eval-expression-print-length nil)
+                     (eval-expression-print-level  nil)
+                     (print-quoted t))
+                 (pp-to-string
+                  (funcall
+                   (if (fboundp 'macroexpand-1) 'macroexpand-1 'macroexpand)
+                   sexp)))))
+      (display-buffer buf))))
+
+;;;###autoload
+(defun leaf-expand ()
+  "Expand `leaf' at point."
+  (interactive)
+  (let* ((buf (get-buffer-create leaf-expand-buffer-name))
+         (raw (save-excursion
+                (condition-case _err
+                    (while (not (looking-at "(leaf "))
+                      (backward-up-list 1))
+                  (error nil))
+                (buffer-substring-no-properties
+                 (line-beginning-position) (scan-sexps (point) 1))))
+         (sexp (read raw))
+         (leaf-expand-minimally t))
+    (with-current-buffer buf
+      (erase-buffer)
+      (insert
+       (format "%s\n\n;; %s\n\n%s"
+               raw
+               (make-string 80 ?-)
+               (let ((eval-expression-print-length nil)
+                     (eval-expression-print-level  nil)
+                     (print-quoted t))
+                 (pp-to-string
+                  (funcall
+                   (if (fboundp 'macroexpand-1) 'macroexpand-1 'macroexpand)
+                   sexp)))))
+      (emacs-lisp-mode)
+      (indent-region (point-min) (point-max))
+      (display-buffer buf))))
 
 
 ;;;; Key management
