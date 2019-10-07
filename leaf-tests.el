@@ -1861,7 +1861,7 @@ Example:
      (unless (package-installed-p 'macrostep)
        (unless (assoc 'macrostep package-archive-contents)
          (package-refresh-contents))
-       (condition-case err
+       (condition-case _err
            (package-install 'macrostep)
          (error
           (condition-case err

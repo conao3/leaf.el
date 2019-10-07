@@ -742,7 +742,7 @@ FN also accept list of FN."
   `(unless (package-installed-p ',pkg)
      (unless (assoc ',pkg package-archive-contents)
        (package-refresh-contents))
-     (condition-case err
+     (condition-case _err
          (package-install ',pkg)
        (error
         (condition-case err
