@@ -5,7 +5,7 @@
 ;; Author: Naoya Yamashita <conao3@gmail.com>
 ;; Maintainer: Naoya Yamashita <conao3@gmail.com>
 ;; Keywords: lisp settings
-;; Version: 3.5.5
+;; Version: 3.5.6
 ;; URL: https://github.com/conao3/leaf.el
 ;; Package-Requires: ((emacs "24.4"))
 
@@ -742,7 +742,7 @@ FN also accept list of FN."
   `(unless (package-installed-p ',pkg)
      (unless (assoc ',pkg package-archive-contents)
        (package-refresh-contents))
-     (condition-case err
+     (condition-case _err
          (package-install ',pkg)
        (error
         (condition-case err
