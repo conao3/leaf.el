@@ -1795,6 +1795,48 @@ In some cases, you may want to disable this auto-expansion.
               (leaf-init)))))))
 #+end_src
 
+** :leaf-defun keyword
+Depending on the context, you may find that the function is declared
+in the package that is currently being set. Previously, the
+~declare-function~ statement was explicitly generated for these
+functions using the: defun keyword, but this keyword no longer
+requires that work.
+
+#+begin_src emacs-lisp
+  (cort-deftest-with-macroexpand leaf/leaf-defun
+    '(((leaf annotate
+        :commands annotate-mode
+        :bind (("C-c a a" . annotate-annotate)
+               ("C-c a ]" . annotate-next-annotation)
+               ("C-c a [" . annotate-previous-anotation)))
+       (prog1 'annotate
+         (unless (fboundp 'annotate-annotate) (autoload #'annotate-annotate "annotate" nil t))
+         (unless (fboundp 'annotate-next-annotation) (autoload #'annotate-next-annotation "annotate" nil t))
+         (unless (fboundp 'annotate-previous-anotation) (autoload #'annotate-previous-anotation "annotate" nil t))
+         (unless (fboundp 'annotate-mode) (autoload #'annotate-mode "annotate" nil t))
+         (declare-function annotate-annotate "annotate")
+         (declare-function annotate-next-annotation "annotate")
+         (declare-function annotate-previous-anotation "annotate")
+         (declare-function annotate-mode "annotate")
+         (leaf-keys
+          (("C-c a a" . annotate-annotate)
+           ("C-c a ]" . annotate-next-annotation)
+           ("C-c a [" . annotate-previous-anotation)))))
+
+      ((leaf annotate
+         :leaf-autoload nil
+         :leaf-defun nil
+         :commands annotate-mode
+         :bind (("C-c a a" . annotate-annotate)
+                ("C-c a ]" . annotate-next-annotation)
+                ("C-c a [" . annotate-previous-anotation)))
+       (prog1 'annotate
+         (leaf-keys
+          (("C-c a a" . annotate-annotate)
+           ("C-c a ]" . annotate-next-annotation)
+           ("C-c a [" . annotate-previous-anotation)))))))
+#+end_src
+
 * Information
 ** Donation
 I love OSS and I am dreaming of working on it as *full-time* job.
