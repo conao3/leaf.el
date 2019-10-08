@@ -941,7 +941,7 @@ Example:
        (declare-function moccur "color-moccur")
        (declare-function isearch-moccur "color-moccur")
        (declare-function isearch-moccur-all "color-moccur")
-       (defvar 'isearch-mode-map)
+       (defvar isearch-mode-map)
        (leaf-keys (("M-s O" . moccur)
                    (:isearch-mode-map
                     :package color-moccur
@@ -962,7 +962,7 @@ Example:
        (declare-function moccur "color-moccur")
        (declare-function isearch-moccur "color-moccur")
        (declare-function isearch-moccur-all "color-moccur")
-       (defvar 'isearch-mode-map)
+       (defvar isearch-mode-map)
        (leaf-keys (("M-s O" . moccur)
                    (:isearch-mode-map
                     :package color-moccur
@@ -983,7 +983,7 @@ Example:
        (declare-function moccur "color-moccur")
        (declare-function isearch-moccur "color-moccur")
        (declare-function isearch-moccur-all "color-moccur")
-       (defvar 'isearch-mode-map)
+       (defvar isearch-mode-map)
        (leaf-keys (("M-s O" . moccur)
                    (:isearch-mode-map
                     :package isearch
@@ -1004,7 +1004,7 @@ Example:
        (declare-function moccur "color-moccur")
        (declare-function isearch-moccur "color-moccur")
        (declare-function isearch-moccur-all "color-moccur")
-       (defvar 'isearch-mode-map)
+       (defvar isearch-mode-map)
        (leaf-keys (("M-s O" . moccur)
                    (isearch-mode-map
                     :package isearch
