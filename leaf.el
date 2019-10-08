@@ -207,7 +207,7 @@ Sort by `leaf-sort-leaf--values-plist' in this order.")
          (when args
            (mapcan (lambda (elm)
                      (when (symbolp (car elm))
-                       `(',(leaf-sym-or-keyword (car elm)))))
+                       `(,(leaf-sym-or-keyword (car elm)))))
                    (car (eval `(leaf-keys ,args ,leaf--name))))))))
 
     ((memq leaf--key '(:advice))
