@@ -5,7 +5,7 @@
 ;; Author: Naoya Yamashita <conao3@gmail.com>
 ;; Maintainer: Naoya Yamashita <conao3@gmail.com>
 ;; Keywords: lisp settings
-;; Version: 3.5.8
+;; Version: 3.5.9
 ;; URL: https://github.com/conao3/leaf.el
 ;; Package-Requires: ((emacs "24.4"))
 
@@ -79,6 +79,7 @@ Same as `list' but this macro does not evaluate any arguments."
 
    :defun           `(,@(mapcar (lambda (elm) `(declare-function ,(car elm) ,(symbol-name (cdr elm)))) leaf--value) ,@leaf--body)
    :defvar          `(,@(mapcar (lambda (elm) `(defvar ,elm)) leaf--value) ,@leaf--body)
+   :leaf-defun      `(,@(when (car leaf--value) (mapcar (lambda (elm) `(declare-function ,(car elm) ,(cdr elm))) (reverse leaf--autoload))) ,@leaf--body)
 
    :preface         `(,@leaf--value ,@leaf--body)
    :when            (when leaf--body `((when   ,@(if (= 1 (length leaf--value)) leaf--value `((and ,@leaf--value))) ,@leaf--body)))
@@ -256,7 +257,9 @@ Sort by `leaf-sort-leaf--values-plist' in this order.")
   :type 'sexp
   :group 'leaf)
 
-(defcustom leaf-system-defaults '(:leaf-autoload t :leaf-defer t :leaf-protect t)
+(defcustom leaf-system-defaults (leaf-list
+                                 :leaf-autoload t :leaf-defer t :leaf-protect t
+                                 :leaf-defun t)
   "The value for all `leaf' blocks for leaf system."
   :type 'sexp
   :group 'leaf)

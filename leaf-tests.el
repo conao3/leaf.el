@@ -857,6 +857,7 @@ Example:
        :bind ("C-c e" . macrostep-expand))
      (prog1 'macrostep
        (unless (fboundp 'macrostep-expand) (autoload #'macrostep-expand "macrostep" nil t))
+       (declare-function macrostep-expand "macrostep")
        (leaf-handler-package macrostep macrostep nil)
        (leaf-keys (("C-c e" . macrostep-expand)))))
 
@@ -870,6 +871,9 @@ Example:
        (unless (fboundp 'moccur) (autoload #'moccur "color-moccur" nil t))
        (unless (fboundp 'isearch-moccur) (autoload #'isearch-moccur "color-moccur" nil t))
        (unless (fboundp 'isearch-moccur-all) (autoload #'isearch-moccur-all "color-moccur" nil t))
+       (declare-function moccur "color-moccur")
+       (declare-function isearch-moccur "color-moccur")
+       (declare-function isearch-moccur-all "color-moccur")
        (leaf-keys (("M-s O" . moccur)
                    ("M-o" . isearch-moccur)
                    ("M-O" . isearch-moccur-all)))))
@@ -883,6 +887,9 @@ Example:
        (unless (fboundp 'moccur) (autoload #'moccur "color-moccur" nil t))
        (unless (fboundp 'isearch-moccur) (autoload #'isearch-moccur "color-moccur" nil t))
        (unless (fboundp 'isearch-moccur-all) (autoload #'isearch-moccur-all "color-moccur" nil t))
+       (declare-function moccur "color-moccur")
+       (declare-function isearch-moccur "color-moccur")
+       (declare-function isearch-moccur-all "color-moccur")
        (leaf-keys (("M-s O" . moccur)
                    ("M-o" . isearch-moccur)
                    ("M-O" . isearch-moccur-all)))))
@@ -895,6 +902,8 @@ Example:
      (prog1 'color-moccur
        (unless (fboundp 'isearch-moccur) (autoload #'isearch-moccur "color-moccur" nil t))
        (unless (fboundp 'isearch-moccur-all) (autoload #'isearch-moccur-all "color-moccur" nil t))
+       (declare-function isearch-moccur "color-moccur")
+       (declare-function isearch-moccur-all "color-moccur")
        (leaf-keys (("M-s")
                    ("M-s o" . isearch-moccur)
                    ("M-s i" . isearch-moccur-all)))))
@@ -910,6 +919,10 @@ Example:
        (unless (fboundp 'isearch-moccur) (autoload #'isearch-moccur "color-moccur" nil t))
        (unless (fboundp 'isearch-moccur-all) (autoload #'isearch-moccur-all "color-moccur" nil t))
        (unless (fboundp 'isearch-moccur-some) (autoload #'isearch-moccur-some "color-moccur" nil t))
+       (declare-function moccur "color-moccur")
+       (declare-function isearch-moccur "color-moccur")
+       (declare-function isearch-moccur-all "color-moccur")
+       (declare-function isearch-moccur-some "color-moccur")
        (leaf-keys (("M-s O" . moccur)
                    ("M-o" . isearch-moccur)
                    ("M-O" . isearch-moccur-all)
@@ -925,6 +938,9 @@ Example:
        (unless (fboundp 'moccur) (autoload #'moccur "color-moccur" nil t))
        (unless (fboundp 'isearch-moccur) (autoload #'isearch-moccur "color-moccur" nil t))
        (unless (fboundp 'isearch-moccur-all) (autoload #'isearch-moccur-all "color-moccur" nil t))
+       (declare-function moccur "color-moccur")
+       (declare-function isearch-moccur "color-moccur")
+       (declare-function isearch-moccur-all "color-moccur")
        (leaf-keys (("M-s O" . moccur)
                    (:isearch-mode-map
                     :package color-moccur
@@ -942,6 +958,9 @@ Example:
        (unless (fboundp 'moccur) (autoload #'moccur "color-moccur" nil t))
        (unless (fboundp 'isearch-moccur) (autoload #'isearch-moccur "color-moccur" nil t))
        (unless (fboundp 'isearch-moccur-all) (autoload #'isearch-moccur-all "color-moccur" nil t))
+       (declare-function moccur "color-moccur")
+       (declare-function isearch-moccur "color-moccur")
+       (declare-function isearch-moccur-all "color-moccur")
        (leaf-keys (("M-s O" . moccur)
                    (:isearch-mode-map
                     :package color-moccur
@@ -959,6 +978,9 @@ Example:
        (unless (fboundp 'moccur) (autoload #'moccur "color-moccur" nil t))
        (unless (fboundp 'isearch-moccur) (autoload #'isearch-moccur "color-moccur" nil t))
        (unless (fboundp 'isearch-moccur-all) (autoload #'isearch-moccur-all "color-moccur" nil t))
+       (declare-function moccur "color-moccur")
+       (declare-function isearch-moccur "color-moccur")
+       (declare-function isearch-moccur-all "color-moccur")
        (leaf-keys (("M-s O" . moccur)
                    (:isearch-mode-map
                     :package isearch
@@ -976,6 +998,9 @@ Example:
        (unless (fboundp 'moccur) (autoload #'moccur "color-moccur" nil t))
        (unless (fboundp 'isearch-moccur) (autoload #'isearch-moccur "color-moccur" nil t))
        (unless (fboundp 'isearch-moccur-all) (autoload #'isearch-moccur-all "color-moccur" nil t))
+       (declare-function moccur "color-moccur")
+       (declare-function isearch-moccur "color-moccur")
+       (declare-function isearch-moccur-all "color-moccur")
        (leaf-keys (("M-s O" . moccur)
                    (isearch-mode-map
                     :package isearch
@@ -994,6 +1019,9 @@ Example:
        (unless (fboundp 'moccur) (autoload #'moccur "color-moccur" nil t))
        (unless (fboundp 'isearch-moccur) (autoload #'isearch-moccur "color-moccur" nil t))
        (unless (fboundp 'isearch-moccur-all) (autoload #'isearch-moccur-all "color-moccur" nil t))
+       (declare-function moccur "color-moccur")
+       (declare-function isearch-moccur "color-moccur")
+       (declare-function isearch-moccur-all "color-moccur")
        (leaf-keys* (("M-s O" . moccur)
                     ("M-o" . isearch-moccur)
                     ("M-O" . isearch-moccur-all)))))
@@ -1006,6 +1034,9 @@ Example:
        (unless (fboundp 'moccur) (autoload #'moccur "color-moccur" nil t))
        (unless (fboundp 'isearch-moccur) (autoload #'isearch-moccur "color-moccur" nil t))
        (unless (fboundp 'isearch-moccur-all) (autoload #'isearch-moccur-all "color-moccur" nil t))
+       (declare-function moccur "color-moccur")
+       (declare-function isearch-moccur "color-moccur")
+       (declare-function isearch-moccur-all "color-moccur")
        (leaf-keys* (("M-s O" . moccur)
                     ("M-o" . isearch-moccur)
                     ("M-O" . isearch-moccur-all)))))
@@ -1018,6 +1049,9 @@ Example:
        (unless (fboundp 'moccur) (autoload #'moccur "color-moccur" nil t))
        (unless (fboundp 'isearch-moccur) (autoload #'isearch-moccur "color-moccur" nil t))
        (unless (fboundp 'isearch-moccur-all) (autoload #'isearch-moccur-all "color-moccur" nil t))
+       (declare-function moccur "color-moccur")
+       (declare-function isearch-moccur "color-moccur")
+       (declare-function isearch-moccur-all "color-moccur")
        (leaf-keys* (("M-s O" . moccur)
                     ("M-o" . isearch-moccur)
                     ("M-O" . isearch-moccur-all)))))
@@ -1032,6 +1066,10 @@ Example:
        (unless (fboundp 'isearch-moccur) (autoload #'isearch-moccur "color-moccur" nil t))
        (unless (fboundp 'isearch-moccur-all) (autoload #'isearch-moccur-all "color-moccur" nil t))
        (unless (fboundp 'isearch-moccur-some) (autoload #'isearch-moccur-some "color-moccur" nil t))
+       (declare-function moccur "color-moccur")
+       (declare-function isearch-moccur "color-moccur")
+       (declare-function isearch-moccur-all "color-moccur")
+       (declare-function isearch-moccur-some "color-moccur")
        (leaf-keys* (("M-s O" . moccur)
                     ("M-o" . isearch-moccur)
                     ("M-O" . isearch-moccur-all)
@@ -1044,6 +1082,7 @@ Example:
        :mode "\\.js\\'")
      (prog1 'web-mode
        (unless (fboundp 'web-mode) (autoload #'web-mode "web-mode" nil t))
+       (declare-function web-mode "web-mode")
        (add-to-list 'auto-mode-alist '("\\.js\\'" . web-mode))))
 
     ;; multi strings will be accepted
@@ -1051,6 +1090,7 @@ Example:
        :mode "\\.js\\'" "\\.p?html?\\'")
      (prog1 'web-mode
        (unless (fboundp 'web-mode) (autoload #'web-mode "web-mode" nil t))
+       (declare-function web-mode "web-mode")
        (add-to-list 'auto-mode-alist '("\\.js\\'" . web-mode))
        (add-to-list 'auto-mode-alist '("\\.p?html?\\'" . web-mode))))
 
@@ -1059,6 +1099,7 @@ Example:
        :mode ("\\.js\\'" "\\.p?html?\\'"))
      (prog1 'web-mode
        (unless (fboundp 'web-mode) (autoload #'web-mode "web-mode" nil t))
+       (declare-function web-mode "web-mode")
        (add-to-list 'auto-mode-alist '("\\.js\\'" . web-mode))
        (add-to-list 'auto-mode-alist '("\\.p?html?\\'" . web-mode))))
 
@@ -1067,6 +1108,7 @@ Example:
        :mode ("\\.js\\'" . web-strict-mode))
      (prog1 'web-mode
        (unless (fboundp 'web-strict-mode) (autoload #'web-strict-mode "web-mode" nil t))
+       (declare-function web-strict-mode "web-mode")
        (add-to-list 'auto-mode-alist '("\\.js\\'" . web-strict-mode))))
 
     ;; distribution feature is supported
@@ -1074,6 +1116,7 @@ Example:
        :mode (("\\.js\\'" "\\.p?html?\\'") . web-strict-mode))
      (prog1 'web-mode
        (unless (fboundp 'web-strict-mode) (autoload #'web-strict-mode "web-mode" nil t))
+       (declare-function web-strict-mode "web-mode")
        (add-to-list 'auto-mode-alist '("\\.js\\'" . web-strict-mode))
        (add-to-list 'auto-mode-alist '("\\.p?html?\\'" . web-strict-mode))))
 
@@ -1084,6 +1127,8 @@ Example:
      (prog1 'web-mode
        (unless (fboundp 'web-mode) (autoload #'web-mode "web-mode" nil t))
        (unless (fboundp 'web-strict-mode) (autoload #'web-strict-mode "web-mode" nil t))
+       (declare-function web-mode "web-mode")
+       (declare-function web-strict-mode "web-mode")
        (add-to-list 'auto-mode-alist '("\\.html\\'" . web-mode))
        (add-to-list 'auto-mode-alist '("\\.js\\'" . web-strict-mode))
        (add-to-list 'auto-mode-alist '("\\.p?html?\\'" . web-strict-mode))))))
@@ -1097,6 +1142,8 @@ Example:
      (prog1 'ruby-mode
        (unless (fboundp 'ruby-mode) (autoload #'ruby-mode "ruby-mode" nil t))
        (unless (fboundp 'rb-mode) (autoload #'rb-mode "ruby-mode" nil t))
+       (declare-function ruby-mode "ruby-mode")
+       (declare-function rb-mode "ruby-mode")
        (add-to-list 'auto-mode-alist '("\\.rb\\'" . ruby-mode))
        (add-to-list 'auto-mode-alist '("\\.rb2\\'" . ruby-mode))
        (add-to-list 'auto-mode-alist '("\\.rbg\\'" . rb-mode))
@@ -1106,6 +1153,7 @@ Example:
        :interpreter "js" "p?html?")
      (prog1 'web-mode
        (unless (fboundp 'web-mode) (autoload #'web-mode "web-mode" nil t))
+       (declare-function web-mode "web-mode")
        (add-to-list 'interpreter-mode-alist '("js" . web-mode))
        (add-to-list 'interpreter-mode-alist '("p?html?" . web-mode))))
 
@@ -1113,6 +1161,7 @@ Example:
        :interpreter ("js" "p?html?"))
      (prog1 'web-mode
        (unless (fboundp 'web-mode) (autoload #'web-mode "web-mode" nil t))
+       (declare-function web-mode "web-mode")
        (add-to-list 'interpreter-mode-alist '("js" . web-mode))
        (add-to-list 'interpreter-mode-alist '("p?html?" . web-mode))))
 
@@ -1120,6 +1169,7 @@ Example:
        :interpreter (("js" "p?html?") . web-mode))
      (prog1 'web-mode
        (unless (fboundp 'web-mode) (autoload #'web-mode "web-mode" nil t))
+       (declare-function web-mode "web-mode")
        (add-to-list 'interpreter-mode-alist '("js" . web-mode))
        (add-to-list 'interpreter-mode-alist '("p?html?" . web-mode))))))
 
@@ -1132,6 +1182,7 @@ Example:
        (pdf-tools-install))
      (prog1 'pdf-tools
        (unless (fboundp 'pdf-view-mode) (autoload #'pdf-view-mode "pdf-tools" nil t))
+       (declare-function pdf-view-mode "pdf-tools")
        (add-to-list 'magic-mode-alist '("%PDF" . pdf-view-mode))
        (eval-after-load 'pdf-tools
          '(progn
@@ -1141,6 +1192,7 @@ Example:
        :magic "js" "p?html?")
      (prog1 'web-mode
        (unless (fboundp 'web-mode) (autoload #'web-mode "web-mode" nil t))
+       (declare-function web-mode "web-mode")
        (add-to-list 'magic-mode-alist '("js" . web-mode))
        (add-to-list 'magic-mode-alist '("p?html?" . web-mode))))
 
@@ -1148,6 +1200,7 @@ Example:
        :magic ("js" "p?html?"))
      (prog1 'web-mode
        (unless (fboundp 'web-mode) (autoload #'web-mode "web-mode" nil t))
+       (declare-function web-mode "web-mode")
        (add-to-list 'magic-mode-alist '("js" . web-mode))
        (add-to-list 'magic-mode-alist '("p?html?" . web-mode))))
 
@@ -1155,6 +1208,7 @@ Example:
        :magic (("js" "p?html?") . web-mode))
      (prog1 'web-mode
        (unless (fboundp 'web-mode) (autoload #'web-mode "web-mode" nil t))
+       (declare-function web-mode "web-mode")
        (add-to-list 'magic-mode-alist '("js" . web-mode))
        (add-to-list 'magic-mode-alist '("p?html?" . web-mode))))))
 
@@ -1167,6 +1221,7 @@ Example:
        (pdf-tools-install))
      (prog1 'pdf-tools
        (unless (fboundp 'pdf-view-mode) (autoload #'pdf-view-mode "pdf-tools" nil t))
+       (declare-function pdf-view-mode "pdf-tools")
        (add-to-list 'magic-fallback-mode-alist '("%PDF" . pdf-view-mode))
        (eval-after-load 'pdf-tools
          '(progn
@@ -1176,6 +1231,7 @@ Example:
        :magic-fallback "js" "p?html?")
      (prog1 'web-mode
        (unless (fboundp 'web-mode) (autoload #'web-mode "web-mode" nil t))
+       (declare-function web-mode "web-mode")
        (add-to-list 'magic-fallback-mode-alist '("js" . web-mode))
        (add-to-list 'magic-fallback-mode-alist '("p?html?" . web-mode))))
 
@@ -1183,6 +1239,7 @@ Example:
        :magic-fallback ("js" "p?html?"))
      (prog1 'web-mode
        (unless (fboundp 'web-mode) (autoload #'web-mode "web-mode" nil t))
+       (declare-function web-mode "web-mode")
        (add-to-list 'magic-fallback-mode-alist '("js" . web-mode))
        (add-to-list 'magic-fallback-mode-alist '("p?html?" . web-mode))))
 
@@ -1190,6 +1247,7 @@ Example:
        :magic-fallback (("js" "p?html?") . web-mode))
      (prog1 'web-mode
        (unless (fboundp 'web-mode) (autoload #'web-mode "web-mode" nil t))
+       (declare-function web-mode "web-mode")
        (add-to-list 'magic-fallback-mode-alist '("js" . web-mode))
        (add-to-list 'magic-fallback-mode-alist '("p?html?" . web-mode))))))
 
@@ -1201,6 +1259,7 @@ Example:
        :config (ace-jump-mode))
      (prog1 'ace-jump-mode
        (unless (fboundp 'ace-jump-mode) (autoload #'ace-jump-mode "ace-jump-mode" nil t))
+       (declare-function ace-jump-mode "ace-jump-mode")
        (add-hook 'cc-mode-hook #'ace-jump-mode)
        (eval-after-load 'ace-jump-mode
          '(progn
@@ -1211,6 +1270,7 @@ Example:
        :hook cc-mode-hook prog-mode-hook)
      (prog1 'ace-jump-mode
        (unless (fboundp 'ace-jump-mode) (autoload #'ace-jump-mode "ace-jump-mode" nil t))
+       (declare-function ace-jump-mode "ace-jump-mode")
        (add-hook 'cc-mode-hook #'ace-jump-mode)
        (add-hook 'prog-mode-hook #'ace-jump-mode)))
 
@@ -1219,6 +1279,7 @@ Example:
        :hook (prog-mode-hook . my-ace-jump-mode))
      (prog1 'ace-jump-mode
        (unless (fboundp 'my-ace-jump-mode) (autoload #'my-ace-jump-mode "ace-jump-mode" nil t))
+       (declare-function my-ace-jump-mode "ace-jump-mode")
        (add-hook 'prog-mode-hook #'my-ace-jump-mode)))
 
     ;; distribution feature is supported
@@ -1226,6 +1287,7 @@ Example:
        :hook ((cc-mode-hook prog-mode-hook) . my-ace-jump-mode))
      (prog1 'ace-jump-mode
        (unless (fboundp 'my-ace-jump-mode) (autoload #'my-ace-jump-mode "ace-jump-mode" nil t))
+       (declare-function my-ace-jump-mode "ace-jump-mode")
        (add-hook 'cc-mode-hook #'my-ace-jump-mode)
        (add-hook 'prog-mode-hook #'my-ace-jump-mode)))
 
@@ -1263,6 +1325,8 @@ Example:
      (prog1 'leaf
        (unless (fboundp 'matu-around0) (autoload #'matu-around0 "leaf" nil t))
        (unless (fboundp 'matu-before0) (autoload #'matu-before0 "leaf" nil t))
+       (declare-function matu-around0 "leaf")
+       (declare-function matu-before0 "leaf")
        (defun matu (x)
          (princ
           (format ">>%s<<" x))
@@ -1297,6 +1361,8 @@ Example:
      (prog1 'leaf
        (unless (fboundp 'matu-around0) (autoload #'matu-around0 "leaf" nil t))
        (unless (fboundp 'matu-before0) (autoload #'matu-before0 "leaf" nil t))
+       (declare-function matu-around0 "leaf")
+       (declare-function matu-before0 "leaf")
        (defun matu (x)
          (princ
           (format ">>%s<<" x))
@@ -1336,6 +1402,8 @@ Example:
      (prog1 'leaf
        (unless (fboundp 'matu-around0) (autoload #'matu-around0 "leaf" nil t))
        (unless (fboundp 'matu-before0) (autoload #'matu-before0 "leaf" nil t))
+       (declare-function matu-around0 "leaf")
+       (declare-function matu-before0 "leaf")
        (defun matu
            (x)
          (princ
@@ -1370,6 +1438,8 @@ Example:
      (prog1 'leaf
        (unless (fboundp 'matu-before0) (autoload #'matu-before0 "leaf" nil t))
        (unless (fboundp 'matu-around0) (autoload #'matu-around0 "leaf" nil t))
+       (declare-function matu-before0 "leaf")
+       (declare-function matu-around0 "leaf")
        (advice-remove 'matu #'matu-around0)
        (advice-remove 'matu #'matu-before0)))
 
@@ -1380,6 +1450,8 @@ Example:
      (prog1 'leaf
        (unless (fboundp 'matu-before0) (autoload #'matu-before0 "leaf" nil t))
        (unless (fboundp 'matu-around0) (autoload #'matu-around0 "leaf" nil t))
+       (declare-function matu-before0 "leaf")
+       (declare-function matu-around0 "leaf")
        (advice-remove 'matu #'matu-around0)
        (advice-remove 'matu #'matu-before0)))))
 
@@ -1391,6 +1463,7 @@ Example:
        :config (leaf-init))
      (prog1 'leaf
        (unless (fboundp 'leaf) (autoload #'leaf "leaf" nil t))
+       (declare-function leaf "leaf")
        (eval-after-load 'leaf
          '(progn
             (leaf-init)))))
@@ -1401,7 +1474,10 @@ Example:
      (prog1 'leaf
        (unless (fboundp 'leaf) (autoload #'leaf "leaf" nil t))
        (unless (fboundp 'leaf-pairp) (autoload #'leaf-pairp "leaf" nil t))
-       (unless (fboundp 'leaf-plist-get) (autoload #'leaf-plist-get "leaf" nil t))))
+       (unless (fboundp 'leaf-plist-get) (autoload #'leaf-plist-get "leaf" nil t))
+       (declare-function leaf "leaf")
+       (declare-function leaf-pairp "leaf")
+       (declare-function leaf-plist-get "leaf")))
 
     ;; multi symbols in list will be accepted
     ((leaf leaf
@@ -1409,7 +1485,10 @@ Example:
      (prog1 'leaf
        (unless (fboundp 'leaf) (autoload #'leaf "leaf" nil t))
        (unless (fboundp 'leaf-pairp) (autoload #'leaf-pairp "leaf" nil t))
-       (unless (fboundp 'leaf-plist-get) (autoload #'leaf-plist-get "leaf" nil t))))
+       (unless (fboundp 'leaf-plist-get) (autoload #'leaf-plist-get "leaf" nil t))
+       (declare-function leaf "leaf")
+       (declare-function leaf-pairp "leaf")
+       (declare-function leaf-plist-get "leaf")))
 
     ;; It is accepted even if you specify symbol and list at the same time
     ((leaf leaf
@@ -1418,7 +1497,11 @@ Example:
        (unless (fboundp 'leaf) (autoload #'leaf "leaf" nil t))
        (unless (fboundp 'leaf-pairp) (autoload #'leaf-pairp "leaf" nil t))
        (unless (fboundp 'leaf-plist-get) (autoload #'leaf-plist-get "leaf" nil t))
-       (unless (fboundp 'leaf-insert-list-after) (autoload #'leaf-insert-list-after "leaf" nil t))))))
+       (unless (fboundp 'leaf-insert-list-after) (autoload #'leaf-insert-list-after "leaf" nil t))
+       (declare-function leaf "leaf")
+       (declare-function leaf-pairp "leaf")
+       (declare-function leaf-plist-get "leaf")
+       (declare-function leaf-insert-list-after "leaf")))))
 
 (cort-deftest-with-macroexpand leaf/pre-setq
   '(
@@ -1780,6 +1863,7 @@ Example:
        :config (leaf-init))
      (prog1 'leaf
        (unless (fboundp 'leaf) (autoload #'leaf "leaf" nil t))
+       (declare-function leaf "leaf")
        (eval-after-load 'leaf
          '(progn
             (leaf-init)))))
@@ -1789,6 +1873,7 @@ Example:
        :commands leaf
        :config (leaf-init))
      (prog1 'leaf
+       (declare-function leaf "leaf")
        (eval-after-load 'leaf
          '(progn
             (leaf-init)))))))
@@ -1799,6 +1884,7 @@ Example:
        :config (leaf-init))
      (prog1 'leaf
        (unless (fboundp 'leaf) (autoload #'leaf "leaf" nil t))
+       (declare-function leaf "leaf")
        (eval-after-load 'leaf
          '(progn
             (leaf-init)))))
@@ -1809,6 +1895,7 @@ Example:
        :config (leaf-init))
      (prog1 'leaf
        (unless (fboundp 'leaf) (autoload #'leaf "leaf" nil t))
+       (declare-function leaf "leaf")
        (leaf-init)))))
 
 (cort-deftest-with-macroexpand-let leaf/leaf-protect
@@ -1843,6 +1930,39 @@ Example:
         (display-warning 'leaf
                          (format "Error in `leaf' block.  Error msg: %s"
                                  (error-message-string err))))))))
+
+(cort-deftest-with-macroexpand leaf/leaf-defun
+  '(((leaf annotate
+      :commands annotate-mode
+      :bind (("C-c a a" . annotate-annotate)
+             ("C-c a ]" . annotate-next-annotation)
+             ("C-c a [" . annotate-previous-anotation)))
+     (prog1 'annotate
+       (unless (fboundp 'annotate-annotate) (autoload #'annotate-annotate "annotate" nil t))
+       (unless (fboundp 'annotate-next-annotation) (autoload #'annotate-next-annotation "annotate" nil t))
+       (unless (fboundp 'annotate-previous-anotation) (autoload #'annotate-previous-anotation "annotate" nil t))
+       (unless (fboundp 'annotate-mode) (autoload #'annotate-mode "annotate" nil t))
+       (declare-function annotate-annotate "annotate")
+       (declare-function annotate-next-annotation "annotate")
+       (declare-function annotate-previous-anotation "annotate")
+       (declare-function annotate-mode "annotate")
+       (leaf-keys
+        (("C-c a a" . annotate-annotate)
+         ("C-c a ]" . annotate-next-annotation)
+         ("C-c a [" . annotate-previous-anotation)))))
+
+    ((leaf annotate
+       :leaf-autoload nil
+       :leaf-defun nil
+       :commands annotate-mode
+       :bind (("C-c a a" . annotate-annotate)
+              ("C-c a ]" . annotate-next-annotation)
+              ("C-c a [" . annotate-previous-anotation)))
+     (prog1 'annotate
+       (leaf-keys
+        (("C-c a a" . annotate-annotate)
+         ("C-c a ]" . annotate-next-annotation)
+         ("C-c a [" . annotate-previous-anotation)))))))
 
 
 ;;;; Support leaf macros
@@ -2273,7 +2393,7 @@ Example:
     ((leaf-normalize-list-in-list '(a . (lambda (v) v))       'dotlist) '((a . (lambda (v) v))))
     ((leaf-normalize-list-in-list '(a . '(lambda (v) v))      'dotlist) '((a . '(lambda (v) v))))
     ((leaf-normalize-list-in-list '(a . #'(lambda (v) v))     'dotlist) '((a . #'(lambda (v) v))))
-                                                              
+
     ((leaf-normalize-list-in-list '(a z . b)                  'dotlist) '((a . b) (z . b)))
     ((leaf-normalize-list-in-list '(a z . nil)                'dotlist) '((a . nil) (z . nil)))
     ((leaf-normalize-list-in-list '(a z . 'nil)               'dotlist) '((a . 'nil) (z . 'nil)))
@@ -2285,7 +2405,7 @@ Example:
     ((leaf-normalize-list-in-list '(a z . (lambda (v) v))     'dotlist) '((a . (lambda (v) v)) (z . (lambda (v) v))))
     ((leaf-normalize-list-in-list '(a z . '(lambda (v) v))    'dotlist) '((a . '(lambda (v) v)) (z . '(lambda (v) v))))
     ((leaf-normalize-list-in-list '(a z . #'(lambda (v) v))   'dotlist) '((a . #'(lambda (v) v)) (z . #'(lambda (v) v))))
-                                                              
+
     ((leaf-normalize-list-in-list '((a) (b))                  'dotlist) '((a . nil) (b . nil)))
     ((leaf-normalize-list-in-list '((a . b) (c . nil))        'dotlist) '((a . b) (c . nil)))
     ((leaf-normalize-list-in-list '((a . b) (c . d))          'dotlist) '((a . b) (c . d)))
