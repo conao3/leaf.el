@@ -5,7 +5,7 @@
 ;; Author: Naoya Yamashita <conao3@gmail.com>
 ;; Maintainer: Naoya Yamashita <conao3@gmail.com>
 ;; Keywords: lisp settings
-;; Version: 3.5.9
+;; Version: 3.6.0
 ;; URL: https://github.com/conao3/leaf.el
 ;; Package-Requires: ((emacs "24.4"))
 
@@ -80,6 +80,7 @@ Same as `list' but this macro does not evaluate any arguments."
    :defun           `(,@(mapcar (lambda (elm) `(declare-function ,(car elm) ,(symbol-name (cdr elm)))) leaf--value) ,@leaf--body)
    :defvar          `(,@(mapcar (lambda (elm) `(defvar ,elm)) leaf--value) ,@leaf--body)
    :leaf-defun      `(,@(when (car leaf--value) (mapcar (lambda (elm) `(declare-function ,(car elm) ,(cdr elm))) (reverse leaf--autoload))) ,@leaf--body)
+   :leaf-defvar     `(,@(mapcar (lambda (elm) `(defvar ,elm)) leaf--value) ,@leaf--body)
 
    :preface         `(,@leaf--value ,@leaf--body)
    :when            (when leaf--body `((when   ,@(if (= 1 (length leaf--value)) leaf--value `((and ,@leaf--value))) ,@leaf--body)))
@@ -197,6 +198,18 @@ Sort by `leaf-sort-leaf--values-plist' in this order.")
      ;; Return: a pair like (leaf--value . (fn fn ...))
      (eval `(leaf-keys ,leaf--value ,leaf--name)))
 
+    ((memq leaf--key '(:leaf-defvar))
+     ;; Accept: 't, 'nil, symbol and list of these
+     ;; Return: :bind, :bind* specified map variables
+     (when (eval (car leaf--value))
+       (let ((args (append (leaf-plist-get :bind leaf--raw)
+                           (leaf-plist-get :bind* leaf--raw))))
+         (when args
+           (mapcan (lambda (elm)
+                     (when (symbolp (car elm))
+                       `(',(leaf-sym-or-keyword (car elm)))))
+                   (car (eval `(leaf-keys ,args ,leaf--name))))))))
+
     ((memq leaf--key '(:advice))
      ;; Accept: (:where symbol fn), ((:where symbol fn) (:where symbol fn) ...)
      ;; Return: (((advice) (advice) ...) (fn fn ...))
@@ -259,7 +272,7 @@ Sort by `leaf-sort-leaf--values-plist' in this order.")
 
 (defcustom leaf-system-defaults (leaf-list
                                  :leaf-autoload t :leaf-defer t :leaf-protect t
-                                 :leaf-defun t)
+                                 :leaf-defun t :leaf-defvar t)
   "The value for all `leaf' blocks for leaf system."
   :type 'sexp
   :group 'leaf)
