@@ -8,7 +8,7 @@ Here is how software developers can contribute to ~leaf.el~.
 
 ** Copyright assignments
 Fill below form and send <assign@gnu.org>.
-You also find more information at org-mode [[https://orgmode.org/worg/org-contribute.html#copyright-issues][contribution page]].
+You also find more information at org-mode's [[https://orgmode.org/worg/org-contribute.html#copyright-issues][contribution page]].
 
 #+begin_example
 Please email the following information to assign@gnu.org, and we
@@ -21,7 +21,7 @@ REQUEST: SEND FORM FOR PAST AND FUTURE CHANGES
 
 [What is the name of the program or package you're contributing to?]
 
-  leaf.el, which plan to include ELPA; Emacs official package archive.
+  leaf.el, which is planned to be included in ELPA, the Emacs official package archive.
 
 [Did you copy any files or text written by someone else in these changes?
 Even if that material is free software, we need to know about it.]
