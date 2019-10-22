@@ -17,7 +17,7 @@
 - [[#install][Install]]
 - [[#usage][Usage]]
 - [[#customize][Customize]]
-- [[#syntaxes][Syntaxes]]
+- [[#syntax][Syntax]]
 - [[#basic-keywords][Basic keywords]]
   - [[#none-keyword][none (keyword)]]
   - [[#require-keyword][:require keyword]]
@@ -196,7 +196,7 @@ You declaratively tell the ~leaf~ to configure the package using special keyword
 - ~leaf-expand-minimally~: If nil, disable keywords that are not needed for debugging.
 - ~leaf-default-plstore~: default ~plstore~ stored variable
 
-* Syntaxes
+* Syntax
 All below examples are excerpts from [[https://github.com/conao3/leaf.el/blob/master/leaf-tests.el][leaf-tests.el]].
 
 These examples are defined in the following format.
