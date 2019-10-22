@@ -1850,6 +1850,129 @@ Example:
        (leaf-pre-init)
        (leaf-pre-init-after)))))
 
+(cort-deftest-with-macroexpand leaf/auth-custom
+  '(
+    ;; Emulate customizing `sql-connection-alist' with value taken from `some-plstore'.
+    ((leaf sql
+       :auth-custom
+       (sql-connection-alist . some-plstore))
+     (prog1 'sql
+       (custom-set-variables
+        '(sql-connection-alist (plist-get
+                                (cdr
+                                 (plstore-get some-plstore "leaf-sql"))
+                                :sql-connection-alist)
+                               "Customized in leaf `sql' from plstore `some-plstore'"))))
+
+    ;; Emulate customizing `erc-password' and `erc-nickserv-passwords'
+    ;; with values taken from `some-plstore', and `erc-user-full-name'
+    ;; and `erc-nick' with values taken from `another-plstore'.
+    ((leaf erc
+       :auth-custom
+       ((erc-password erc-nickserv-passwords) . some-plstore)
+       ((erc-user-full-name erc-nick) . another-plstore))
+     (prog1 'erc
+       (custom-set-variables
+        '(erc-password           (plist-get
+                                  (cdr
+                                   (plstore-get some-plstore "leaf-erc"))
+                                  :erc-password)
+                                 "Customized in leaf `erc' from plstore `some-plstore'")
+        '(erc-nickserv-passwords (plist-get
+                                  (cdr
+                                   (plstore-get some-plstore "leaf-erc"))
+                                  :erc-nickserv-passwords)
+                                 "Customized in leaf `erc' from plstore `some-plstore'")
+        '(erc-user-full-name     (plist-get
+                                  (cdr
+                                   (plstore-get another-plstore "leaf-erc"))
+                                  :erc-user-full-name)
+                                 "Customized in leaf `erc' from plstore `another-plstore'")
+        '(erc-nick               (plist-get
+                                  (cdr
+                                   (plstore-get another-plstore "leaf-erc"))
+                                  :erc-nick)
+                                 "Customized in leaf `erc' from plstore `another-plstore'"))))
+
+    ;; you can use symbol to configure with `leaf-default-plstore'.
+    ((leaf erc
+       :auth-custom erc-nick erc-password)
+     (prog1 'erc
+       (custom-set-variables
+        '(erc-nick     (plist-get
+                        (cdr
+                         (plstore-get leaf-default-plstore "leaf-erc"))
+                        :erc-nick)
+                       "Customized in leaf `erc' from plstore `leaf-default-plstore'")
+        '(erc-password (plist-get
+                        (cdr
+                         (plstore-get leaf-default-plstore "leaf-erc"))
+                        :erc-password)
+                       "Customized in leaf `erc' from plstore `leaf-default-plstore'"))))))
+
+(cort-deftest-with-macroexpand leaf/auth-setq
+  '(
+    ;; Emulate setting `sql-connection-alist' with value taken from `some-plstore'.
+    ((leaf sql
+       :auth-setq
+       (sql-connection-alist . some-plstore))
+     (prog1 'sql
+       (setq sql-connection-alist (plist-get
+                                   (cdr
+                                    (plstore-get some-plstore "leaf-sql"))
+                                   :sql-connection-alist))))
+    ;; Emulate setting `erc-password' and `erc-nickserv-passwords'
+    ;; with values taken from `some-plstore', and `erc-user-full-name'
+    ;; and `erc-nick' with values taken from `another-plstore'.
+    ((leaf erc
+       :auth-setq
+       ((erc-password erc-nickserv-passwords) . some-plstore)
+       ((erc-user-full-name erc-nick) . another-plstore))
+     (prog1 'erc
+       (setq erc-password           (plist-get
+                                     (cdr
+                                      (plstore-get some-plstore "leaf-erc"))
+                                     :erc-password))
+       (setq erc-nickserv-passwords (plist-get
+                                     (cdr
+                                      (plstore-get some-plstore "leaf-erc"))
+                                     :erc-nickserv-passwords))
+       (setq erc-user-full-name     (plist-get
+                                     (cdr
+                                      (plstore-get another-plstore "leaf-erc"))
+                                     :erc-user-full-name))
+       (setq erc-nick               (plist-get
+                                     (cdr
+                                      (plstore-get another-plstore "leaf-erc"))
+                                     :erc-nick))))))
+
+(cort-deftest-with-macroexpand leaf/auth-setq-default
+  ;; Emulate setting `indent-tabs-mode' with a default value taken
+  ;; from `some-plstore'.
+  '(((leaf indent
+       :auth-setq-default
+       (indent-tabs-mode . some-plstore))
+     (prog1 'indent
+       (setq-default indent-tabs-mode
+                     (plist-get
+                      (cdr
+                       (plstore-get some-plstore "leaf-indent"))
+                      :indent-tabs-mode))))))
+
+(cort-deftest-with-macroexpand leaf/auth-pre-setq
+  ;; Emulate setting `indent-tabs-mode' with a default value taken
+  ;; from `some-plstore'.
+  '(((leaf indent
+       :auth-pre-setq (indent-tabs-mode . some-plstore)
+       :require t)
+     (prog1 'indent
+       (setq indent-tabs-mode
+             (plist-get
+              (cdr
+               (plstore-get some-plstore "leaf-indent"))
+              :indent-tabs-mode))
+       (require 'indent)))))
+
 
 ;;;; System keywords
 

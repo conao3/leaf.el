@@ -128,9 +128,11 @@ Same as `list' but this macro does not evaluate any arguments."
    :init            `(,@leaf--value ,@leaf--body)
    :pre-setq        `(,@(mapcar (lambda (elm) `(setq ,(car elm) ,(cdr elm))) leaf--value) ,@leaf--body)
    :pl-pre-setq     `(,@(mapcar (lambda (elm) `(setq ,(car elm) (plist-get (cdr (plstore-get ,(cdr elm) ,(format "leaf-%s" leaf--name))) ,(intern (format ":%s" (car elm)))))) leaf--value) ,@leaf--body)
+   :auth-pre-setq   `(,@(mapcar (lambda (elm) `(setq ,(car elm) (plist-get (cdr (plstore-get ,(cdr elm) ,(format "leaf-%s" leaf--name))) ,(intern (format ":%s" (car elm)))))) leaf--value) ,@leaf--body)
 
    :custom          `((custom-set-variables ,@(mapcar (lambda (elm) `'(,(car elm) ,(cdr elm) ,(format "Customized with leaf in %s block" leaf--name))) leaf--value)) ,@leaf--body)
    :pl-custom       `((custom-set-variables ,@(mapcar (lambda (elm) `'(,(car elm) (plist-get (cdr (plstore-get ,(cdr elm) ,(format "leaf-%s" leaf--name))) ,(intern (format ":%s" (car elm)))) ,(format "Customized in leaf `%s' from plstore `%s'" leaf--name (symbol-name (cdr elm))))) leaf--value)) ,@leaf--body)
+   :auth-custom     `((custom-set-variables ,@(mapcar (lambda (elm) `'(,(car elm) (plist-get (cdr (plstore-get ,(cdr elm) ,(format "leaf-%s" leaf--name))) ,(intern (format ":%s" (car elm)))) ,(format "Customized in leaf `%s' from plstore `%s'" leaf--name (symbol-name (cdr elm))))) leaf--value)) ,@leaf--body)
    :custom-face     `((custom-set-faces     ,@(mapcar (lambda (elm) `'(,(car elm) ,(car (cddr elm)))) leaf--value)) ,@leaf--body)
 
    :leaf-defer      (if (and leaf--body (eval (car leaf--value)) (leaf-list-memq leaf-defer-keywords (leaf-plist-keys leaf--raw)))
@@ -142,7 +144,9 @@ Same as `list' but this macro does not evaluate any arguments."
    :setq            `(,@(mapcar (lambda (elm) `(setq ,(car elm) ,(cdr elm))) leaf--value) ,@leaf--body)
    :setq-default    `(,@(mapcar (lambda (elm) `(setq-default ,(car elm) ,(cdr elm))) leaf--value) ,@leaf--body)
    :pl-setq         `(,@(mapcar (lambda (elm) `(setq ,(car elm) (plist-get (cdr (plstore-get ,(cdr elm) ,(format "leaf-%s" leaf--name))) ,(intern (format ":%s" (car elm)))))) leaf--value) ,@leaf--body)
+   :auth-setq       `(,@(mapcar (lambda (elm) `(setq ,(car elm) (plist-get (cdr (plstore-get ,(cdr elm) ,(format "leaf-%s" leaf--name))) ,(intern (format ":%s" (car elm)))))) leaf--value) ,@leaf--body)
    :pl-setq-default `(,@(mapcar (lambda (elm) `(setq-default ,(car elm) (plist-get (cdr (plstore-get ,(cdr elm) ,(format "leaf-%s" leaf--name))) ,(intern (format ":%s" (car elm)))))) leaf--value) ,@leaf--body)
+   :auth-setq-default `(,@(mapcar (lambda (elm) `(setq-default ,(car elm) (plist-get (cdr (plstore-get ,(cdr elm) ,(format "leaf-%s" leaf--name))) ,(intern (format ":%s" (car elm)))))) leaf--value) ,@leaf--body)
    )
   "Special keywords and conversion rule to be processed by `leaf'.
 Sort by `leaf-sort-leaf--values-plist' in this order.")
@@ -170,6 +174,7 @@ Sort by `leaf-sort-leaf--values-plist' in this order.")
                       :ensure :package
                       :hook :mode :interpreter :magic :magic-fallback :defun
                       :pl-setq :pl-pre-setq :pl-setq-default :pl-custom
+                      :auth-custom :auth-pre-setq :auth-setq :auth-setq-default
                       :setq :pre-setq :setq-default :custom :custom-face))
      ;; Accept: (sym . val), ((sym sym ...) . val), (sym sym ... . val)
      ;; Return: list of pair (sym . val)
@@ -183,7 +188,8 @@ Sort by `leaf-sort-leaf--values-plist' in this order.")
                  (if (equal '(t) elm) `(,leaf--name . nil) `(,@elm . nil)))
                 ((memq leaf--key '(:hook :mode :interpreter :magic :magic-fallback :defun))
                  `(,@elm . ,leaf--name))
-                ((memq leaf--key '(:pl-custom :pl-pre-setq :pl-setq :pl-setq-default))
+                ((memq leaf--key (list :pl-custom :pl-pre-setq :pl-setq :pl-setq-default
+                                       :auth-custom :auth-pre-setq :auth-setq :auth-setq-default))
                  `(,@elm . leaf-default-plstore))
                 ((memq leaf--key '(:setq :pre-setq :setq-default :custom :custom-face))
                  elm)
