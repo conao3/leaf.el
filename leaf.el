@@ -127,12 +127,12 @@ Same as `list' but this macro does not evaluate any arguments."
 
    :init            `(,@leaf--value ,@leaf--body)
    :pre-setq        `(,@(mapcar (lambda (elm) `(setq ,(car elm) ,(cdr elm))) leaf--value) ,@leaf--body)
-   :pl-pre-setq     `(,@(mapcar (lambda (elm) `(setq ,(car elm) (plist-get (cdr (plstore-get ,(cdr elm) ,(format "leaf-%s" leaf--name))) ,(intern (format ":%s" (car elm)))))) leaf--value) ,@leaf--body)
-   :auth-pre-setq   `(,@(mapcar (lambda (elm) `(setq ,(car elm) (plist-get (cdr (plstore-get ,(cdr elm) ,(format "leaf-%s" leaf--name))) ,(intern (format ":%s" (car elm)))))) leaf--value) ,@leaf--body)
+   :pl-pre-setq     `(,@(mapcar (lambda (elm) `(setq ,(car elm) (leaf-handler-auth ,leaf--name ,(car elm) ,(cdr elm)))) leaf--value) ,@leaf--body)
+   :auth-pre-setq   `(,@(mapcar (lambda (elm) `(setq ,(car elm) (leaf-handler-auth ,leaf--name ,(car elm) ,(cdr elm)))) leaf--value) ,@leaf--body)
 
    :custom          `((custom-set-variables ,@(mapcar (lambda (elm) `'(,(car elm) ,(cdr elm) ,(format "Customized with leaf in %s block" leaf--name))) leaf--value)) ,@leaf--body)
-   :pl-custom       `((custom-set-variables ,@(mapcar (lambda (elm) `'(,(car elm) (plist-get (cdr (plstore-get ,(cdr elm) ,(format "leaf-%s" leaf--name))) ,(intern (format ":%s" (car elm)))) ,(format "Customized in leaf `%s' from plstore `%s'" leaf--name (symbol-name (cdr elm))))) leaf--value)) ,@leaf--body)
-   :auth-custom     `((custom-set-variables ,@(mapcar (lambda (elm) `'(,(car elm) (plist-get (cdr (plstore-get ,(cdr elm) ,(format "leaf-%s" leaf--name))) ,(intern (format ":%s" (car elm)))) ,(format "Customized in leaf `%s' from plstore `%s'" leaf--name (symbol-name (cdr elm))))) leaf--value)) ,@leaf--body)
+   :pl-custom       `((custom-set-variables ,@(mapcar (lambda (elm) `'(,(car elm) (leaf-handler-auth ,leaf--name ,(car elm) ,(cdr elm)) ,(format "Customized in leaf `%s' from plstore `%s'" leaf--name (symbol-name (cdr elm))))) leaf--value)) ,@leaf--body)
+   :auth-custom     `((custom-set-variables ,@(mapcar (lambda (elm) `'(,(car elm) (leaf-handler-auth ,leaf--name ,(car elm) ,(cdr elm)) ,(format "Customized in leaf `%s' from plstore `%s'" leaf--name (symbol-name (cdr elm))))) leaf--value)) ,@leaf--body)
    :custom-face     `((custom-set-faces     ,@(mapcar (lambda (elm) `'(,(car elm) ,(car (cddr elm)))) leaf--value)) ,@leaf--body)
 
    :leaf-defer      (if (and leaf--body (eval (car leaf--value)) (leaf-list-memq leaf-defer-keywords (leaf-plist-keys leaf--raw)))
@@ -143,10 +143,10 @@ Same as `list' but this macro does not evaluate any arguments."
    :config          `(,@leaf--value ,@leaf--body)
    :setq            `(,@(mapcar (lambda (elm) `(setq ,(car elm) ,(cdr elm))) leaf--value) ,@leaf--body)
    :setq-default    `(,@(mapcar (lambda (elm) `(setq-default ,(car elm) ,(cdr elm))) leaf--value) ,@leaf--body)
-   :pl-setq         `(,@(mapcar (lambda (elm) `(setq ,(car elm) (plist-get (cdr (plstore-get ,(cdr elm) ,(format "leaf-%s" leaf--name))) ,(intern (format ":%s" (car elm)))))) leaf--value) ,@leaf--body)
-   :auth-setq       `(,@(mapcar (lambda (elm) `(setq ,(car elm) (plist-get (cdr (plstore-get ,(cdr elm) ,(format "leaf-%s" leaf--name))) ,(intern (format ":%s" (car elm)))))) leaf--value) ,@leaf--body)
-   :pl-setq-default `(,@(mapcar (lambda (elm) `(setq-default ,(car elm) (plist-get (cdr (plstore-get ,(cdr elm) ,(format "leaf-%s" leaf--name))) ,(intern (format ":%s" (car elm)))))) leaf--value) ,@leaf--body)
-   :auth-setq-default `(,@(mapcar (lambda (elm) `(setq-default ,(car elm) (plist-get (cdr (plstore-get ,(cdr elm) ,(format "leaf-%s" leaf--name))) ,(intern (format ":%s" (car elm)))))) leaf--value) ,@leaf--body)
+   :pl-setq         `(,@(mapcar (lambda (elm) `(setq ,(car elm) (leaf-handler-auth ,leaf--name ,(car elm) ,(cdr elm)))) leaf--value) ,@leaf--body)
+   :auth-setq       `(,@(mapcar (lambda (elm) `(setq ,(car elm) (leaf-handler-auth ,leaf--name ,(car elm) ,(cdr elm)))) leaf--value) ,@leaf--body)
+   :pl-setq-default `(,@(mapcar (lambda (elm) `(setq-default ,(car elm) (leaf-handler-auth ,leaf--name ,(car elm) ,(cdr elm)))) leaf--value) ,@leaf--body)
+   :auth-setq-default `(,@(mapcar (lambda (elm) `(setq-default ,(car elm) (leaf-handler-auth ,leaf--name ,(car elm) ,(cdr elm)))) leaf--value) ,@leaf--body)
    )
   "Special keywords and conversion rule to be processed by `leaf'.
 Sort by `leaf-sort-leaf--values-plist' in this order.")
@@ -309,6 +309,12 @@ If non-nil, disabled keywords of `leaf-expand-minimally-suppress-keywords'."
 'nil is using package manager default.
 This feature is not yet implemented."
   :type 'sexp
+  :group 'leaf)
+
+(defcustom leaf-use-authinfo nil
+  "If non-nil value, use raw authinfo file as encripted file.
+If nil, use authinfo.plist powerd by `plstore' for :auth-* keywords'"
+  :type 'boolean
   :group 'leaf)
 
 (defcustom leaf-default-plstore
@@ -777,6 +783,21 @@ FN also accept list of FN."
                              ,(format "In `%s' block, failed to :package of %s.  Error msg: %%s"
                                       name pkg)
                              (error-message-string err)))))))))
+
+(defmacro leaf-handler-auth (name sym store)
+  "Handler auth-* to set SYM of NAME from STORE."
+  (if leaf-use-authinfo
+      `(let ((res (auth-source-search :host ,(format "leaf-%s" sym))))
+        (if res
+            (funcall (plist-get (car res) :secret))
+          (error ,(format "Failed to search `leaf-%s' as machine/host name in auth-sources: '%%s" sym)
+                 auth-sources)))
+    `(if ,store
+         (let ((res (cdr-safe (plstore-get ,store ,(format "leaf-%s" name)))))
+           (if res
+               (plist-get res ,(intern (format ":%s" sym)))
+             (error ,(format "Failed to search `leaf-%s' in specified plstore" name))))
+       (error "Right value is returns nil or `leaf-default-plstore' is not set"))))
 
 
 ;;; General list functions for leaf
