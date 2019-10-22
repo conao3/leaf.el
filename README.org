@@ -1582,9 +1582,9 @@ If you omit right value, ~leaf~ uses plstore file at =~/.emacs.d/leaf-plstore.pl
                                    (sql-database "database"))))
    ("leaf-erc"
     :secret-erc-password           "password"
-    :secret-erc-nickserv-passwords '((freenode (("nick-one" . "password")
-                                                ("nick-two" . "password")))
-                                     (DALnet   (("nickname" . "password"))))
+    :secret-erc-nickserv-passwords ((freenode (("nick-one" . "password")
+                                               ("nick-two" . "password")))
+                                    (DALnet   (("nickname" . "password"))))
     :secret-erc-user-full-name     "Naoya Yamashita"
     :secret-erc-nick               "conao3")))
 #+end_src
