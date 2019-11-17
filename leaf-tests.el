@@ -981,7 +981,25 @@ Example:
                    (isearch-mode-map
                     :package isearch
                     ("M-o" . isearch-moccur)
-                    ("M-O" . isearch-moccur-all))))))))
+                    ("M-O" . isearch-moccur-all))))))
+
+    ;; you can use vectors to remap etc
+    ((leaf swiper
+        :ensure t
+        :bind (([remap isearch-forward] . swiper)))
+     (prog1 'swiper
+       (unless (fboundp 'swiper) (autoload #'swiper "swiper" nil t))
+       (declare-function swiper "swiper")
+
+       (leaf-handler-package swiper swiper nil)
+       (leaf-keys (([remap isearch-forward] . swiper)))))
+
+    ((leaf files
+        :bind (([(control ?x) (control ?f)] . find-file)))
+     (prog1 'files
+       (unless (fboundp 'find-file) (autoload #'find-file "files" nil t))
+       (declare-function find-file "files")
+       (leaf-keys (([(control ?x) (control ?f)] . find-file)))))))
 
 (cort-deftest-with-macroexpand leaf/bind*
   '(
@@ -2052,7 +2070,13 @@ Example:
        (let* ((old (lookup-key global-map (vector 'key-chord 105 106)))
               (value `(global-map "<key-chord> i j" undo ,(and old (not (numberp old)) old))))
          (push value leaf-key-bindlist)
-         (define-key global-map (vector 'key-chord 105 106) 'undo))))))
+         (define-key global-map (vector 'key-chord 105 106) 'undo)))
+
+      ((leaf-key [(control ?x) (control ?f)] 'undo)
+       (let* ((old (lookup-key global-map [(control 120) (control 102)]))
+            (value `(global-map "C-x C-f" undo ,(and old (not (numberp old)) old))))
+         (push value leaf-key-bindlist)
+         (define-key global-map [(control 120) (control 102)] 'undo))))))
 
 ;; required `tabulated-list'
 ;; there are only tested running (leaf-key-describe-bindings) with no error

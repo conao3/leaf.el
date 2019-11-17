@@ -548,7 +548,8 @@ If you omit ~:package~, use leaf--name as ~:package~ to lazy load.
          :ensure t
          :bind ("C-c e" . macrostep-expand))
        (prog1 'macrostep
-         (autoload #'macrostep-expand "macrostep" nil t)
+         (unless (fboundp 'macrostep-expand) (autoload #'macrostep-expand "macrostep" nil t))
+         (declare-function macrostep-expand "macrostep")
          (leaf-handler-package macrostep macrostep nil)
          (leaf-keys (("C-c e" . macrostep-expand)))))
 
@@ -559,9 +560,12 @@ If you omit ~:package~, use leaf--name as ~:package~ to lazy load.
          ("M-o" . isearch-moccur)
          ("M-O" . isearch-moccur-all))
        (prog1 'color-moccur
-         (autoload #'moccur "color-moccur" nil t)
-         (autoload #'isearch-moccur "color-moccur" nil t)
-         (autoload #'isearch-moccur-all "color-moccur" nil t)
+         (unless (fboundp 'moccur) (autoload #'moccur "color-moccur" nil t))
+         (unless (fboundp 'isearch-moccur) (autoload #'isearch-moccur "color-moccur" nil t))
+         (unless (fboundp 'isearch-moccur-all) (autoload #'isearch-moccur-all "color-moccur" nil t))
+         (declare-function moccur "color-moccur")
+         (declare-function isearch-moccur "color-moccur")
+         (declare-function isearch-moccur-all "color-moccur")
          (leaf-keys (("M-s O" . moccur)
                      ("M-o" . isearch-moccur)
                      ("M-O" . isearch-moccur-all)))))
@@ -572,9 +576,12 @@ If you omit ~:package~, use leaf--name as ~:package~ to lazy load.
                 ("M-o" . isearch-moccur)
                 ("M-O" . isearch-moccur-all)))
        (prog1 'color-moccur
-         (autoload #'moccur "color-moccur" nil t)
-         (autoload #'isearch-moccur "color-moccur" nil t)
-         (autoload #'isearch-moccur-all "color-moccur" nil t)
+         (unless (fboundp 'moccur) (autoload #'moccur "color-moccur" nil t))
+         (unless (fboundp 'isearch-moccur) (autoload #'isearch-moccur "color-moccur" nil t))
+         (unless (fboundp 'isearch-moccur-all) (autoload #'isearch-moccur-all "color-moccur" nil t))
+         (declare-function moccur "color-moccur")
+         (declare-function isearch-moccur "color-moccur")
+         (declare-function isearch-moccur-all "color-moccur")
          (leaf-keys (("M-s O" . moccur)
                      ("M-o" . isearch-moccur)
                      ("M-O" . isearch-moccur-all)))))
@@ -585,8 +592,10 @@ If you omit ~:package~, use leaf--name as ~:package~ to lazy load.
                 ("M-s o" . isearch-moccur)
                 ("M-s i" . isearch-moccur-all)))
        (prog1 'color-moccur
-         (autoload #'isearch-moccur "color-moccur" nil t)
-         (autoload #'isearch-moccur-all "color-moccur" nil t)
+         (unless (fboundp 'isearch-moccur) (autoload #'isearch-moccur "color-moccur" nil t))
+         (unless (fboundp 'isearch-moccur-all) (autoload #'isearch-moccur-all "color-moccur" nil t))
+         (declare-function isearch-moccur "color-moccur")
+         (declare-function isearch-moccur-all "color-moccur")
          (leaf-keys (("M-s")
                      ("M-s o" . isearch-moccur)
                      ("M-s i" . isearch-moccur-all)))))
@@ -598,10 +607,14 @@ If you omit ~:package~, use leaf--name as ~:package~ to lazy load.
                  (("M-O" . isearch-moccur-all))
                  ("M-s" . isearch-moccur-some))))
        (prog1 'color-moccur
-         (autoload #'moccur "color-moccur" nil t)
-         (autoload #'isearch-moccur "color-moccur" nil t)
-         (autoload #'isearch-moccur-all "color-moccur" nil t)
-         (autoload #'isearch-moccur-some "color-moccur" nil t)
+         (unless (fboundp 'moccur) (autoload #'moccur "color-moccur" nil t))
+         (unless (fboundp 'isearch-moccur) (autoload #'isearch-moccur "color-moccur" nil t))
+         (unless (fboundp 'isearch-moccur-all) (autoload #'isearch-moccur-all "color-moccur" nil t))
+         (unless (fboundp 'isearch-moccur-some) (autoload #'isearch-moccur-some "color-moccur" nil t))
+         (declare-function moccur "color-moccur")
+         (declare-function isearch-moccur "color-moccur")
+         (declare-function isearch-moccur-all "color-moccur")
+         (declare-function isearch-moccur-some "color-moccur")
          (leaf-keys (("M-s O" . moccur)
                      ("M-o" . isearch-moccur)
                      ("M-O" . isearch-moccur-all)
@@ -614,9 +627,13 @@ If you omit ~:package~, use leaf--name as ~:package~ to lazy load.
                  ("M-o" . isearch-moccur)
                  ("M-O" . isearch-moccur-all))))
        (prog1 'color-moccur
-         (autoload #'moccur "color-moccur" nil t)
-         (autoload #'isearch-moccur "color-moccur" nil t)
-         (autoload #'isearch-moccur-all "color-moccur" nil t)
+         (unless (fboundp 'moccur) (autoload #'moccur "color-moccur" nil t))
+         (unless (fboundp 'isearch-moccur) (autoload #'isearch-moccur "color-moccur" nil t))
+         (unless (fboundp 'isearch-moccur-all) (autoload #'isearch-moccur-all "color-moccur" nil t))
+         (declare-function moccur "color-moccur")
+         (declare-function isearch-moccur "color-moccur")
+         (declare-function isearch-moccur-all "color-moccur")
+         (defvar isearch-mode-map)
          (leaf-keys (("M-s O" . moccur)
                      (:isearch-mode-map
                       :package color-moccur
@@ -631,9 +648,13 @@ If you omit ~:package~, use leaf--name as ~:package~ to lazy load.
           ("M-o" . isearch-moccur)
           ("M-O" . isearch-moccur-all)))
        (prog1 'color-moccur
-         (autoload #'moccur "color-moccur" nil t)
-         (autoload #'isearch-moccur "color-moccur" nil t)
-         (autoload #'isearch-moccur-all "color-moccur" nil t)
+         (unless (fboundp 'moccur) (autoload #'moccur "color-moccur" nil t))
+         (unless (fboundp 'isearch-moccur) (autoload #'isearch-moccur "color-moccur" nil t))
+         (unless (fboundp 'isearch-moccur-all) (autoload #'isearch-moccur-all "color-moccur" nil t))
+         (declare-function moccur "color-moccur")
+         (declare-function isearch-moccur "color-moccur")
+         (declare-function isearch-moccur-all "color-moccur")
+         (defvar isearch-mode-map)
          (leaf-keys (("M-s O" . moccur)
                      (:isearch-mode-map
                       :package color-moccur
@@ -648,9 +669,13 @@ If you omit ~:package~, use leaf--name as ~:package~ to lazy load.
                  ("M-o" . isearch-moccur)
                  ("M-O" . isearch-moccur-all))))
        (prog1 'color-moccur
-         (autoload #'moccur "color-moccur" nil t)
-         (autoload #'isearch-moccur "color-moccur" nil t)
-         (autoload #'isearch-moccur-all "color-moccur" nil t)
+         (unless (fboundp 'moccur) (autoload #'moccur "color-moccur" nil t))
+         (unless (fboundp 'isearch-moccur) (autoload #'isearch-moccur "color-moccur" nil t))
+         (unless (fboundp 'isearch-moccur-all) (autoload #'isearch-moccur-all "color-moccur" nil t))
+         (declare-function moccur "color-moccur")
+         (declare-function isearch-moccur "color-moccur")
+         (declare-function isearch-moccur-all "color-moccur")
+         (defvar isearch-mode-map)
          (leaf-keys (("M-s O" . moccur)
                      (:isearch-mode-map
                       :package isearch
@@ -665,14 +690,36 @@ If you omit ~:package~, use leaf--name as ~:package~ to lazy load.
                  ("M-o" . isearch-moccur)
                  ("M-O" . isearch-moccur-all))))
        (prog1 'color-moccur
-         (autoload #'moccur "color-moccur" nil t)
-         (autoload #'isearch-moccur "color-moccur" nil t)
-         (autoload #'isearch-moccur-all "color-moccur" nil t)
+         (unless (fboundp 'moccur) (autoload #'moccur "color-moccur" nil t))
+         (unless (fboundp 'isearch-moccur) (autoload #'isearch-moccur "color-moccur" nil t))
+         (unless (fboundp 'isearch-moccur-all) (autoload #'isearch-moccur-all "color-moccur" nil t))
+         (declare-function moccur "color-moccur")
+         (declare-function isearch-moccur "color-moccur")
+         (declare-function isearch-moccur-all "color-moccur")
+         (defvar isearch-mode-map)
          (leaf-keys (("M-s O" . moccur)
                      (isearch-mode-map
                       :package isearch
                       ("M-o" . isearch-moccur)
-                      ("M-O" . isearch-moccur-all))))))))
+                      ("M-O" . isearch-moccur-all))))))
+
+      ;; you can use vectors to remap etc
+      ((leaf swiper
+          :ensure t
+          :bind (([remap isearch-forward] . swiper)))
+       (prog1 'swiper
+         (unless (fboundp 'swiper) (autoload #'swiper "swiper" nil t))
+         (declare-function swiper "swiper")
+
+         (leaf-handler-package swiper swiper nil)
+         (leaf-keys (([remap isearch-forward] . swiper)))))
+
+      ((leaf files
+          :bind (([(control ?x) (control ?f)] . find-file)))
+       (prog1 'files
+         (unless (fboundp 'find-file) (autoload #'find-file "files" nil t))
+         (declare-function find-file "files")
+         (leaf-keys (([(control ?x) (control ?f)] . find-file)))))))
 
   (cort-deftest-with-macroexpand leaf/bind*
     '(
