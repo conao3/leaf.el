@@ -33,7 +33,7 @@
   - [[#mode-interpreter-keywords][:mode, :interpreter keywords]]
   - [[#magic-magic-fallback-keywords][:magic, :magic-fallback keywords]]
   - [[#hook-keyword][:hook keyword]]
-  - [[#load-path-keyword][:load-path keyword]]
+  - [[#load-path-load-path-keywords][:load-path, :load-path* keywords]]
 - [[#condition-keywords][Condition keywords]]
   - [[#disabled-keyword][:disabled keyword]]
   - [[#if-when-unless-keywords][:if, :when, :unless keywords]]
@@ -91,7 +91,7 @@ Currently, ~leaf.el~ and ~leaf-keywords.el~ has below rich keywords.
   (leaf-available-keywords)
   ;; => (:disabled
   ;;     :leaf-protect
-  ;;     :load-path
+  ;;     :load-path :load-path*
   ;;     :leaf-autoload
   ;;     :doc :file :url
   ;;     :defun :defvar
@@ -1093,10 +1093,13 @@ It makes easy to jump definition.
          (add-hook 'foo-hook #'(lambda nil (foo)))))))
 #+end_src
 
-** :load-path keyword
-*Unlike use-package*, you must specify the full path.
+** :load-path, :load-path* keywords
+~:load-path~ is *unlike use-package*, you must specify the full path.
 
 Use backquotes if you want the path to be relative to the current ~.emacs.d~, such as use-package.
+
+Or use ~:load-path*~ keyword if you want to dynamic path at
+~user-emacs-directory~ using ~locate-user-emacs-file~ like use-package.
 
 #+begin_src emacs-lisp
   (cort-deftest-with-macroexpand leaf/load-path
@@ -1175,6 +1178,43 @@ Use backquotes if you want the path to be relative to the current ~.emacs.d~, su
          (add-to-list 'load-path "~/.emacs.d/elpa-archive/leaf.el/")
          (add-to-list 'load-path "~/.emacs.d/elpa-archive/leaf-broser.el/")
          (add-to-list 'load-path "~/.emacs.d/elpa-archive/orglyth.el/")
+         (require 'leaf)
+         (leaf-init)))))
+
+  (cort-deftest-with-macroexpand-let leaf/load-path*
+      ((user-emacs-directory "~/.emacs.d"))
+    '(
+      ;; string will be accepted
+      ((leaf leaf
+         :load-path* "leaf.el"
+         :require t
+         :config (leaf-init))
+       (prog1 'leaf
+         (add-to-list 'load-path (locate-user-emacs-file "leaf.el"))
+         (require 'leaf)
+         (leaf-init)))
+
+      ;; multi strings will be accepted
+      ((leaf leaf
+         :load-path*
+         "leaf.el"
+         "leaf-browser.el"
+         :require t
+         :config (leaf-init))
+       (prog1 'leaf
+         (add-to-list 'load-path (locate-user-emacs-file "leaf.el"))
+         (add-to-list 'load-path (locate-user-emacs-file "leaf-browser.el"))
+         (require 'leaf)
+         (leaf-init)))
+
+      ;; multi strings in list will be accepted
+      ((leaf leaf
+         :load-path* ("leaf.el" "leaf-browser.el")
+         :require t
+         :config (leaf-init))
+       (prog1 'leaf
+         (add-to-list 'load-path (locate-user-emacs-file "leaf.el"))
+         (add-to-list 'load-path (locate-user-emacs-file "leaf-browser.el"))
          (require 'leaf)
          (leaf-init)))))
 #+end_src
