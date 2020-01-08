@@ -434,6 +434,70 @@ Example:
        (require 'leaf)
        (leaf-init)))))
 
+(cort-deftest-with-macroexpand-let leaf/load-path*
+    ((user-emacs-directory "~/.emacs.d"))
+  '(
+    ;; string will be accepted
+    ((leaf leaf
+       :load-path* "leaf.el"
+       :require t
+       :config (leaf-init))
+     (prog1 'leaf
+       (add-to-list 'load-path (locate-user-emacs-file "leaf.el"))
+       (require 'leaf)
+       (leaf-init)))
+
+    ;; multi strings will be accepted
+    ((leaf leaf
+       :load-path*
+       "leaf.el"
+       "leaf-browser.el"
+       :require t
+       :config (leaf-init))
+     (prog1 'leaf
+       (add-to-list 'load-path (locate-user-emacs-file "leaf.el"))
+       (add-to-list 'load-path (locate-user-emacs-file "leaf-browser.el"))
+       (require 'leaf)
+       (leaf-init)))
+
+    ;; multi strings in list will be accepted
+    ((leaf leaf
+       :load-path* ("leaf.el" "leaf-browser.el")
+       :require t
+       :config (leaf-init))
+     (prog1 'leaf
+       (add-to-list 'load-path (locate-user-emacs-file "leaf.el"))
+       (add-to-list 'load-path (locate-user-emacs-file "leaf-browser.el"))
+       (require 'leaf)
+       (leaf-init)))
+
+    ;; nested strings is supported
+    ((leaf leaf
+       :load-path* ("leaf.el"
+                    ("leaf.el"
+                     "leaf-browser.el"))
+       :require t
+       :config (leaf-init))
+     (prog1 'leaf
+       (add-to-list 'load-path (locate-user-emacs-file "leaf.el"))
+       (add-to-list 'load-path (locate-user-emacs-file "leaf-browser.el"))
+       (require 'leaf)
+       (leaf-init)))
+
+    ;; duplicated value is ignored
+    ((leaf leaf
+       :load-path* ("leaf.el"
+                    ("leaf.el"
+                     ("leaf.el"
+                      ("leaf.el"
+                       ("leaf.el")))))
+       :require t
+       :config (leaf-init))
+     (prog1 'leaf
+       (add-to-list 'load-path (locate-user-emacs-file "leaf.el"))
+       (require 'leaf)
+       (leaf-init)))))
+
 (cort-deftest-with-macroexpand leaf/defun
   '(
     ;; symbol will be accepted and use leaf--name
