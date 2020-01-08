@@ -75,6 +75,7 @@ Same as `list' but this macro does not evaluate any arguments."
    :leaf-autoload     `(,@(when (car leaf--value) (mapcar (lambda (elm) `(unless (fboundp ',(car elm)) (autoload #',(car elm) ,(cdr elm) nil t))) (reverse leaf--autoload))) ,@leaf--body)
 
    :doc               `(,@leaf--body)
+   :tag               `(,@leaf--body)
    :file              `(,@leaf--body)
    :url               `(,@leaf--body)
 
@@ -258,12 +259,6 @@ Sort by `leaf-sort-leaf--values-plist' in this order.")
                         (push fn fns) `((',sym #',fn))))))
                   leaf--value))
        `(,val ,(delq nil (mapcar (lambda (elm) (when (symbolp elm) elm)) fns)))))
-
-    ((memq leaf--key (list
-                      :disabled :if :when :unless
-                      :doc :file :url :preface :init :config
-                      :leaf-autoload :leaf-defer :leaf-protect))
-     leaf--value)
 
     (t
      leaf--value))
