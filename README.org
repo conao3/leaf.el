@@ -40,7 +40,7 @@
 - [[#byte-compile-keywords][Byte compile keywords]]
   - [[#defun-defvar-keywords][:defun, :defvar keywords]]
 - [[#documentation-keywords][Documentation keywords]]
-  - [[#doc-file-url-keywords][:doc, :file, :url keywords]]
+  - [[#doc-tag-file-url-keywords][:doc, :tag, :file, :url keywords]]
 - [[#misc-keywords][Misc keywords]]
   - [[#advice-advice-remove-keywords][:advice, :advice-remove keyword]]
   - [[#pl-pre-setq-pl-setq-pl-setq-default-pl-custom-keywords][:pl-pre-setq, :pl-setq, :pl-setq-default, :pl-custom keywords]]
@@ -1426,7 +1426,7 @@ This is usually done by a ~declare-function~ and an empty ~defvar~, and ~leaf~ p
 #+END_SRC
 
 * Documentation keywords
-** :doc, :file, :url keywords
+** :doc, :tag, :file, :url keywords
 The leaf can describe the document systematically.
 
 It should be possible to develop additional packages
