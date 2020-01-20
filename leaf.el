@@ -264,6 +264,41 @@ Sort by `leaf-sort-leaf--values-plist' in this order.")
      leaf--value))
   "Normalize rule.")
 
+(defvar leaf-verify
+  '(((memq leaf--key (list
+                      :ensure :package
+                      :hook :mode :interpreter :magic :magic-fallback :defun
+                      :pl-setq :pl-pre-setq :pl-setq-default :pl-custom
+                      :auth-custom :auth-pre-setq :auth-setq :auth-setq-default
+                      :setq :pre-setq :setq-default :custom :custom-face))
+     (delq nil
+           (mapcar
+            (lambda (elm)
+              (let ((var (car elm)))
+                (cond
+                 ((eq t var)
+                  (prog1 nil
+                    (leaf-error "Error occurs in leaf block: %s" leaf--name)
+                    (leaf-error "Attempt modify constant: t;  Please check your specification")))
+                 ((eq nil var)
+                  (prog1 nil
+                    (leaf-error "Error occurs in leaf block: %s" leaf--name)
+                    (leaf-error "Attempt modify constant: nil;  Please check your specification")))
+                 ((keywordp var)
+                  (prog1 nil
+                    (leaf-error "Error occurs in leaf block: %s" leaf--name)
+                    (leaf-error "Attempt modify constant keyword: %s;  Please check your specification" var)))
+                 ((not (symbolp var))
+                  (prog1 nil
+                    (leaf-error "Error occurs in leaf block: %s" leaf--name)
+                    (leaf-error "Attempt modify list;  Please check your specification")))
+                 (t
+                  elm))))
+            leaf--value)))
+    (t
+     leaf--value))
+  "Verify rule.")
+
 
 ;;;; Customize variables
 
@@ -450,6 +485,10 @@ Unlike `butlast', it works well with dotlist (last cdr is non-nil list)."
   (if (keywordp keyword)
       (intern (substring (symbol-name keyword) 1))
     keyword))
+
+(defun leaf-error (message &rest args)
+  "Raise error with type leaf.  MESSAGE and ARGS is same form as `lwarn'."
+  (apply #'lwarn `(leaf :error ,message ,@args)))
 
 
 ;;;; General functions for leaf
@@ -992,6 +1031,7 @@ NOTE:
            (leaf--body))
       ;; renew (normalize) leaf--value, save follow expansion in leaf--body
       (setq leaf--value (eval `(cond ,@leaf-normalize)))
+      (setq leaf--value (eval `(cond ,@leaf-verify)))
       (setq leaf--body (leaf-process-keywords leaf--name leaf--rest leaf--raw))
 
       ;; if leaf-expand-no-error is nil, stop :no-error expansion.
