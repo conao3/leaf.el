@@ -784,10 +784,10 @@ FN also accept list of FN."
   "Handler auth-* to set SYM of NAME from STORE."
   (if leaf-use-authinfo
       `(let ((res (auth-source-search :host ,(format "leaf-%s" sym))))
-        (if res
-            (funcall (plist-get (car res) :secret))
-          (error ,(format "Failed to search `leaf-%s' as machine/host name in auth-sources: '%%s" sym)
-                 auth-sources)))
+         (if res
+             (funcall (plist-get (car res) :secret))
+           (error ,(format "Failed to search `leaf-%s' as machine/host name in auth-sources: '%%s" sym)
+                  auth-sources)))
     `(if ,store
          (let ((res (cdr-safe (plstore-get ,store ,(format "leaf-%s" name)))))
            (if res
