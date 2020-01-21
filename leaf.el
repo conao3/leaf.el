@@ -267,7 +267,7 @@ Sort by `leaf-sort-leaf--values-plist' in this order.")
 (defvar leaf-verify
   '(((memq leaf--key (list
                       :ensure :package
-                      :hook :mode :interpreter :magic :magic-fallback :defun
+                      :hook :defun
                       :pl-setq :pl-pre-setq :pl-setq-default :pl-custom
                       :auth-custom :auth-pre-setq :auth-setq :auth-setq-default
                       :setq :pre-setq :setq-default :custom :custom-face))
