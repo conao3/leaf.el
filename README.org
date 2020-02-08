@@ -63,6 +63,16 @@
   - [[#contributors][Contributors]]
   - [[#special-thanks][Special Thanks]]
 
+* Announncement
+I used Emacs 23 bundled with MacOS as a reference when determining the minimum Emacs support for leaf.el.
+However, MacOS stopped bundling Emacs 23, and by supporting Emacs 23, the inability to take advantage of most of the Elisp ecosystem like ~package.el~, ~cask~, and ~ert~ made development inefficient.
+
+I plan to release leaf.el v3.8 as the last version to support Emacs 23, and leaf.el as leaf.el v4.0, with Emacs 24 as the smallest version of Emacs.
+If you're using leaf.el with Emacs 23, you probably don't use package.el, but rather the traditional site-lisp method of using leaf.el. (package.el dropped Emacs 23 a long time ago)
+You should be able to continue using leaf.el as before by downloading version 3.8 from the [[https://github.com/conao3/leaf.el/releases][releases]] page.
+
+Thank you for using leaf.el!
+
 * Description
 ~leaf.el~ is yet another [[https://github.com/jwiegley/use-package][use-package]].
 
