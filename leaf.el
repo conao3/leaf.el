@@ -400,7 +400,7 @@ SEQ may be a list, a vector, a 'bool-vector, or a string."
 
 ;;; predictors
 
-(defsubst leaf-pairp (var &optional allow)
+(defun leaf-pairp (var &optional allow)
   "Return t if VAR is pair.
 If ALLOW is non-nil, allow nil as the last element."
   (and (listp var)
@@ -410,7 +410,7 @@ If ALLOW is non-nil, allow nil as the last element."
                 (member `',(cadr var) `('quote ',backquote-backquote-symbol 'function))))
        (if allow t (not (null (cdr var)))))) ; (a . nil) => (a)
 
-(defsubst leaf-dotlistp (var &optional allow)
+(defun leaf-dotlistp (var &optional allow)
   "Return t if VAR is doted list.
 If ALLOW is non-nil, allow nil as the last element."
   (or (leaf-pairp var allow)                 ; (a b c . (lambda (v) v)) => (pairp '(c . (lambda (v) v)))
@@ -419,7 +419,7 @@ If ALLOW is non-nil, allow nil as the last element."
 
 ;;; General list functions
 
-(defsubst leaf-list-memq (symlist list)
+(defun leaf-list-memq (symlist list)
   "Return t if LIST contained element of SYMLIST."
   (delq nil (mapcar (lambda (x) (memq x list)) symlist)))
 
@@ -479,7 +479,7 @@ Unlike `butlast', it works well with dotlist (last cdr is non-nil list)."
 
 ;;; et cetera
 
-(defsubst leaf-sym-or-keyword (keyword)
+(defun leaf-sym-or-keyword (keyword)
   "Return normalizied `intern'ed symbol from KEYWORD or SYMBOL."
   (if (keywordp keyword)
       (intern (substring (symbol-name keyword) 1))
