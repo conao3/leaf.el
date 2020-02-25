@@ -854,11 +854,11 @@ Example:
 
     ;; multi cons-cell in list will be accepted
     ((leaf foo-package
-       :custom ((foo-package-to-enable   t)
-                (foo-package-to-disable  nil)
-                (foo-package-to-symbol   'symbol)
-                (foo-package-to-function #'ignore)
-                (foo-package-to-lambda   (lambda (elm) (message elm)))))
+       :custom* ((foo-package-to-enable   t)
+                 (foo-package-to-disable  nil)
+                 (foo-package-to-symbol   'symbol)
+                 (foo-package-to-function #'ignore)
+                 (foo-package-to-lambda   (lambda (elm) (message elm)))))
      (prog1 'foo-package
        (custom-set-variables
         '(foo-package-to-enable t "Customized with leaf in foo-package block")

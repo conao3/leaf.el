@@ -206,7 +206,9 @@ Sort by `leaf-sort-leaf--values-plist' in this order.")
     ;; NOTE  : This keyword does not allow distribution feature etc.
     ;;         If you use this keyword, must check macroexpansion form!
     ((memq leaf--key '(:custom*))
-     (mapcan 'identity leaf--value))
+     (mapcar (lambda (elm)
+               (cons (car elm) (cadr elm)))
+             (mapcan 'identity leaf--value)))
 
     ((memq leaf--key '(:bind :bind*))
      ;; Accept: `leaf-keys' accept form
