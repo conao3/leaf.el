@@ -133,6 +133,7 @@ Same as `list' but this macro does not evaluate any arguments."
    :auth-pre-setq     `(,@(mapcar (lambda (elm) `(setq ,(car elm) (leaf-handler-auth ,leaf--name ,(car elm) ,(cdr elm)))) leaf--value) ,@leaf--body)
 
    :custom            `((custom-set-variables ,@(mapcar (lambda (elm) `'(,(car elm) ,(cdr elm) ,(format "Customized with leaf in %s block" leaf--name))) leaf--value)) ,@leaf--body)
+   :custom*           `((custom-set-variables ,@(mapcar (lambda (elm) `'(,(car elm) ,(cdr elm) ,(format "Customized with leaf in %s block" leaf--name))) leaf--value)) ,@leaf--body)
    :pl-custom         `((custom-set-variables ,@(mapcar (lambda (elm) `'(,(car elm) (leaf-handler-auth ,leaf--name ,(car elm) ,(cdr elm)) ,(format "Customized in leaf `%s' from plstore `%s'" leaf--name (symbol-name (cdr elm))))) leaf--value)) ,@leaf--body)
    :auth-custom       `((custom-set-variables ,@(mapcar (lambda (elm) `'(,(car elm) (leaf-handler-auth ,leaf--name ,(car elm) ,(cdr elm)) ,(format "Customized in leaf `%s' from plstore `%s'" leaf--name (symbol-name (cdr elm))))) leaf--value)) ,@leaf--body)
    :custom-face       `((custom-set-faces     ,@(mapcar (lambda (elm) `'(,(car elm) ,(car (cddr elm)))) leaf--value)) ,@leaf--body)
@@ -199,6 +200,13 @@ Sort by `leaf-sort-leaf--values-plist' in this order.")
              (mapcan
               (lambda (elm) (leaf-normalize-list-in-list elm 'dotlistp))
               leaf--value)))
+
+    ;; Accept: ((sym val) (sym val)... )
+    ;; Return: list of pair (sym . val)
+    ;; NOTE  : This keyword does not allow distribution feature etc.
+    ;;         If you use this keyword, must check macroexpansion form!
+    ((memq leaf--key '(:custom*))
+     (mapcan 'identity leaf--value))
 
     ((memq leaf--key '(:bind :bind*))
      ;; Accept: `leaf-keys' accept form
