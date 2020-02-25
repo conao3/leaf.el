@@ -27,7 +27,7 @@
   - [[#after-keyword][:after keyword]]
   - [[#bind-bind-keywords][:bind, :bind* keywords]]
 - [[#configure-variables-keywords][Configure variables keywords]]
-  - [[#custom-custom-face-keywords][:custom, :custom-face keywords]]
+  - [[#custom-custom-custom-face-keywords][:custom, :custom*, :custom-face keywords]]
   - [[#pre-setq-setq-setq-default-keywords][:pre-setq, :setq, :setq-default keywords]]
 - [[#configure-list-keywords][Configure list keywords]]
   - [[#mode-interpreter-keywords][:mode, :interpreter keywords]]
@@ -762,7 +762,7 @@ For more detail, see [[https://github.com/conao3/leaf-defaults.git][leaf-default
 #+END_SRC
 
 * Configure variables keywords
-** :custom, :custom-face keywords
+** :custom, :custom*, :custom-face keywords
 Now that the proper Elisp packaging practices have become widely known,
 it is a best practice to use ~custom-set-variables~ to customize packages.
 
@@ -856,6 +856,23 @@ The value set to ~custom-face~ should also be quoed to emphasize uniformity as ~
        (custom-set-faces
         '(default ((t (:slant italic))))
         '(eruby-standard-face ((t (:slant italic)))))))))
+
+  (cort-deftest-with-macroexpand leaf/custom*
+    '(
+      ;; multi cons-cell in list will be accepted
+      ((leaf foo-package
+         :custom* ((foo-package-to-enable   t)
+                   (foo-package-to-disable  nil)
+                   (foo-package-to-symbol   'symbol)
+                   (foo-package-to-function #'ignore)
+                   (foo-package-to-lambda   (lambda (elm) (message elm)))))
+       (prog1 'foo-package
+         (custom-set-variables
+          '(foo-package-to-enable t "Customized with leaf in foo-package block")
+          '(foo-package-to-disable nil "Customized with leaf in foo-package block")
+          '(foo-package-to-symbol 'symbol "Customized with leaf in foo-package block")
+          '(foo-package-to-function #'ignore "Customized with leaf in foo-package block")
+          '(foo-package-to-lambda (lambda (elm) (message elm)) "Customized with leaf in foo-package block"))))))
 #+end_src
 
 ** :pre-setq, :setq, :setq-default keywords
