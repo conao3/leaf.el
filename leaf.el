@@ -170,7 +170,15 @@ Sort by `leaf-sort-leaf--values-plist' in this order.")
      ;; Return: symbol list.
      ;; Note  : 'nil is just ignored
      ;;         remove duplicate element
-     (delete-dups (delq nil (leaf-flatten leaf--value))))
+     (mapcar (lambda (elm)
+               (cond
+                ((memq leaf--key '(:after))
+                 (if (eq elm t)
+                     leaf--name
+                   elm))
+                (t
+                 elm)))
+             (delete-dups (delq nil (leaf-flatten leaf--value)))))
 
     ((memq leaf--key (list
                       :ensure :package

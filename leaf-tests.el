@@ -767,7 +767,18 @@ Example:
             '(eval-after-load 'leaf
                '(progn
                   (require 'leaf-browser)
-                  (leaf-browser-init)))))))))
+                  (leaf-browser-init)))))))
+
+    ;; if specified t, assume leaf--name specified
+    ((leaf leaf-browser
+       :after t
+       :require t
+       :config (leaf-browser-init))
+     (prog1 'leaf-browser
+       (eval-after-load 'leaf-browser
+         '(progn
+            (require 'leaf-browser)
+            (leaf-browser-init)))))))
 
 (cort-deftest-with-macroexpand leaf/custom
   '(
