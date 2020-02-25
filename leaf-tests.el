@@ -834,6 +834,72 @@ Example:
         '(to-disable2 nil "Customized with leaf in foo-package block")
         '(to-disable3 nil "Customized with leaf in foo-package block"))))))
 
+(cort-deftest-with-macroexpand leaf/custom*
+  '(
+    ;; multi cons-cell will be accepted
+    ;; ((leaf foo-package
+    ;;    :custom*
+    ;;    (foo-package-to-enable   t)
+    ;;    (foo-package-to-disable  nil)
+    ;;    (foo-package-to-symbol   'symbol)
+    ;;    (foo-package-to-function #'ignore)
+    ;;    (foo-package-to-lambda   (lambda (elm) (message elm))))
+    ;;  (prog1 'foo-package
+    ;;    (custom-set-variables
+    ;;     '(foo-package-to-enable t "Customized with leaf in foo-package block")
+    ;;     '(foo-package-to-disable nil "Customized with leaf in foo-package block")
+    ;;     '(foo-package-to-symbol 'symbol "Customized with leaf in foo-package block")
+    ;;     '(foo-package-to-function #'ignore "Customized with leaf in foo-package block")
+    ;;     '(foo-package-to-lambda (lambda (elm) (message elm)) "Customized with leaf in foo-package block"))))
+
+    ;; multi cons-cell in list will be accepted
+    ((leaf foo-package
+       :custom* ((foo-package-to-enable   t)
+                 (foo-package-to-disable  nil)
+                 (foo-package-to-symbol   'symbol)
+                 (foo-package-to-function #'ignore)
+                 (foo-package-to-lambda   (lambda (elm) (message elm)))))
+     (prog1 'foo-package
+       (custom-set-variables
+        '(foo-package-to-enable t "Customized with leaf in foo-package block")
+        '(foo-package-to-disable nil "Customized with leaf in foo-package block")
+        '(foo-package-to-symbol 'symbol "Customized with leaf in foo-package block")
+        '(foo-package-to-function #'ignore "Customized with leaf in foo-package block")
+        '(foo-package-to-lambda (lambda (elm) (message elm)) "Customized with leaf in foo-package block"))))
+
+    ;; distribution feature is supported
+    ;; ((leaf foo-package
+    ;;    :custom (((to-enable1 to-enable2 to-enable3) . t)
+    ;;             ((to-disable1 to-disable2 to-disable3) . nil)))
+    ;;  (prog1 'foo-package
+    ;;    (custom-set-variables
+    ;;     '(to-enable1 t "Customized with leaf in foo-package block")
+    ;;     '(to-enable2 t "Customized with leaf in foo-package block")
+    ;;     '(to-enable3 t "Customized with leaf in foo-package block")
+    ;;     '(to-disable1 nil "Customized with leaf in foo-package block")
+    ;;     '(to-disable2 nil "Customized with leaf in foo-package block")
+    ;;     '(to-disable3 nil "Customized with leaf in foo-package block"))))
+
+    ;; and mix specification is accepted
+    ;; ((leaf foo-package
+    ;;    :custom
+    ;;    (foo-package-to-function . #'ignore)
+    ;;    ((to-symbol1 to-symbol2) . 'baz)
+    ;;    (((to-enable1 to-enable2 to-enable3) . t)
+    ;;     ((to-disable1 to-disable2 to-disable3) . nil)))
+    ;;  (prog1 'foo-package
+    ;;    (custom-set-variables
+    ;;     '(foo-package-to-function #'ignore "Customized with leaf in foo-package block")
+    ;;     '(to-symbol1 'baz "Customized with leaf in foo-package block")
+    ;;     '(to-symbol2 'baz "Customized with leaf in foo-package block")
+    ;;     '(to-enable1 t "Customized with leaf in foo-package block")
+    ;;     '(to-enable2 t "Customized with leaf in foo-package block")
+    ;;     '(to-enable3 t "Customized with leaf in foo-package block")
+    ;;     '(to-disable1 nil "Customized with leaf in foo-package block")
+    ;;     '(to-disable2 nil "Customized with leaf in foo-package block")
+    ;;     '(to-disable3 nil "Customized with leaf in foo-package block"))))
+    ))
+
 (cort-deftest-with-macroexpand leaf/custom-face
   '(
     ;; cons-cell will be accepted
