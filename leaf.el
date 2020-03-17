@@ -5,7 +5,7 @@
 ;; Author: Naoya Yamashita <conao3@gmail.com>
 ;; Maintainer: Naoya Yamashita <conao3@gmail.com>
 ;; Keywords: lisp settings
-;; Version: 3.7.8
+;; Version: 3.7.7
 ;; URL: https://github.com/conao3/leaf.el
 ;; Package-Requires: ((emacs "24.4"))
 
@@ -345,13 +345,6 @@ To stop this function, specify ':leaf-defer nil'"
   "If non-nil, make the expanded code as minimal as possible.
 If non-nil, disabled keywords of `leaf-expand-minimally-suppress-keywords'."
   :type 'boolean
-  :group 'leaf)
-
-(defcustom leaf-backend-ensure 'package
-  "Backend to process `:ensure' keyword."
-  :type '(choice (const :tag "Use `package.el'." 'package)
-                 (const :tag "Use `feather.el'." 'feather)
-                 (const :tag "No backend, disable `:ensure'." nil))
   :group 'leaf)
 
 (defcustom leaf-expand-minimally-suppress-keywords '(:leaf-protect)
