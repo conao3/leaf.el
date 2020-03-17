@@ -347,6 +347,13 @@ If non-nil, disabled keywords of `leaf-expand-minimally-suppress-keywords'."
   :type 'boolean
   :group 'leaf)
 
+(defcustom leaf-backend-ensure 'package
+  "Backend to process `:ensure' keyword."
+  :type '(choice (const :tag "Use `package.el'." 'package)
+                 (const :tag "Use `feather.el'." 'feather)
+                 (const :tag "No backend, disable `:ensure'." nil))
+  :group 'leaf)
+
 (defcustom leaf-expand-minimally-suppress-keywords '(:leaf-protect)
   "Suppress keywords when `leaf-expand-minimally' is non-nil."
   :type 'sexp
