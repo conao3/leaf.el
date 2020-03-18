@@ -54,24 +54,14 @@
   - [[#contribution][Contribution]]
     - [[#leafel-mechanism][leaf.el mechanism]]
     - [[#adding-new-keywords][Adding new keywords]]
-    - [[#why-we-support-emacs-22][Why We support Emacs-22? (Now, dropped)]]
   - [[#migration][Migration]]
-    - [[#leaf-v10-to-v20][leaf v2.0 to v3.0]]
+    - [[#leaf-v10-to-v20][leaf v3.0 to v4.0]]
+    - [[#leaf-v20-to-v30][leaf v2.0 to v3.0]]
     - [[#leaf-v10-to-v20][leaf v1.0 to v2.0]]
   - [[#license][License]]
   - [[#author][Author]]
   - [[#contributors][Contributors]]
   - [[#special-thanks][Special Thanks]]
-
-* Announncement
-I used Emacs 23 bundled with MacOS as a reference when determining the minimum Emacs support for leaf.el.
-However, MacOS stopped bundling Emacs 23, and by supporting Emacs 23, the inability to take advantage of most of the Elisp ecosystem like ~package.el~, ~cask~, and ~ert~ made development inefficient.
-
-I plan to release leaf.el v3.8 as the last version to support Emacs 23, and leaf.el as leaf.el v4.0, with Emacs 24 as the smallest version of Emacs.
-If you're using leaf.el with Emacs 23, you probably don't use package.el, but rather the traditional site-lisp method of using leaf.el. (package.el dropped Emacs 23 a long time ago)
-You should be able to continue using leaf.el as before by downloading version 3.8 from the [[https://github.com/conao3/leaf.el/releases][releases]] page.
-
-Thank you for using leaf.el!
 
 * Description
 ~leaf.el~ is yet another [[https://github.com/jwiegley/use-package][use-package]].
@@ -86,55 +76,45 @@ This makes it easy to maintain and add new keywords. (see [[https://github.com/c
 The quickest way to solve problem is using ~macroexpand-1~ to see the unfolded result if it is not what you intended.
 And also there are also a number of samples in this README and more in the [[https://github.com/conao3/leaf.el/blob/master/leaf-tests.el][test file]].
 
-In addition, since it works with Emacs-23, you can use your usual init.el as usual,
-even if you are temporarily using fossil-like Emacs on loan.
-
-(Of course, there are not many packages that work perfectly with Emacs-23.
-These packages will be installed by the package manager and will probably report an error.
-
-~leaf~ processes this and cancels the configuration for that package.
-It then attempts to process the next package.)
-
 Currently, ~leaf.el~ and ~leaf-keywords.el~ has below rich keywords.
 
 #+begin_src emacs-lisp
   (leaf-available-keywords)
-  ;; => (:disabled
-  ;;     :leaf-protect
-  ;;     :load-path :load-path*
-  ;;     :leaf-autoload
-  ;;     :doc :file :url
-  ;;     :defun :defvar
-  ;;     :preface
-  ;;     :when :unless :if
-  ;;     :ensure :package :straight :el-get
-  ;;     :after
-  ;;     :commands
-  ;;     :bind :bind*
-  ;;     :mode :interpreter :magic :magic-fallback :hook
-  ;;     :advice :advice-remove
-  ;;     :hydra :combo :combo* :smartrep :smartrep* :chord :chord*
-  ;;     :leaf-defer
-  ;;     :pre-setq :pl-pre-setq
-  ;;     :init
-  ;;     :require
-  ;;     :custom :custom-face :pl-custom
-  ;;     :setq :setq-default :pl-setq :pl-setq-default
-  ;;     :diminish :delight
-  ;;     :config)
+  ;;=> (:disabled
+  ;;    :leaf-protect
+  ;;    :load-path :load-path*
+  ;;    :leaf-autoload
+  ;;    :doc :tag :file :url
+  ;;    :defun :defvar :leaf-defun :leaf-defvar
+  ;;    :preface
+  ;;    :when :unless :if
+  ;;    :ensure :package :feather :straight :el-get
+  ;;    :after
+  ;;    :commands
+  ;;    :bind :bind*
+  ;;    :mode :interpreter :magic :magic-fallback
+  ;;    :hook
+  ;;    :advice :advice-remove
+  ;;    :init
+  ;;    :pre-setq :pl-pre-setq :auth-pre-setq
+  ;;    :custom :custom* :pl-custom :auth-custom :custom-face
+  ;;    :require
+  ;;    :hydra :transient :combo :combo*
+  ;;    :smartrep :smartrep* :chord :chord*
+  ;;    :mode-hook
+  ;;    :leaf-defer
+  ;;    :config
+  ;;    :diminish :delight
+  ;;    :setq :setq-default
+  ;;    :pl-setq :auth-setq :pl-setq-default :auth-setq-default)
 #+end_src
 
 * Install
 ** MELPA
 ~leaf.el~ and ~leaf-keywords.el~ can install with package.el from MELPA, so sample instration code is below.
 
-In order to work from Emacs-23, the package manager and the key binding manager
-that accompanies ~leaf~ must also be developed with the assumption that they will work from Emacs-23.
-
-I have plans to develop it, but it's not finished yet.
-
 Package to be developed
-  - [[https://github.com/conao3/feather.el][feather.el]] instead of ~package.el~
+  - [[https://github.com/conao3/feather.el][feather.el]] instead of ~package.el~ -> (Achieved! Now available but it is just a pakcage.el wraper)
   - leaf-key.el instead of ~bind-key~ -> (Achieved! Now ~leaf~ builtin)
 
 #+begin_src emacs-lisp
@@ -2039,17 +2019,36 @@ In [[https://github.com/conao3/leaf-keywords.el][leaf-keywords.el]], you can see
 Note that leaf only contains keywords for packages that come with the Emacs standard,
 and that keywords that depend on external packages are added to its repository.
 
-*** Why We support Emacs-22?
-+Bundling Emacs-22.1 on macOS 10.13 (High Sierra), we support this.+
-
-The Emacs-22 docker image is not available and is not [[https://github.com/conao3/leaf.el/issues/262][currently being tested]].
-So We don't know if it works or not.
-
-If we can get the Emacs-22 docker image, we will resume support for Emacs-22.
-
-Now, ~leaf~ support Emacs-23 or above.
-
 ** Migration
+*** leaf v3.0 to v4.0
+**** Drop support Emacs versions lower than Emacs-24.4
+#+begin_quote
+I used Emacs 23 bundled with MacOS as a reference when
+determining the minimum Emacs support for leaf.el.  However,
+MacOS stopped bundling Emacs 23, and by supporting Emacs 23, the
+inability to take advantage of most of the Elisp ecosystem like
+~package.el~, ~cask~, and ~ert~ made development inefficient.
+
+I plan to release leaf.el v3.8 as the last version to support
+Emacs 23, and leaf.el as leaf.el v4.0, with Emacs 24 as the
+smallest version of Emacs.
+
+If you're using leaf.el with Emacs 23, you probably don't use
+package.el, but rather the traditional site-lisp method of using
+leaf.el. (package.el dropped Emacs 23 a long time ago) You should
+be able to continue using leaf.el as before by downloading
+version 3.8 from the [[https://github.com/conao3/leaf.el/releases][releases]] page.
+#+end_quote
+
+We have posted above announcements for more than 1 month and have
+dropped support for Emacs versions below 24.4 because of a bug in
+a global variable that prevented it from passing tests under
+Emacs 24.2.  https://github.com/conao3/leaf.el/runs/515675886
+
+Emacs-24.4 is a version with ~lexical-binding~ support and should
+be considered the minimum version supported by the current Emacs
+packages.
+
 *** leaf v2.0 to v3.0
 **** Drop bind-key.el support for :bind and feather.el support for :ensure
 To make ~leaf~ dependent only on packages that are itself and packages attached to and Emacs,
