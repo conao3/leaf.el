@@ -9,10 +9,6 @@
 ;; URL: https://github.com/conao3/leaf.el
 ;; Package-Requires: ((emacs "24.4"))
 
-;;   Above declared this package requires Emacs-24, but it's for warning
-;;   suppression, and will actually work from Emacs-23.
-;;   But :advice, :advice-remove are not work Emacs-24.3 or lower.
-
 ;; This program is free software: you can redistribute it and/or modify
 ;; it under the terms of the Affero GNU General Public License as
 ;; published by the Free Software Foundation, either version 3 of the
@@ -31,18 +27,18 @@
 
 ;; Provides macros that allow you to declaratively configure settings typical
 ;; of an Elisp package with various keywords.
-;;
+
 ;; By separating the settings of a package and combining many 'leaves' of a
-;; package's settings, you could make a 'Yggdrasill' on top of your Emacs.
-;;
+;; package's settings, you could make a 'Yggdrasill' on your Emacs.
+
 ;; A leaf can consist of multiple packages, in which case you can disable all
 ;; dependent child packages by disabling one parent's package.
-;;
+
 ;; It also has a key management system and package management uses the
 ;; package.el.  With minimal external dependencies and careful implementation,
-;; this package is guaranteed to be fully functional from Emacs-23, now, and
+;; this package is guaranteed to be fully functional from Emacs-24.4, now, and
 ;; in future Emacs.
-;;
+
 ;; More information is [[https://github.com/conao3/leaf.el][here]]
 
 
