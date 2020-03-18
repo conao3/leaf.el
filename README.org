@@ -205,6 +205,17 @@ You declaratively tell the ~leaf~ to configure the package using special keyword
 - ~leaf-expand-{{keyword}}~: If nil, not to expand that keyword.
 - ~leaf-expand-minimally~: If nil, disable keywords that are not needed for debugging.
 - ~leaf-default-plstore~: default ~plstore~ stored variable
+- ~leaf-alias-keyword-alist~: Alist represents keyword alias.  Handle KEY is alias of VALUE.
+  #+begin_src emacs-lisp
+    (defcustom leaf-alias-keyword-alist '((:ensure . :package))
+      "The alias keyword.  KEY is treated as an alias for VALUE."
+      :type 'sexp
+      :group 'leaf)
+  #+end_src
+  This default value means ~:ensure~ is alias ~:package~.
+
+  If you want to use ~:ensure~ as ~:feather~, please set this value as ~((:ensure . :feather))~.
+  Please more info related feather is [[https://github.com/conao3/feather.el][here]].
 
 * Syntax
 All below examples are excerpts from [[https://github.com/conao3/leaf.el/blob/master/leaf-tests.el][leaf-tests.el]].
