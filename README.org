@@ -42,7 +42,8 @@
 - [[#documentation-keywords][Documentation keywords]]
   - [[#doc-tag-file-url-keywords][:doc, :tag, :file, :url keywords]]
 - [[#misc-keywords][Misc keywords]]
-  - [[#advice-advice-remove-keywords][:advice, :advice-remove keyword]]
+  - [[#minor-mode-keyword][:minor-mode keyword]]
+  - [[#advice-advice-remove-keywords][:advice, :advice-remove keywords]]
   - [[#pl-pre-setq-pl-setq-pl-setq-default-pl-custom-keywords][:pl-pre-setq, :pl-setq, :pl-setq-default, :pl-custom keywords]]
 - [[#system-keywords][System keywords]]
   - [[#leaf-protect-keyword][:leaf-protect keyword]]
@@ -105,6 +106,7 @@ Currently, ~leaf.el~ and ~leaf-keywords.el~ has below rich keywords.
   ;;    :leaf-defer
   ;;    :config
   ;;    :diminish :delight
+  ;;    :minor-mode
   ;;    :setq :setq-default
   ;;    :pl-setq :auth-setq :pl-setq-default :auth-setq-default)
 #+end_src
@@ -1514,6 +1516,77 @@ The arguments specified for this keyword have no effect on the result of the con
          (leaf-init)))))
 #+END_SRC
 * Misc keywords
+** :minor-mode keyword
+~:minor-mode~ keyword provides a front end to easily enable minor mode.
+Minor-mode is followed by ~-mode~ and has the custom of being activated by passing a ~1~,
+so make the possible guesses accordingly.
+
+The former guess, given ~t~, the mode in which you want ~leaf--name~ to be valid.
+If ~-mode~ is not appended to the package name, add ~-mode~.
+For this reason, a minor mode without ~-mode~ can not use this keyword. Please use ~:config~.
+
+If the latter requires ~t~ to be valid, the value can be explicitly specified using the ~cdr~ of the cons cell.
+
+#+begin_src emacs-lisp
+  (cort-deftest-with-macroexpand leaf/minor-mode
+    '(
+      ;; symbol will be accepted
+      ((leaf autorevert
+         :minor-mode global-auto-revert-mode)
+       (prog1 'autorevert
+         (global-auto-revert-mode 1)))
+
+      ;; multi strings will be accepted
+      ((leaf autorevert
+         :minor-mode global-auto-revert-mode show-paren-mode)
+       (prog1 'autorevert
+         (global-auto-revert-mode 1)
+         (show-paren-mode 1)))
+
+      ;; multi strings in list will be accepted
+      ((leaf autorevert
+         :minor-mode (global-auto-revert-mode show-paren-mode))
+       (prog1 'autorevert
+         (global-auto-revert-mode 1)
+         (show-paren-mode 1)))
+
+      ;; cons-cell will be accepted
+      ((leaf autorevert
+         :minor-mode ((global-auto-revert-mode . t)
+                      (show-paren-mode . t)))
+       (prog1 'autorevert
+         (global-auto-revert-mode t)
+         (show-paren-mode t)))
+
+      ;; distribution feature is supported
+      ((leaf autorevert
+         :minor-mode ((show-paren-mode global-auto-revert-mode) . t))
+       (prog1 'autorevert
+         (show-paren-mode t)
+         (global-auto-revert-mode t)))
+
+      ;; mix specification will be accepted
+      ((leaf autorevert
+         :minor-mode (auto-insert-mode
+                      (show-paren-mode global-auto-revert-mode) . t))
+       (prog1 'autorevert
+         (auto-insert-mode t)
+         (show-paren-mode t)
+         (global-auto-revert-mode t)))
+
+      ;; t will convert leaf--name, and suffix 'mode'
+      ((leaf autorevert
+         :minor-mode t)
+       (prog1 'autorevert
+         (autorevert-mode 1)))
+
+      ;; symbol not suffix 'mode', add 'mode' suffix
+      ((leaf autorevert
+         :minor-mode autorevert)
+       (prog1 'autorevert
+         (autorevert-mode 1)))))
+#+end_src
+
 ** :advice, :advice-remove keywords
 ~:advice~ provide frontend of ~advice-add~, and ~:advice-remove~ provide frontend of ~advice-remove~.
 
