@@ -5,7 +5,7 @@
 ;; Author: Naoya Yamashita <conao3@gmail.com>
 ;; Maintainer: Naoya Yamashita <conao3@gmail.com>
 ;; Keywords: lisp settings
-;; Version: 4.0.0
+;; Version: 4.0.1
 ;; URL: https://github.com/conao3/leaf.el
 ;; Package-Requires: ((emacs "24.4"))
 
@@ -138,13 +138,13 @@ Same as `list' but this macro does not evaluate any arguments."
                           `((eval-after-load ',leaf--name '(progn ,@leaf--body))) `(,@leaf--body))
 
    :config            `(,@leaf--value ,@leaf--body)
+   :minor-mode        `(,@(mapcar (lambda (elm) `(,(car elm) ,(cdr elm))) leaf--value) ,@leaf--body)
    :setq              `(,@(mapcar (lambda (elm) `(setq ,(car elm) ,(cdr elm))) leaf--value) ,@leaf--body)
    :setq-default      `(,@(mapcar (lambda (elm) `(setq-default ,(car elm) ,(cdr elm))) leaf--value) ,@leaf--body)
    :pl-setq           `(,@(mapcar (lambda (elm) `(setq ,(car elm) (leaf-handler-auth ,leaf--name ,(car elm) ,(cdr elm)))) leaf--value) ,@leaf--body)
    :auth-setq         `(,@(mapcar (lambda (elm) `(setq ,(car elm) (leaf-handler-auth ,leaf--name ,(car elm) ,(cdr elm)))) leaf--value) ,@leaf--body)
    :pl-setq-default   `(,@(mapcar (lambda (elm) `(setq-default ,(car elm) (leaf-handler-auth ,leaf--name ,(car elm) ,(cdr elm)))) leaf--value) ,@leaf--body)
-   :auth-setq-default `(,@(mapcar (lambda (elm) `(setq-default ,(car elm) (leaf-handler-auth ,leaf--name ,(car elm) ,(cdr elm)))) leaf--value) ,@leaf--body)
-   )
+   :auth-setq-default `(,@(mapcar (lambda (elm) `(setq-default ,(car elm) (leaf-handler-auth ,leaf--name ,(car elm) ,(cdr elm)))) leaf--value) ,@leaf--body))
   "Special keywords and conversion rule to be processed by `leaf'.
 Sort by `leaf-sort-leaf--values-plist' in this order.")
 
@@ -177,6 +177,7 @@ Sort by `leaf-sort-leaf--values-plist' in this order.")
 
     ((memq leaf--key (list
                       :package
+                      :minor-mode
                       :hook :mode :interpreter :magic :magic-fallback :defun
                       :pl-setq :pl-pre-setq :pl-setq-default :pl-custom
                       :auth-custom :auth-pre-setq :auth-setq :auth-setq-default
@@ -191,6 +192,8 @@ Sort by `leaf-sort-leaf--values-plist' in this order.")
                  (if (eq t (car elm)) `(,leaf--name . ,(cdr elm)) elm))
                 ((memq leaf--key '(:package))
                  (if (equal '(t) elm) `(,leaf--name . nil) `(,@elm . nil)))
+                ((memq leaf--key '(:minor-mode))
+                 `(,(leaf-mode-sym (if (equal '(t) elm) leaf--name (car elm))) . +1))
                 ((memq leaf--key '(:hook :mode :interpreter :magic :magic-fallback :defun))
                  `(,@elm . ,leaf--name))
                 ((memq leaf--key (list :pl-custom :pl-pre-setq :pl-setq :pl-setq-default
@@ -528,6 +531,11 @@ see `alist-get'."
   (if (keywordp keyword)
       (intern (substring (symbol-name keyword) 1))
     keyword))
+
+(defun leaf-mode-sym (sym)
+  "Return mode like symbol from SYM."
+  (let ((sym-str (symbol-name sym)))
+    (intern (concat sym-str (unless (string-suffix-p "-mode" sym-str) "-mode")))))
 
 (defun leaf-error (message &rest args)
   "Raise error with type leaf.  MESSAGE and ARGS is same form as `lwarn'."
