@@ -1324,7 +1324,16 @@ Example:
        (declare-function web-strict-mode "web-mode")
        (add-to-list 'auto-mode-alist '("\\.html\\'" . web-mode))
        (add-to-list 'auto-mode-alist '("\\.js\\'" . web-strict-mode))
-       (add-to-list 'auto-mode-alist '("\\.p?html?\\'" . web-strict-mode))))))
+       (add-to-list 'auto-mode-alist '("\\.p?html?\\'" . web-strict-mode))))
+
+    ;; if package symbol suffix doesn't suffix '-mode', add '-mode'
+    ((leaf gnuplot
+       :mode "\\.gp$")
+     (prog1 'gnuplot
+       (unless (fboundp 'gnuplot-mode)
+         (autoload #'gnuplot-mode "gnuplot" nil t))
+       (declare-function gnuplot-mode "gnuplot")
+       (add-to-list 'auto-mode-alist '("\\.gp$" . gnuplot-mode))))))
 
 (cort-deftest-with-macroexpand leaf/interpreter
   '(
