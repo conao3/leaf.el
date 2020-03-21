@@ -140,7 +140,7 @@ Same as `list' but this macro does not evaluate any arguments."
                           `((eval-after-load ',leaf--name '(progn ,@leaf--body))) `(,@leaf--body))
 
    :config            `(,@leaf--value ,@leaf--body)
-   :minor-mode        `(,@(mapcar (lambda (elm) `(,(car elm) ,(cdr elm))) leaf--value) ,@leaf--body)
+   :global-minor-mode `(,@(mapcar (lambda (elm) `(,(car elm) ,(cdr elm))) leaf--value) ,@leaf--body)
    :setq              `(,@(mapcar (lambda (elm) `(setq ,(car elm) ,(cdr elm))) leaf--value) ,@leaf--body)
    :setq-default      `(,@(mapcar (lambda (elm) `(setq-default ,(car elm) ,(cdr elm))) leaf--value) ,@leaf--body)
    :pl-setq           `(,@(mapcar (lambda (elm) `(setq ,(car elm) (leaf-handler-auth ,leaf--name ,(car elm) ,(cdr elm)))) leaf--value) ,@leaf--body)
@@ -179,7 +179,7 @@ Sort by `leaf-sort-leaf--values-plist' in this order.")
 
     ((memq leaf--key (list
                       :package
-                      :minor-mode
+                      :global-minor-mode
                       :mode :interpreter :magic :magic-fallback
                       :hook :defun
                       :pl-setq :pl-pre-setq :pl-setq-default :pl-custom
@@ -195,7 +195,7 @@ Sort by `leaf-sort-leaf--values-plist' in this order.")
                  (if (eq t (car elm)) `(,leaf--name . ,(cdr elm)) elm))
                 ((memq leaf--key '(:package))
                  (if (equal '(t) elm) `(,leaf--name . nil) `(,@elm . nil)))
-                ((memq leaf--key '(:minor-mode))
+                ((memq leaf--key '(:global-minor-mode))
                  `(,(leaf-mode-sym (if (equal '(t) elm) leaf--name (car elm))) . +1))
                 ((memq leaf--key '(:mode :interpreter :magic :magic-fallback))
                  `(,@elm . ,(leaf-mode-sym leaf--name)))

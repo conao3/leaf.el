@@ -1210,31 +1210,31 @@ Example:
                     ("M-O" . isearch-moccur-all)
                     ("M-s" . isearch-moccur-some)))))))
 
-(cort-deftest-with-macroexpand leaf/minor-mode
+(cort-deftest-with-macroexpand leaf/global-minor-mode
   '(
     ;; symbol will be accepted
     ((leaf autorevert
-       :minor-mode global-auto-revert-mode)
+       :global-minor-mode global-auto-revert-mode)
      (prog1 'autorevert
        (global-auto-revert-mode 1)))
 
     ;; multi strings will be accepted
     ((leaf autorevert
-       :minor-mode global-auto-revert-mode show-paren-mode)
+       :global-minor-mode global-auto-revert-mode show-paren-mode)
      (prog1 'autorevert
        (global-auto-revert-mode 1)
        (show-paren-mode 1)))
 
     ;; multi strings in list will be accepted
     ((leaf autorevert
-       :minor-mode (global-auto-revert-mode show-paren-mode))
+       :global-minor-mode (global-auto-revert-mode show-paren-mode))
      (prog1 'autorevert
        (global-auto-revert-mode 1)
        (show-paren-mode 1)))
 
     ;; cons-cell will be accepted
     ((leaf autorevert
-       :minor-mode ((global-auto-revert-mode . t)
+       :global-minor-mode ((global-auto-revert-mode . t)
                     (show-paren-mode . t)))
      (prog1 'autorevert
        (global-auto-revert-mode t)
@@ -1242,14 +1242,14 @@ Example:
 
     ;; distribution feature is supported
     ((leaf autorevert
-       :minor-mode ((show-paren-mode global-auto-revert-mode) . t))
+       :global-minor-mode ((show-paren-mode global-auto-revert-mode) . t))
      (prog1 'autorevert
        (show-paren-mode t)
        (global-auto-revert-mode t)))
 
     ;; mix specification will be accepted
     ((leaf autorevert
-       :minor-mode (auto-insert-mode
+       :global-minor-mode (auto-insert-mode
                     (show-paren-mode global-auto-revert-mode) . t))
      (prog1 'autorevert
        (auto-insert-mode t)
@@ -1258,13 +1258,13 @@ Example:
 
     ;; t will convert leaf--name, and suffix 'mode'
     ((leaf autorevert
-       :minor-mode t)
+       :global-minor-mode t)
      (prog1 'autorevert
        (autorevert-mode 1)))
 
     ;; symbol not suffix 'mode', add 'mode' suffix
     ((leaf autorevert
-       :minor-mode autorevert)
+       :global-minor-mode autorevert)
      (prog1 'autorevert
        (autorevert-mode 1)))))
 
