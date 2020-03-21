@@ -248,7 +248,7 @@ it is possible to assign whether to ~require~ or not by the conditional branch k
 #+begin_src emacs-lisp
   (cort-deftest-with-macroexpand leaf/require
     '(
-      ;; 't will be converted leaf--name 
+      ;; 't will be converted leaf--name
       ((leaf leaf
          :init (leaf-pre-init)
          :when leaf-workable-p
@@ -383,7 +383,7 @@ You don't need to put ~progn~ because ~leaf~ can receive multiple S-expressions,
 #+begin_src emacs-lisp
   (cort-deftest-with-macroexpand leaf/preface
     '(
-      ;; sexp will be expanded in order of :preface, :when, :require, :init, :config. 
+      ;; sexp will be expanded in order of :preface, :when, :require, :init, :config.
       ((leaf leaf
          :require t
          :preface (preface-init)
@@ -1098,7 +1098,8 @@ It makes easy to jump definition.
          :hook cc-mode-hook
          :config (ace-jump-mode))
        (prog1 'ace-jump-mode
-         (autoload #'ace-jump-mode "ace-jump-mode" nil t)
+         (unless (fboundp 'ace-jump-mode) (autoload #'ace-jump-mode "ace-jump-mode" nil t))
+         (declare-function ace-jump-mode "ace-jump-mode")
          (add-hook 'cc-mode-hook #'ace-jump-mode)
          (eval-after-load 'ace-jump-mode
            '(progn
@@ -1108,7 +1109,8 @@ It makes easy to jump definition.
       ((leaf ace-jump-mode
          :hook cc-mode-hook prog-mode-hook)
        (prog1 'ace-jump-mode
-         (autoload #'ace-jump-mode "ace-jump-mode" nil t)
+         (unless (fboundp 'ace-jump-mode) (autoload #'ace-jump-mode "ace-jump-mode" nil t))
+         (declare-function ace-jump-mode "ace-jump-mode")
          (add-hook 'cc-mode-hook #'ace-jump-mode)
          (add-hook 'prog-mode-hook #'ace-jump-mode)))
 
@@ -1116,22 +1118,39 @@ It makes easy to jump definition.
       ((leaf ace-jump-mode
          :hook (prog-mode-hook . my-ace-jump-mode))
        (prog1 'ace-jump-mode
-         (autoload #'my-ace-jump-mode "ace-jump-mode" nil t)
+         (unless (fboundp 'my-ace-jump-mode) (autoload #'my-ace-jump-mode "ace-jump-mode" nil t))
+         (declare-function my-ace-jump-mode "ace-jump-mode")
          (add-hook 'prog-mode-hook #'my-ace-jump-mode)))
 
       ;; distribution feature is supported
       ((leaf ace-jump-mode
          :hook ((cc-mode-hook prog-mode-hook) . my-ace-jump-mode))
        (prog1 'ace-jump-mode
-         (autoload #'my-ace-jump-mode "ace-jump-mode" nil t)
+         (unless (fboundp 'my-ace-jump-mode) (autoload #'my-ace-jump-mode "ace-jump-mode" nil t))
+         (declare-function my-ace-jump-mode "ace-jump-mode")
          (add-hook 'cc-mode-hook #'my-ace-jump-mode)
          (add-hook 'prog-mode-hook #'my-ace-jump-mode)))
+
+      ;; guess leaf--name is mode
+      ((leaf dired-filter
+         :hook dired-mode-hook)
+       (prog1 'dired-filter
+         (unless (fboundp 'dired-filter-mode)
+           (autoload #'dired-filter-mode "dired-filter" nil t))
+         (declare-function dired-filter-mode "dired-filter")
+         (add-hook 'dired-mode-hook #'dired-filter-mode)))
 
       ;; lambda sexp is supported
       ((leaf hook
          :hook (foo-hook . (lambda () (foo))))
        (prog1 'hook
-         (add-hook 'foo-hook #'(lambda nil (foo)))))))
+         (add-hook 'foo-hook #'(lambda nil (foo)))))
+
+      ;; lambda sexp with many sexps
+      ((leaf hook
+         :hook (foo-hook . (lambda () (foo) (bar) (baz))))
+       (prog1 'hook
+         (add-hook 'foo-hook #'(lambda nil (foo) (bar) (baz)))))))
 #+end_src
 
 ** :load-path, :load-path* keywords
