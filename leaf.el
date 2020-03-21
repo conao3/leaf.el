@@ -180,8 +180,8 @@ Sort by `leaf-sort-leaf--values-plist' in this order.")
     ((memq leaf--key (list
                       :package
                       :global-minor-mode
-                      :mode :interpreter :magic :magic-fallback
-                      :hook :defun
+                      :hook :mode :interpreter :magic :magic-fallback
+                      :defun
                       :pl-setq :pl-pre-setq :pl-setq-default :pl-custom
                       :auth-custom :auth-pre-setq :auth-setq :auth-setq-default
                       :setq :pre-setq :setq-default :custom :custom-face))
@@ -197,9 +197,9 @@ Sort by `leaf-sort-leaf--values-plist' in this order.")
                  (if (equal '(t) elm) `(,leaf--name . nil) `(,@elm . nil)))
                 ((memq leaf--key '(:global-minor-mode))
                  `(,(leaf-mode-sym (if (equal '(t) elm) leaf--name (car elm))) . +1))
-                ((memq leaf--key '(:mode :interpreter :magic :magic-fallback))
+                ((memq leaf--key '(:hook :mode :interpreter :magic :magic-fallback))
                  `(,@elm . ,(leaf-mode-sym leaf--name)))
-                ((memq leaf--key '(:hook :defun))
+                ((memq leaf--key '(:defun))
                  `(,@elm . ,leaf--name))
                 ((memq leaf--key (list :pl-custom :pl-pre-setq :pl-setq :pl-setq-default
                                        :auth-custom :auth-pre-setq :auth-setq :auth-setq-default))

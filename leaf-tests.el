@@ -1493,6 +1493,15 @@ Example:
        (add-hook 'cc-mode-hook #'my-ace-jump-mode)
        (add-hook 'prog-mode-hook #'my-ace-jump-mode)))
 
+    ;; guess leaf--name is mode
+    ((leaf dired-filter
+       :hook dired-mode-hook)
+     (prog1 'dired-filter
+       (unless (fboundp 'dired-filter-mode)
+         (autoload #'dired-filter-mode "dired-filter" nil t))
+       (declare-function dired-filter-mode "dired-filter")
+       (add-hook 'dired-mode-hook #'dired-filter-mode)))
+
     ;; lambda sexp is supported
     ((leaf hook
        :hook (foo-hook . (lambda () (foo))))
