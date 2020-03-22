@@ -5,7 +5,7 @@
 ;; Author: Naoya Yamashita <conao3@gmail.com>
 ;; Maintainer: Naoya Yamashita <conao3@gmail.com>
 ;; Keywords: lisp settings
-;; Version: 4.0.4
+;; Version: 4.0.5
 ;; URL: https://github.com/conao3/leaf.el
 ;; Package-Requires: ((emacs "24.4"))
 
@@ -569,19 +569,27 @@ see `alist-get'."
       ret)))
 
 ;;;###autoload
-(defun leaf-to-string (sexp)
+(defmacro leaf-pp-to-string (sexp)
   "Return format string of `leaf' SEXP like `pp-to-string'."
-  (with-temp-buffer
-    (insert (replace-regexp-in-string
-             (eval
-              `(rx (group
-                    (or ,@(mapcar #'symbol-name (leaf-available-keywords))))))
-             "\n\\1"
-             (prin1-to-string sexp)))
-    (delete-trailing-whitespace)
-    (emacs-lisp-mode)
-    (indent-region (point-min) (point-max))
-    (buffer-substring-no-properties (point-min) (point-max))))
+  `(with-output-to-string
+     (leaf-pp ,sexp)))
+
+;;;###autoload
+(defun leaf-pp (sexp)
+  "Output the pretty-printed representation of leaf SEXP."
+  (prog1 nil
+    (let ((str (with-temp-buffer
+                 (insert (replace-regexp-in-string
+                          (eval
+                           `(rx (group
+                                 (or ,@(mapcar #'symbol-name (leaf-available-keywords))))))
+                          "\n\\1"
+                          (prin1-to-string sexp)))
+                 (delete-trailing-whitespace)
+                 (emacs-lisp-mode)
+                 (indent-region (point-min) (point-max))
+                 (buffer-substring-no-properties (point-min) (point-max)))))
+      (princ (concat str "\n")))))
 
 (defvar leaf-expand-buffer-name "*Leaf Expand*")
 (defvar leaf-expand-issue-template
