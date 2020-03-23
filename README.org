@@ -41,7 +41,7 @@
 - [[#byte-compile-keywords][Byte compile keywords]]
   - [[#defun-defvar-keywords][:defun, :defvar keywords]]
 - [[#documentation-keywords][Documentation keywords]]
-  - [[#doc-tag-file-url-req-keywords][:doc, :tag, :file, :url, :req keywords]]
+  - [[#doc-req-tag-file-url-keywords][:doc, :req, :tag, :file, :url keywords]]
 - [[#misc-keywords][Misc keywords]]
   - [[#global-minor-mode-keyword][:global-minor-mode keyword]]
   - [[#advice-advice-remove-keywords][:advice, :advice-remove keywords]]
@@ -86,7 +86,7 @@ Currently, ~leaf.el~ and ~leaf-keywords.el~ has below rich keywords.
   ;;    :leaf-protect
   ;;    :load-path :load-path*
   ;;    :leaf-autoload
-  ;;    :doc :tag :file :url :req
+  ;;    :doc :req :tag :file :url
   ;;    :defun :defvar :leaf-defun :leaf-defvar
   ;;    :preface
   ;;    :when :unless :if
@@ -1545,7 +1545,7 @@ This is usually done by a ~declare-function~ and an empty ~defvar~, and ~leaf~ p
 #+END_SRC
 
 * Documentation keywords
-** :doc, :tag, :file, :url, :req keywords
+** :doc, :req, :tag, :file, :url keywords
 The leaf can describe the document systematically.
 
 It should be possible to develop additional packages

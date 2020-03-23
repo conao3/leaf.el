@@ -73,10 +73,10 @@ Same as `list' but this macro does not evaluate any arguments."
    :leaf-autoload     `(,@(when (car leaf--value) (mapcar (lambda (elm) `(unless (fboundp ',(car elm)) (autoload #',(car elm) ,(cdr elm) nil t))) (reverse leaf--autoload))) ,@leaf--body)
 
    :doc               `(,@leaf--body)
+   :req               `(,@leaf--body)
    :tag               `(,@leaf--body)
    :file              `(,@leaf--body)
    :url               `(,@leaf--body)
-   :req               `(,@leaf--body)
 
    :defun             `(,@(mapcar (lambda (elm) `(declare-function ,(car elm) ,(symbol-name (cdr elm)))) leaf--value) ,@leaf--body)
    :defvar            `(,@(mapcar (lambda (elm) `(defvar ,elm)) leaf--value) ,@leaf--body)
