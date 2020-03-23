@@ -90,6 +90,7 @@ Currently, ~leaf.el~ and ~leaf-keywords.el~ has below rich keywords.
   ;;    :defun :defvar :leaf-defun :leaf-defvar
   ;;    :preface
   ;;    :when :unless :if
+  ;;    :emacs< :emacs<= :emacs= :emacs> :emacs>=
   ;;    :ensure :package :feather :straight :el-get
   ;;    :after
   ;;    :commands
