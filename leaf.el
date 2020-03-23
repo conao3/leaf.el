@@ -5,7 +5,7 @@
 ;; Author: Naoya Yamashita <conao3@gmail.com>
 ;; Maintainer: Naoya Yamashita <conao3@gmail.com>
 ;; Keywords: lisp settings
-;; Version: 4.0.5
+;; Version: 4.0.6
 ;; URL: https://github.com/conao3/leaf.el
 ;; Package-Requires: ((emacs "24.4"))
 
@@ -86,7 +86,12 @@ Same as `list' but this macro does not evaluate any arguments."
    :when              (when leaf--body `((when   ,@(if (= 1 (length leaf--value)) leaf--value `((and ,@leaf--value))) ,@leaf--body)))
    :unless            (when leaf--body `((unless ,@(if (= 1 (length leaf--value)) leaf--value `((and ,@leaf--value))) ,@leaf--body)))
    :if                (when leaf--body `((if     ,@(if (= 1 (length leaf--value)) leaf--value `((and ,@leaf--value))) (progn ,@leaf--body))))
-
+   :emacs<            (when leaf--body `((when (version<  emacs-version ,leaf--value)  ,@leaf--body)))
+   :emacs<=           (when leaf--body `((when (version<= emacs-version ,leaf--value)  ,@leaf--body)))
+   :emacs=            (when leaf--body `((when (version=  emacs-version ,leaf--value)  ,@leaf--body)))
+   :emacs>            (when leaf--body `((when (version<  ,leaf--value  emacs-version) ,@leaf--body)))
+   :emacs>=           (when leaf--body `((when (version<= ,leaf--value  emacs-version) ,@leaf--body)))
+   
    :package           `(,@(mapcar (lambda (elm) `(leaf-handler-package ,leaf--name ,(car elm) ,(cdr elm))) leaf--value) ,@leaf--body)
 
    :after             (when leaf--body (let ((ret `(progn ,@leaf--body)))
@@ -212,6 +217,20 @@ Sort by `leaf-sort-leaf--values-plist' in this order.")
               (lambda (elm) (leaf-normalize-list-in-list elm 'dotlistp))
               leaf--value)))
 
+    ;; Accept: ("25.1") (25.1) ('25.1)
+    ;; Return: string
+    ((memq leaf--key '(:emacs< :emacs<= :emacs= :emacs> :emacs>=))
+     (let ((arg (if (listp leaf--value) (leaf-flatten leaf--value) (list leaf--value))))
+       (if (not (<= (length arg) 2))
+           (leaf-error "%s could handle only one argument, %s" leaf--key leaf--value)
+         (let ((val (if (= 1 (length arg)) (car arg) (eval arg))))
+           (cond
+            ((stringp val) val)
+            ((numberp val) (number-to-string val))
+            ((eq 'quote (car-safe val)) (number-to-string (eval val)))
+            (t
+             (leaf-error "%s recieve unknown type argument, %s" leaf--key val)))))))
+    
     ;; Accept: ((sym val) (sym val)... )
     ;; Return: list of pair (sym . val)
     ;; NOTE  : This keyword does not allow distribution feature etc.

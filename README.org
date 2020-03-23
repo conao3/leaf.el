@@ -37,6 +37,7 @@
 - [[#condition-keywords][Condition keywords]]
   - [[#disabled-keyword][:disabled keyword]]
   - [[#if-when-unless-keywords][:if, :when, :unless keywords]]
+  - [[#emacs-emacs-emacs-emacs-emacs-keywords][:emacs<, :emacs<=, :emacs=, :emacs>, :emacs>= keywords]]
 - [[#byte-compile-keywords][Byte compile keywords]]
   - [[#defun-defvar-keywords][:defun, :defvar keywords]]
 - [[#documentation-keywords][Documentation keywords]]
@@ -1405,6 +1406,63 @@ If specified multiple those keywords, evaluate sexp in ~and~.
            (require 'leaf)
            (leaf-init))))))
 #+end_src
+
+** :emacs<, :emacs<=, :emacs=, :emacs>, :emacs>= keywords
+You can activate the leaf block depending on version of Emacs.
+The keyword is in the form of ~:emacs< {{version}}~, which is expanded as a conditional expression by analogy with the inequality of ~Emacs < {{version}}~.
+It can be a string, a number, a quoted string or a number, and only one can be specified.
+#+begin_src emacs-lisp
+  (cort-deftest-with-macroexpand leaf/emacs<
+    '(
+      ;; string will be accepted
+      ((leaf leaf-keywords
+         :emacs> "24.4"
+         :config (leaf-keywords-init))
+       (prog1 'leaf-keywords
+         (when (version< "24.4" emacs-version)
+           (leaf-keywords-init))))
+
+      ;; number will be accepted
+      ((leaf leaf-keywords
+         :emacs> 24.4
+         :config (leaf-keywords-init))
+       (prog1 'leaf-keywords
+         (when (version< "24.4" emacs-version)
+           (leaf-keywords-init))))
+
+      ;; quoted number will be accepted
+      ((leaf leaf-keywords
+         :emacs> '24.4
+         :config (leaf-keywords-init))
+       (prog1 'leaf-keywords
+         (when (version< "24.4" emacs-version)
+           (leaf-keywords-init))))
+
+      ;; quoted string will be accepted
+      ((leaf leaf-keywords
+         :emacs> '"24.4"
+         :config (leaf-keywords-init))
+       (prog1 'leaf-keywords
+         (when (version< "24.4" emacs-version)
+           (leaf-keywords-init))))
+
+      ;; one argument list will be accepted
+      ((leaf leaf-keywords
+         :emacs> ("24.4")
+         :config (leaf-keywords-init))
+       (prog1 'leaf-keywords
+         (when (version< "24.4" emacs-version)
+           (leaf-keywords-init))))
+
+      ;; one argument list will be accepted
+      ((leaf leaf-keywords
+         :emacs> ('"24.4")
+         :config (leaf-keywords-init))
+       (prog1 'leaf-keywords
+         (when (version< "24.4" emacs-version)
+           (leaf-keywords-init))))))
+#+end_src
+
 
 * Byte compile keywords
 ** :defun, :defvar keywords
