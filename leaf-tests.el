@@ -717,6 +717,56 @@ Example:
          (require 'leaf)
          (leaf-init))))))
 
+(cort-deftest-with-macroexpand leaf/emacs<
+  '(
+    ;; string will be accepted
+    ((leaf leaf-keywords
+       :emacs> "24.4"
+       :config (leaf-keywords-init))
+     (prog1 'leaf-keywords
+       (when (version< "24.4" emacs-version)
+         (leaf-keywords-init))))
+
+    ;; number will be accepted
+    ((leaf leaf-keywords
+       :emacs> 24.4
+       :config (leaf-keywords-init))
+     (prog1 'leaf-keywords
+       (when (version< "24.4" emacs-version)
+         (leaf-keywords-init))))
+
+    ;; quoted number will be accepted
+    ((leaf leaf-keywords
+       :emacs> '24.4
+       :config (leaf-keywords-init))
+     (prog1 'leaf-keywords
+       (when (version< "24.4" emacs-version)
+         (leaf-keywords-init))))
+
+    ;; quoted string will be accepted
+    ((leaf leaf-keywords
+       :emacs> '"24.4"
+       :config (leaf-keywords-init))
+     (prog1 'leaf-keywords
+       (when (version< "24.4" emacs-version)
+         (leaf-keywords-init))))
+
+    ;; one argument list will be accepted
+    ((leaf leaf-keywords
+       :emacs> ("24.4")
+       :config (leaf-keywords-init))
+     (prog1 'leaf-keywords
+       (when (version< "24.4" emacs-version)
+         (leaf-keywords-init))))
+
+    ;; one argument list will be accepted
+    ((leaf leaf-keywords
+       :emacs> ('"24.4")
+       :config (leaf-keywords-init))
+     (prog1 'leaf-keywords
+       (when (version< "24.4" emacs-version)
+         (leaf-keywords-init))))))
+
 (cort-deftest-with-macroexpand leaf/after
   '(
     ;; 't will be converted leaf--name
