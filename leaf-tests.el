@@ -2497,7 +2497,7 @@ Example:
           (leaf-key "C-c C-n" #'go-run 'go-mode-map)
           (leaf-key "C-c ." #'go-test-current-test 'go-mode-map))))))
 
-(cort-deftest-with-macroexpand leaf/leaf-keys-dryrun
+(cort-deftest-with-equal leaf/leaf-keys-dryrun
   '(((leaf-keys ("C-M-i" . flyspell-correct-wrapper) flyspell)
      '((("C-M-i" . flyspell-correct-wrapper))
        (flyspell-correct-wrapper)))
@@ -2631,16 +2631,7 @@ Example:
                       (((vector 'key-chord 105 106) . undo)
                        ("C-c C-n" . go-run)
                        ("C-c ." . go-test-current-test))))
-       (undo go-run go-test-current-test)))
-
-    ((leaf-keys (isearch-mode-map
-                 :package isearch
-                 ("M-o" . isearch-moccur)
-                 ("M-O" . isearch-moccur-all)))
-     (eval-after-load 'isearch
-       '(progn
-          (leaf-key "M-o" #'isearch-moccur 'isearch-mode-map)
-          (leaf-key "M-O" #'isearch-moccur-all 'isearch-mode-map))))))
+       (undo go-run go-test-current-test)))))
 
 (cort-deftest-with-macroexpand leaf/leaf-keys*
   '(((leaf-keys* ("C-M-i" . flyspell-correct-wrapper))
