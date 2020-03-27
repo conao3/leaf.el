@@ -1176,8 +1176,8 @@ Example:
 
     ;; you can use vectors to remap etc
     ((leaf swiper
-        :ensure t
-        :bind (([remap isearch-forward] . swiper)))
+       :ensure t
+       :bind (([remap isearch-forward] . swiper)))
      (prog1 'swiper
        (unless (fboundp 'swiper) (autoload #'swiper "swiper" nil t))
        (declare-function swiper "swiper")
@@ -1186,7 +1186,7 @@ Example:
        (leaf-keys (([remap isearch-forward] . swiper)))))
 
     ((leaf files
-        :bind (([(control ?x) (control ?f)] . find-file)))
+       :bind (([(control ?x) (control ?f)] . find-file)))
      (prog1 'files
        (unless (fboundp 'find-file) (autoload #'find-file "files" nil t))
        (declare-function find-file "files")
@@ -1285,7 +1285,7 @@ Example:
     ;; cons-cell will be accepted
     ((leaf autorevert
        :global-minor-mode ((global-auto-revert-mode . t)
-                    (show-paren-mode . t)))
+                           (show-paren-mode . t)))
      (prog1 'autorevert
        (global-auto-revert-mode t)
        (show-paren-mode t)))
@@ -1300,7 +1300,7 @@ Example:
     ;; mix specification will be accepted
     ((leaf autorevert
        :global-minor-mode (auto-insert-mode
-                    (show-paren-mode global-auto-revert-mode) . t))
+                           (show-paren-mode global-auto-revert-mode) . t))
      (prog1 'autorevert
        (auto-insert-mode t)
        (show-paren-mode t)
@@ -1380,8 +1380,7 @@ Example:
     ((leaf gnuplot
        :mode "\\.gp$")
      (prog1 'gnuplot
-       (unless (fboundp 'gnuplot-mode)
-         (autoload #'gnuplot-mode "gnuplot" nil t))
+       (unless (fboundp 'gnuplot-mode) (autoload #'gnuplot-mode "gnuplot" nil t))
        (declare-function gnuplot-mode "gnuplot")
        (add-to-list 'auto-mode-alist '("\\.gp$" . gnuplot-mode))))))
 
@@ -1547,8 +1546,7 @@ Example:
     ((leaf dired-filter
        :hook dired-mode-hook)
      (prog1 'dired-filter
-       (unless (fboundp 'dired-filter-mode)
-         (autoload #'dired-filter-mode "dired-filter" nil t))
+       (unless (fboundp 'dired-filter-mode) (autoload #'dired-filter-mode "dired-filter" nil t))
        (declare-function dired-filter-mode "dired-filter")
        (add-hook 'dired-mode-hook #'dired-filter-mode)))
 
@@ -1681,13 +1679,12 @@ Example:
          (princ "before0:"))
        (advice-add 'matu :around #'matu-around0)
        (advice-add 'matu :before #'matu-before0)
-       (advice-add 'matu :around (function
-                                  (lambda
-                                    (f &rest args)
-                                    (prog2
-                                        (princ "around1 ==>")
-                                        (apply f args)
-                                      (princ "around1 <==")))))))))
+       (advice-add 'matu :around #'(lambda
+                                     (f &rest args)
+                                     (prog2
+                                         (princ "around1 ==>")
+                                         (apply f args)
+                                       (princ "around1 <=="))))))))
 
 (cort-deftest-with-macroexpand leaf/advice-remove
   '(
@@ -2247,10 +2244,10 @@ Example:
 
 (cort-deftest-with-macroexpand leaf/leaf-defun
   '(((leaf annotate
-      :commands annotate-mode
-      :bind (("C-c a a" . annotate-annotate)
-             ("C-c a ]" . annotate-next-annotation)
-             ("C-c a [" . annotate-previous-anotation)))
+       :commands annotate-mode
+       :bind (("C-c a a" . annotate-annotate)
+              ("C-c a ]" . annotate-next-annotation)
+              ("C-c a [" . annotate-previous-anotation)))
      (prog1 'annotate
        (unless (fboundp 'annotate-annotate) (autoload #'annotate-annotate "annotate" nil t))
        (unless (fboundp 'annotate-next-annotation) (autoload #'annotate-next-annotation "annotate" nil t))
@@ -2341,7 +2338,7 @@ Example:
 
       ((leaf-key [(control ?x) (control ?f)] 'undo)
        (let* ((old (lookup-key global-map [(control 120) (control 102)]))
-            (value `(global-map "C-x C-f" undo ,(and old (not (numberp old)) old))))
+              (value `(global-map "C-x C-f" undo ,(and old (not (numberp old)) old))))
          (push value leaf-key-bindlist)
          (define-key global-map [(control 120) (control 102)] 'undo))))))
 
@@ -2360,12 +2357,10 @@ Example:
 
 (cort-deftest-with-macroexpand leaf/leaf-keys
   '(((leaf-keys ("C-M-i" . flyspell-correct-wrapper))
-     (leaf-key "C-M-i"
-               #'flyspell-correct-wrapper))
+     (leaf-key "C-M-i" #'flyspell-correct-wrapper))
 
     ((leaf-keys (("C-M-i" . flyspell-correct-wrapper)))
-     (leaf-key "C-M-i"
-               #'flyspell-correct-wrapper))
+     (leaf-key "C-M-i" #'flyspell-correct-wrapper))
 
     ((leaf-keys (("C-c C-n" . go-run)
                  ("C-c ."   . go-test-current-test)))
@@ -2435,21 +2430,13 @@ Example:
                    ("C-c ."   . go-test-current-test)))))
      (progn
        (progn
-         (leaf-key "M-o"
-                   #'isearch-moccur
-                   'isearch-mode-map)
-         (leaf-key "M-O"
-                   #'isearch-moccur-all
-                   'isearch-mode-map))
+         (leaf-key "M-o" #'isearch-moccur 'isearch-mode-map)
+         (leaf-key "M-O" #'isearch-moccur-all 'isearch-mode-map))
        (eval-after-load 'go-mode
          '(eval-after-load 'cc-mode
             '(progn
-               (leaf-key "C-c C-n"
-                         #'go-run
-                         'go-mode-map)
-               (leaf-key "C-c ."
-                         #'go-test-current-test
-                         'go-mode-map))))))
+               (leaf-key "C-c C-n" #'go-run 'go-mode-map)
+               (leaf-key "C-c ." #'go-test-current-test 'go-mode-map))))))
 
     ((leaf-keys (("C-c C-n" . go-run)
                  ("C-c ."   . go-test-current-test)
