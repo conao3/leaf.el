@@ -800,7 +800,6 @@ NOTE: BIND can also accept list of these."
                   (symbolp (car bind)))
               (let* ((map (leaf-sym-from-keyword (car bind)))
                      (pkg (leaf-plist-get :package (cdr bind)))
-                     (pkgs (if (atom pkg) `(,pkg) pkg))
                      (elmbind (if pkg (nthcdr 3 bind) (nthcdr 1 bind)))
                      (elmbinds (if (funcall pairp (car elmbind))
                                    elmbind (car elmbind)))
@@ -816,7 +815,7 @@ NOTE: BIND can also accept list of these."
                           ,@elmbinds))
                       bds)
                 (when pkg
-                  (dolist (elmpkg pkgs)
+                  (dolist (elmpkg (if (atom pkg) `(,pkg) pkg))
                     (setq form `(eval-after-load ',elmpkg ',form))))
                 (push form forms)))
              (t
