@@ -801,15 +801,15 @@ NOTE: BIND can also accept list of these."
               (let* ((map (leaf-sym-from-keyword (car bind)))
                      (pkg (leaf-plist-get :package (cdr bind)))
                      (elmbind (if pkg (nthcdr 3 bind) (nthcdr 1 bind)))
-                     (elmbinds (if (funcall pairp (car elmbind))
-                                   elmbind (car elmbind)))
+                     (elmbinds (if (funcall pairp (car elmbind)) elmbind (car elmbind)))
                      (form `(progn
                               ,@(mapcar
                                  (lambda (elm)
                                    (push (cdr elm) fns)
                                    `(leaf-key ,(car elm) #',(cdr elm) ',map))
                                  elmbinds))))
-                (push (if pkg bind
+                (push (if pkg
+                          bind
                         `(,(intern (concat ":" (symbol-name map)))
                           :package ,dryrun-name
                           ,@elmbinds))
