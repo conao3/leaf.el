@@ -1106,7 +1106,7 @@ Example:
        (declare-function isearch-moccur-all "color-moccur")
        (defvar isearch-mode-map)
        (leaf-keys (("M-s O" . moccur)
-                   (:isearch-mode-map
+                   (isearch-mode-map
                     :package color-moccur
                     ("M-o" . isearch-moccur)
                     ("M-O" . isearch-moccur-all))))))
@@ -1127,7 +1127,7 @@ Example:
        (declare-function isearch-moccur-all "color-moccur")
        (defvar isearch-mode-map)
        (leaf-keys (("M-s O" . moccur)
-                   (:isearch-mode-map
+                   (isearch-mode-map
                     :package color-moccur
                     ("M-o" . isearch-moccur)
                     ("M-O" . isearch-moccur-all))))))
@@ -1148,7 +1148,7 @@ Example:
        (declare-function isearch-moccur-all "color-moccur")
        (defvar isearch-mode-map)
        (leaf-keys (("M-s O" . moccur)
-                   (:isearch-mode-map
+                   (isearch-mode-map
                     :package isearch
                     ("M-o" . isearch-moccur)
                     ("M-O" . isearch-moccur-all))))))
@@ -2514,25 +2514,25 @@ Example:
        (go-run go-test-current-test)))
 
     ((leaf-keys (:go-mode-map ("C-M-i" . flyspell-correct-wrapper)) go-mode)
-     '(((:go-mode-map :package go-mode
-                      ("C-M-i" . flyspell-correct-wrapper)))
+     '(((go-mode-map :package go-mode
+                     ("C-M-i" . flyspell-correct-wrapper)))
        (flyspell-correct-wrapper)))
 
     ((leaf-keys (:go-mode-map
                  ("C-c C-n" . go-run)
                  ("C-c ."   . go-test-current-test))
                 go-mode)
-     '(((:go-mode-map :package go-mode
-                      ("C-c C-n" . go-run)
-                      ("C-c ." . go-test-current-test)))
+     '(((go-mode-map :package go-mode
+                     ("C-c C-n" . go-run)
+                     ("C-c ." . go-test-current-test)))
        (go-run go-test-current-test)))
 
     ((leaf-keys (:go-mode-map
                  :package go-mode
                  ("C-M-i" . flyspell-correct-wrapper))
                 go-mode)
-     '(((:go-mode-map :package go-mode
-                      ("C-M-i" . flyspell-correct-wrapper)))
+     '(((go-mode-map :package go-mode
+                     ("C-M-i" . flyspell-correct-wrapper)))
        (flyspell-correct-wrapper)))
 
     ((leaf-keys (:go-mode-map
@@ -2540,9 +2540,9 @@ Example:
                  (("C-c C-n" . go-run)
                   ("C-c ."   . go-test-current-test)))
                 go-mode)
-     '(((:go-mode-map :package go-mode
-                      (("C-c C-n" . go-run)
-                       ("C-c ." . go-test-current-test))))
+     '(((go-mode-map :package go-mode
+                     ("C-c C-n" . go-run)
+                     ("C-c ." . go-test-current-test)))
        (go-run go-test-current-test)))
 
     ((leaf-keys (:go-mode-map
@@ -2550,10 +2550,10 @@ Example:
                  (("C-c C-n" . go-run)
                   ("C-c ."   . go-test-current-test)))
                 go-mode)
-     '(((:go-mode-map :package
-                      (cc-mode go-mode)
-                      (("C-c C-n" . go-run)
-                       ("C-c ." . go-test-current-test))))
+     '(((go-mode-map :package
+                     (cc-mode go-mode)
+                     ("C-c C-n" . go-run)
+                     ("C-c ." . go-test-current-test)))
        (go-run go-test-current-test)))
 
     ((leaf-keys (:go-mode-map
@@ -2561,10 +2561,10 @@ Example:
                  (("C-c C-n" . go-run)
                   ("C-c ."   . go-test-current-test)))
                 go-mode)
-     '(((:go-mode-map :package
-                      (cc-mode go-mode)
-                      (("C-c C-n" . go-run)
-                       ("C-c ." . go-test-current-test))))
+     '(((go-mode-map :package
+                     (cc-mode go-mode)
+                     ("C-c C-n" . go-run)
+                     ("C-c ." . go-test-current-test)))
        (go-run go-test-current-test)))
 
     ((leaf-keys ((:isearch-mode-map
@@ -2575,13 +2575,13 @@ Example:
                   (("C-c C-n" . go-run)
                    ("C-c ."   . go-test-current-test))))
                 go-mode)
-     '(((:isearch-mode-map :package go-mode
-                           ("M-o" . isearch-moccur)
-                           ("M-O" . isearch-moccur-all))
-        (:go-mode-map :package
-                      (cc-mode go-mode)
-                      (("C-c C-n" . go-run)
-                       ("C-c ." . go-test-current-test))))
+     '(((isearch-mode-map :package go-mode
+                          ("M-o" . isearch-moccur)
+                          ("M-O" . isearch-moccur-all))
+        (go-mode-map :package
+                     (cc-mode go-mode)
+                     ("C-c C-n" . go-run)
+                     ("C-c ." . go-test-current-test)))
        (isearch-moccur isearch-moccur-all go-run go-test-current-test)))
 
     ((leaf-keys (("C-c C-n" . go-run)
@@ -2591,18 +2591,18 @@ Example:
                   ("M-O" . isearch-moccur-all))
                  (:go-mode-map
                   :package (cc-mode go-mode)
-                  (("C-c C-n" . go-run)
-                   ("C-c ."   . go-test-current-test))))
+                  ("C-c C-n" . go-run)
+                  ("C-c ."   . go-test-current-test)))
                 go-mode)
      '((("C-c C-n" . go-run)
         ("C-c ." . go-test-current-test)
-        (:isearch-mode-map :package go-mode
-                           ("M-o" . isearch-moccur)
-                           ("M-O" . isearch-moccur-all))
-        (:go-mode-map :package
-                      (cc-mode go-mode)
-                      (("C-c C-n" . go-run)
-                       ("C-c ." . go-test-current-test))))
+        (isearch-mode-map :package go-mode
+                          ("M-o" . isearch-moccur)
+                          ("M-O" . isearch-moccur-all))
+        (go-mode-map :package
+                     (cc-mode go-mode)
+                     ("C-c C-n" . go-run)
+                     ("C-c ." . go-test-current-test)))
        (go-run go-test-current-test isearch-moccur isearch-moccur-all go-run go-test-current-test)))
 
     ((leaf-keys (([remap compile] . go-run)
@@ -2627,10 +2627,10 @@ Example:
                   ("C-c C-n" . go-run)
                   ("C-c ."   . go-test-current-test)))
                 go-mode)
-     '(((:go-mode-map :package go-mode
-                      (((vector 'key-chord 105 106) . undo)
-                       ("C-c C-n" . go-run)
-                       ("C-c ." . go-test-current-test))))
+     '(((go-mode-map :package go-mode
+                     ((vector 'key-chord 105 106) . undo)
+                     ("C-c C-n" . go-run)
+                     ("C-c ." . go-test-current-test)))
        (undo go-run go-test-current-test)))))
 
 (cort-deftest-with-macroexpand leaf/leaf-keys*

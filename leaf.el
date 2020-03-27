@@ -809,10 +809,8 @@ NOTE: BIND can also accept list of these."
                                    `(leaf-key ,(car elm) #',(cdr elm) ',map))
                                  elmbinds))))
                 (push (if pkg
-                          bind
-                        `(,(intern (concat ":" (symbol-name map)))
-                          :package ,dryrun-name
-                          ,@elmbinds))
+                          `(,map :package ,pkg ,@elmbinds)
+                        `(,map :package ,dryrun-name ,@elmbinds))
                       bds)
                 (when pkg
                   (dolist (elmpkg (if (atom pkg) `(,pkg) pkg))
