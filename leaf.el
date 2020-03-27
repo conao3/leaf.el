@@ -5,7 +5,7 @@
 ;; Author: Naoya Yamashita <conao3@gmail.com>
 ;; Maintainer: Naoya Yamashita <conao3@gmail.com>
 ;; Keywords: lisp settings
-;; Version: 4.1.0
+;; Version: 4.1.1
 ;; URL: https://github.com/conao3/leaf.el
 ;; Package-Requires: ((emacs "24.4"))
 
@@ -809,10 +809,8 @@ NOTE: BIND can also accept list of these."
                                    `(leaf-key ,(car elm) #',(cdr elm) ',map))
                                  elmbinds))))
                 (push (if pkg
-                          bind
-                        `(,(intern (concat ":" (symbol-name map)))
-                          :package ,dryrun-name
-                          ,@elmbinds))
+                          `(,map :package ,pkg ,@elmbinds)
+                        `(,map :package ,dryrun-name ,@elmbinds))
                       bds)
                 (when pkg
                   (dolist (elmpkg (if (atom pkg) `(,pkg) pkg))
