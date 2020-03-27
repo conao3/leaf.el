@@ -255,7 +255,7 @@ Sort by `leaf-sort-leaf--values-plist' in this order.")
          (when args
            (mapcan (lambda (elm)
                      (when (symbolp (car elm))
-                       `(,(leaf-sym-or-keyword (car elm)))))
+                       `(,(leaf-sym-from-keyword (car elm)))))
                    (car (eval `(leaf-keys ,args ,leaf--name))))))))
 
     ((memq leaf--key '(:advice))
@@ -551,7 +551,7 @@ see `alist-get'."
 
 ;;; et cetera
 
-(defun leaf-sym-or-keyword (keyword)
+(defun leaf-sym-from-keyword (keyword)
   "Return normalizied `intern'ed symbol from KEYWORD or SYMBOL."
   (if (keywordp keyword)
       (intern (substring (symbol-name keyword) 1))
@@ -798,7 +798,7 @@ NOTE: BIND can also accept list of these."
                       bind))
              ((or (keywordp (car bind))
                   (symbolp (car bind)))
-              (let* ((map (leaf-sym-or-keyword (car bind)))
+              (let* ((map (leaf-sym-from-keyword (car bind)))
                      (pkg (leaf-plist-get :package (cdr bind)))
                      (pkgs (if (atom pkg) `(,pkg) pkg))
                      (elmbind (if pkg (nthcdr 3 bind) (nthcdr 1 bind)))
