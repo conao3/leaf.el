@@ -263,7 +263,7 @@ Sort by `leaf-sort-leaf--values-plist' in this order.")
      ;; Return: (((advice) (advice) ...) (fn fn ...))
      ;; Note  : fn is also accept lambda form
      ;;         the arguments for `advice-add' and `:advice' are in different order.
-     (let ((val) (fns))
+     (let (val fns)
        (setq val (mapcan
                   (lambda (elm)
                     (cond
@@ -284,7 +284,7 @@ Sort by `leaf-sort-leaf--values-plist' in this order.")
      ;; Return: (((advice) (advice) ...) (fn fn ...))
      ;; Note  : fn is also accept lambda form
      ;;         the arguments for `advice-add' and `:advice' are in different order.
-     (let ((val) (fns))
+     (let (val fns)
        (setq val (mapcan
                   (lambda (elm)
                     (cond
@@ -471,7 +471,7 @@ If ALLOW is non-nil, allow nil as the last element."
 
 (defun leaf-flatten (lst)
   "Return flatten list of LST."
-  (let ((fn))
+  (let (fn)
     (setq fn (lambda (lst) (if (atom lst) `(,lst) (mapcan fn lst))))
     (funcall fn lst)))
 
@@ -484,7 +484,7 @@ If ALLOW is non-nil, allow nil as the last element."
   "Return a copy of LIST, which may be a dotted list.  see `cl-copy-list'.
 The elements of LIST are not copied, just the list structure itself."
   (if (consp list)
-      (let ((res nil))
+      (let (res)
         (while (consp list) (push (pop list) res))
         (prog1 (nreverse res) (setcdr res list)))
     (car list)))
@@ -525,7 +525,7 @@ Unlike `butlast', it works well with dotlist (last cdr is non-nil list)."
 
 (defun leaf-plist-keys (plist)
   "Get all keys of PLIST."
-  (let ((ret))
+  (let (ret)
     (while plist
       (setq ret (cons (pop plist) ret))
       (pop plist))
@@ -778,7 +778,7 @@ NOTE: BIND can also accept list of these."
                               (vectorp (eval (car x))))
                           (atom (cdr x)))
                    (error nil))))
-        (recurfn) (forms) (bds) (fns))
+        recurfn forms bds fns)
     (setq recurfn
           (lambda (bind)
             (cond
@@ -822,14 +822,14 @@ NOTE: BIND can also accept list of these."
              (t
               (mapcar (lambda (elm) (funcall recurfn elm)) bind)))))
     (funcall recurfn bind)
-    (if dryrun-name `'(,(nreverse bds) ,(nreverse fns))
+    (if dryrun-name
+        `'(,(nreverse bds) ,(nreverse fns))
       (if (cdr forms) `(progn ,@(nreverse forms)) (car forms)))))
 
 (defmacro leaf-keys* (bind)
   "Similar to `leaf-keys' but bind BIND to `leaf-key-override-global-map'.
 BIND must not contain :{{map}}."
-  (let ((binds (if (and (atom (car bind)) (atom (cdr bind)))
-                   `(,bind) bind)))
+  (let ((binds (if (and (atom (car bind)) (atom (cdr bind))) `(,bind) bind)))
     `(leaf-keys (:leaf-key-override-global-map ,@binds))))
 
 (eval
@@ -846,11 +846,11 @@ BIND must not contain :{{map}}."
                                              ("Before Command" 0 t)])
           (setq-local tabulated-list-entries
                       (let ((id 0)
-                            (res)
                             (formatfn (lambda (elm)
                                         (if (stringp elm)
                                             elm
-                                          (prin1-to-string (if (eq elm nil) '--- elm))))))
+                                          (prin1-to-string (if (eq elm nil) '--- elm)))))
+                            res)
                         (dolist (elm leaf-key-bindlist)
                           (setq id (1+ id))
                           (push `(,id [,(funcall formatfn (nth 0 elm))
@@ -1024,7 +1024,7 @@ EXAMPLE:
       :disabled (t)))
   => (:disabled (t)
       :config (message \"a\"))"
-  (let ((retplist))
+  (let (retplist)
     (dolist (key (leaf-available-keywords))
       (when (plist-member plist key)
         (setq retplist `(,@retplist ,key ,(plist-get plist key)))
@@ -1045,7 +1045,7 @@ EXAMPLE:
       :config ((message \"c\"))))
   => (:defer (t)
       :config ((message \"a\") (message \"b\") (message \"c\")))"
-  (let ((retplist))
+  (let (retplist)
     (while plist
       (let* ((key (pop plist)) (value (pop plist)))
         (if (plist-member retplist key)
@@ -1074,7 +1074,8 @@ EXAMPLE:
   => (:defer (t)
       :config ((message \"a\") (message \"b\") (message \"c\"))"
   ;; using reverse list, push (:keyword worklist) when find :keyword
-  (let ((retplist) (worklist) (rlist (reverse plist)))
+  (let ((rlist (reverse plist))
+        retplist worklist)
     (dolist (target rlist)
       (if (keywordp target)
           (progn
@@ -1135,7 +1136,7 @@ NOTE:
            (leaf--value   (pop plist))
            (leaf--raw     raw)
            (leaf--rest    plist)
-           (leaf--body))
+           leaf--body)
       ;; renew (normalize) leaf--value, save follow expansion in leaf--body
       (setq leaf--value (eval `(cond ,@leaf-normalize)))
       (setq leaf--value (eval `(cond ,@leaf-verify)))
@@ -1155,11 +1156,11 @@ NOTE:
 (defmacro leaf (name &rest args)
   "Symplify your `.emacs' configuration for package NAME with ARGS."
   (declare (indent defun))
-  (let* ((leaf--autoload)
-         (args* (leaf-apply-keyword-alias
+  (let* ((args* (leaf-apply-keyword-alias
                  (leaf-sort-values-plist
                   (leaf-normalize-plist
-                   (leaf-append-defaults args) 'merge 'eval)))))
+                   (leaf-append-defaults args) 'merge 'eval))))
+         leaf--autoload)
     `(prog1 ',name
        ,@(leaf-process-keywords name args* args*))))
 
