@@ -72,12 +72,6 @@ Same as `list' but this macro does not evaluate any arguments."
    :load-path*        `(,@(mapcar (lambda (elm) `(add-to-list 'load-path (locate-user-emacs-file ,elm))) leaf--value) ,@leaf--body)
    :leaf-autoload     `(,@(when (car leaf--value) (mapcar (lambda (elm) `(unless (fboundp ',(car elm)) (autoload #',(car elm) ,(cdr elm) nil t))) (reverse leaf--autoload))) ,@leaf--body)
 
-   :doc               `(,@leaf--body)
-   :req               `(,@leaf--body)
-   :tag               `(,@leaf--body)
-   :file              `(,@leaf--body)
-   :url               `(,@leaf--body)
-
    :defun             `(,@(mapcar (lambda (elm) `(declare-function ,(car elm) ,(symbol-name (cdr elm)))) leaf--value) ,@leaf--body)
    :defvar            `(,@(mapcar (lambda (elm) `(defvar ,elm)) leaf--value) ,@leaf--body)
    :leaf-defun        `(,@(when (car leaf--value) (mapcar (lambda (elm) `(declare-function ,(car elm) ,(cdr elm))) (reverse leaf--autoload))) ,@leaf--body)
@@ -87,6 +81,13 @@ Same as `list' but this macro does not evaluate any arguments."
    :when              (when leaf--body `((when   ,@(if (= 1 (length leaf--value)) leaf--value `((and ,@leaf--value))) ,@leaf--body)))
    :unless            (when leaf--body `((unless ,@(if (= 1 (length leaf--value)) leaf--value `((and ,@leaf--value))) ,@leaf--body)))
    :if                (when leaf--body `((if     ,@(if (= 1 (length leaf--value)) leaf--value `((and ,@leaf--value))) (progn ,@leaf--body))))
+
+   :doc               `(,@leaf--body)
+   :req               `(,@leaf--body)
+   :tag               `(,@leaf--body)
+   :file              `(,@leaf--body)
+   :url               `(,@leaf--body)
+
    :emacs<            (when leaf--body `((when (version<  emacs-version ,leaf--value)  ,@leaf--body)))
    :emacs<=           (when leaf--body `((when (version<= emacs-version ,leaf--value)  ,@leaf--body)))
    :emacs=            (when leaf--body `((when (version=  emacs-version ,leaf--value)  ,@leaf--body)))
