@@ -82,8 +82,8 @@ Same as `list' but this macro does not evaluate any arguments."
    :defvar            `(,@(mapcar (lambda (elm) `(defvar ,elm)) leaf--value) ,@leaf--body)
    :leaf-defun        `(,@(when (car leaf--value) (mapcar (lambda (elm) `(declare-function ,(car elm) ,(cdr elm))) (reverse leaf--autoload))) ,@leaf--body)
    :leaf-defvar       `(,@(mapcar (lambda (elm) `(defvar ,elm)) leaf--value) ,@leaf--body)
-
    :preface           `(,@leaf--value ,@leaf--body)
+
    :when              (when leaf--body `((when   ,@(if (= 1 (length leaf--value)) leaf--value `((and ,@leaf--value))) ,@leaf--body)))
    :unless            (when leaf--body `((unless ,@(if (= 1 (length leaf--value)) leaf--value `((and ,@leaf--value))) ,@leaf--body)))
    :if                (when leaf--body `((if     ,@(if (= 1 (length leaf--value)) leaf--value `((and ,@leaf--value))) (progn ,@leaf--body))))
@@ -92,7 +92,7 @@ Same as `list' but this macro does not evaluate any arguments."
    :emacs=            (when leaf--body `((when (version=  emacs-version ,leaf--value)  ,@leaf--body)))
    :emacs>            (when leaf--body `((when (version<  ,leaf--value  emacs-version) ,@leaf--body)))
    :emacs>=           (when leaf--body `((when (version<= ,leaf--value  emacs-version) ,@leaf--body)))
-   
+
    :package           `(,@(mapcar (lambda (elm) `(leaf-handler-package ,leaf--name ,(car elm) ,(cdr elm))) leaf--value) ,@leaf--body)
 
    :after             (when leaf--body (let ((ret `(progn ,@leaf--body)))
@@ -130,7 +130,6 @@ Same as `list' but this macro does not evaluate any arguments."
                         (leaf-register-autoload (cadr leaf--value) leaf--name)
                         `(,@(mapcar (lambda (elm) `(advice-remove ,@elm)) (car leaf--value)) ,@leaf--body))
 
-   :init              `(,@leaf--value ,@leaf--body)
    :pre-setq          `(,@(mapcar (lambda (elm) `(setq ,(car elm) ,(cdr elm))) leaf--value) ,@leaf--body)
    :pl-pre-setq       `(,@(mapcar (lambda (elm) `(setq ,(car elm) (leaf-handler-auth ,leaf--name ,(car elm) ,(cdr elm)))) leaf--value) ,@leaf--body)
    :auth-pre-setq     `(,@(mapcar (lambda (elm) `(setq ,(car elm) (leaf-handler-auth ,leaf--name ,(car elm) ,(cdr elm)))) leaf--value) ,@leaf--body)
@@ -140,19 +139,20 @@ Same as `list' but this macro does not evaluate any arguments."
    :pl-custom         `((custom-set-variables ,@(mapcar (lambda (elm) `'(,(car elm) (leaf-handler-auth ,leaf--name ,(car elm) ,(cdr elm)) ,(format "Customized in leaf `%s' from plstore `%s'" leaf--name (symbol-name (cdr elm))))) leaf--value)) ,@leaf--body)
    :auth-custom       `((custom-set-variables ,@(mapcar (lambda (elm) `'(,(car elm) (leaf-handler-auth ,leaf--name ,(car elm) ,(cdr elm)) ,(format "Customized in leaf `%s' from plstore `%s'" leaf--name (symbol-name (cdr elm))))) leaf--value)) ,@leaf--body)
    :custom-face       `((custom-set-faces     ,@(mapcar (lambda (elm) `'(,(car elm) ,(car (cddr elm)))) leaf--value)) ,@leaf--body)
+   :init              `(,@leaf--value ,@leaf--body)
 
    :require           `(,@(mapcar (lambda (elm) `(require ',elm)) leaf--value) ,@leaf--body)
    :leaf-defer        (if (and leaf--body (eval (car leaf--value)) (leaf-list-memq leaf-defer-keywords (leaf-plist-keys leaf--raw)))
                           `((eval-after-load ',leaf--name '(progn ,@leaf--body))) `(,@leaf--body))
 
-   :config            `(,@leaf--value ,@leaf--body)
    :global-minor-mode `(,@(mapcar (lambda (elm) `(,(car elm) ,(cdr elm))) leaf--value) ,@leaf--body)
    :setq              `(,@(mapcar (lambda (elm) `(setq ,(car elm) ,(cdr elm))) leaf--value) ,@leaf--body)
    :setq-default      `(,@(mapcar (lambda (elm) `(setq-default ,(car elm) ,(cdr elm))) leaf--value) ,@leaf--body)
    :pl-setq           `(,@(mapcar (lambda (elm) `(setq ,(car elm) (leaf-handler-auth ,leaf--name ,(car elm) ,(cdr elm)))) leaf--value) ,@leaf--body)
    :auth-setq         `(,@(mapcar (lambda (elm) `(setq ,(car elm) (leaf-handler-auth ,leaf--name ,(car elm) ,(cdr elm)))) leaf--value) ,@leaf--body)
    :pl-setq-default   `(,@(mapcar (lambda (elm) `(setq-default ,(car elm) (leaf-handler-auth ,leaf--name ,(car elm) ,(cdr elm)))) leaf--value) ,@leaf--body)
-   :auth-setq-default `(,@(mapcar (lambda (elm) `(setq-default ,(car elm) (leaf-handler-auth ,leaf--name ,(car elm) ,(cdr elm)))) leaf--value) ,@leaf--body))
+   :auth-setq-default `(,@(mapcar (lambda (elm) `(setq-default ,(car elm) (leaf-handler-auth ,leaf--name ,(car elm) ,(cdr elm)))) leaf--value) ,@leaf--body)
+   :config            `(,@leaf--value ,@leaf--body))
   "Special keywords and conversion rule to be processed by `leaf'.
 Sort by `leaf-sort-leaf--values-plist' in this order.")
 
@@ -231,7 +231,7 @@ Sort by `leaf-sort-leaf--values-plist' in this order.")
             ((eq 'quote (car-safe val)) (number-to-string (eval val)))
             (t
              (leaf-error "%s recieve unknown type argument, %s" leaf--key val)))))))
-    
+
     ;; Accept: ((sym val) (sym val)... )
     ;; Return: list of pair (sym . val)
     ;; NOTE  : This keyword does not allow distribution feature etc.
