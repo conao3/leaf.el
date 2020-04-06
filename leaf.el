@@ -140,12 +140,13 @@ Same as `list' but this macro does not evaluate any arguments."
    :pl-custom         `((custom-set-variables ,@(mapcar (lambda (elm) `'(,(car elm) (leaf-handler-auth ,leaf--name ,(car elm) ,(cdr elm)) ,(format "Customized in leaf `%s' from plstore `%s'" leaf--name (symbol-name (cdr elm))))) leaf--value)) ,@leaf--body)
    :auth-custom       `((custom-set-variables ,@(mapcar (lambda (elm) `'(,(car elm) (leaf-handler-auth ,leaf--name ,(car elm) ,(cdr elm)) ,(format "Customized in leaf `%s' from plstore `%s'" leaf--name (symbol-name (cdr elm))))) leaf--value)) ,@leaf--body)
    :custom-face       `((custom-set-faces     ,@(mapcar (lambda (elm) `'(,(car elm) ,(car (cddr elm)))) leaf--value)) ,@leaf--body)
-   :global-minor-mode (progn
-                        (mapc (lambda (elm) (leaf-register-autoload (car elm) (cdr elm))) leaf--value)
-                        `(,@(mapcar (lambda (elm) `(,(car elm) 1)) leaf--value) ,@leaf--body))
    :init              `(,@leaf--value ,@leaf--body)
 
    :require           `(,@(mapcar (lambda (elm) `(require ',elm)) leaf--value) ,@leaf--body)
+   :global-minor-mode (progn
+                        (mapc (lambda (elm) (leaf-register-autoload (car elm) (cdr elm))) leaf--value)
+                        `(,@(mapcar (lambda (elm) `(,(car elm) 1)) leaf--value) ,@leaf--body))
+
    :leaf-defer        (if (and leaf--body (eval (car leaf--value)) (leaf-list-memq leaf-defer-keywords (leaf-plist-keys leaf--raw)))
                           `((eval-after-load ',leaf--name '(progn ,@leaf--body))) `(,@leaf--body))
 
