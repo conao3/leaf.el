@@ -1266,12 +1266,18 @@ Example:
     ((leaf autorevert
        :global-minor-mode global-auto-revert-mode)
      (prog1 'autorevert
+       (unless (fboundp 'global-auto-revert-mode) (autoload #'global-auto-revert-mode "autorevert" nil t))
+       (declare-function global-auto-revert-mode "autorevert")
        (global-auto-revert-mode 1)))
 
     ;; multi strings will be accepted
     ((leaf autorevert
        :global-minor-mode global-auto-revert-mode show-paren-mode)
      (prog1 'autorevert
+       (unless (fboundp 'global-auto-revert-mode) (autoload #'global-auto-revert-mode "autorevert" nil t))
+       (unless (fboundp 'show-paren-mode) (autoload #'show-paren-mode "autorevert" nil t))
+       (declare-function global-auto-revert-mode "autorevert")
+       (declare-function show-paren-mode "autorevert")
        (global-auto-revert-mode 1)
        (show-paren-mode 1)))
 
@@ -1279,43 +1285,65 @@ Example:
     ((leaf autorevert
        :global-minor-mode (global-auto-revert-mode show-paren-mode))
      (prog1 'autorevert
+       (unless (fboundp 'global-auto-revert-mode) (autoload #'global-auto-revert-mode "autorevert" nil t))
+       (unless (fboundp 'show-paren-mode) (autoload #'show-paren-mode "autorevert" nil t))
+       (declare-function global-auto-revert-mode "autorevert")
+       (declare-function show-paren-mode "autorevert")
        (global-auto-revert-mode 1)
        (show-paren-mode 1)))
 
-    ;; cons-cell will be accepted
+    ;; cons-cell used to controll autoload package
     ((leaf autorevert
-       :global-minor-mode ((global-auto-revert-mode . t)
-                           (show-paren-mode . t)))
+       :global-minor-mode ((global-auto-revert-mode . autorevert)
+                           (show-paren-mode . paren)))
      (prog1 'autorevert
-       (global-auto-revert-mode t)
-       (show-paren-mode t)))
+       (unless (fboundp 'global-auto-revert-mode) (autoload #'global-auto-revert-mode "autorevert" nil t))
+       (unless (fboundp 'show-paren-mode) (autoload #'show-paren-mode "paren" nil t))
+       (declare-function global-auto-revert-mode "autorevert")
+       (declare-function show-paren-mode "paren")
+       (global-auto-revert-mode 1)
+       (show-paren-mode 1)))
 
     ;; distribution feature is supported
-    ((leaf autorevert
-       :global-minor-mode ((show-paren-mode global-auto-revert-mode) . t))
-     (prog1 'autorevert
-       (show-paren-mode t)
-       (global-auto-revert-mode t)))
+    ((leaf simple
+       :global-minor-mode ((line-number-mode column-number-mode) . simple))
+     (prog1 'simple
+       (unless (fboundp 'line-number-mode) (autoload #'line-number-mode "simple" nil t))
+       (unless (fboundp 'column-number-mode) (autoload #'column-number-mode "simple" nil t))
+       (declare-function line-number-mode "simple")
+       (declare-function column-number-mode "simple")
+       (line-number-mode 1)
+       (column-number-mode 1)))
 
     ;; mix specification will be accepted
-    ((leaf autorevert
+    ((leaf autoinsert
        :global-minor-mode (auto-insert-mode
-                           (show-paren-mode global-auto-revert-mode) . t))
-     (prog1 'autorevert
-       (auto-insert-mode t)
-       (show-paren-mode t)
-       (global-auto-revert-mode t)))
+                           ((line-number-mode column-number-mode) . simple)))
+     (prog1 'autoinsert
+       (unless (fboundp 'auto-insert-mode) (autoload #'auto-insert-mode "autoinsert" nil t))
+       (unless (fboundp 'line-number-mode) (autoload #'line-number-mode "simple" nil t))
+       (unless (fboundp 'column-number-mode) (autoload #'column-number-mode "simple" nil t))
+       (declare-function auto-insert-mode "autoinsert")
+       (declare-function line-number-mode "simple")
+       (declare-function column-number-mode "simple")
+       (auto-insert-mode 1)
+       (line-number-mode 1)
+       (column-number-mode 1)))
 
     ;; t will convert leaf--name, and suffix 'mode'
     ((leaf autorevert
        :global-minor-mode t)
      (prog1 'autorevert
+       (unless (fboundp 'autorevert-mode) (autoload #'autorevert-mode "autorevert" nil t))
+       (declare-function autorevert-mode "autorevert")
        (autorevert-mode 1)))
 
     ;; symbol not suffix 'mode', add 'mode' suffix
     ((leaf autorevert
        :global-minor-mode autorevert)
      (prog1 'autorevert
+       (unless (fboundp 'autorevert-mode) (autoload #'autorevert-mode "autorevert" nil t))
+       (declare-function autorevert-mode "autorevert")
        (autorevert-mode 1)))))
 
 (cort-deftest-with-macroexpand leaf/mode
