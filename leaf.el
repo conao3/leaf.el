@@ -5,7 +5,7 @@
 ;; Author: Naoya Yamashita <conao3@gmail.com>
 ;; Maintainer: Naoya Yamashita <conao3@gmail.com>
 ;; Keywords: lisp settings
-;; Version: 4.1.6
+;; Version: 4.1.7
 ;; URL: https://github.com/conao3/leaf.el
 ;; Package-Requires: ((emacs "24.4"))
 
@@ -379,7 +379,7 @@ If non-nil, disabled keywords of `leaf-expand-minimally-suppress-keywords'."
   :type 'boolean
   :group 'leaf)
 
-(defcustom leaf-expand-minimally-suppress-keywords '(:leaf-protect)
+(defcustom leaf-expand-minimally-suppress-keywords '(:leaf-protect :leaf-defun :leaf-defvar)
   "Suppress keywords when `leaf-expand-minimally' is non-nil."
   :type 'sexp
   :group 'leaf)
@@ -948,7 +948,7 @@ FN also accept list of FN."
 (defun leaf-append-defaults (plist)
   "Append leaf default values to PLIST and return it."
   (append (when leaf-expand-minimally
-            (mapcan (lambda (elm) `(,elm nil))
+            (mapcan (lambda (elm) (list elm nil))
                     leaf-expand-minimally-suppress-keywords))
           plist leaf-defaults leaf-system-defaults))
 
