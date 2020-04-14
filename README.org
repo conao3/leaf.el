@@ -2238,6 +2238,9 @@ Emacs-24.4 is a version with ~lexical-binding~ support and should
 be considered the minimum version supported by the current Emacs
 packages.
 
+**** Distribute under GPLv3 instead of AGPLv3
+Now ~leaf~ project distribute under GPLv3 instead of AGPLv3.
+
 *** leaf v2.0 to v3.0
 **** Drop bind-key.el support for :bind and feather.el support for :ensure
 To make ~leaf~ dependent only on packages that are itself and packages attached to and Emacs,
@@ -2277,7 +2280,7 @@ If you want to request explicitly use the ~:require t~ flag.
 
 ** License
 #+begin_example
-  Affero General Public License Version 3 (AGPLv3)
+  General Public License Version 3 (GPLv3)
   Copyright (c) Naoya Yamashita - https://conao3.com
   https://github.com/conao3/leaf.el/blob/master/LICENSE
 #+end_example
