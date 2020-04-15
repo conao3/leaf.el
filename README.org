@@ -114,69 +114,92 @@ Currently, ~leaf.el~ and ~leaf-keywords.el~ has below rich keywords.
 #+end_src
 
 * Install
-** MELPA
-~leaf.el~ and ~leaf-keywords.el~ can install with package.el from MELPA, so sample instration code is below.
+~leaf.el~ and ~leaf-keywords.el~ can install with package.el from MELPA.
+Please put the following code (~<leaf-install-code>~ to ~</leaf-install-code>~) to the top of your ~init.el~.
 
 Package to be developed
   - [[https://github.com/conao3/feather.el][feather.el]] instead of ~package.el~ -> (Achieved! Now available but it is just a pakcage.el wraper)
   - leaf-key.el instead of ~bind-key~ -> (Achieved! Now ~leaf~ builtin)
 
 #+begin_src emacs-lisp
-  (prog1 "leaf"
-    (prog1 "install leaf"
-      (custom-set-variables
-       '(package-archives '(("org"   . "https://orgmode.org/elpa/")
-                            ("melpa" . "https://melpa.org/packages/")
-                            ("gnu"   . "https://elpa.gnu.org/packages/"))))
-      (package-initialize)
-      (unless (package-installed-p 'leaf)
-        (package-refresh-contents)
-        (package-install 'leaf)))
+  ;; <leaf-install-code>
+  (eval-and-compile
+    (customize-set-variable
+     'package-archives '(("org" . "https://orgmode.org/elpa/")
+                         ("melpa" . "https://melpa.org/packages/")
+                         ("gnu" . "https://elpa.gnu.org/packages/")))
+    (package-initialize)
+    (unless (package-installed-p 'leaf)
+      (package-refresh-contents)
+      (package-install 'leaf))
 
     (leaf leaf-keywords
       :ensure t
-      :config
-      ;; optional packages if you want to use :hydra, :el-get,,,
+      :init
+      ;; optional packages if you want to use :hydra, :el-get, :blackout,,,
       (leaf hydra :ensure t)
-      (leaf el-get :ensure t
-        :custom ((el-get-git-shallow-clone . t)))
+      (leaf el-get :ensure t)
+      (leaf blackout :ensure t)
 
+      :config
       ;; initialize leaf-keywords.el
       (leaf-keywords-init)))
+  ;; </leaf-install-code>
+
+  ;; Now you can use leaf!
+  (leaf leaf-tree :ensure t)
+  (leaf leaf-convert :ensure t)
+  (leaf transient-dwim
+    :ensure t
+    :bind (("M-=" . transient-dwim-dispatch)))
+
+  ;; You can also configure builtin package via leaf!
+  (leaf cus-start
+    :doc "define customization properties of builtins"
+    :tag "builtin" "internal"
+    :custom ((user-full-name . "Naoya Yamashita")
+             (user-mail-address . "conao3@gmail.com")
+             (user-login-name . "conao3")
+             (truncate-lines . t)
+             (menu-bar-mode . t)
+             (tool-bar-mode . nil)
+             (scroll-bar-mode . nil)
+             (indent-tabs-mode . nil)))
+
+  (leaf autorevert
+    :doc "revert buffers when files on disk change"
+    :tag "builtin"
+    :custom ((auto-revert-interval . 0.1))
+    :global-minor-mode global-auto-revert-mode)
+
+  ;; Nest package configurations
+  (leaf flycheck
+    :doc "On-the-fly syntax checking"
+    :emacs>= 24.3
+    :ensure t
+    :bind (("M-n" . flycheck-next-error)
+           ("M-p" . flycheck-previous-error))
+    :custom ((flycheck-emacs-lisp-initialize-packages . t))
+    :hook (emacs-lisp-mode-hook lisp-interaction-mode-hook)
+    :config
+    (leaf flycheck-package
+      :doc "A Flycheck checker for elisp package authors"
+      :ensure t
+      :config
+      (flycheck-package-setup))
+
+    (leaf flycheck-elsa
+      :doc "Flycheck for Elsa."
+      :emacs>= 25
+      :ensure t
+      :config
+      (flycheck-elsa-setup))
+
+    ;; ...
+    )
+
+  ;; ...
 #+end_src
-
-** Manual install
-Put ~leaf.el~ at any folder added ~load-path~.
-Then ~(require 'leaf)~ and use like ~use-pacakge~.
-
-(In this example, you installed/loaded leaf directly, so you can configure ~package.el~ using ~leaf~.)
-#+BEGIN_SRC emacs-lisp
-  ;; add to load-path
-  ;; (locate-user-emacs-file "site-lisp/leaf.el")
-  ;;  => "~/.emacs.d/local/26.1/site-lisp/leaf.el"
-
-  (prog1 "leaf"
-    (add-to-list 'load-path (locate-user-emacs-file "site-lisp/leaf.el"))
-    (require 'leaf)
-
-    (leaf package
-        :custom ((package-archives . '(("org"   . "https://orgmode.org/elpa/")
-                                       ("melpa" . "https://melpa.org/packages/")
-                                       ("gnu"   . "https://elpa.gnu.org/packages/"))))
-        :config
-        (package-initialize))
-
-    (leaf leaf-keywords
-      :ensure t
-      :config
-      ;; optional packages if you want to use :hydra, :el-get,,,
-      (leaf hydra :ensure t)
-      (leaf el-get :ensure t
-        :custom ((el-get-git-shallow-clone  . t)))
-
-      ;; initialize leaf-keywords.el
-      (leaf-keywords-init)))
-#+END_SRC
 
 * Usage
 Use ~leaf~ in your init.el like ~use-package~.
