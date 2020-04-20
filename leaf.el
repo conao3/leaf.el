@@ -308,8 +308,9 @@ Sort by `leaf-sort-leaf--values-plist' in this order.")
   "Normalize rule.")
 
 (defvar leaf-verify
-  '(((memq leaf--key (list
-                      :package
+  '(((memq leaf--key (list :package))
+     (if (not (equal '(nil) (car leaf--value))) leaf--value nil))
+    ((memq leaf--key (list
                       :hook :defun
                       :pl-setq :pl-pre-setq :pl-setq-default :pl-custom
                       :auth-custom :auth-pre-setq :auth-setq :auth-setq-default
