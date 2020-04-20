@@ -300,6 +300,18 @@ Example:
        (leaf-init)))
 
     ((leaf leaf
+       :package nil
+       :config (leaf-init))
+     (prog1 'leaf
+       (leaf-init)))
+
+    ((leaf leaf
+       :package nil leaf
+       :config (leaf-init))
+     (prog1 'leaf
+       (leaf-init)))
+
+    ((leaf leaf
        :package (t . pin))
      (prog1 'leaf
        (leaf-handler-package leaf leaf pin)))))
