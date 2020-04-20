@@ -5,7 +5,7 @@
 ;; Author: Naoya Yamashita <conao3@gmail.com>
 ;; Maintainer: Naoya Yamashita <conao3@gmail.com>
 ;; Keywords: lisp settings
-;; Version: 4.2.0
+;; Version: 4.2.1
 ;; URL: https://github.com/conao3/leaf.el
 ;; Package-Requires: ((emacs "24.4"))
 
@@ -934,15 +934,14 @@ FN also accept list of FN."
 
 (defun leaf-apply-keyword-alias (plist)
   "Apply keyword alias for PLIST."
-  (let* ((keywords (leaf-plist-keys plist))
-         (alias-from (delete-dups (mapcar #'car leaf-alias-keyword-alist)))
+  (let* ((alias-from (delete-dups (mapcar #'car leaf-alias-keyword-alist)))
          (alias-alist (mapcar (lambda (elm) (assq elm leaf-alias-keyword-alist)) alias-from)))
     (dolist (elm alias-alist)
       (let ((from (car elm))
             (to   (cdr elm)))
-        (when (memq from keywords)
-         (setcar (memq from plist) to)
-         (setq plist (leaf-apply-keyword-alias plist)))))
+        (when (memq from (leaf-plist-keys plist))
+          (setcar (memq from plist) to)
+          (setq plist (leaf-apply-keyword-alias plist)))))
     plist))
 
 (defun leaf-append-defaults (plist)
@@ -1157,10 +1156,10 @@ NOTE:
 (defmacro leaf (name &rest args)
   "Symplify your `.emacs' configuration for package NAME with ARGS."
   (declare (indent defun))
-  (let* ((args* (leaf-apply-keyword-alias
-                 (leaf-sort-values-plist
-                  (leaf-normalize-plist
-                   (leaf-append-defaults args) 'merge 'eval))))
+  (let* ((args* (leaf-sort-values-plist
+                 (leaf-normalize-plist
+                  (leaf-apply-keyword-alias
+                   (leaf-append-defaults args)) 'merge 'eval)))
          leaf--autoload)
     `(prog1 ',name
        ,@(leaf-process-keywords name args* args*))))
