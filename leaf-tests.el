@@ -2558,6 +2558,25 @@ Example:
        ("C-c C-n" . go-run)
        ("C-c ." . go-test-current-test))))))
 
+(cort-deftest-with-macroexpand-let leaf/alias
+    ((leaf-alias-keyword-alist '((:defer . :leaf-defer))))
+  '(((leaf leaf
+       :commands leaf
+       :config (leaf-init))
+     (prog1 'leaf
+       (unless (fboundp 'leaf) (autoload #'leaf "leaf" nil t))
+       (eval-after-load 'leaf
+         '(progn
+            (leaf-init)))))
+
+    ((leaf leaf
+       :defer nil
+       :commands leaf
+       :config (leaf-init))
+     (prog1 'leaf
+       (unless (fboundp 'leaf) (autoload #'leaf "leaf" nil t))
+       (leaf-init)))))
+
 
 ;;;; Misc functions
 
