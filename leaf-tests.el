@@ -2577,6 +2577,27 @@ Example:
        (unless (fboundp 'leaf) (autoload #'leaf "leaf" nil t))
        (leaf-init)))))
 
+(cort-deftest-with-macroexpand-let leaf/no-leaf-defaults
+    ((leaf-defaults '()))
+  '(((leaf leaf
+       :config
+       (leaf leaf-keywords :config (leaf-keywords-init))
+       (leaf leaf-tree :config (leaf-tree-init)))
+     (prog1 'leaf
+       (leaf leaf-keywords :config (leaf-keywords-init))
+       (leaf leaf-tree :config (leaf-tree-init))))))
+
+(cort-deftest-with-macroexpand-let leaf/leaf-defaults
+    ((leaf-defaults '(:ensure t)))
+  '(((leaf leaf
+       :config
+       (leaf leaf-keywords :config (leaf-keywords-init))
+       (leaf leaf-tree :config (leaf-tree-init)))
+     (prog1 'leaf
+       (leaf-handler-package leaf leaf nil)
+       (leaf leaf-keywords :config (leaf-keywords-init))
+       (leaf leaf-tree :config (leaf-tree-init))))))
+
 
 ;;;; Misc functions
 

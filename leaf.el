@@ -935,13 +935,12 @@ FN also accept list of FN."
 (defun leaf-apply-keyword-alias (plist)
   "Apply keyword alias for PLIST."
   (let* ((alias-from (delete-dups (mapcar #'car leaf-alias-keyword-alist)))
-         (alias-alist (mapcar (lambda (elm) (assq elm leaf-alias-keyword-alist)) alias-from)))
+         (alias-alist
+          (mapcar (lambda (elm) `(,elm . ,(alist-get elm leaf-alias-keyword-alist))) alias-from)))
     (dolist (elm alias-alist)
       (let ((from (car elm))
             (to   (cdr elm)))
-        (when (memq from (leaf-plist-keys plist))
-          (setcar (memq from plist) to)
-          (setq plist (leaf-apply-keyword-alias plist)))))
+        (setq plist (leaf-subst from to plist))))
     plist))
 
 (defun leaf-append-defaults (plist)
