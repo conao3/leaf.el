@@ -5,7 +5,7 @@
 ;; Author: Naoya Yamashita <conao3@gmail.com>
 ;; Maintainer: Naoya Yamashita <conao3@gmail.com>
 ;; Keywords: lisp settings
-;; Version: 4.2.1
+;; Version: 4.2.2
 ;; URL: https://github.com/conao3/leaf.el
 ;; Package-Requires: ((emacs "24.4"))
 
@@ -579,14 +579,15 @@ see `alist-get'."
   (interactive)
   (let* ((keywords (leaf-plist-keys leaf-keywords))
          (alias-from (delete-dups (mapcar #'car leaf-alias-keyword-alist)))
-         (alias-alist (mapcar (lambda (elm) (assq elm leaf-alias-keyword-alist)) alias-from))
+         (alias-alist
+          (mapcar (lambda (elm) `(,elm . ,(leaf-alist-get elm leaf-alias-keyword-alist))) alias-from))
          (ret (progn
                 (dolist (elm alias-alist)
                   (let ((from (car elm))
                         (to   (cdr elm)))
                     (if (not (memq to keywords))
-                       (leaf-error "`leaf-alias-keyword-alist' is broken.  %s is missing from leaf-keywords; %s" to keywords)
-                     (leaf-insert-after-value from keywords to))))
+                        (leaf-error "`leaf-alias-keyword-alist' is broken.  %s is missing from leaf-keywords; %s" to keywords)
+                      (leaf-insert-after-value from keywords to))))
                 keywords)))
     (if (called-interactively-p 'interactive)
         (message (prin1-to-string ret))
@@ -935,13 +936,12 @@ FN also accept list of FN."
 (defun leaf-apply-keyword-alias (plist)
   "Apply keyword alias for PLIST."
   (let* ((alias-from (delete-dups (mapcar #'car leaf-alias-keyword-alist)))
-         (alias-alist (mapcar (lambda (elm) (assq elm leaf-alias-keyword-alist)) alias-from)))
+         (alias-alist
+          (mapcar (lambda (elm) `(,elm . ,(leaf-alist-get elm leaf-alias-keyword-alist))) alias-from)))
     (dolist (elm alias-alist)
       (let ((from (car elm))
             (to   (cdr elm)))
-        (when (memq from (leaf-plist-keys plist))
-          (setcar (memq from plist) to)
-          (setq plist (leaf-apply-keyword-alias plist)))))
+        (setq plist (leaf-subst from to plist))))
     plist))
 
 (defun leaf-append-defaults (plist)
