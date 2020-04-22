@@ -579,7 +579,8 @@ see `alist-get'."
   (interactive)
   (let* ((keywords (leaf-plist-keys leaf-keywords))
          (alias-from (delete-dups (mapcar #'car leaf-alias-keyword-alist)))
-         (alias-alist (mapcar (lambda (elm) (assq elm leaf-alias-keyword-alist)) alias-from))
+         (alias-alist
+          (mapcar (lambda (elm) `(,elm . ,(leaf-alist-get elm leaf-alias-keyword-alist))) alias-from))
          (ret (progn
                 (dolist (elm alias-alist)
                   (let ((from (car elm))
@@ -936,7 +937,7 @@ FN also accept list of FN."
   "Apply keyword alias for PLIST."
   (let* ((alias-from (delete-dups (mapcar #'car leaf-alias-keyword-alist)))
          (alias-alist
-          (mapcar (lambda (elm) `(,elm . ,(alist-get elm leaf-alias-keyword-alist))) alias-from)))
+          (mapcar (lambda (elm) `(,elm . ,(leaf-alist-get elm leaf-alias-keyword-alist))) alias-from)))
     (dolist (elm alias-alist)
       (let ((from (car elm))
             (to   (cdr elm)))
