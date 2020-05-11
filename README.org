@@ -2045,7 +2045,7 @@ leaf-blocks with ~:bind~ or ~:mode~ can often delay loading or configuration eva
 
 The keywords that enable this feature are defined below and expand as follows
 
-It seems ~:leaf-deffer nil~ same as ~:demand t~ in ~use-package~.
+It seems ~:leaf-defer nil~ same as ~:demand t~ in ~use-package~.
 
 #+begin_src emacs-lisp
   (defcustom leaf-defer-keywords (cdr '(:dummy
