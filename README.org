@@ -23,6 +23,7 @@
   - [[#require-keyword][:require keyword]]
   - [[#ensure-package-keywords][:ensure, :package keywords]]
   - [[#preface-init-config-keywords][:preface, :init, :config keywords]]
+  - [[#defer-config-keyword][:defer-config keyword]]
   - [[#commands-keyword][:commands keyword]]
   - [[#after-keyword][:after keyword]]
   - [[#bind-bind-keywords][:bind, :bind* keywords]]
@@ -458,6 +459,32 @@ You don't need to put ~progn~ because ~leaf~ can receive multiple S-expressions,
            (package-preconfig)
            (require 'leaf)
            (package-init))))))
+#+end_src
+
+** :defer-config keyword
+=:defer-config= is similar to =:config=, but with =eval-after-load= as the argument.
+#+begin_src emacs-lisp
+  (cort-deftest-with-macroexpand leaf/defer-config
+    '(((leaf leaf
+         :init (leaf-pre-init)
+         :defer-config (leaf-init))
+       (prog1 'leaf
+         (leaf-pre-init)
+         (eval-after-load 'leaf
+           (progn
+             (leaf-init)))))
+
+      ((leaf leaf
+         :init (leaf-init)
+         :defer-config
+         (leaf-pre-init)
+         (leaf-pre-init-after))
+       (prog1 'leaf
+         (leaf-init)
+         (eval-after-load 'leaf
+           (progn
+             (leaf-pre-init)
+             (leaf-pre-init-after)))))))
 #+end_src
 
 ** :commands keyword
