@@ -2016,6 +2016,28 @@ Example:
        (leaf-pre-init)
        (leaf-pre-init-after)))))
 
+(cort-deftest-with-macroexpand leaf/defer-config
+  '(((leaf leaf
+       :init (leaf-pre-init)
+       :defer-config (leaf-init))
+     (prog1 'leaf
+       (leaf-pre-init)
+       (eval-after-load 'leaf
+         (progn
+           (leaf-init)))))
+
+    ((leaf leaf
+       :init (leaf-init)
+       :defer-config
+       (leaf-pre-init)
+       (leaf-pre-init-after))
+     (prog1 'leaf
+       (leaf-init)
+       (eval-after-load 'leaf
+         (progn
+           (leaf-pre-init)
+           (leaf-pre-init-after)))))))
+
 (cort-deftest-with-macroexpand leaf/auth-custom
   '(
     ;; Emulate customizing `sql-connection-alist' with value taken from `some-plstore'.

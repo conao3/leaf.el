@@ -155,7 +155,8 @@ Same as `list' but this macro does not evaluate any arguments."
    :auth-setq         `(,@(mapcar (lambda (elm) `(setq ,(car elm) (leaf-handler-auth ,leaf--name ,(car elm) ,(cdr elm)))) leaf--value) ,@leaf--body)
    :pl-setq-default   `(,@(mapcar (lambda (elm) `(setq-default ,(car elm) (leaf-handler-auth ,leaf--name ,(car elm) ,(cdr elm)))) leaf--value) ,@leaf--body)
    :auth-setq-default `(,@(mapcar (lambda (elm) `(setq-default ,(car elm) (leaf-handler-auth ,leaf--name ,(car elm) ,(cdr elm)))) leaf--value) ,@leaf--body)
-   :config            `(,@leaf--value ,@leaf--body))
+   :config            `(,@leaf--value ,@leaf--body)
+   :defer-config      `((eval-after-load ',leaf--name (progn ,@leaf--value)) ,@leaf--body))
   "Special keywords and conversion rule to be processed by `leaf'.
 Sort by `leaf-sort-leaf--values-plist' in this order.")
 
