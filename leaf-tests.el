@@ -2023,8 +2023,8 @@ Example:
      (prog1 'leaf
        (leaf-pre-init)
        (eval-after-load 'leaf
-         (progn
-           (leaf-init)))))
+         '(progn
+            (leaf-init)))))
 
     ((leaf leaf
        :init (leaf-init)
@@ -2034,9 +2034,9 @@ Example:
      (prog1 'leaf
        (leaf-init)
        (eval-after-load 'leaf
-         (progn
-           (leaf-pre-init)
-           (leaf-pre-init-after)))))))
+         '(progn
+            (leaf-pre-init)
+            (leaf-pre-init-after)))))))
 
 (cort-deftest-with-macroexpand leaf/auth-custom
   '(
