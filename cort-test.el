@@ -1,6 +1,6 @@
 ;;; cort-test.el --- Simplify extended unit test framework -*- lexical-binding: t; -*-
 
-;; Copyright (C) 2018-2019 Naoya Yamashita <conao3@gmail.com>
+;; Copyright (C) 2018-2020  Free Software Foundation, Inc.
 
 ;; Author: Naoya Yamashita <conao3@gmail.com>
 ;; Maintainer: Naoya Yamashita <conao3@gmail.com>
