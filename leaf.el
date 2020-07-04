@@ -1,11 +1,11 @@
 ;;; leaf.el --- Simplify your init.el configuration, extended use-package       -*- lexical-binding: t; -*-
 
-;; Copyright (C) 2018-2019  Naoya Yamashita <conao3@gmail.com>
+;; Copyright (C) 2018-2020  Free Software Foundation, Inc.
 
 ;; Author: Naoya Yamashita <conao3@gmail.com>
 ;; Maintainer: Naoya Yamashita <conao3@gmail.com>
 ;; Keywords: lisp settings
-;; Version: 4.2.5
+;; Version: 4.2.6
 ;; URL: https://github.com/conao3/leaf.el
 ;; Package-Requires: ((emacs "24.4"))
 
