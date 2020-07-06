@@ -2761,7 +2761,24 @@ Example:
               :init
               (leaf package-baz)))))
        (mapcar 'car (cdr (assoc "Leaf" (funcall imenu-create-index-function)))))
-     '("package-foo" "package-bar" "package-baz"))))
+     '("package-foo" "package-bar" "package-baz"))
+
+    ((with-temp-buffer
+       (require 'imenu)
+       (emacs-lisp-mode)
+       (insert
+        "\
+(leaf scala-mode
+  :ensure t
+  :after t
+  :init
+  (defun lsp-format-before-save ()
+    (add-hook 'before-save-hook 'lsp-format-buffer nil t))
+  :hook (scala-mode-hook . lsp-format-before-save)
+  :config (leaf lsp-metals :ensure t :require t)
+  (leaf *scala-flycheck-integration))")
+       (mapcar 'car (cdr (assoc "Leaf" (funcall imenu-create-index-function)))))
+     '("scala-mode" "lsp-metals" "*scala-flycheck-integration"))))
 
 ;; (provide 'leaf-tests)
 

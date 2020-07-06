@@ -415,18 +415,19 @@ Ref: `lisp-imenu-generic-expression'."
          (set sym value)
          (eval-after-load 'lisp-mode
            (let ((regexp (eval-when-compile
-                           (require 'regexp-opt)
-                           (concat "^\\s-*("
-                                   (regexp-opt '("leaf") t)
-                                   "\\s-+\\("
-                                   (or (bound-and-true-p lisp-mode-symbol-regexp)
-                                       "\\(?:\\sw\\|\\s_\\|\\\\.\\)+")
-                                   "\\)"))))
+                           (require 'rx)
+                           (rx-to-string
+                            `(and (* any) "(" (* space) "leaf" (+ space)
+                                  (group
+                                   (regexp
+                                    ,(or (bound-and-true-p lisp-mode-symbol-regexp)
+                                         "\\(?:\\sw\\|\\s_\\|\\\\.\\)+"))))
+                            'nogroup))))
              (if value
                  `(add-to-list 'lisp-imenu-generic-expression
-                               '("Leaf" ,regexp 2))
+                               '("Leaf" ,regexp 1))
                `(setq lisp-imenu-generic-expression
-                      (remove '("Leaf" ,regexp 2)
+                      (delete '("Leaf" ,regexp 1)
                               lisp-imenu-generic-expression))))))
   :group 'leaf)
 
