@@ -72,14 +72,14 @@
 ~leaf~ solves the stress that I feel while using the ~use-package~ for 2.5 years.
 By developing from scratch, we have a cleaner and more predictable implementation than ~use-package~.
 
-This makes it easy to maintain and add new keywords. (see [[https://github.com/conao3/leaf-keywords.el][leaf-keywords.el]])
+This makes it easy to maintain and add new keywords. For examples, see [[https://github.com/conao3/leaf-keywords.el][leaf-keywords.el]].
 
-~leaf~ has keywords almost identical to ~use-package~, but some of usage of the keywords is different.
+~leaf~ has keywords nearly identical to ~use-package~, but some of keyword usage is different.
 
-The quickest way to solve problem is using ~macroexpand-1~ to see the unfolded result if it is not what you intended.
-And also there are also a number of samples in this README and more in the [[https://github.com/conao3/leaf.el/blob/master/leaf-tests.el][test file]].
+The quickest way to solve an issue is using ~macroexpand-1~ to see the unfolded result if it is not what you intended.
+There are also a number of samples in this README and more in the [[https://github.com/conao3/leaf.el/blob/master/leaf-tests.el][test file]].
 
-Currently, ~leaf.el~ and ~leaf-keywords.el~ has below rich keywords.
+Currently, ~leaf.el~ and ~leaf-keywords.el~ have rich keywords, listed below.
 
 #+begin_src emacs-lisp
   (leaf-available-keywords)
@@ -115,12 +115,12 @@ Currently, ~leaf.el~ and ~leaf-keywords.el~ has below rich keywords.
 #+end_src
 
 * Install
-~leaf.el~ and ~leaf-keywords.el~ can install with package.el from MELPA.
-Please put the following code (~<leaf-install-code>~ to ~</leaf-install-code>~) to the top of your ~init.el~.
+~leaf.el~ and ~leaf-keywords.el~ can be installed with ~package.el~ from MELPA.
+Please add the following code (~<leaf-install-code>~ to ~</leaf-install-code>~) at the top of your ~init.el~.
 
-Package to be developed
-  - [[https://github.com/conao3/feather.el][feather.el]] instead of ~package.el~ -> (Achieved! Now available but it is just a pakcage.el wraper)
-  - leaf-key.el instead of ~bind-key~ -> (Achieved! Now ~leaf~ builtin)
+Packages to be developed
+  - [[https://github.com/conao3/feather.el][feather.el]] instead of ~package.el~ -> (Achieved! Now available but it is just a ~package.el~ wrapper.)
+  - leaf-key.el instead of ~bind-key~ -> (Achieved! Now a ~leaf~ builtin.)
 
 #+begin_src emacs-lisp
   ;; <leaf-install-code>
@@ -203,14 +203,14 @@ Package to be developed
 #+end_src
 
 * Usage
-Use ~leaf~ in your init.el like ~use-package~.
-You declaratively tell the ~leaf~ to configure the package using special keywords.
+Use ~leaf~ in your ~init.el~ like ~use-package~.
+You declaratively tell ~leaf~ to configure the package using special keywords.
 
 ~leaf~ converts your declaration into Elisp for Emacs to understand, and Emacs executes it to configure the package.
 
 * Customize
 - ~leaf-defaults~: Default arguments for all leaf-block.
-- ~leaf-expand-{{keyword}}~: If nil, not to expand that keyword.
+- ~leaf-expand-{{keyword}}~: If nil, don't expand that keyword.
 - ~leaf-expand-minimally~: If nil, disable keywords that are not needed for debugging.
 - ~leaf-default-plstore~: default ~plstore~ stored variable
 - ~leaf-alias-keyword-alist~: Alist represents keyword alias.  Handle KEY is alias of VALUE.
@@ -223,10 +223,10 @@ You declaratively tell the ~leaf~ to configure the package using special keyword
   This default value means ~:ensure~ is alias ~:package~.
 
   If you want to use ~:ensure~ as ~:feather~, please set this value as ~((:ensure . :feather))~.
-  Please more info related feather is [[https://github.com/conao3/feather.el][here]].
+  Further info on ~:feather:~ is available [[https://github.com/conao3/feather.el][here]].
 
 * Syntax
-All below examples are excerpts from [[https://github.com/conao3/leaf.el/blob/master/leaf-tests.el][leaf-tests.el]].
+All examples below are excerpts from [[https://github.com/conao3/leaf.el/blob/master/leaf-tests.el][leaf-tests.el]].
 
 These examples are defined in the following format.
 We expect ~FORM~ will be expanded to ~EXPECT~.
@@ -264,7 +264,7 @@ We expect ~FORM~ will be expanded to ~EXPECT~.
 ** :require keyword
 If you want to ~require~, you must use the ~:require~ keyword explicitly.
 
-This is ideally the exact opposite of using the ~:no-require~ keyword in the ~use-package~ if you does not want to ~require~ it.
+This is ideally the exact opposite of using the ~:no-require~ keyword in the ~use-package~ if you do not want to ~require~ it.
 
 The leaf's ~:require~ keyword is powerful, specify ~t~ to require the package, and specify multi symbols to ~require~ all of them.
 
@@ -335,7 +335,7 @@ it is possible to assign whether to ~require~ or not by the conditional branch k
 ** :package, :ensure keywords
 ~:package~ provide ~package.el~ frontend.
 
-Because [[https://github.com/conao3/leaf-keywords.el][leaf-keywords.el]] has ~:el-get~ keyword, ~:package~ provide ~package.el~ frontend.
+Because [[https://github.com/conao3/leaf-keywords.el][leaf-keywords.el]] has ~:el-get~ keyword, ~:package~ provides the ~package.el~ frontend.
 
 Since ~:ensure~ is to use ~package.el~ by default, ~:ensure~ and ~:package~ produce the same result.
 
@@ -404,7 +404,7 @@ These keywords are provided to control where the arguments expand,
 - ~:init~ expands after the conditional branch keyword before ~:require~.
 - ~:config~ expands after ~:require~.
 
-You don't need to put ~progn~ because ~leaf~ can receive multiple S-expressions, but you can do so if you prefer it.
+Using ~progn~ is not necessary because ~leaf~ can receive multiple S-expressions, but its usage is allowed.
 
 #+begin_src emacs-lisp
   (cort-deftest-with-macroexpand leaf/preface
@@ -531,7 +531,7 @@ You don't need to put ~progn~ because ~leaf~ can receive multiple S-expressions,
 ** :after keyword
 ~:after~ keyword configure loading order.
 
-*Currently it does not support :or in :after like use-package.*
+*Currently ~leaf~ does not support ~:or~ in ~:after~ like ~use-package~.*
 #+begin_src emacs-lisp
   (cort-deftest-with-macroexpand leaf/after
     '(
@@ -604,7 +604,7 @@ When defined globally, key bindings and their corresponding functions are specif
 
 To set it to a specific map, *place the map name as a keyword or symbol* at the top of the list.
 
-If you omit ~:package~, use leaf--name as ~:package~ to lazy load.
+If you omit ~:package~, use ~leaf--name~ as ~:package~ to lazy load.
 
 #+begin_src emacs-lisp
   (cort-deftest-with-macroexpand leaf/bind
@@ -805,7 +805,7 @@ If you omit ~:package~, use leaf--name as ~:package~ to lazy load.
 #+end_src
 
 ** COMMENT :defaults keyword
-~:defalts~ provide to download recommended settings for specified package.
+~:defaults~ provide to download recommended settings for specified package.
 For more detail, see [[https://github.com/conao3/leaf-defaults.git][leaf-defaults]].
 #+BEGIN_SRC emacs-lisp
   (cort-deftest leaf-test/:simple-defaults
@@ -820,7 +820,7 @@ For more detail, see [[https://github.com/conao3/leaf-defaults.git][leaf-default
 * Configure variables keywords
 ** :custom, :custom*, :custom-face keywords
 Now that the proper Elisp packaging practices have become widely known,
-it is a best practice to use ~custom-set-variables~ to customize packages.
+the recommended practice is to use ~custom-set-variables~ to customize packages.
 
 *Unlike use-package*, you must specify a dot pair.
 
@@ -934,12 +934,12 @@ The value set to ~custom-face~ should also be quoed to emphasize uniformity as ~
 ** :pre-setq, :setq, :setq-default keywords
 These keywords provide a front end to ~setq~ and ~setq-default~.
 
-Because there are packages in the world that must be ~setq~ before doing ~require~ them,
-the ~:pre-setq~ keyword is also provided to accommodate them.
+Because there are packages that must be configured with ~setq~ before
+~require~-ing them, the ~:pre-setq~ keyword is also provided to accommodate them.
 
 The argument specified for ~:pre-setq~ is expanded before ~:require~.
 
-You can of course configure multiple variables and set the evaluation result of some S expression to variable.
+You can of course configure multiple variables and set the evaluation result of some S expression to some variable.
 #+begin_src emacs-lisp
   (cort-deftest-with-macroexpand leaf/setq
     '(
@@ -1022,7 +1022,7 @@ You can of course configure multiple variables and set the evaluation result of 
 ~:interpreter~ keyword define ~interpreter-mode-alist~. Specifies the major-mode to enable by file shebang.
 
 If you pass symbol to these keyword, use leaf block name as major-mode.
-If you want to specify major-mode, pass dotted pair value.
+If you want to specify major-mode, pass a dotted pair value.
 #+begin_src emacs-lisp
   (cort-deftest-with-macroexpand leaf/mode
     '(
@@ -1102,9 +1102,9 @@ If you want to specify major-mode, pass dotted pair value.
 #+end_src
 
 ** :magic, :magic-fallback keywords
-~:magic~ keyword define ~magic-mode-alist~. It is used to determine major-mode in binary header byte.
+~:magic~ keyword defines ~magic-mode-alist~. It is used to determine the major-mode in binary header byte.
 
-~:magic-fallback~ keyward also define ~magic-fallback-alist~.
+~:magic-fallback~ keyword also defines ~magic-fallback-alist~.
 
 #+begin_src emacs-lisp
   (cort-deftest-with-macroexpand leaf/magic
@@ -1139,8 +1139,8 @@ If you want to specify major-mode, pass dotted pair value.
 ** :hook keyword
 ~:hook~ keyword define ~add-hook~ via ~(add-to-list *-hook)~.
 
-*Unlike use-package*, you must spesify the full hook name.
-It makes easy to jump definition.
+*Unlike use-package*, you must specify the full hook name.
+It makes it easy to jump to a definition.
 
 #+begin_src emacs-lisp
   (cort-deftest-with-macroexpand leaf/hook
@@ -1338,10 +1338,10 @@ The ~:disabled~ keyword provides the ability to temporarily ~nil~ the output of 
 You can use multiple values for the ~:disabled~ keyword, or multiple ~:disabled~ keyword,
 but ~:disabled~ only respects the value specified at the top.
 
-It can also be said that old values can be overridden by described above.
+Old values can also be overridden by the method described above.
 
 As you can see from the internal structure of ~:disabled~,
-you do not need to pass an exact ~t~ to convert it to ~nil~ because it is comparing it by ~unless~.
+you do not need to pass an exact ~t~ to convert it to ~nil~ because it's done by comparing it using ~unless~.
 
 #+begin_src emacs-lisp
   (defvar leaf-keywords
@@ -1459,7 +1459,7 @@ If specified multiple those keywords, evaluate sexp in ~and~.
 #+end_src
 
 ** :emacs<, :emacs<=, :emacs=, :emacs>, :emacs>= keywords
-You can activate the leaf block depending on version of Emacs.
+You can activate the ~leaf~ block depending on version of Emacs.
 The keyword is in the form of ~:emacs< {{version}}~, which is expanded as a conditional expression by analogy with the inequality of ~Emacs < {{version}}~.
 It can be a string, a number, a quoted string or a number, and only one can be specified.
 #+begin_src emacs-lisp
@@ -1596,7 +1596,7 @@ This is usually done by a ~declare-function~ and an empty ~defvar~, and ~leaf~ p
 
 * Documentation keywords
 ** :doc, :req, :tag, :file, :url keywords
-The leaf can describe the document systematically.
+~leaf~ can describe the document systematically.
 
 It should be possible to develop additional packages
 that use the value specified for the document keyword, which is not currently used.
@@ -1661,9 +1661,9 @@ so make the possible guesses accordingly.
 
 The former guess, given ~t~, the mode in which you want ~leaf--name~ to be valid.
 If ~-mode~ is not appended to the package name, add ~-mode~.
-For this reason, a minor mode without ~-mode~ can not use this keyword. Please use ~:config~.
+For this reason, a minor mode without ~-mode~ can not use this keyword - use ~:config~ instead.
 
-Minor-mode function is automatically autoload as a ~leaf--name~ function, but if you want customize this, you can use cons-cell.
+Minor-mode function is automatically autoloaded as a ~leaf--name~ function, but if you want customize this, you can use cons-cell.
 
 #+begin_src emacs-lisp
   (cort-deftest-with-macroexpand leaf/global-minor-mode
@@ -1756,12 +1756,12 @@ Minor-mode function is automatically autoload as a ~leaf--name~ function, but if
 ** :advice, :advice-remove keywords
 ~:advice~ provide frontend of ~advice-add~, and ~:advice-remove~ provide frontend of ~advice-remove~.
 
-~:advice~ keyword accept list of ~(WHERE SYMBOL FUNCTION)~ or nested it.
+~:advice~ keyword accepts a list of ~(WHERE SYMBOL FUNCTION)~ or nested it.
 
-You can use all ~WHERE~ symbol such as
+You can use all ~WHERE~ symbols such as
 (~:around~ ~:before~ ~:after~ ~:override~ ~:after-until~ ~:after-while~ ~:before-until~ ~:before-while~ ~:filter-args~ ~:filter-return~)
 
-~SYMBOL~ is the adviced function symbol, ~FUNCTION~ is advice function symbol or lambda form.
+~SYMBOL~ is the adviced function symbol, ~FUNCTION~ is in advice function symbol or lambda form.
 
 ~:advice-remove~ must not specify ~WHERE~ keyword.
 
@@ -1911,13 +1911,13 @@ You can use all ~WHERE~ symbol such as
 
 ** :pl-pre-setq, :pl-setq, :pl-setq-default, :pl-custom keywords
 Those keywords provide configure variables with [[https://github.com/emacs-mirror/emacs/blob/master/lisp/plstore.el][plstore.el]].
-~plstore~ provide plist based data managing and encryption.
+~plstore~ provides plist-based data managing and encryption.
 
-The keywords for plstore corresponding to ~:pre-setq~, ~:setq~, ~:setq-default~ and ~:custom~ are
+The keywords for ~plstore~ corresponding to ~:pre-setq~, ~:setq~, ~:setq-default~ and ~:custom~ are
 ~:pl-pre-setq~, ~:pl-setq~, ~:pl-setq-default~ and ~:pl-custom~.
 
-Before those keyword using, prepare below plstore data and store it.
-If you omit right value, ~leaf~ uses plstore file at =~/.emacs.d/leaf-plstore.plist=.
+Before those keyword using, prepare below ~plstore~ data and store it.
+If you omit the correct value, ~leaf~ uses the ~plstore~ file at =~/.emacs.d/leaf-plstore.plist=.
 
 #+begin_src emacs-lisp
   (("leaf-sql"
@@ -1944,7 +1944,7 @@ If you omit right value, ~leaf~ uses plstore file at =~/.emacs.d/leaf-plstore.pl
     :secret-erc-nick               "conao3")))
 #+end_src
 
-If you save plist file named as =~/.emacs.d/plstore.plist=, open plstore file and decription if needed (then type password).
+If you save plist file named as =~/.emacs.d/plstore.plist=, open ~plstore~ file and decription if needed (then type password).
 
 #+begin_src emacs-lisp
   (leaf plstore
@@ -2020,14 +2020,14 @@ Before using those keywords, we recommended that you check how ~plstore~ works i
 #+end_src
 
 * System keywords
-System keywords enabled by defalts on all leaf-block.
+System keywords enabled by default on all leaf-blocks.
 
-If you disable temporary, pass these keyword to ~nil~,
-or add ~nil~ to ~leaf-defaults~ to disable all leaf-block
+If you disable them temporarily, pass these keywords to ~nil~,
+or add ~nil~ to ~leaf-defaults~ to disable all ~:leaf:~ blocks
 or set ~leaf-expand-leaf-protect~ to nil.
 
 ** :leaf-protect keyword
-If the leaf fails at the top of the configuration file,
+If ~leaf~ fails at the top of the configuration file,
 most of the configuration file will not be read.
 
 Therefore, it simply reports an error and expands the error-handling block
@@ -2072,7 +2072,7 @@ leaf-blocks with ~:bind~ or ~:mode~ can often delay loading or configuration eva
 
 The keywords that enable this feature are defined below and expand as follows
 
-It seems ~:leaf-defer nil~ same as ~:demand t~ in ~use-package~.
+It seems ~:leaf-defer nil~ has the same behaviour as ~:demand t~ in ~use-package~.
 
 #+begin_src emacs-lisp
   (defcustom leaf-defer-keywords (cdr '(:dummy
@@ -2136,8 +2136,8 @@ In some cases, you may want to disable this auto-expansion.
 Depending on the context, you may find that the function is declared
 in the package that is currently being set. Previously, the
 ~declare-function~ statement was explicitly generated for these
-functions using the: defun keyword, but this keyword no longer
-requires that work.
+functions using the: ~defun~ keyword, but this keyword precludes
+that.
 
 #+begin_src emacs-lisp
   (cort-deftest-with-macroexpand leaf/leaf-defun
@@ -2175,8 +2175,8 @@ requires that work.
 #+end_src
 
 ** leaf-defvar
-When binding to a specific map with: bind, the map variable must be
-explicitly declared with: defvar. This keyword suppresses byte
+When binding to a specific map with ~:bind~, the map variable must be
+explicitly declared with ~:defvar~. This keyword suppresses byte
 compiler warnings by automatically declaring the variable.
 
 * Information
@@ -2190,17 +2190,17 @@ I love OSS and I am dreaming of working on it as *full-time* job.
 ** Community
 All feedback and suggestions are welcome!
 
-You can use github issues, but you can also use [[https://join.slack.com/t/conao3-support/shared_invite/enQtNjUzMDMxODcyMjE1LTA4ZGRmOWYwZWE3NmE5NTkyZjk3M2JhYzU2ZmRkMzdiMDdlYTQ0ODMyM2ExOGY0OTkzMzZiMTNmZjJjY2I5NTM][Slack]]
+You can use GitHub issues, but you can also use [[https://join.slack.com/t/conao3-support/shared_invite/enQtNjUzMDMxODcyMjE1LTA4ZGRmOWYwZWE3NmE5NTkyZjk3M2JhYzU2ZmRkMzdiMDdlYTQ0ODMyM2ExOGY0OTkzMzZiMTNmZjJjY2I5NTM][Slack]]
 if you want a more casual conversation.
 
 ** Contribution
-We welcome PR! But It is need sign to FSF.
+We welcome PRs, but to contribute, you must assign rights to the FSF. See [[https://github.com/conao3/CONTRIBUTING.org][CONTRIBUTING.org]] for details.
 
-Travis Cl test ~leaf-test.el~ with all Emacs version 23 or above.
+Travis CI test ~leaf-test.el~ with all Emacs version 23 or above.
 
-I think that it is difficult to prepare the environment locally,
-so I think that it is good to throw PR and test Travis for the time being!
-Feel free throw PR!
+It's difficult to prepare the environment locally,
+so submit your PR and test on Travis for the time being!
+Feel free to submit your PR when you think it's ready!
 
 ~leaf.el~ creates the intended elisp code from DSL with a simple mechanism.
 
@@ -2208,7 +2208,7 @@ It is clear what internal conversion is done and it is also easy to customize it
 
 *** leaf.el mechanism
 1. Append ~leaf-defaults~ and ~leaf-system-defaults~ to ~leaf~ arguments.
-2. Because ~leaf~ receives arguments too many format, normalize as plist.
+2. Because ~leaf~ receives arguments in too many formats, normalize as plist.
    1. Normalize plist by ~leaf-normalize-plist~.
    2. Sort plist by ~leaf-keyword~.
 
@@ -2240,46 +2240,46 @@ It is clear what internal conversion is done and it is also easy to customize it
    | ~leaf--body~     | The result of the following keywords and arguments |
    | ~leaf--rest~     | The following keywords and arguments               |
    | ~leaf--autoload~ | The list of pair ~(fn . pkg)~                      |
-4. Apply the normalized values to the keyword specific normalizer.
+4. Apply the normalized values to the keyword-specific normalizer.
 
    The definition is ~leaf-normalize~, overwrite ~leaf--value~.
 5. Run conversion process keyword.
 
    The conversion definition is ~leaf-keywords~, overridden ~leaf--body~
-6. Wrap finaly ~leaf--body~ with ~prog1~.
+6. Wrap finally ~leaf--body~ with ~prog1~.
 
 *** Adding new keywords
-~leaf~ normalize argument with ~leaf-normalize~, and conversion with ~leaf-keywords~.
+~leaf~ normalizes arguments with ~leaf-normalize~, and conversion with ~leaf-keywords~.
 
-So, pushing new element these variable, ~leaf~ can recognize new keywords.
+So, by pushing new elements to these variables, ~leaf~ can recognize new keywords.
 
-In [[https://github.com/conao3/leaf-keywords.el][leaf-keywords.el]], you can see practical example, and you can PR it.
+In [[https://github.com/conao3/leaf-keywords.el][leaf-keywords.el]], you can see a practical example, and you can PR it.
 
 Note that leaf only contains keywords for packages that come with the Emacs standard,
 and that keywords that depend on external packages are added to its repository.
 
 ** Migration
 *** leaf v3.0 to v4.0
-**** Drop support Emacs versions lower than Emacs-24.4
+**** Drop support for Emacs versions lower than Emacs-24.4
 #+begin_quote
-I used Emacs 23 bundled with MacOS as a reference when
-determining the minimum Emacs support for leaf.el.  However,
-MacOS stopped bundling Emacs 23, and by supporting Emacs 23, the
+I used Emacs 23 bundled with macOS as a reference when
+determining the minimum Emacs support for ~leaf.el~.  However,
+macOS stopped bundling Emacs 23, and by supporting Emacs 23, our
 inability to take advantage of most of the Elisp ecosystem like
 ~package.el~, ~cask~, and ~ert~ made development inefficient.
 
-I plan to release leaf.el v3.8 as the last version to support
-Emacs 23, and leaf.el as leaf.el v4.0, with Emacs 24 as the
+I plan to release ~leaf.el v3.8~ as the last version to support
+Emacs 23, and ~leaf.el~ as ~leaf.el v4.0~, with Emacs 24 as the
 smallest version of Emacs.
 
-If you're using leaf.el with Emacs 23, you probably don't use
-package.el, but rather the traditional site-lisp method of using
-leaf.el. (package.el dropped Emacs 23 a long time ago) You should
-be able to continue using leaf.el as before by downloading
+If you're using ~leaf.el~ with Emacs 23, you probably don't use
+~package.el~, but rather the traditional site-lisp method of using
+~leaf.el~. (~package.el~ dropped Emacs 23 a long time ago) You should
+be able to continue using ~leaf.el~ as before by downloading
 version 3.8 from the [[https://github.com/conao3/leaf.el/releases][releases]] page.
 #+end_quote
 
-We have posted above announcements for more than 1 month and have
+We have posted the above announcements for more than 1 month and have
 dropped support for Emacs versions below 24.4 because of a bug in
 a global variable that prevented it from passing tests under
 Emacs 24.2.  https://github.com/conao3/leaf.el/runs/515675886
@@ -2289,7 +2289,7 @@ be considered the minimum version supported by the current Emacs
 packages.
 
 **** Distribute under GPLv3 instead of AGPLv3
-Now ~leaf~ project distribute under GPLv3 instead of AGPLv3.
+Now ~leaf~ project distributes under GPLv3 instead of AGPLv3.
 
 *** leaf v2.0 to v3.0
 **** Drop bind-key.el support for :bind and feather.el support for :ensure
@@ -2301,7 +2301,7 @@ You should now use the external package specific keywords, such as
 ~:bind-key~ and ~:el-get~, ~:feather~, defined in [[https://github.com/conao3/leaf-keywords.el][leaf-keywords.el]].
 
 Therefore, the keyword ~:ensure~ has been changed to ~:package~.
-This has no effect because we have defined alias.
+This has no effect because we have defined an alias.
 
 *** leaf v1.0 to v2.0
 **** Change not to ~require~ by default
@@ -2344,6 +2344,7 @@ If you want to request explicitly use the ~:require t~ flag.
 - Dario Gjorgjevski ([[https://github.com/d125q][d125q]])
 - Masanori Mano ([[https://github.com/grugrut][grugrut]])
 - Thomas Padioleau ([[https://github.com/tpadioleau][tpadioleau]])
+- Johanan Idicula ([[https://github.com/jidicula][jidicula]])
 
 ** Special Thanks
 Advice and comments given by [[http://emacs-jp.github.io/][Emacs-JP]]'s forum member has been a great help  in developing ~leaf.el~.
