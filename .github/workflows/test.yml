@@ -24,15 +24,15 @@ jobs:
           - emacs_version: 'snapshot'
             allow_failure: true
     steps:
-    - uses: actions/checkout@v1
-    - uses: purcell/setup-emacs@master
-      with:
-        version: ${{ matrix.emacs_version }}
+      - uses: actions/checkout@v1
+      - uses: purcell/setup-emacs@master
+        with:
+          version: ${{ matrix.emacs_version }}
 
-    - name: Run tests
-      if: matrix.allow_failure != true
-      run: 'make check'
+      - name: Run tests
+        if: matrix.allow_failure != true
+        run: 'make check'
 
-    - name: Run tests (allow failure)
-      if: matrix.allow_failure == true
-      run: 'make check || true'
+      - name: Run tests (allow failure)
+        if: matrix.allow_failure == true
+        run: 'make check || true'
