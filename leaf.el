@@ -5,9 +5,9 @@
 ;; Author: Naoya Yamashita <conao3@gmail.com>
 ;; Maintainer: Naoya Yamashita <conao3@gmail.com>
 ;; Keywords: lisp settings
-;; Version: 4.3.0
+;; Version: 4.3.1
 ;; URL: https://github.com/conao3/leaf.el
-;; Package-Requires: ((emacs "24.4"))
+;; Package-Requires: ((emacs "24.1"))
 
 ;; This program is free software: you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by
@@ -581,7 +581,7 @@ see `alist-get'."
 (defun leaf-mode-sym (sym)
   "Return mode like symbol from SYM."
   (let ((sym-str (symbol-name sym)))
-    (intern (concat sym-str (unless (string-suffix-p "-mode" sym-str) "-mode")))))
+    (intern (concat sym-str (unless (string-match-p "-mode$" sym-str) "-mode")))))
 
 (defun leaf-error (message &rest args)
   "Raise error with type leaf.  MESSAGE and ARGS is same form as `lwarn'."
@@ -851,45 +851,40 @@ BIND must not contain :{{map}}."
   (let ((binds (if (and (atom (car bind)) (atom (cdr bind))) `(,bind) bind)))
     `(leaf-keys (:leaf-key-override-global-map ,@binds))))
 
-(eval
- (eval-and-compile
-   (when (featurep 'tabulated-list)
-     '(progn
-        (require 'tabulated-list)
-
-        (define-derived-mode leaf-key-list-mode tabulated-list-mode "Leaf-key Bindings"
-          "Major mode for listing bindings configured via `leaf-key'."
-          (setq-local tabulated-list-format [("Map"     20 t)
-                                             ("Key"     20 t)
-                                             ("Command" 40 t)
-                                             ("Before Command" 0 t)])
-          (setq-local tabulated-list-entries
-                      (let ((id 0)
-                            (formatfn (lambda (elm)
-                                        (if (stringp elm)
-                                            elm
-                                          (prin1-to-string (if (eq elm nil) '--- elm)))))
-                            res)
-                        (dolist (elm leaf-key-bindlist)
-                          (setq id (1+ id))
-                          (push `(,id [,(funcall formatfn (nth 0 elm))
-                                       ,(funcall formatfn (nth 1 elm))
-                                       ,(funcall formatfn (nth 2 elm))
-                                       ,(funcall formatfn (nth 3 elm))])
-                                res))
-                        (nreverse res)))
-          (setq-local tabulated-list-sort-key '("Map" . nil))
-          (tabulated-list-print)
-          (tabulated-list-init-header))
+(define-derived-mode leaf-key-list-mode tabulated-list-mode "Leaf-key Bindings"
+  "Major mode for listing bindings configured via `leaf-key'."
+  (setq tabulated-list-format [("Map"     20 t)
+                               ("Key"     20 t)
+                               ("Command" 40 t)
+                               ("Before Command" 0 t)])
+  (setq tabulated-list-entries
+        (let ((id 0)
+              (formatfn (lambda (elm)
+                          (if (stringp elm)
+                              elm
+                            (prin1-to-string (if (eq elm nil) '--- elm)))))
+              res)
+          (dolist (elm leaf-key-bindlist)
+            (setq id (1+ id))
+            (push `(,id [,(funcall formatfn (nth 0 elm))
+                         ,(funcall formatfn (nth 1 elm))
+                         ,(funcall formatfn (nth 2 elm))
+                         ,(funcall formatfn (nth 3 elm))])
+                  res))
+          (nreverse res)))
+  (setq tabulated-list-sort-key '("Map" . nil))
+  (tabulated-list-print)
+  (tabulated-list-init-header))
 
 ;;;###autoload
-        (defun leaf-key-describe-bindings ()
-          "Display all the bindings configured via `leaf-key'."
-          (interactive)
-          (let ((buf (get-buffer-create "*Leaf-key bindings*")))
-            (with-current-buffer buf
-              (leaf-key-list-mode))
-            (display-buffer buf)))))))
+(defun leaf-key-describe-bindings ()
+  "Display all the bindings configured via `leaf-key'."
+  (interactive)
+  (require 'tabulated-list)
+  (let ((buf (get-buffer-create "*Leaf-key bindings*")))
+    (with-current-buffer buf
+      (leaf-key-list-mode))
+    (display-buffer buf)))
 
 
 ;;;; Handler
