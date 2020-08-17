@@ -859,26 +859,26 @@ BIND must not contain :{{map}}."
 
         (define-derived-mode leaf-key-list-mode tabulated-list-mode "Leaf-key Bindings"
           "Major mode for listing bindings configured via `leaf-key'."
-          (setq-local tabulated-list-format [("Map"     20 t)
-                                             ("Key"     20 t)
-                                             ("Command" 40 t)
-                                             ("Before Command" 0 t)])
-          (setq-local tabulated-list-entries
-                      (let ((id 0)
-                            (formatfn (lambda (elm)
-                                        (if (stringp elm)
-                                            elm
-                                          (prin1-to-string (if (eq elm nil) '--- elm)))))
-                            res)
-                        (dolist (elm leaf-key-bindlist)
-                          (setq id (1+ id))
-                          (push `(,id [,(funcall formatfn (nth 0 elm))
-                                       ,(funcall formatfn (nth 1 elm))
-                                       ,(funcall formatfn (nth 2 elm))
-                                       ,(funcall formatfn (nth 3 elm))])
-                                res))
-                        (nreverse res)))
-          (setq-local tabulated-list-sort-key '("Map" . nil))
+          (setq tabulated-list-format [("Map"     20 t)
+                                       ("Key"     20 t)
+                                       ("Command" 40 t)
+                                       ("Before Command" 0 t)])
+          (setq tabulated-list-entries
+                (let ((id 0)
+                      (formatfn (lambda (elm)
+                                  (if (stringp elm)
+                                      elm
+                                    (prin1-to-string (if (eq elm nil) '--- elm)))))
+                      res)
+                  (dolist (elm leaf-key-bindlist)
+                    (setq id (1+ id))
+                    (push `(,id [,(funcall formatfn (nth 0 elm))
+                                 ,(funcall formatfn (nth 1 elm))
+                                 ,(funcall formatfn (nth 2 elm))
+                                 ,(funcall formatfn (nth 3 elm))])
+                          res))
+                  (nreverse res)))
+          (setq tabulated-list-sort-key '("Map" . nil))
           (tabulated-list-print)
           (tabulated-list-init-header))
 
