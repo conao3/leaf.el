@@ -5,7 +5,7 @@
 ;; Author: Naoya Yamashita <conao3@gmail.com>
 ;; Maintainer: Naoya Yamashita <conao3@gmail.com>
 ;; Keywords: lisp settings
-;; Version: 4.2.8
+;; Version: 4.2.9
 ;; URL: https://github.com/conao3/leaf.el
 ;; Package-Requires: ((emacs "24.4"))
 
@@ -541,6 +541,21 @@ Unlike `butlast', it works well with dotlist (last cdr is non-nil list)."
   "`plist-get' with DEFAULT value in PLIST search KEY."
   (declare (indent 1))
   (or (and (plist-member plist key) (plist-get plist key)) default))
+
+(when (version<= "24.3" emacs-version)
+  (gv-define-expander leaf-plist-get
+    (lambda (do key plist &optional default)
+      (macroexp-let2 macroexp-copyable-p k key
+        (gv-letplace (getter setter) plist
+          (macroexp-let2 nil p `(plist-member ,getter ,k)
+            (funcall
+             do
+             (if (null default) `(cadr ,p)
+               `(if ,p (cadr ,p) ,default))
+             (lambda (val)
+               `(if (plist-member ,plist ,k)
+                    (setcar (cdr (plist-member ,plist ,k)) ,val)
+                  ,(funcall setter `(cons ,k (cons ,val ,getter))))))))))))
 
 ;;; General alist functions
 

@@ -2780,6 +2780,29 @@ Example:
        (mapcar 'car (cdr (assoc "Leaf" (funcall imenu-create-index-function)))))
      '("scala-mode" "lsp-metals" "*scala-flycheck-integration"))))
 
+(when (version<= "24.3" emacs-version)
+  (require 'cl-lib)
+  (cort-deftest-with-equal leaf/leaf-plist-get
+    '(((let ((target '(:a "a" :b "b" :c "c")))
+         (setf (leaf-plist-get :b target) "modify")
+         target)
+       '(:a "a" :b "modify" :c "c"))
+
+      ((let ((target '(:a "a" :b "b" :c "c")))
+         (cl-rotatef (leaf-plist-get :b target) (leaf-plist-get :c target))
+         target)
+       '(:a "a" :b "c" :c "b"))
+
+      ((let ((target '(:a "a" :b "b" :c "c")))
+         (setf (leaf-plist-get :d target) "modify")
+         target)
+       '(:d "modify" :a "a" :b "b" :c "c"))
+
+      ((let ((target '(:a "a" :b "b" :c "c")))
+         (cl-rotatef (leaf-plist-get :b target) (leaf-plist-get :d target))
+         target)
+       '(:d "b" :a "a" :b nil :c "c")))))
+
 ;; (provide 'leaf-tests)
 
 ;; Local Variables:
