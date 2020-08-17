@@ -57,6 +57,7 @@
   - [[#contribution][Contribution]]
     - [[#leafel-mechanism][leaf.el mechanism]]
     - [[#adding-new-keywords][Adding new keywords]]
+    - [[#customize-leaf-keywords][Customize leaf keywords]]
   - [[#migration][Migration]]
     - [[#leaf-v10-to-v20][leaf v3.0 to v4.0]]
     - [[#leaf-v20-to-v30][leaf v2.0 to v3.0]]
@@ -2257,6 +2258,79 @@ In [[https://github.com/conao3/leaf-keywords.el][leaf-keywords.el]], you can see
 
 Note that leaf only contains keywords for packages that come with the Emacs standard,
 and that keywords that depend on external packages are added to its repository.
+
+*** Customize leaf keywords
+~leaf~ stores "keyword" and corresponding "expandion" in ~leaf-keywords~.
+You can customize ~leaf~ expandion to customize ~leaf-keywords~.
+
+#+begin_src emacs-lisp
+(leaf-plist-get :custom leaf-keywords)
+;;=> ...
+
+(ppp-macroexpand
+ (leaf foo-package
+   :custom
+   (foo-package-to-enable   . t)
+   (foo-package-to-disable  . nil)
+   (foo-package-to-symbol   . 'symbol)
+   (foo-package-to-function . #'ignore)
+   (foo-package-to-lambda   . (lambda (elm) (message elm)))))
+;;=> (prog1 'foo-package
+;;     (customize-set-variable 'foo-package-to-enable t "Customized with leaf in foo-package block")
+;;     (customize-set-variable 'foo-package-to-disable nil "Customized with leaf in foo-package block")
+;;     (customize-set-variable 'foo-package-to-symbol 'symbol "Customized with leaf in foo-package block")
+;;     (customize-set-variable 'foo-package-to-function #'ignore "Customized with leaf in foo-package block")
+;;     (customize-set-variable 'foo-package-to-lambda
+;;                             (lambda (elm)
+;;                               (message elm))
+;;                             "Customized with leaf in foo-package block"))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(setf (leaf-plist-get :custom leaf-keywords)
+      '`(,@(mapcar (lambda (elm) `(customize-set-variable ',(car elm) ,(cdr elm) ,(format "leaf block" leaf--name))) leaf--value) ,@leaf--body))
+;;=> ...
+
+(ppp-macroexpand
+ (leaf foo-package
+   :custom
+   (foo-package-to-enable   . t)
+   (foo-package-to-disable  . nil)
+   (foo-package-to-symbol   . 'symbol)
+   (foo-package-to-function . #'ignore)
+   (foo-package-to-lambda   . (lambda (elm) (message elm)))))
+;;=> (prog1 'foo-package
+;;     (customize-set-variable 'foo-package-to-enable t "leaf block")
+;;     (customize-set-variable 'foo-package-to-disable nil "leaf block")
+;;     (customize-set-variable 'foo-package-to-symbol 'symbol "leaf block")
+;;     (customize-set-variable 'foo-package-to-function #'ignore "leaf block")
+;;     (customize-set-variable 'foo-package-to-lambda
+;;                             (lambda (elm)
+;;                               (message elm))
+;;                             "leaf block"))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(setf (leaf-plist-get :custom leaf-keywords)
+      '`(,@(mapcar (lambda (elm) `(setq ',(car elm) ,(cdr elm))) leaf--value) ,@leaf--body))
+;;=> ...
+
+(ppp-macroexpand
+ (leaf foo-package
+   :custom
+   (foo-package-to-enable   . t)
+   (foo-package-to-disable  . nil)
+   (foo-package-to-symbol   . 'symbol)
+   (foo-package-to-function . #'ignore)
+   (foo-package-to-lambda   . (lambda (elm) (message elm)))))
+;;=> (prog1 'foo-package
+;;     (setq 'foo-package-to-enable t)
+;;     (setq 'foo-package-to-disable nil)
+;;     (setq 'foo-package-to-symbol 'symbol)
+;;     (setq 'foo-package-to-function #'ignore)
+;;     (setq 'foo-package-to-lambda (lambda (elm)
+;;                                    (message elm))))
+#+end_src
 
 ** Migration
 *** leaf v3.0 to v4.0
