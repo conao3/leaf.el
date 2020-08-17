@@ -581,7 +581,7 @@ see `alist-get'."
 (defun leaf-mode-sym (sym)
   "Return mode like symbol from SYM."
   (let ((sym-str (symbol-name sym)))
-    (intern (concat sym-str (unless (string-suffix-p "-mode" sym-str) "-mode")))))
+    (intern (concat sym-str (unless (string-match-p "-mode$" sym-str) "-mode")))))
 
 (defun leaf-error (message &rest args)
   "Raise error with type leaf.  MESSAGE and ARGS is same form as `lwarn'."
