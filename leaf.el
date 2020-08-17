@@ -434,22 +434,6 @@ Ref: `lisp-imenu-generic-expression'."
 
 ;;;; General polyfill
 
-;;; Polyfill for legacy Emacs
-
-(defun leaf-mapcaappend (func seq)
-  "Another implementation for `mapcan'.
-`mapcan' uses `nconc', but Emacs-22 doesn't support it.
-
-Apply FUNC to each element of SEQ, and concatenate
-the results by altering them (using `nconc').
-SEQ may be a list, a vector, a 'bool-vector, or a string."
-  (declare (indent 2))
-  (apply #'append (apply #'mapcar func seq nil)))
-
-(eval-and-compile
-  (unless (fboundp 'mapcan)
-    (defalias 'mapcan 'leaf-mapcaappend)))
-
 ;;; predictors
 
 (defun leaf-pairp (var &optional allow)
