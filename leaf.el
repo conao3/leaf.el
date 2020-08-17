@@ -542,6 +542,21 @@ Unlike `butlast', it works well with dotlist (last cdr is non-nil list)."
   (declare (indent 1))
   (or (and (plist-member plist key) (plist-get plist key)) default))
 
+(when (version<= "24.3" emacs-version)
+  (gv-define-expander leaf-plist-get
+    (lambda (do key plist &optional default)
+      (macroexp-let2 macroexp-copyable-p k key
+        (gv-letplace (getter setter) plist
+          (macroexp-let2 nil p `(plist-member ,getter ,k)
+            (funcall
+             do
+             (if (null default) `(cadr ,p)
+               `(if ,p (cadr ,p) ,default))
+             (lambda (val)
+               `(if (plist-member ,plist ,k)
+                    (setcar (cdr (plist-member ,plist ,k)) ,val)
+                  ,(funcall setter `(cons ,k (cons ,val ,getter))))))))))))
+
 ;;; General alist functions
 
 ;; for Emacs < 25.1
