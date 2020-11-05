@@ -134,11 +134,11 @@ Same as `list' but this macro does not evaluate any arguments."
    :pl-pre-setq       `(,@(mapcar (lambda (elm) `(setq ,(car elm) (leaf-handler-auth ,leaf--name ,(car elm) ,(cdr elm)))) leaf--value) ,@leaf--body)
    :auth-pre-setq     `(,@(mapcar (lambda (elm) `(setq ,(car elm) (leaf-handler-auth ,leaf--name ,(car elm) ,(cdr elm)))) leaf--value) ,@leaf--body)
 
-   :custom            `(,@(mapcar (lambda (elm) `(customize-set-variable ',(car elm) ,(cdr elm) ,(format "Customized with leaf in %s block" leaf--name))) leaf--value) ,@leaf--body)
-   :custom*           `(,@(mapcar (lambda (elm) `(customize-set-variable ',(car elm) ,(cdr elm) ,(format "Customized with leaf in %s block" leaf--name))) leaf--value) ,@leaf--body)
-   :pl-custom         `(,@(mapcar (lambda (elm) `(customize-set-variable ',(car elm) (leaf-handler-auth ,leaf--name ,(car elm) ,(cdr elm)) ,(format "Customized in leaf `%s' from plstore `%s'" leaf--name (symbol-name (cdr elm))))) leaf--value) ,@leaf--body)
-   :auth-custom       `(,@(mapcar (lambda (elm) `(customize-set-variable ',(car elm) (leaf-handler-auth ,leaf--name ,(car elm) ,(cdr elm)) ,(format "Customized in leaf `%s' from plstore `%s'" leaf--name (symbol-name (cdr elm))))) leaf--value) ,@leaf--body)
-   :custom-face       `((custom-set-faces     ,@(mapcar (lambda (elm) `'(,(car elm) ,(car (cddr elm)) nil ,(format "Customized with leaf in %s block" leaf--name))) leaf--value)) ,@leaf--body)
+   :custom            `(,@(mapcar (lambda (elm) `(customize-set-variable ',(car elm) ,(cdr elm) ,(format "Customized with leaf in %s %s block" load-file-name leaf--name))) leaf--value) ,@leaf--body)
+   :custom*           `(,@(mapcar (lambda (elm) `(customize-set-variable ',(car elm) ,(cdr elm) ,(format "Customized with leaf in %s %s block" load-file-name leaf--name))) leaf--value) ,@leaf--body)
+   :pl-custom         `(,@(mapcar (lambda (elm) `(customize-set-variable ',(car elm) (leaf-handler-auth ,leaf--name ,(car elm) ,(cdr elm)) ,(format "Customized in leaf `%s' from plstore `%s' at %s" leaf--name (symbol-name (cdr elm)) load-file-name))) leaf--value) ,@leaf--body)
+   :auth-custom       `(,@(mapcar (lambda (elm) `(customize-set-variable ',(car elm) (leaf-handler-auth ,leaf--name ,(car elm) ,(cdr elm)) ,(format "Customized in leaf `%s' from plstore `%s' at %s" leaf--name (symbol-name (cdr elm))  load-file-name))) leaf--value) ,@leaf--body)
+   :custom-face       `((custom-set-faces     ,@(mapcar (lambda (elm) `'(,(car elm) ,(car (cddr elm)) nil ,(format "Customized with leaf in %s %s block" load-file-name leaf--name))) leaf--value)) ,@leaf--body)
    :init              `(,@leaf--value ,@leaf--body)
 
    :require           `(,@(mapcar (lambda (elm) `(require ',elm)) leaf--value) ,@leaf--body)
@@ -905,7 +905,7 @@ FN also accept list of FN."
   `(condition-case err
        (progn ,@body)
      (error
-      (display-warning 'leaf (format ,(format "Error in `%s' block.  Error msg: %%s" name)
+      (display-warning 'leaf (format ,(format "Error in `%s' file `%s' block.  Error msg: %%s" load-file-name name)
                                      (error-message-string err))))))
 
 (defmacro leaf-handler-package (name pkg _pin)
@@ -923,8 +923,8 @@ FN also accept list of FN."
           (error
            (display-warning 'leaf
                             (format
-                             ,(format "In `%s' block, failed to :package of %s.  Error msg: %%s"
-                                      name pkg)
+                             ,(format "In `%s' file `%s' block, failed to :package of %s.  Error msg: %%s"
+                                      load-file-name name pkg)
                              (error-message-string err)))))))))
 
 (defmacro leaf-handler-auth (name sym store)
