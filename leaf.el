@@ -54,6 +54,7 @@
 Same as `list' but this macro does not evaluate any arguments."
   `(quote ,args))
 
+(defvar leaf--paths nil)
 (defvar leaf--raw)
 (defvar leaf--name)
 (defvar leaf--key)
@@ -66,6 +67,7 @@ Same as `list' but this macro does not evaluate any arguments."
 (defvar leaf-keywords
   (leaf-list
    :disabled          (unless (eval (car leaf--value)) `(,@leaf--body))
+   :leaf-path         (progn (when (and load-in-progress (eval (car leaf--value))) (add-to-list 'leaf--paths (cons leaf--name load-file-name))) `(,@leaf--body))
    :leaf-protect      (if (and leaf--body (eval (car leaf--value))) `((leaf-handler-leaf-protect ,leaf--name ,@leaf--body)) `(,@leaf--body))
    :load-path         `(,@(mapcar (lambda (elm) `(add-to-list 'load-path ,elm)) leaf--value) ,@leaf--body)
    :load-path*        `(,@(mapcar (lambda (elm) `(add-to-list 'load-path (locate-user-emacs-file ,elm))) leaf--value) ,@leaf--body)
@@ -354,7 +356,7 @@ Sort by `leaf-sort-leaf--values-plist' in this order.")
 
 (defcustom leaf-system-defaults (leaf-list
                                  :leaf-autoload t :leaf-defer t :leaf-protect t
-                                 :leaf-defun t :leaf-defvar t)
+                                 :leaf-defun t :leaf-defvar t :leaf-path t)
   "The value for all `leaf' blocks for leaf system."
   :type 'sexp
   :group 'leaf)
@@ -717,6 +719,38 @@ see `alist-get'."
       (emacs-lisp-mode)
       (indent-region (point-min) (point-max))
       (display-buffer buf))))
+
+
+;;;; find-function
+
+(defcustom leaf-find-regexp
+  ".*([[:space:]]*leaf[[:space:]]+%s"
+  "The regexp used by `leaf-find' to search for a leaf block.
+Note it must contain a `%s' at the place where `format'
+should insert the leaf name."
+  :type 'regexp
+  :group 'leaf)
+
+(with-eval-after-load 'find-func
+  (defvar find-function-regexp-alist)
+  (add-to-list 'find-function-regexp-alist
+               '(leaf . leaf-find-regexp)))
+
+(defun leaf-find (name)
+  "Find the leaf block of NAME."
+  (interactive
+   (list (completing-read
+          "Find leaf: "
+          (delete-dups (mapcar #'car leaf--paths)))))
+  (require 'find-func)
+  (let* ((name (intern name))
+         (paths (flatten-tree (mapcar (lambda (a) (when (equal name (car a)) (cdr a))) leaf--paths)))
+         (path (if (= (length paths) 1) paths (list (completing-read "Select one: " paths))))
+         (location (apply #'find-function-search-for-symbol name 'leaf path)))
+    (prog1 (pop-to-buffer (car location))
+      (when (cdr location)
+        (goto-char (cdr location)))
+      (run-hooks 'find-function-after-hook))))
 
 
 ;;;; Key management
