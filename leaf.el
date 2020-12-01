@@ -817,7 +817,7 @@ For example:
          (keymap*  (eval keymap))
          (mmap     (or keymap* 'global-map))
          (vecp     (vectorp key*))
-         (path load-file-name)
+         (path     load-file-name)
          (_mvec    (if (vectorp key*) key* (read-kbd-macro key*)))
          (mstr     (if (stringp key*) key* (key-description key*))))
     `(let* ((old (lookup-key ,mmap ,(if vecp key `(kbd ,key))))
