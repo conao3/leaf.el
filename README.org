@@ -56,6 +56,8 @@
   - [[:leaf-protect keyword]]
   - [[:leaf-defer keyword]]
   - [[:leaf-autoload keyword]]
+- [[Tips]]
+  - [[leaf-find feature]]
 - [[Information]]
   - [[Donation]]
   - [[Community]]
@@ -2280,6 +2282,10 @@ requires that work.
 When binding to a specific map with: bind, the map variable must be
 explicitly declared with: defvar. This keyword suppresses byte
 compiler warnings by automatically declaring the variable.
+
+* Tips
+** leaf-find feature
+Use ~leaf-find~ to search a leaf block in the configuration file. like ~find-library~.
 
 * Information
 ** Donation

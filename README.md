@@ -40,6 +40,8 @@
   - [:leaf-autoload keyword](#leaf-autoload-keyword)
   - [:leaf-defun keyword](#leaf-defun-keyword)
   - [leaf-defvar](#leaf-defvar)
+- [Tips](#tips)
+  - [leaf-find feature](#leaf-find-feature)
 - [Information](#information)
   - [Donation](#donation)
   - [Community](#community)
@@ -2255,6 +2257,12 @@ Depending on the context, you may find that the function is declared in the pack
 
 When binding to a specific map with: bind, the map variable must be explicitly declared with: defvar. This keyword suppresses byte compiler warnings by automatically declaring the variable.
 
+
+# Tips
+
+## leaf-find feature
+
+Use `leaf-find` to search a leaf block in the configuration file. like `find-library`.
 
 
 # Information
