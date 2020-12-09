@@ -2780,6 +2780,16 @@ Example:
        (mapcar 'car (cdr (assoc "Leaf" (funcall imenu-create-index-function)))))
      '("scala-mode" "lsp-metals" "*scala-flycheck-integration"))))
 
+(let ((leaf--paths nil))
+  ;; must eval in `require' or `load'.
+  (leaf leaf-1)
+  (leaf leaf-2 :leaf-path nil)
+  (eval `(cort-deftest-with-equal leaf/leaf-path
+           '((leaf--paths
+              ',(list (cons 'leaf-1 load-file-name)))
+             ((assoc 'leaf-2 leaf--paths)
+              nil)))))
+
 (when (version<= "24.3" emacs-version)
   (require 'cl-lib)
   (cort-deftest-with-equal leaf/leaf-plist-get
