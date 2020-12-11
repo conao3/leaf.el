@@ -905,7 +905,7 @@ FN also accept list of FN."
   `(condition-case err
        (progn ,@body)
      (error
-      (display-warning 'leaf (format ,(format "Error in `%s' file `%s' block.  Error msg: %%s" load-file-name name)
+      (display-warning 'leaf (format ,(format "Error in `%s' block at `%s'.  Error msg: %%s" name load-file-name)
                                      (error-message-string err))))))
 
 (defmacro leaf-handler-package (name pkg _pin)
@@ -923,8 +923,8 @@ FN also accept list of FN."
           (error
            (display-warning 'leaf
                             (format
-                             ,(format "In `%s' file `%s' block, failed to :package of %s.  Error msg: %%s"
-                                      load-file-name name pkg)
+                             ,(format "In `%s' block at `%s', failed to :package of %s.  Error msg: %%s"
+                                      name load-file-name pkg)
                              (error-message-string err)))))))))
 
 (defmacro leaf-handler-auth (name sym store)
