@@ -5,7 +5,7 @@
 ;; Author: Naoya Yamashita <conao3@gmail.com>
 ;; Maintainer: Naoya Yamashita <conao3@gmail.com>
 ;; Keywords: lisp settings
-;; Version: 4.3.2
+;; Version: 4.3.3
 ;; URL: https://github.com/conao3/leaf.el
 ;; Package-Requires: ((emacs "24.1"))
 
@@ -134,11 +134,11 @@ Same as `list' but this macro does not evaluate any arguments."
    :pl-pre-setq       `(,@(mapcar (lambda (elm) `(setq ,(car elm) (leaf-handler-auth ,leaf--name ,(car elm) ,(cdr elm)))) leaf--value) ,@leaf--body)
    :auth-pre-setq     `(,@(mapcar (lambda (elm) `(setq ,(car elm) (leaf-handler-auth ,leaf--name ,(car elm) ,(cdr elm)))) leaf--value) ,@leaf--body)
 
-   :custom            `(,@(mapcar (lambda (elm) `(customize-set-variable ',(car elm) ,(cdr elm) ,(format "Customized with leaf in %s block" leaf--name))) leaf--value) ,@leaf--body)
-   :custom*           `(,@(mapcar (lambda (elm) `(customize-set-variable ',(car elm) ,(cdr elm) ,(format "Customized with leaf in %s block" leaf--name))) leaf--value) ,@leaf--body)
-   :pl-custom         `(,@(mapcar (lambda (elm) `(customize-set-variable ',(car elm) (leaf-handler-auth ,leaf--name ,(car elm) ,(cdr elm)) ,(format "Customized in leaf `%s' from plstore `%s'" leaf--name (symbol-name (cdr elm))))) leaf--value) ,@leaf--body)
-   :auth-custom       `(,@(mapcar (lambda (elm) `(customize-set-variable ',(car elm) (leaf-handler-auth ,leaf--name ,(car elm) ,(cdr elm)) ,(format "Customized in leaf `%s' from plstore `%s'" leaf--name (symbol-name (cdr elm))))) leaf--value) ,@leaf--body)
-   :custom-face       `((custom-set-faces     ,@(mapcar (lambda (elm) `'(,(car elm) ,(car (cddr elm)) nil ,(format "Customized with leaf in %s block" leaf--name))) leaf--value)) ,@leaf--body)
+   :custom            `(,@(mapcar (lambda (elm) `(customize-set-variable ',(car elm) ,(cdr elm) ,(leaf--create-custom-comment :custom))) leaf--value) ,@leaf--body)
+   :custom*           `(,@(mapcar (lambda (elm) `(customize-set-variable ',(car elm) ,(cdr elm) ,(leaf--create-custom-comment :custom*))) leaf--value) ,@leaf--body)
+   :pl-custom         `(,@(mapcar (lambda (elm) `(customize-set-variable ',(car elm) (leaf-handler-auth ,leaf--name ,(car elm) ,(cdr elm)) ,(leaf--create-custom-comment :pl-custom (cdr elm)))) leaf--value) ,@leaf--body)
+   :auth-custom       `(,@(mapcar (lambda (elm) `(customize-set-variable ',(car elm) (leaf-handler-auth ,leaf--name ,(car elm) ,(cdr elm)) ,(leaf--create-custom-comment :auth-custom (cdr elm)))) leaf--value) ,@leaf--body)
+   :custom-face       `((custom-set-faces ,@(mapcar (lambda (elm) `'(,(car elm) ,(car (cddr elm)) nil ,(leaf--create-custom-comment :custom-face))) leaf--value)) ,@leaf--body)
    :init              `(,@leaf--value ,@leaf--body)
 
    :require           `(,@(mapcar (lambda (elm) `(require ',elm)) leaf--value) ,@leaf--body)
@@ -587,6 +587,16 @@ see `alist-get'."
   "Raise error with type leaf.  MESSAGE and ARGS is same form as `lwarn'."
   (apply #'lwarn `(leaf :error ,message ,@args)))
 
+(defun leaf--create-custom-comment (type &rest args)
+  "Create message for TYPE using ARGS."
+  (concat
+   (format "Customized with leaf in `%s' block" leaf--name)
+   (when (memq type '(:pl-custom :auth-custom))
+     (let* ((store (pop args)))
+       (format " using `%s' plstore" store)))
+   (when load-file-name
+     (format " at `%s'" load-file-name))))
+
 
 ;;;; General functions for leaf
 
@@ -905,8 +915,14 @@ FN also accept list of FN."
   `(condition-case err
        (progn ,@body)
      (error
-      (display-warning 'leaf (format ,(format "Error in `%s' block.  Error msg: %%s" name)
-                                     (error-message-string err))))))
+      (display-warning 'leaf (format
+                              ,(concat
+                                (format "Error in `%s' block" name)
+                                (when load-file-name
+                                  (format " at `%s'" load-file-name))
+                                "."
+                                "  Error msg: %s")
+                              (error-message-string err))))))
 
 (defmacro leaf-handler-package (name pkg _pin)
   "Handler ensure PKG via PIN in NAME leaf block."
@@ -923,8 +939,12 @@ FN also accept list of FN."
           (error
            (display-warning 'leaf
                             (format
-                             ,(format "In `%s' block, failed to :package of %s.  Error msg: %%s"
-                                      name pkg)
+                             ,(concat
+                               (format "In `%s' block" name)
+                               (when load-file-name
+                                 (format " at `%s'" load-file-name))
+                               (format ", failed to :package of `%s'." pkg)
+                               "  Error msg: %s")
                              (error-message-string err)))))))))
 
 (defmacro leaf-handler-auth (name sym store)
