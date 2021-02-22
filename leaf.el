@@ -440,6 +440,19 @@ Ref: `lisp-imenu-generic-expression'."
                               lisp-imenu-generic-expression))))))
   :group 'leaf)
 
+(defcustom leaf-find-function-support t
+  "If non-nil, enable `find-func' integrations.
+Ref: `find-function-regexp-alist'."
+  :type 'boolean
+  :set (lambda (sym value)
+         (set sym value)
+         (eval-after-load 'find-func
+           (if value
+               `(add-to-list 'find-function-regexp-alist '(leaf . leaf-find-regexp))
+             `(setq find-function-regexp-alist
+                    (delete '(leaf . leaf-find-regexp) find-function-regexp-alist)))))
+  :group 'leaf)
+
 
 ;;;; General polyfill
 
@@ -739,11 +752,6 @@ see `alist-get'."
 
 
 ;;;; find-function
-
-(eval-after-load 'find-func
-  (lambda ()
-    (defvar find-function-regexp-alist)
-    (add-to-list 'find-function-regexp-alist '(leaf . leaf-find-regexp))))
 
 (defun leaf-find (name)
   "Find the leaf block of NAME."
