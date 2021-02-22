@@ -5,7 +5,7 @@
 ;; Author: Naoya Yamashita <conao3@gmail.com>
 ;; Maintainer: Naoya Yamashita <conao3@gmail.com>
 ;; Keywords: lisp settings
-;; Version: 4.3.3
+;; Version: 4.3.4
 ;; URL: https://github.com/conao3/leaf.el
 ;; Package-Requires: ((emacs "24.1"))
 
@@ -70,6 +70,7 @@ Same as `list' but this macro does not evaluate any arguments."
    :load-path         `(,@(mapcar (lambda (elm) `(add-to-list 'load-path ,elm)) leaf--value) ,@leaf--body)
    :load-path*        `(,@(mapcar (lambda (elm) `(add-to-list 'load-path (locate-user-emacs-file ,elm))) leaf--value) ,@leaf--body)
    :leaf-autoload     `(,@(when (car leaf--value) (mapcar (lambda (elm) `(unless (fboundp ',(car elm)) (autoload #',(car elm) ,(cdr elm) nil t))) (reverse leaf--autoload))) ,@leaf--body)
+   :commands*         `(,@(when (car leaf--value) (mapcar (lambda (elm) `(unless (fboundp ',(car elm)) (autoload #',(car elm) ,(symbol-name (cdr elm))))) leaf--value)) ,@leaf--body)
 
    :defun             `(,@(mapcar (lambda (elm) `(declare-function ,(car elm) ,(symbol-name (cdr elm)))) leaf--value) ,@leaf--body)
    :defvar            `(,@(mapcar (lambda (elm) `(defvar ,elm)) leaf--value) ,@leaf--body)
@@ -188,7 +189,7 @@ Sort by `leaf-sort-leaf--values-plist' in this order.")
              (delete-dups (delq nil (leaf-flatten leaf--value)))))
 
     ((memq leaf--key (list
-                      :package
+                      :package :commands*
                       :global-minor-mode
                       :hook :mode :interpreter :magic :magic-fallback
                       :defun
@@ -209,7 +210,7 @@ Sort by `leaf-sort-leaf--values-plist' in this order.")
                  `(,(leaf-mode-sym (if (equal '(t) elm) leaf--name (car elm))) . ,leaf--name))
                 ((memq leaf--key '(:hook :mode :interpreter :magic :magic-fallback))
                  `(,@elm . ,(leaf-mode-sym leaf--name)))
-                ((memq leaf--key '(:defun))
+                ((memq leaf--key '(:defun :commands*))
                  `(,@elm . ,leaf--name))
                 ((memq leaf--key (list :pl-custom :pl-pre-setq :pl-setq :pl-setq-default
                                        :auth-custom :auth-pre-setq :auth-setq :auth-setq-default))
@@ -362,7 +363,7 @@ Sort by `leaf-sort-leaf--values-plist' in this order.")
 (defcustom leaf-defer-keywords (list
                                 :bind :bind*
                                 :mode :interpreter :magic :magic-fallback
-                                :hook :commands)
+                                :hook :commands :commands*)
   "The specified keyword is interpreted as a defer keyword.
 `leaf' blocks containing the keywords are interpreted as lazy loadable.
 To stop this function, specify ':leaf-defer nil'"
