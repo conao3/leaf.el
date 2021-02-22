@@ -152,7 +152,10 @@ Example:
 
 ;;;; test definition
 
-(setq leaf-expand-minimally t)
+(setq leaf-expand-leaf-protect nil)
+(setq leaf-expand-leaf-defun nil)
+(setq leaf-expand-leaf-defvar nil)
+(setq leaf-expand-leaf-path nil)
 
 (cort-deftest-with-macroexpand leaf/none
   '(((leaf leaf)
@@ -2102,8 +2105,7 @@ Example:
 ;;;; System keywords
 
 (cort-deftest-with-macroexpand-let leaf/leaf-expand-minimally
-    ((leaf-expand-leaf-protect t)
-     (leaf-expand-minimally    t))
+    ((leaf-expand-minimally t))
   '(((leaf leaf
        :config (leaf-init))
      (prog1 'leaf
@@ -2147,7 +2149,7 @@ Example:
        (leaf-init)))))
 
 (cort-deftest-with-macroexpand-let leaf/leaf-protect
-    ((leaf-expand-minimally nil))
+    ((leaf-expand-leaf-protect t))
   '(((leaf leaf
        :config (leaf-init))
      (prog1 'leaf
@@ -2779,16 +2781,6 @@ Example:
   (leaf *scala-flycheck-integration))")
        (mapcar 'car (cdr (assoc "Leaf" (funcall imenu-create-index-function)))))
      '("scala-mode" "lsp-metals" "*scala-flycheck-integration"))))
-
-(let ((leaf--paths nil))
-  ;; must eval in `require' or `load'.
-  (leaf leaf-1)
-  (leaf leaf-2 :leaf-path nil)
-  (eval `(cort-deftest-with-equal leaf/leaf-path
-           '((leaf--paths
-              ',(list (cons 'leaf-1 load-file-name)))
-             ((assoc 'leaf-2 leaf--paths)
-              nil)))))
 
 (when (version<= "24.3" emacs-version)
   (require 'cl-lib)
