@@ -730,9 +730,10 @@ see `alist-get'."
 
 ;;;; find-function
 
-(with-eval-after-load 'find-func
-  (defvar find-function-regexp-alist)
-  (add-to-list 'find-function-regexp-alist '(leaf . leaf-find-regexp)))
+(eval-after-load 'find-func
+  (lambda ()
+    (defvar find-function-regexp-alist)
+    (add-to-list 'find-function-regexp-alist '(leaf . leaf-find-regexp))))
 
 (defun leaf-find (name)
   "Find the leaf block of NAME."
