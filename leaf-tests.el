@@ -1683,53 +1683,6 @@ Example:
        (unless (fboundp 'leaf-plist-get) (autoload #'leaf-plist-get "leaf" nil t))
        (unless (fboundp 'leaf-insert-list-after) (autoload #'leaf-insert-list-after "leaf" nil t))))))
 
-(cort-deftest-with-macroexpand leaf/commands*
-  '(
-    ;; specify a symbol to set to autoload function
-    ((leaf leaf
-       :commands* leaf
-       :config (leaf-init))
-     (prog1 'leaf
-       (unless (fboundp 'leaf) (autoload #'leaf "leaf"))
-       (eval-after-load 'leaf
-         '(progn
-            (leaf-init)))))
-
-    ;; multi symbols will be accepted
-    ((leaf leaf
-       :commands* leaf leaf-pairp leaf-plist-get)
-     (prog1 'leaf
-       (unless (fboundp 'leaf) (autoload #'leaf "leaf"))
-       (unless (fboundp 'leaf-pairp) (autoload #'leaf-pairp "leaf"))
-       (unless (fboundp 'leaf-plist-get) (autoload #'leaf-plist-get "leaf"))))
-
-    ;; multi symbols in list will be accepted
-    ((leaf leaf
-       :commands* (leaf leaf-pairp leaf-plist-get))
-     (prog1 'leaf
-       (unless (fboundp 'leaf) (autoload #'leaf "leaf"))
-       (unless (fboundp 'leaf-pairp) (autoload #'leaf-pairp "leaf"))
-       (unless (fboundp 'leaf-plist-get) (autoload #'leaf-plist-get "leaf"))))
-
-    ;; It is accepted even if you specify symbol and list at the same time
-    ((leaf leaf
-       :commands* leaf (leaf-pairp leaf-plist-get (leaf-insert-list-after)))
-     (prog1 'leaf
-       (unless (fboundp 'leaf) (autoload #'leaf "leaf"))
-       (unless (fboundp 'leaf-pairp) (autoload #'leaf-pairp "leaf"))
-       (unless (fboundp 'leaf-plist-get) (autoload #'leaf-plist-get "leaf"))
-       (unless (fboundp 'leaf-insert-list-after) (autoload #'leaf-insert-list-after "leaf"))))
-
-    ;; specify cdr value to define other package function
-    ((leaf leaf
-       :commands* (org-crypt-use-before-save-magic . org-crypt)
-       :config (leaf-init))
-     (prog1 'leaf
-       (unless (fboundp 'org-crypt-use-before-save-magic) (autoload #'org-crypt-use-before-save-magic "org-crypt"))
-       (eval-after-load 'leaf
-         '(progn
-            (leaf-init)))))))
-
 (cort-deftest-with-macroexpand leaf/pre-setq
   '(
     ;; :pre-setq setq before `require'

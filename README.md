@@ -11,7 +11,7 @@
   - [:package, :ensure keywords](#package-ensure-keywords)
   - [:preface, :init, :config keywords](#preface-init-config-keywords)
   - [:defer-config keyword](#defer-config-keyword)
-  - [:commands, :commands keywords](#commands-commands-keyword)
+  - [:commands keyword](#commands-keyword)
   - [:after keyword](#after-keyword)
   - [:bind, :bind* keywords](#bind-bind-keywords)
 - [Configure variables keywords](#configure-variables-keywords)
@@ -515,7 +515,7 @@ You don't need to put `progn` because `leaf` can receive multiple S-expressions,
 
 
 
-## :commands, :commands* keyword
+## :commands keyword
 
 `commands` keyword configures `autoload` for its leaf-block name.
 
@@ -558,56 +558,6 @@ You don't need to put `progn` because `leaf` can receive multiple S-expressions,
        (autoload #'leaf-insert-list-after "leaf" nil t)))))
 ```
 
-`:commands` keyword genrates `autoload` statement but no-interactive one.
-
-```emacs-lisp
-(cort-deftest-with-macroexpand leaf/commands*
-  '(
-    ;; specify a symbol to set to autoload function
-    ((leaf leaf
-       :commands* leaf
-       :config (leaf-init))
-     (prog1 'leaf
-       (unless (fboundp 'leaf) (autoload #'leaf "leaf"))
-       (eval-after-load 'leaf
-         '(progn
-            (leaf-init)))))
-
-    ;; multi symbols will be accepted
-    ((leaf leaf
-       :commands* leaf leaf-pairp leaf-plist-get)
-     (prog1 'leaf
-       (unless (fboundp 'leaf) (autoload #'leaf "leaf"))
-       (unless (fboundp 'leaf-pairp) (autoload #'leaf-pairp "leaf"))
-       (unless (fboundp 'leaf-plist-get) (autoload #'leaf-plist-get "leaf"))))
-
-    ;; multi symbols in list will be accepted
-    ((leaf leaf
-       :commands* (leaf leaf-pairp leaf-plist-get))
-     (prog1 'leaf
-       (unless (fboundp 'leaf) (autoload #'leaf "leaf"))
-       (unless (fboundp 'leaf-pairp) (autoload #'leaf-pairp "leaf"))
-       (unless (fboundp 'leaf-plist-get) (autoload #'leaf-plist-get "leaf"))))
-
-    ;; It is accepted even if you specify symbol and list at the same time
-    ((leaf leaf
-       :commands* leaf (leaf-pairp leaf-plist-get (leaf-insert-list-after)))
-     (prog1 'leaf
-       (unless (fboundp 'leaf) (autoload #'leaf "leaf"))
-       (unless (fboundp 'leaf-pairp) (autoload #'leaf-pairp "leaf"))
-       (unless (fboundp 'leaf-plist-get) (autoload #'leaf-plist-get "leaf"))
-       (unless (fboundp 'leaf-insert-list-after) (autoload #'leaf-insert-list-after "leaf"))))
-
-    ;; specify cdr value to define other package function
-    ((leaf leaf
-       :commands* (org-crypt-use-before-save-magic . org-crypt)
-       :config (leaf-init))
-     (prog1 'leaf
-       (unless (fboundp 'org-crypt-use-before-save-magic) (autoload #'org-crypt-use-before-save-magic "org-crypt"))
-       (eval-after-load 'leaf
-         '(progn
-            (leaf-init)))))))
-```
 
 
 ## :after keyword
