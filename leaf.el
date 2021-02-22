@@ -67,7 +67,7 @@ Same as `list' but this macro does not evaluate any arguments."
 (defvar leaf-keywords
   (leaf-list
    :disabled          (unless (eval (car leaf--value)) `(,@leaf--body))
-   :leaf-path         (progn (when (and load-in-progress (eval (car leaf--value))) (add-to-list 'leaf--paths `(,leaf--name . ,load-file-name))) `(,@leaf--body))
+   :leaf-path         (if (and leaf--body (eval (car leaf--value))) `((leaf-handler-leaf-path ,leaf--name) ,@leaf--body) `(,@leaf--body))
    :leaf-protect      (if (and leaf--body (eval (car leaf--value))) `((leaf-handler-leaf-protect ,leaf--name ,@leaf--body)) `(,@leaf--body))
    :load-path         `(,@(mapcar (lambda (elm) `(add-to-list 'load-path ,elm)) leaf--value) ,@leaf--body)
    :load-path*        `(,@(mapcar (lambda (elm) `(add-to-list 'load-path (locate-user-emacs-file ,elm))) leaf--value) ,@leaf--body)
@@ -382,7 +382,7 @@ If non-nil, disabled keywords of `leaf-expand-minimally-suppress-keywords'."
   :type 'boolean
   :group 'leaf)
 
-(defcustom leaf-expand-minimally-suppress-keywords '(:leaf-protect :leaf-defun :leaf-defvar)
+(defcustom leaf-expand-minimally-suppress-keywords '(:leaf-protect :leaf-defun :leaf-defvar :leaf-path)
   "Suppress keywords when `leaf-expand-minimally' is non-nil."
   :type 'sexp
   :group 'leaf)
@@ -941,6 +941,11 @@ FN also accept list of FN."
      (error
       (display-warning 'leaf (format ,(format "Error in `%s' block.  Error msg: %%s" name)
                                      (error-message-string err))))))
+
+(defmacro leaf-handler-leaf-path (name)
+  "Meta handler for :leaf-path for NAME."
+  `(when load-in-progress
+     (add-to-list 'leaf--paths (cons ',name load-file-name))))
 
 (defmacro leaf-handler-package (name pkg _pin)
   "Handler ensure PKG via PIN in NAME leaf block."
