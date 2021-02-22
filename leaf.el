@@ -409,6 +409,13 @@ This variable must be result of `plstore-open'."
   :type 'sexp
   :group 'leaf)
 
+(defcustom leaf-find-regexp ".*([[:space:]]*leaf[[:space:]]+%s"
+  "The regexp used by `leaf-find' to search for a leaf block.
+Note it must contain a `%s' at the place where `format'
+should insert the leaf name."
+  :type 'regexp
+  :group 'leaf)
+
 (defcustom leaf-enable-imenu-support t
   "If non-nil, enable `imenu' integrations.
 Ref: `lisp-imenu-generic-expression'."
@@ -722,14 +729,6 @@ see `alist-get'."
 
 
 ;;;; find-function
-
-(defcustom leaf-find-regexp
-  ".*([[:space:]]*leaf[[:space:]]+%s"
-  "The regexp used by `leaf-find' to search for a leaf block.
-Note it must contain a `%s' at the place where `format'
-should insert the leaf name."
-  :type 'regexp
-  :group 'leaf)
 
 (with-eval-after-load 'find-func
   (defvar find-function-regexp-alist)
