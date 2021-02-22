@@ -732,15 +732,12 @@ see `alist-get'."
 
 (with-eval-after-load 'find-func
   (defvar find-function-regexp-alist)
-  (add-to-list 'find-function-regexp-alist
-               '(leaf . leaf-find-regexp)))
+  (add-to-list 'find-function-regexp-alist '(leaf . leaf-find-regexp)))
 
 (defun leaf-find (name)
   "Find the leaf block of NAME."
   (interactive
-   (list (completing-read
-          "Find leaf: "
-          (delete-dups (mapcar #'car leaf--paths)))))
+   (list (completing-read "Find leaf: " (delete-dups (mapcar #'car leaf--paths)))))
   (require 'find-func)
   (let* ((name (intern name))
          (paths (flatten-tree (mapcar (lambda (a) (when (equal name (car a)) (cdr a))) leaf--paths)))
