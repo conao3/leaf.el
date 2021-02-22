@@ -2181,6 +2181,31 @@ Example:
                          (format "Error in `leaf' block.  Error msg: %s"
                                  (error-message-string err))))))))
 
+(cort-deftest-with-macroexpand-let leaf/leaf-path
+    ((leaf-expand-leaf-path t))
+  '(((leaf leaf
+       :config (leaf-init))
+     (prog1 'leaf
+       (leaf-handler-leaf-path leaf)
+       (leaf-init)))
+
+    ((leaf leaf
+       :leaf-path nil
+       :config (leaf-init))
+     (prog1 'leaf
+       (leaf-init)))
+
+    ((leaf leaf
+       :leaf-path t nil
+       :config (leaf-init))
+     (prog1 'leaf
+       (leaf-handler-leaf-path leaf)
+       (leaf-init)))
+
+    ((leaf-handler-leaf-path leaf)
+     (when load-in-progress
+       (add-to-list 'leaf--paths (cons 'leaf load-file-name))))))
+
 (cort-deftest-with-macroexpand leaf/leaf-defun
   '(((leaf annotate
        :commands annotate-mode
