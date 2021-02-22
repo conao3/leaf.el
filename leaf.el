@@ -5,7 +5,7 @@
 ;; Author: Naoya Yamashita <conao3@gmail.com>
 ;; Maintainer: Naoya Yamashita <conao3@gmail.com>
 ;; Keywords: lisp settings
-;; Version: 4.3.5
+;; Version: 4.3.6
 ;; URL: https://github.com/conao3/leaf.el
 ;; Package-Requires: ((emacs "24.1"))
 
@@ -54,6 +54,7 @@
 Same as `list' but this macro does not evaluate any arguments."
   `(quote ,args))
 
+(defvar leaf--paths nil)
 (defvar leaf--raw)
 (defvar leaf--name)
 (defvar leaf--key)
@@ -66,6 +67,7 @@ Same as `list' but this macro does not evaluate any arguments."
 (defvar leaf-keywords
   (leaf-list
    :disabled          (unless (eval (car leaf--value)) `(,@leaf--body))
+   :leaf-path         (if (and leaf--body (eval (car leaf--value))) `((leaf-handler-leaf-path ,leaf--name) ,@leaf--body) `(,@leaf--body))
    :leaf-protect      (if (and leaf--body (eval (car leaf--value))) `((leaf-handler-leaf-protect ,leaf--name ,@leaf--body)) `(,@leaf--body))
    :load-path         `(,@(mapcar (lambda (elm) `(add-to-list 'load-path ,elm)) leaf--value) ,@leaf--body)
    :load-path*        `(,@(mapcar (lambda (elm) `(add-to-list 'load-path (locate-user-emacs-file ,elm))) leaf--value) ,@leaf--body)
@@ -354,7 +356,7 @@ Sort by `leaf-sort-leaf--values-plist' in this order.")
 
 (defcustom leaf-system-defaults (leaf-list
                                  :leaf-autoload t :leaf-defer t :leaf-protect t
-                                 :leaf-defun t :leaf-defvar t)
+                                 :leaf-defun t :leaf-defvar t :leaf-path t)
   "The value for all `leaf' blocks for leaf system."
   :type 'sexp
   :group 'leaf)
@@ -380,7 +382,7 @@ If non-nil, disabled keywords of `leaf-expand-minimally-suppress-keywords'."
   :type 'boolean
   :group 'leaf)
 
-(defcustom leaf-expand-minimally-suppress-keywords '(:leaf-protect :leaf-defun :leaf-defvar)
+(defcustom leaf-expand-minimally-suppress-keywords '(:leaf-protect :leaf-defun :leaf-defvar :leaf-path)
   "Suppress keywords when `leaf-expand-minimally' is non-nil."
   :type 'sexp
   :group 'leaf)
@@ -405,6 +407,13 @@ If nil, use authinfo.plist powerd by `plstore' for :auth-* keywords'"
   "Default value if omit store variable in plstore related keywords.
 This variable must be result of `plstore-open'."
   :type 'sexp
+  :group 'leaf)
+
+(defcustom leaf-find-regexp ".*([[:space:]]*leaf[[:space:]]+%s"
+  "The regexp used by `leaf-find' to search for a leaf block.
+Note it must contain a `%s' at the place where `format'
+should insert the leaf name."
+  :type 'regexp
   :group 'leaf)
 
 (defcustom leaf-enable-imenu-support t
@@ -729,6 +738,32 @@ see `alist-get'."
       (display-buffer buf))))
 
 
+;;;; find-function
+
+(eval-after-load 'find-func
+  (lambda ()
+    (defvar find-function-regexp-alist)
+    (add-to-list 'find-function-regexp-alist '(leaf . leaf-find-regexp))))
+
+(defun leaf-find (name)
+  "Find the leaf block of NAME."
+  (interactive
+   (let ((candidates (delete-dups (mapcar #'car leaf--paths))))
+     (if (not candidates)
+         (error "Leaf has no definition informations")
+       (list (completing-read "Find leaf: " (delete-dups (mapcar #'car leaf--paths)))))))
+  (require 'find-func)
+  (let* ((name (intern name))
+         (paths (mapcan (lambda (elm) (when (eq name (car elm)) (list (cdr elm)))) leaf--paths))
+         (path (if (= (length paths) 1) paths (list (completing-read "Select one: " paths))))
+         (location (find-function-search-for-symbol name 'leaf path)))
+    (when location
+      (prog1 (pop-to-buffer (car location))
+        (when (cdr location)
+          (goto-char (cdr location)))
+        (run-hooks 'find-function-after-hook)))))
+
+
 ;;;; Key management
 
 (defvar leaf-key-override-global-map (make-keymap)
@@ -923,6 +958,14 @@ FN also accept list of FN."
                                 "."
                                 "  Error msg: %s")
                               (error-message-string err))))))
+
+(defmacro leaf-handler-leaf-path (name)
+  "Meta handler for :leaf-path for NAME."
+  `(let ((file (or load-file-name
+                   buffer-file-name
+                   byte-compile-current-file)))
+     (when file
+      (add-to-list 'leaf--paths (cons ',name file)))))
 
 (defmacro leaf-handler-package (name pkg _pin)
   "Handler ensure PKG via PIN in NAME leaf block."

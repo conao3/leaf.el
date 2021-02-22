@@ -152,7 +152,10 @@ Example:
 
 ;;;; test definition
 
-(setq leaf-expand-minimally t)
+(setq leaf-expand-leaf-protect nil)
+(setq leaf-expand-leaf-defun nil)
+(setq leaf-expand-leaf-defvar nil)
+(setq leaf-expand-leaf-path nil)
 
 (cort-deftest-with-macroexpand leaf/none
   '(((leaf leaf)
@@ -2102,8 +2105,7 @@ Example:
 ;;;; System keywords
 
 (cort-deftest-with-macroexpand-let leaf/leaf-expand-minimally
-    ((leaf-expand-leaf-protect t)
-     (leaf-expand-minimally    t))
+    ((leaf-expand-minimally t))
   '(((leaf leaf
        :config (leaf-init))
      (prog1 'leaf
@@ -2147,7 +2149,7 @@ Example:
        (leaf-init)))))
 
 (cort-deftest-with-macroexpand-let leaf/leaf-protect
-    ((leaf-expand-minimally nil))
+    ((leaf-expand-leaf-protect t))
   '(((leaf leaf
        :config (leaf-init))
      (prog1 'leaf
@@ -2178,6 +2180,32 @@ Example:
         (display-warning 'leaf
                          (format "Error in `leaf' block.  Error msg: %s"
                                  (error-message-string err))))))))
+
+(cort-deftest-with-macroexpand-let leaf/leaf-path
+    ((leaf-expand-leaf-path t))
+  '(((leaf leaf
+       :config (leaf-init))
+     (prog1 'leaf
+       (leaf-handler-leaf-path leaf)
+       (leaf-init)))
+
+    ((leaf leaf
+       :leaf-path nil
+       :config (leaf-init))
+     (prog1 'leaf
+       (leaf-init)))
+
+    ((leaf leaf
+       :leaf-path t nil
+       :config (leaf-init))
+     (prog1 'leaf
+       (leaf-handler-leaf-path leaf)
+       (leaf-init)))
+
+    ((leaf-handler-leaf-path leaf)
+     (let ((file (or load-file-name buffer-file-name byte-compile-current-file)))
+       (when file
+         (add-to-list 'leaf--paths (cons 'leaf file)))))))
 
 (cort-deftest-with-macroexpand leaf/leaf-defun
   '(((leaf annotate
