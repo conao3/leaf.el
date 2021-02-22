@@ -743,7 +743,7 @@ see `alist-get'."
        (list (completing-read "Find leaf: " (delete-dups (mapcar #'car leaf--paths)))))))
   (require 'find-func)
   (let* ((name (intern name))
-         (paths (flatten-tree (mapcar (lambda (a) (when (eq name (car a)) (cdr a))) leaf--paths)))
+         (paths (mapcan (lambda (elm) (when (eq name (car elm)) (list (cdr elm)))) leaf--paths))
          (path (if (= (length paths) 1) paths (list (completing-read "Select one: " paths))))
          (location (apply #'find-function-search-for-symbol name 'leaf path)))
     (prog1 (pop-to-buffer (car location))
