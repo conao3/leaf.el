@@ -67,7 +67,7 @@ Same as `list' but this macro does not evaluate any arguments."
 (defvar leaf-keywords
   (leaf-list
    :disabled          (unless (eval (car leaf--value)) `(,@leaf--body))
-   :leaf-path         (progn (when (and load-in-progress (eval (car leaf--value))) (add-to-list 'leaf--paths (cons leaf--name load-file-name))) `(,@leaf--body))
+   :leaf-path         (progn (when (and load-in-progress (eval (car leaf--value))) (add-to-list 'leaf--paths `(,leaf--name . ,load-file-name))) `(,@leaf--body))
    :leaf-protect      (if (and leaf--body (eval (car leaf--value))) `((leaf-handler-leaf-protect ,leaf--name ,@leaf--body)) `(,@leaf--body))
    :load-path         `(,@(mapcar (lambda (elm) `(add-to-list 'load-path ,elm)) leaf--value) ,@leaf--body)
    :load-path*        `(,@(mapcar (lambda (elm) `(add-to-list 'load-path (locate-user-emacs-file ,elm))) leaf--value) ,@leaf--body)
