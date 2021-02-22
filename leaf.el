@@ -737,7 +737,10 @@ see `alist-get'."
 (defun leaf-find (name)
   "Find the leaf block of NAME."
   (interactive
-   (list (completing-read "Find leaf: " (delete-dups (mapcar #'car leaf--paths)))))
+   (let ((candidates (delete-dups (mapcar #'car leaf--paths))))
+     (if (not candidates)
+         (error "Leaf has no definition informations")
+       (list (completing-read "Find leaf: " (delete-dups (mapcar #'car leaf--paths)))))))
   (require 'find-func)
   (let* ((name (intern name))
          (paths (flatten-tree (mapcar (lambda (a) (when (eq name (car a)) (cdr a))) leaf--paths)))
