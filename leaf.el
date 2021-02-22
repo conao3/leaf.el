@@ -746,11 +746,12 @@ see `alist-get'."
   (let* ((name (intern name))
          (paths (mapcan (lambda (elm) (when (eq name (car elm)) (list (cdr elm)))) leaf--paths))
          (path (if (= (length paths) 1) paths (list (completing-read "Select one: " paths))))
-         (location (apply #'find-function-search-for-symbol name 'leaf path)))
-    (prog1 (pop-to-buffer (car location))
-      (when (cdr location)
-        (goto-char (cdr location)))
-      (run-hooks 'find-function-after-hook))))
+         (location (find-function-search-for-symbol name 'leaf path)))
+    (when location
+      (prog1 (pop-to-buffer (car location))
+        (when (cdr location)
+          (goto-char (cdr location)))
+        (run-hooks 'find-function-after-hook)))))
 
 
 ;;;; Key management
@@ -944,8 +945,11 @@ FN also accept list of FN."
 
 (defmacro leaf-handler-leaf-path (name)
   "Meta handler for :leaf-path for NAME."
-  `(when load-in-progress
-     (add-to-list 'leaf--paths (cons ',name load-file-name))))
+  `(let ((file (or load-file-name
+                   buffer-file-name
+                   byte-compile-current-file)))
+     (when file
+      (add-to-list 'leaf--paths (cons ',name file)))))
 
 (defmacro leaf-handler-package (name pkg _pin)
   "Handler ensure PKG via PIN in NAME leaf block."
