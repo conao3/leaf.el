@@ -5,7 +5,7 @@
 ;; Author: Naoya Yamashita <conao3@gmail.com>
 ;; Maintainer: Naoya Yamashita <conao3@gmail.com>
 ;; Keywords: lisp settings
-;; Version: 4.3.6
+;; Version: 4.3.7
 ;; URL: https://github.com/conao3/leaf.el
 ;; Package-Requires: ((emacs "24.1"))
 
@@ -440,6 +440,19 @@ Ref: `lisp-imenu-generic-expression'."
                               lisp-imenu-generic-expression))))))
   :group 'leaf)
 
+(defcustom leaf-find-function-support t
+  "If non-nil, enable `find-func' integrations.
+Ref: `find-function-regexp-alist'."
+  :type 'boolean
+  :set (lambda (sym value)
+         (set sym value)
+         (eval-after-load 'find-func
+           (if value
+               `(add-to-list 'find-function-regexp-alist '(leaf . leaf-find-regexp))
+             `(setq find-function-regexp-alist
+                    (delete '(leaf . leaf-find-regexp) find-function-regexp-alist)))))
+  :group 'leaf)
+
 
 ;;;; General polyfill
 
@@ -740,11 +753,6 @@ see `alist-get'."
 
 ;;;; find-function
 
-(eval-after-load 'find-func
-  (lambda ()
-    (defvar find-function-regexp-alist)
-    (add-to-list 'find-function-regexp-alist '(leaf . leaf-find-regexp))))
-
 (defun leaf-find (name)
   "Find the leaf block of NAME."
   (interactive
@@ -755,7 +763,7 @@ see `alist-get'."
   (require 'find-func)
   (let* ((name (intern name))
          (paths (mapcan (lambda (elm) (when (eq name (car elm)) (list (cdr elm)))) leaf--paths))
-         (path (if (= (length paths) 1) paths (list (completing-read "Select one: " paths))))
+         (path (if (= (length paths) 1) (car paths) (completing-read "Select one: " paths)))
          (location (find-function-search-for-symbol name 'leaf path)))
     (when location
       (prog1 (pop-to-buffer (car location))
