@@ -2203,8 +2203,9 @@ Example:
        (leaf-init)))
 
     ((leaf-handler-leaf-path leaf)
-     (when load-in-progress
-       (add-to-list 'leaf--paths (cons 'leaf load-file-name))))))
+     (let ((file (or load-file-name buffer-file-name byte-compile-current-file)))
+       (when file
+         (add-to-list 'leaf--paths (cons 'leaf file)))))))
 
 (cort-deftest-with-macroexpand leaf/leaf-defun
   '(((leaf annotate
