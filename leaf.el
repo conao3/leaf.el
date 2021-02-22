@@ -755,7 +755,7 @@ see `alist-get'."
   (require 'find-func)
   (let* ((name (intern name))
          (paths (mapcan (lambda (elm) (when (eq name (car elm)) (list (cdr elm)))) leaf--paths))
-         (path (if (= (length paths) 1) paths (list (completing-read "Select one: " paths))))
+         (path (if (= (length paths) 1) (car paths) (completing-read "Select one: " paths)))
          (location (find-function-search-for-symbol name 'leaf path)))
     (when location
       (prog1 (pop-to-buffer (car location))
