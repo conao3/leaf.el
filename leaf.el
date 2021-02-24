@@ -619,6 +619,12 @@ see `alist-get'."
    (when load-file-name
      (format " at `%s'" load-file-name))))
 
+(defun leaf-this-file ()
+  "Return path to this file."
+  (or load-file-name
+      (and (boundp 'byte-compile-current-file) byte-compile-current-file)
+      buffer-file-name))
+
 
 ;;;; General functions for leaf
 
@@ -817,7 +823,7 @@ For example:
          (keymap*  (eval keymap))
          (mmap     (or keymap* 'global-map))
          (vecp     (vectorp key*))
-         (path     load-file-name)
+         (path     (leaf-this-file))
          (_mvec    (if (vectorp key*) key* (read-kbd-macro key*)))
          (mstr     (if (stringp key*) key* (key-description key*))))
     `(let* ((old (lookup-key ,mmap ,(if vecp key `(kbd ,key))))
