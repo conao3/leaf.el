@@ -5,7 +5,7 @@
 ;; Author: Naoya Yamashita <conao3@gmail.com>
 ;; Maintainer: Naoya Yamashita <conao3@gmail.com>
 ;; Keywords: lisp settings
-;; Version: 4.3.8
+;; Version: 4.3.9
 ;; URL: https://github.com/conao3/leaf.el
 ;; Package-Requires: ((emacs "24.1"))
 
@@ -619,6 +619,12 @@ see `alist-get'."
    (when load-file-name
      (format " at `%s'" load-file-name))))
 
+(defun leaf-this-file ()
+  "Return path to this file."
+  (or load-file-name
+      (and (boundp 'byte-compile-current-file) byte-compile-current-file)
+      buffer-file-name))
+
 
 ;;;; General functions for leaf
 
@@ -788,7 +794,7 @@ see `alist-get'."
 
 (defvar leaf-key-bindlist nil
   "List of bindings performed by `leaf-key'.
-Elements have the form (MAP KEY CMD ORIGINAL-CMD)")
+Elements have the form (MAP KEY CMD ORIGINAL-CMD PATH)")
 
 (defmacro leaf-key (key command &optional keymap)
   "Bind KEY to COMMAND in KEYMAP (`global-map' if not passed).
@@ -817,10 +823,11 @@ For example:
          (keymap*  (eval keymap))
          (mmap     (or keymap* 'global-map))
          (vecp     (vectorp key*))
+         (path     (leaf-this-file))
          (_mvec    (if (vectorp key*) key* (read-kbd-macro key*)))
          (mstr     (if (stringp key*) key* (key-description key*))))
     `(let* ((old (lookup-key ,mmap ,(if vecp key `(kbd ,key))))
-            (value ,(list '\` `(,mmap ,mstr ,command* ,',(and old (not (numberp old)) old)))))
+            (value ,(list '\` `(,mmap ,mstr ,command* ,',(and old (not (numberp old)) old) ,path))))
        (push value leaf-key-bindlist)
        (define-key ,mmap ,(if vecp key `(kbd ,key)) ',command*))))
 
@@ -909,7 +916,8 @@ BIND must not contain :{{map}}."
   (setq tabulated-list-format [("Map"     20 t)
                                ("Key"     20 t)
                                ("Command" 40 t)
-                               ("Before Command" 0 t)])
+                               ("Before Command" 40 t)
+                               ("Path" 0 t)])
   (setq tabulated-list-entries
         (let ((id 0)
               (formatfn (lambda (elm)
@@ -922,7 +930,8 @@ BIND must not contain :{{map}}."
             (push `(,id [,(funcall formatfn (nth 0 elm))
                          ,(funcall formatfn (nth 1 elm))
                          ,(funcall formatfn (nth 2 elm))
-                         ,(funcall formatfn (nth 3 elm))])
+                         ,(funcall formatfn (nth 3 elm))
+                         ,(funcall formatfn (nth 4 elm))])
                   res))
           (nreverse res)))
   (setq tabulated-list-sort-key '("Map" . nil))
