@@ -2204,6 +2204,7 @@ Example:
 
     ((leaf-handler-leaf-path leaf)
      (let ((file (or load-file-name buffer-file-name byte-compile-current-file)))
+       (unless (boundp 'leaf--paths) (defvar leaf--paths nil))
        (when file
          (add-to-list 'leaf--paths (cons 'leaf file)))))))
 
