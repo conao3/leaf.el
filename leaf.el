@@ -5,7 +5,7 @@
 ;; Author: Naoya Yamashita <conao3@gmail.com>
 ;; Maintainer: Naoya Yamashita <conao3@gmail.com>
 ;; Keywords: lisp settings
-;; Version: 4.3.7
+;; Version: 4.3.8
 ;; URL: https://github.com/conao3/leaf.el
 ;; Package-Requires: ((emacs "24.1"))
 
@@ -972,6 +972,7 @@ FN also accept list of FN."
   `(let ((file (or load-file-name
                    buffer-file-name
                    byte-compile-current-file)))
+     (unless (boundp 'leaf--paths) (defvar leaf--paths nil))
      (when file
       (add-to-list 'leaf--paths (cons ',name file)))))
 
