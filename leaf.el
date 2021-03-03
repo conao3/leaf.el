@@ -5,7 +5,7 @@
 ;; Author: Naoya Yamashita <conao3@gmail.com>
 ;; Maintainer: Naoya Yamashita <conao3@gmail.com>
 ;; Keywords: lisp settings
-;; Version: 4.3.9
+;; Version: 4.4.0
 ;; URL: https://github.com/conao3/leaf.el
 ;; Package-Requires: ((emacs "24.1"))
 
@@ -409,7 +409,7 @@ This variable must be result of `plstore-open'."
   :type 'sexp
   :group 'leaf)
 
-(defcustom leaf-find-regexp ".*([[:space:]]*leaf[[:space:]]+%s"
+(defcustom leaf-find-regexp ".*([[:space:]]*leaf[[:space:]]+\\(%s\\)"
   "The regexp used by `leaf-find' to search for a leaf block.
 Note it must contain a `%s' at the place where `format'
 should insert the leaf name."
