@@ -1218,6 +1218,112 @@ Example:
                     ("M-O" . isearch-moccur-all)
                     ("M-s" . isearch-moccur-some)))))))
 
+(cort-deftest-with-macroexpand leaf/bind-keymap
+  '(
+    ;; cons-cell will be accepted
+    ((leaf projectile
+       :ensure t
+       :bind-keymap ("C-c p" . projectile-command-map))
+     (prog1 'projectile
+       (leaf-handler-package projectile projectile nil)
+       (leaf-keys-bind-keymap (("C-c p" . projectile-command-map))
+                              nil 'projectile)))
+
+    ;; multi cons-cell will be accepted
+    ((leaf projectile
+       :bind-keymap
+       ("C-c p" . projectile-command-map)
+       ("C-%" . ctl-x-5-map))
+     (prog1 'projectile
+       (leaf-keys-bind-keymap (("C-c p" . projectile-command-map)
+                               ("C-%" . ctl-x-5-map))
+                              nil 'projectile)))
+
+    ;; multi cons-cell in list will be accepted
+    ((leaf projectile
+       :bind-keymap (("C-c p" . projectile-command-map)
+                     ("C-%" . ctl-x-5-map)))
+     (prog1 'projectile
+       (leaf-keys-bind-keymap (("C-c p" . projectile-command-map)
+                               ("C-%" . ctl-x-5-map))
+                              nil 'projectile)))
+
+    ;; nested cons-cell list will be accepted
+    ((leaf projectile
+       :bind-keymap (("C-c p" . projectile-command-map)
+                     (("C-^" . ctl-x-4-map)
+                      ("C-%" . ctl-x-5-map))))
+     (prog1 'projectile
+       (leaf-keys-bind-keymap (("C-c p" . projectile-command-map)
+                               ("C-^" . ctl-x-4-map)
+                               ("C-%" . ctl-x-5-map))
+                              nil 'projectile)))
+
+    ;; use keyword at first element to bind specific map
+    ((leaf projectile
+       :bind-keymap (("C-c p" . projectile-command-map)
+                     (:projectile-mode-map
+                      ("C-^" . ctl-x-4-map)
+                      ("C-%" . ctl-x-5-map))))
+     (prog1 'projectile
+       (leaf-keys-bind-keymap (("C-c p" . projectile-command-map)
+                               (projectile-mode-map
+                                :package projectile
+			        ("C-^" . ctl-x-4-map)
+			        ("C-%" . ctl-x-5-map)))
+                              nil 'projectile)))
+
+    ;; specific map at top-level will be accepted
+    ((leaf projectile
+       :bind-keymap
+       ("C-c p" . projectile-command-map)
+       (:projectile-mode-map
+        ("C-^" . ctl-x-4-map)
+        ("C-%" . ctl-x-5-map)))
+     (prog1 'projectile
+       (leaf-keys-bind-keymap (("C-c p" . projectile-command-map)
+                               (projectile-mode-map :package projectile
+			                            ("C-^" . ctl-x-4-map)
+			                            ("C-%" . ctl-x-5-map)))
+                              nil 'projectile)))
+
+    ;; use :package to deffering :iserch-mode-map declared
+    ((leaf projectile
+       :bind-keymap (("C-c p" . projectile-command-map)
+                     (:isearch-mode-map
+                      :package isearch
+                      ("C-^" . ctl-x-4-map)
+                      ("C-%" . ctl-x-5-map))))
+     (prog1 'projectile
+       (leaf-keys-bind-keymap (("C-c p" . projectile-command-map)
+                               (isearch-mode-map :package isearch
+		                                 ("C-^" . ctl-x-4-map)
+		                                 ("C-%" . ctl-x-5-map)))
+                              nil 'projectile)))
+
+    ;; you can use symbol instead of keyword to specify map
+    ((leaf projectile
+       :bind-keymap (("C-c p" . projectile-command-map)
+                     (isearch-mode-map
+                      :package isearch
+                      ("C-^" . ctl-x-4-map)
+                      ("C-%" . ctl-x-5-map))))
+     (prog1 'projectile
+       (leaf-keys-bind-keymap (("C-c p" . projectile-command-map)
+                               (isearch-mode-map :package isearch
+		                                 ("C-^" . ctl-x-4-map)
+		                                 ("C-%" . ctl-x-5-map)))
+                              nil 'projectile)))
+
+    ;; you can use vectors to remap etc
+    ((leaf projectile
+       :ensure t
+       :bind-keymap (([remap isearch-forward] . projectile-command-map)))
+     (prog1 'projectile
+       (leaf-handler-package projectile projectile nil)
+       (leaf-keys-bind-keymap (([remap isearch-forward] . projectile-command-map))
+                              nil 'projectile)))))
+
 (cort-deftest-with-macroexpand leaf/global-minor-mode
   '(
     ;; symbol will be accepted
@@ -2303,6 +2409,30 @@ Example:
               (value `(global-map "C-x C-f" undo ,(and old (not (numberp old)) old) nil)))
          (push value leaf-key-bindlist)
          (define-key global-map [(control 120) (control 102)] 'undo))))))
+
+(when (version< "24.0" emacs-version)
+  (cort-deftest-with-macroexpand leaf/leaf-key-bind-keymap
+    '(((leaf-key-bind-keymap "C-c p" projectile-command-map)
+       (progn
+         nil
+         (leaf-key "C-c p" projectile-command-map nil)))
+
+      ((leaf-key-bind-keymap "C-c p" projectile-command-map 'c-mode-map)
+       (progn
+         nil
+         (leaf-key "C-c p" projectile-command-map 'c-mode-map)))
+
+      ((leaf-key-bind-keymap "C-c p" projectile-command-map 'c-mode-map 'projectile)
+       (progn
+         (require 'projectile)
+         (leaf-key "C-c p" projectile-command-map 'c-mode-map)))
+
+      ((leaf-key-bind-keymap [remap backward-sentence] projectile-command-map 'shell-mode-map)
+       (progn
+         nil
+         (leaf-key
+	  [remap backward-sentence]
+	  projectile-command-map 'shell-mode-map))))))
 
 ;; required `tabulated-list'
 ;; there are only tested running (leaf-key-describe-bindings) with no error

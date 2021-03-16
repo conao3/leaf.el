@@ -5,7 +5,7 @@
 ;; Author: Naoya Yamashita <conao3@gmail.com>
 ;; Maintainer: Naoya Yamashita <conao3@gmail.com>
 ;; Keywords: lisp settings
-;; Version: 4.4.0
+;; Version: 4.4.1
 ;; URL: https://github.com/conao3/leaf.el
 ;; Package-Requires: ((emacs "24.1"))
 
@@ -109,6 +109,8 @@ Same as `list' but this macro does not evaluate any arguments."
    :bind*             (progn
                         (leaf-register-autoload (cadr leaf--value) leaf--name)
                         `((leaf-keys* ,(car leaf--value)) ,@leaf--body))
+   :bind-keymap       `((leaf-keys-bind-keymap ,(car leaf--value) nil ',leaf--name) ,@leaf--body)
+   :bind-keymap*      `((leaf-keys-bind-keymap* ,(car leaf--value) nil ',leaf--name) ,@leaf--body)
 
    :mode              (progn
                         (leaf-register-autoload (mapcar #'cdr leaf--value) leaf--name)
@@ -247,7 +249,7 @@ Sort by `leaf-sort-leaf--values-plist' in this order.")
                (cons (car elm) (cadr elm)))
              (mapcan 'identity leaf--value)))
 
-    ((memq leaf--key '(:bind :bind*))
+    ((memq leaf--key '(:bind :bind* :bind-keymap :bind-keymap*))
      ;; Accept: `leaf-keys' accept form
      ;; Return: a pair like (leaf--value . (fn fn ...))
      (eval `(leaf-keys ,leaf--value ,leaf--name)))
@@ -836,9 +838,11 @@ For example:
 Bind COMMAND at KEY."
   `(leaf-key ,key ,command 'leaf-key-override-global-map))
 
-(defmacro leaf-keys (bind &optional dryrun-name)
+(defmacro leaf-keys (bind &optional dryrun-name bind-keymap bind-keymap-pkg)
   "Bind multiple BIND for KEYMAP defined in PKG.
 BIND is (KEY . COMMAND) or (KEY . nil) to unbind KEY.
+If BIND-KEYMAP is non-nil generate `leaf-key-bind-keymap' instead of `leaf-key'.
+If BIND-KEYMAP-PKG is passed, require it before binding.
 
 OPTIONAL:
   BIND also accept below form.
@@ -865,7 +869,10 @@ NOTE: BIND can also accept list of these."
           (lambda (bind)
             (cond
              ((funcall pairp bind)
-              (push `(leaf-key ,(car bind) #',(cdr bind)) forms)
+              (push (if bind-keymap
+                        `(leaf-key-bind-keymap ,(car bind) ,(cdr bind) nil ,bind-keymap-pkg)
+                      `(leaf-key ,(car bind) #',(cdr bind)))
+                    forms)
               (push bind bds)
               (push (cdr bind) fns))
              ((and (listp (car bind))
@@ -873,7 +880,10 @@ NOTE: BIND can also accept list of these."
               (mapcar (lambda (elm)
                         (if (funcall pairp elm)
                             (progn
-                              (push `(leaf-key ,(car elm) #',(cdr elm)) forms)
+                              (push (if bind-keymap
+                                        `(leaf-key-bind-keymap ,(car elm) ,(cdr elm) nil ,bind-keymap-pkg)
+                                      `(leaf-key ,(car elm) #',(cdr elm)))
+                                    forms)
                               (push elm bds)
                               (push (cdr elm) fns))
                           (funcall recurfn elm)))
@@ -888,7 +898,9 @@ NOTE: BIND can also accept list of these."
                               ,@(mapcar
                                  (lambda (elm)
                                    (push (cdr elm) fns)
-                                   `(leaf-key ,(car elm) #',(cdr elm) ',map))
+                                   (if bind-keymap
+                                       `(leaf-key-bind-keymap ,(car elm) ,(cdr elm) ',map ',pkg)
+                                     `(leaf-key ,(car elm) #',(cdr elm) ',map)))
                                  elmbinds))))
                 (push (if pkg
                           `(,map :package ,pkg ,@elmbinds)
@@ -896,7 +908,8 @@ NOTE: BIND can also accept list of these."
                       bds)
                 (when pkg
                   (dolist (elmpkg (if (atom pkg) `(,pkg) pkg))
-                    (setq form `(eval-after-load ',elmpkg ',form))))
+                    (unless bind-keymap
+                      (setq form `(eval-after-load ',elmpkg ',form)))))
                 (push form forms)))
              (t
               (mapcar (lambda (elm) (funcall recurfn elm)) bind)))))
@@ -910,6 +923,48 @@ NOTE: BIND can also accept list of these."
 BIND must not contain :{{map}}."
   (let ((binds (if (and (atom (car bind)) (atom (cdr bind))) `(,bind) bind)))
     `(leaf-keys (:leaf-key-override-global-map ,@binds))))
+
+;;; leaf-keys-bind-keymap
+
+(defmacro leaf-key-bind-keymap (key kmap &optional keymap pkg)
+  "Bind KEY to KMAP in KEYMAP (`global-map' if not passed).
+If PKG passed, require PKG before binding."
+  `(progn
+     ,(when pkg `(require ,pkg))
+     (leaf-key ,key ,kmap ,keymap)))
+
+(defmacro leaf-key-bind-keymap* (key keymap &optional pkg)
+  "Similar to `leaf-keys-bind-keymap', but overrides any mode-specific bindings.
+Bind KEYMAP at KEY.
+If PKG passed, require PKG before binding."
+  `(leaf-keys-bind-keymap ,key ,keymap 'leaf-key-override-global-map ,pkg))
+
+(defmacro leaf-keys-bind-keymap (bind &optional dryrun-name pkg)
+  "Bind multiple BIND for KEYMAP defined in PKG.
+BIND is (KEY . KEYMAP) or (KEY . nil) to unbind KEY.
+If PKG passed, require PKG before binding.
+
+OPTIONAL:
+  BIND also accept below form.
+    (:{{map}} :package {{pkg}} (KEY . KEYMAP) (KEY . KEYMAP))
+  KEYMAP is quoted keymap name.
+  PKG is quoted package name which define KEYMAP.
+  (wrap `eval-after-load' PKG)
+
+  If DRYRUN-NAME is non-nil, return list like
+  (LEAF_KEYS-FORMS (FN FN ...))
+
+  If omit :package of BIND, fill it in LEAF_KEYS-FORM.
+
+NOTE: BIND can also accept list of these."
+  `(leaf-keys ,bind ,dryrun-name 'bind-keymap ,pkg))
+
+(defmacro leaf-keys-bind-keymap* (bind &optional pkg)
+  "Similar to `leaf-keys-bind-keymap' but overrides any mode-specific bindings.
+BIND must not contain :{{map}}.
+If PKG passed, require PKG before binding."
+  (let ((binds (if (and (atom (car bind)) (atom (cdr bind))) `(,bind) bind)))
+    `(leaf-keys (:leaf-key-override-global-map ,@binds) ,pkg)))
 
 (define-derived-mode leaf-key-list-mode tabulated-list-mode "Leaf-key Bindings"
   "Major mode for listing bindings configured via `leaf-key'."
@@ -957,6 +1012,16 @@ FN also accept list of FN."
   (mapc
    (lambda (elm)
      (let ((target `(,elm . ,(symbol-name pkg))))
+       (when (and elm (symbolp elm) (not (member target leaf--autoload)))
+         (push target leaf--autoload))))
+   (if (listp fn) fn `(,fn))))
+
+(defun leaf-register-bind-keymap-autoload (fn pkg)
+  "Registor FN as autoload for PKG.
+FN also accept list of FN."
+  (mapc
+   (lambda (elm)
+     (let ((target `(,(intern (format "leaf-key--bind-keymap--%s--%s" pkg elm)) . ,(symbol-name pkg))))
        (when (and elm (symbolp elm) (not (member target leaf--autoload)))
          (push target leaf--autoload))))
    (if (listp fn) fn `(,fn))))
