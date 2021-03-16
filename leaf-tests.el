@@ -1998,6 +1998,38 @@ Example:
        (setq leaf-backend-bind 'bind-key)
        (setq leaf-backend-bind* 'bind-key)))))
 
+(cort-deftest-with-macroexpand leaf/setf
+  '(
+    ;; :setf require cons-cell list ONLY.
+    ((leaf alloc
+       :setf ((gc-cons-threshold . 536870912)
+              (garbage-collection-messages . t))
+       :require t)
+     (prog1 'alloc
+       (require 'alloc)
+       (setf gc-cons-threshold 536870912)
+       (setf garbage-collection-messages t)))
+
+    ;; left value could generalized variable (alist-get, plist-get...)
+    ;; note that it is specified as the car of the cons list.
+    ((leaf emacs
+       :setf
+       (((alist-get "gnu" package-archives) . "http://elpa.gnu.org/packages/")
+        ((alist-get 'vertical-scroll-bars default-frame-alist) . nil)))
+     (prog1 'emacs
+       (setf (alist-get "gnu" package-archives) "http://elpa.gnu.org/packages/")
+       (setf (alist-get 'vertical-scroll-bars default-frame-alist) nil)))))
+
+(cort-deftest-with-macroexpand leaf/push
+  '(
+    ;; :setf require cons-cell list ONLY.
+    ((leaf emacs
+       :push ((package-archives . '("melpa" . "https://melpa.org/packages/"))
+              (auto-mode-alist . '("\\.jpe?g\\'" . image-mode))))
+     (prog1 'emacs
+       (push '("melpa" . "https://melpa.org/packages/") package-archives)
+       (push '("\\.jpe?g\\'" . image-mode) auto-mode-alist)))))
+
 (cort-deftest-with-macroexpand leaf/pl-setq
   '(
     ;; Emulate setting `sql-connection-alist' with value taken from `some-plstore'.
