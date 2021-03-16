@@ -2399,10 +2399,10 @@ Example:
          (define-key shell-mode-map [remap backward-sentence] 'sh-beginning-of-command)))
 
       ((leaf-key (vector 'key-chord ?i ?j) 'undo nil)
-       (let* ((old (lookup-key global-map (vector 'key-chord 105 106)))
+       (let* ((old (lookup-key global-map [key-chord 105 106]))
               (value `(global-map "<key-chord> i j" undo ,(and old (not (numberp old)) old) nil)))
          (push value leaf-key-bindlist)
-         (define-key global-map (vector 'key-chord 105 106) 'undo)))
+         (define-key global-map [key-chord 105 106] 'undo)))
 
       ((leaf-key [(control ?x) (control ?f)] 'undo)
        (let* ((old (lookup-key global-map [(control 120) (control 102)]))

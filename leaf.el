@@ -828,10 +828,10 @@ For example:
          (path     (leaf-this-file))
          (_mvec    (if (vectorp key*) key* (read-kbd-macro key*)))
          (mstr     (if (stringp key*) key* (key-description key*))))
-    `(let* ((old (lookup-key ,mmap ,(if vecp key `(kbd ,key))))
+    `(let* ((old (lookup-key ,mmap ,(if vecp key* `(kbd ,key*))))
             (value ,(list '\` `(,mmap ,mstr ,command* ,',(and old (not (numberp old)) old) ,path))))
        (push value leaf-key-bindlist)
-       (define-key ,mmap ,(if vecp key `(kbd ,key)) ',command*))))
+       (define-key ,mmap ,(if vecp key* `(kbd ,key*)) ',command*))))
 
 (defmacro leaf-key* (key command)
   "Similar to `leaf-key', but overrides any mode-specific bindings.
