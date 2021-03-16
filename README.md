@@ -18,7 +18,7 @@
 - [Configure variables keywords](#configure-variables-keywords)
   - [:custom, :custom*, :custom-face keywords](#custom-custom-custom-face-keywords)
   - [:pre-setq, :setq, :setq-default keywords](#pre-setq-setq-setq-default-keywords)
-  - [:setf, :push, :pre-setf, :pre-push keywords](#sef-push-pre-setf-pre-push-keywords)
+  - [:setf, :push, :pre-setf, :pre-push keywords](#setf-push-pre-setf-pre-push-keywords)
 - [Configure list keywords](#configure-list-keywords)
   - [:mode, :interpreter keywords](#mode-interpreter-keywords)
   - [:magic, :magic-fallback keywords](#magic-magic-fallback-keywords)
