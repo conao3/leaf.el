@@ -135,6 +135,8 @@ Same as `list' but this macro does not evaluate any arguments."
                         `(,@(mapcar (lambda (elm) `(advice-remove ,@elm)) (car leaf--value)) ,@leaf--body))
 
    :pre-setq          `(,@(mapcar (lambda (elm) `(setq ,(car elm) ,(cdr elm))) leaf--value) ,@leaf--body)
+   :pre-setf          `(,@(mapcar (lambda (elm) `(setf ,(car elm) ,(cdr elm))) leaf--value) ,@leaf--body)
+   :pre-push          `(,@(mapcar (lambda (elm) `(push ,(cdr elm) ,(car elm))) leaf--value) ,@leaf--body)
    :pl-pre-setq       `(,@(mapcar (lambda (elm) `(setq ,(car elm) (leaf-handler-auth ,leaf--name ,(car elm) ,(cdr elm)))) leaf--value) ,@leaf--body)
    :auth-pre-setq     `(,@(mapcar (lambda (elm) `(setq ,(car elm) (leaf-handler-auth ,leaf--name ,(car elm) ,(cdr elm)))) leaf--value) ,@leaf--body)
 
@@ -155,6 +157,8 @@ Same as `list' but this macro does not evaluate any arguments."
 
    :setq              `(,@(mapcar (lambda (elm) `(setq ,(car elm) ,(cdr elm))) leaf--value) ,@leaf--body)
    :setq-default      `(,@(mapcar (lambda (elm) `(setq-default ,(car elm) ,(cdr elm))) leaf--value) ,@leaf--body)
+   :setf              `(,@(mapcar (lambda (elm) `(setf ,(car elm) ,(cdr elm))) leaf--value) ,@leaf--body)
+   :push              `(,@(mapcar (lambda (elm) `(push ,(cdr elm) ,(car elm))) leaf--value) ,@leaf--body)
    :pl-setq           `(,@(mapcar (lambda (elm) `(setq ,(car elm) (leaf-handler-auth ,leaf--name ,(car elm) ,(cdr elm)))) leaf--value) ,@leaf--body)
    :auth-setq         `(,@(mapcar (lambda (elm) `(setq ,(car elm) (leaf-handler-auth ,leaf--name ,(car elm) ,(cdr elm)))) leaf--value) ,@leaf--body)
    :pl-setq-default   `(,@(mapcar (lambda (elm) `(setq-default ,(car elm) (leaf-handler-auth ,leaf--name ,(car elm) ,(cdr elm)))) leaf--value) ,@leaf--body)
@@ -248,6 +252,10 @@ Sort by `leaf-sort-leaf--values-plist' in this order.")
      (mapcar (lambda (elm)
                (cons (car elm) (cadr elm)))
              (mapcan 'identity leaf--value)))
+
+    ((memq leaf--key '(:setf :push :pre-setf :pre-push))
+     ;; Just merge leaf--value normalizer.
+     (apply #'append leaf--value))
 
     ((memq leaf--key '(:bind :bind* :bind-keymap :bind-keymap*))
      ;; Accept: `leaf-keys' accept form
