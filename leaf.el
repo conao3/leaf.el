@@ -766,6 +766,14 @@ see `alist-get'."
       (indent-region (point-min) (point-max))
       (display-buffer buf))))
 
+(defmacro leaf-safe-push (newelt place)
+  "Safely add NEWELT to the list stored in the generalized variable PLACE.
+This is equivalent to `push' if PLACE is bound, otherwise, `setq'
+is used to define a new list."
+  `(if (boundp ',place)
+       (push ,newelt ,place)
+     (setq ,place (list ,newelt))))
+
 
 ;;;; find-function
 
@@ -838,7 +846,7 @@ For example:
          (mstr     (if (stringp key*) key* (key-description key*))))
     `(let* ((old (lookup-key ,mmap ,(if vecp key* `(kbd ,key*))))
             (value ,(list '\` `(,mmap ,mstr ,command* ,',(and old (not (numberp old)) old) ,path))))
-       (push value leaf-key-bindlist)
+       (leaf-safe-push value leaf-key-bindlist)
        (define-key ,mmap ,(if vecp key* `(kbd ,key*)) ',command*))))
 
 (defmacro leaf-key* (key command)
