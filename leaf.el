@@ -361,15 +361,19 @@ Sort by `leaf-sort-leaf--values-plist' in this order.")
 
 (defcustom leaf-defaults '()
   "The value that are interpreted as specified for all `leaf' blocks."
-  :type 'sexp
+  :type '(plist :key-type (choice (const :leaf-autoload)
+                                  (const :leaf-defer)
+                                  (const :leaf-protect)
+                                  (const :leaf-defun)
+                                  (const :leaf-defvar)
+                                  (const :leaf-path))
+                :value-type boolean)
   :group 'leaf)
 
-(defcustom leaf-system-defaults (leaf-list
-                                 :leaf-autoload t :leaf-defer t :leaf-protect t
-                                 :leaf-defun t :leaf-defvar t :leaf-path t)
-  "The value for all `leaf' blocks for leaf system."
-  :type 'sexp
-  :group 'leaf)
+(defvar leaf-system-defaults (list
+                              :leaf-autoload t :leaf-defer t :leaf-protect t
+                              :leaf-defun t :leaf-defvar t :leaf-path t)
+  "The value for all `leaf' blocks for leaf system.")
 
 (defcustom leaf-defer-keywords (list
                                 :bind :bind*
