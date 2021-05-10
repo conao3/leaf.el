@@ -366,8 +366,10 @@ Sort by `leaf-sort-leaf--values-plist' in this order.")
                                   (const :leaf-protect)
                                   (const :leaf-defun)
                                   (const :leaf-defvar)
-                                  (const :leaf-path))
-                :value-type boolean)
+                                  (const :leaf-path)
+                                  (symbol :tag "Other keyword of leaf-system-defaults"))
+                :value-type (choice boolean
+                                    (sexp :tag "Default value of the keyword")))
   :group 'leaf)
 
 (defvar leaf-system-defaults (list
