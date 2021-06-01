@@ -5,7 +5,7 @@
 ;; Author: Naoya Yamashita <conao3@gmail.com>
 ;; Maintainer: Naoya Yamashita <conao3@gmail.com>
 ;; Keywords: lisp settings
-;; Version: 4.4.4
+;; Version: 4.4.6
 ;; URL: https://github.com/conao3/leaf.el
 ;; Package-Requires: ((emacs "24.1"))
 
@@ -362,15 +362,21 @@ Sort by `leaf-sort-leaf--values-plist' in this order.")
 
 (defcustom leaf-defaults '()
   "The value that are interpreted as specified for all `leaf' blocks."
-  :type 'sexp
+  :type '(plist :key-type (choice (const :leaf-autoload)
+                                  (const :leaf-defer)
+                                  (const :leaf-protect)
+                                  (const :leaf-defun)
+                                  (const :leaf-defvar)
+                                  (const :leaf-path)
+                                  (symbol :tag "A keyword in `M-x leaf-available-keywords`"))
+                :value-type (choice boolean
+                                    (sexp :tag "Default value of the keyword")))
   :group 'leaf)
 
-(defcustom leaf-system-defaults (leaf-list
-                                 :leaf-autoload t :leaf-defer t :leaf-protect t
-                                 :leaf-defun t :leaf-defvar t :leaf-path t)
-  "The value for all `leaf' blocks for leaf system."
-  :type 'sexp
-  :group 'leaf)
+(defvar leaf-system-defaults (list
+                              :leaf-autoload t :leaf-defer t :leaf-protect t
+                              :leaf-defun t :leaf-defvar t :leaf-path t)
+  "The value for all `leaf' blocks for leaf system.")
 
 (defcustom leaf-defer-keywords (list
                                 :bind :bind*
@@ -768,6 +774,14 @@ see `alist-get'."
       (indent-region (point-min) (point-max))
       (display-buffer buf))))
 
+(defmacro leaf-safe-push (newelt place)
+  "Safely add NEWELT to the list stored in the generalized variable PLACE.
+This is equivalent to `push' if PLACE is bound, otherwise, `setq'
+is used to define a new list."
+  `(if (boundp ',place)
+       (push ,newelt ,place)
+     (setq ,place (list ,newelt))))
+
 
 ;;;; find-function
 
@@ -840,7 +854,7 @@ For example:
          (mstr     (if (stringp key*) key* (key-description key*))))
     `(let* ((old (lookup-key ,mmap ,(if vecp key* `(kbd ,key*))))
             (value ,(list '\` `(,mmap ,mstr ,command* ,',(and old (not (numberp old)) old) ,path))))
-       (push value leaf-key-bindlist)
+       (leaf-safe-push value leaf-key-bindlist)
        (define-key ,mmap ,(if vecp key* `(kbd ,key*)) ',command*))))
 
 (defmacro leaf-key* (key command)
