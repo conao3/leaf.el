@@ -1067,10 +1067,7 @@ FN also accept list of FN."
 
 (defmacro leaf-handler-leaf-path (name)
   "Meta handler for :leaf-path for NAME."
-  `(let ((file (or leaf--load-file-name
-                   load-file-name
-                   buffer-file-name
-                   byte-compile-current-file)))
+  `(let ((file (leaf-this-file)))
      (unless (boundp 'leaf--paths) (defvar leaf--paths nil))
      (when file
       (add-to-list 'leaf--paths (cons ',name file)))))
