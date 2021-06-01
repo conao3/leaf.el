@@ -367,7 +367,7 @@ Sort by `leaf-sort-leaf--values-plist' in this order.")
                                   (const :leaf-defun)
                                   (const :leaf-defvar)
                                   (const :leaf-path)
-                                  (symbol :tag "Other keyword of leaf-system-defaults"))
+                                  (symbol :tag "A keyword in `M-x leaf-available-keywords`"))
                 :value-type (choice boolean
                                     (sexp :tag "Default value of the keyword")))
   :group 'leaf)
