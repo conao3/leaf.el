@@ -5,7 +5,7 @@
 ;; Author: Naoya Yamashita <conao3@gmail.com>
 ;; Maintainer: Naoya Yamashita <conao3@gmail.com>
 ;; Keywords: lisp settings
-;; Version: 4.4.6
+;; Version: 4.4.7
 ;; URL: https://github.com/conao3/leaf.el
 ;; Package-Requires: ((emacs "24.1"))
 
@@ -63,6 +63,7 @@ Same as `list' but this macro does not evaluate any arguments."
 (defvar leaf--body)
 (defvar leaf--rest)
 (defvar leaf--autoload)
+(defvar leaf--load-file-name nil)
 
 (defvar leaf-keywords
   (leaf-list
@@ -153,7 +154,7 @@ Same as `list' but this macro does not evaluate any arguments."
                         `(,@(mapcar (lambda (elm) `(,(car elm) 1)) leaf--value) ,@leaf--body))
 
    :leaf-defer        (if (and leaf--body (eval (car leaf--value)) (leaf-list-memq leaf-defer-keywords (leaf-plist-keys leaf--raw)))
-                          `((eval-after-load ',leaf--name '(progn ,@leaf--body))) `(,@leaf--body))
+                          `((eval-after-load ',leaf--name '(let ((leaf--load-file-name ,load-file-name)) ,@leaf--body))) `(,@leaf--body))
 
    :setq              `(,@(mapcar (lambda (elm) `(setq ,(car elm) ,(cdr elm))) leaf--value) ,@leaf--body)
    :setq-default      `(,@(mapcar (lambda (elm) `(setq-default ,(car elm) ,(cdr elm))) leaf--value) ,@leaf--body)
@@ -637,7 +638,8 @@ see `alist-get'."
 
 (defun leaf-this-file ()
   "Return path to this file."
-  (or load-file-name
+  (or leaf--load-file-name
+      load-file-name
       (and (boundp 'byte-compile-current-file) byte-compile-current-file)
       buffer-file-name))
 
@@ -1065,9 +1067,7 @@ FN also accept list of FN."
 
 (defmacro leaf-handler-leaf-path (name)
   "Meta handler for :leaf-path for NAME."
-  `(let ((file (or load-file-name
-                   buffer-file-name
-                   byte-compile-current-file)))
+  `(let ((file (leaf-this-file)))
      (unless (boundp 'leaf--paths) (defvar leaf--paths nil))
      (when file
       (add-to-list 'leaf--paths (cons ',name file)))))
