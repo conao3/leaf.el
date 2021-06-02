@@ -152,10 +152,10 @@ Same as `list' but this macro does not evaluate any arguments."
    :global-minor-mode (progn
                         (mapc (lambda (elm) (leaf-register-autoload (car elm) (cdr elm))) leaf--value)
                         `(,@(mapcar (lambda (elm) `(,(car elm) 1)) leaf--value) ,@leaf--body))
-
-   :leaf-defer        (if (and leaf--body (eval (car leaf--value)) (leaf-list-memq leaf-defer-keywords (leaf-plist-keys leaf--raw)))
-                          `((eval-after-load ',leaf--name '(let ((leaf--load-file-name ,load-file-name)) ,@leaf--body))) `(,@leaf--body))
-
+   :leaf-defer        (let* ((eval-after-p (and leaf--body (eval (car leaf--value)) (leaf-list-memq leaf-defer-keywords (leaf-plist-keys leaf--raw))))
+                             (file (leaf-this-file))
+                             (let-or-progn (if file `(let ((leaf--load-file-name ,file))) '(progn))))
+                        (if eval-after-p `((eval-after-load ',leaf--name '(,@let-or-progn ,@leaf--body))) `(,@leaf--body)))
    :setq              `(,@(mapcar (lambda (elm) `(setq ,(car elm) ,(cdr elm))) leaf--value) ,@leaf--body)
    :setq-default      `(,@(mapcar (lambda (elm) `(setq-default ,(car elm) ,(cdr elm))) leaf--value) ,@leaf--body)
    :setf              `(,@(mapcar (lambda (elm) `(setf ,(car elm) ,(cdr elm))) leaf--value) ,@leaf--body)
