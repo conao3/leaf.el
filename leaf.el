@@ -153,12 +153,8 @@ Same as `list' but this macro does not evaluate any arguments."
                         (mapc (lambda (elm) (leaf-register-autoload (car elm) (cdr elm))) leaf--value)
                         `(,@(mapcar (lambda (elm) `(,(car elm) 1)) leaf--value) ,@leaf--body))
 
-   :leaf-defer-let    (if (and leaf--body (eval (car leaf--value))
-                               (let ((defer--value (plist-get leaf--raw :leaf-defer))) (eval (car defer--value)))
-                               (leaf-list-memq leaf-defer-keywords (leaf-plist-keys leaf--raw)))
-                          `((let ((leaf--load-file-name ,load-file-name)) ,(print leaf-expand-minimally) ,@leaf--body)) `(,@leaf--body))
    :leaf-defer        (if (and leaf--body (eval (car leaf--value)) (leaf-list-memq leaf-defer-keywords (leaf-plist-keys leaf--raw)))
-                          `((eval-after-load ',leaf--name '(progn ,@leaf--body))) `(,@leaf--body))
+                          `((eval-after-load ',leaf--name '(let ((leaf--load-file-name ,load-file-name)) ,@leaf--body))) `(,@leaf--body))
 
    :setq              `(,@(mapcar (lambda (elm) `(setq ,(car elm) ,(cdr elm))) leaf--value) ,@leaf--body)
    :setq-default      `(,@(mapcar (lambda (elm) `(setq-default ,(car elm) ,(cdr elm))) leaf--value) ,@leaf--body)
@@ -378,8 +374,8 @@ Sort by `leaf-sort-leaf--values-plist' in this order.")
   :group 'leaf)
 
 (defvar leaf-system-defaults (list
-                              :leaf-autoload t :leaf-defer-let t :leaf-defer t
-                              :leaf-protect t :leaf-defun t :leaf-defvar t :leaf-path t)
+                              :leaf-autoload t :leaf-defer t :leaf-protect t
+                              :leaf-defun t :leaf-defvar t :leaf-path t)
   "The value for all `leaf' blocks for leaf system.")
 
 (defcustom leaf-defer-keywords (list
@@ -403,7 +399,7 @@ If non-nil, disabled keywords of `leaf-expand-minimally-suppress-keywords'."
   :type 'boolean
   :group 'leaf)
 
-(defcustom leaf-expand-minimally-suppress-keywords '(:leaf-protect :leaf-defun :leaf-defvar :leaf-path :leaf-defer-let)
+(defcustom leaf-expand-minimally-suppress-keywords '(:leaf-protect :leaf-defun :leaf-defvar :leaf-path)
   "Suppress keywords when `leaf-expand-minimally' is non-nil."
   :type 'sexp
   :group 'leaf)
