@@ -156,7 +156,6 @@ Example:
 (setq leaf-expand-leaf-defun nil)
 (setq leaf-expand-leaf-defvar nil)
 (setq leaf-expand-leaf-path nil)
-(setq leaf-expand-leaf-defer-let nil)
 
 (cort-deftest-with-macroexpand leaf/none
   '(((leaf leaf)
@@ -2342,7 +2341,7 @@ Example:
        (leaf-init)))
 
     ((leaf-handler-leaf-path leaf)
-     (let ((file (leaf-this-file)))
+     (let ((file (or load-file-name buffer-file-name byte-compile-current-file)))
        (unless (boundp 'leaf--paths) (defvar leaf--paths nil))
        (when file
          (add-to-list 'leaf--paths (cons 'leaf file)))))))
