@@ -156,7 +156,6 @@ Example:
 (setq leaf-expand-leaf-defun nil)
 (setq leaf-expand-leaf-defvar nil)
 (setq leaf-expand-leaf-path nil)
-(setq leaf-expand-leaf-defer-let nil)
 
 (cort-deftest-with-macroexpand leaf/none
   '(((leaf leaf)
