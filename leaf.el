@@ -636,7 +636,7 @@ see `alist-get'."
    (when load-file-name
      (format " at `%s'" load-file-name))))
 
-(defun leaf-this-file ()
+(defsubst leaf-this-file ()
   "Return path to this file."
   (or leaf--load-file-name
       load-file-name
