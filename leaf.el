@@ -638,9 +638,9 @@ see `alist-get'."
 
 (defsubst leaf-this-file ()
   "Return path to this file."
-  (or leaf--load-file-name
+  (or (bound-and-true-p leaf--load-file-name)
+      (bound-and-true-p byte-compile-current-file)
       load-file-name
-      (and (boundp 'byte-compile-current-file) byte-compile-current-file)
       buffer-file-name))
 
 
