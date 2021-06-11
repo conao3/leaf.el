@@ -89,6 +89,7 @@ Same as `list' but this macro does not evaluate any arguments."
    :tag               `(,@leaf--body)
    :file              `(,@leaf--body)
    :url               `(,@leaf--body)
+   :added             `(,@leaf--body)
 
    :emacs<            (when leaf--body `((when (version<  emacs-version ,leaf--value)  ,@leaf--body)))
    :emacs<=           (when leaf--body `((when (version<= emacs-version ,leaf--value)  ,@leaf--body)))
