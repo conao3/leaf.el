@@ -414,11 +414,13 @@ Since ~:ensure~ is to use ~package.el~ by default, ~:ensure~ and
        (prog1 'macrostep
          (leaf-handler-package macrostep macrostep nil)))
 
-      ;; `leaf-handler-package' expandion example.
-      ;; If `macrostep' isn't installed, try to install.
-      ;; If fail install, update local cache and retry to install.
+      ;; `leaf-handler-package' expansion example.
+      ;; If `macrostep' is installed, set it as a selected package;
+      ;; otherwise try to install it.
+      ;; If installation fails, update local cache and retry to install.
       ((leaf-handler-package macrostep macrostep nil)
-       (unless (package-installed-p 'macrostep)
+       (if (package-installed-p 'macrostep)
+           (package--update-selected-packages '(macrostep) nil)
          (unless (assoc 'macrostep package-archive-contents)
            (package-refresh-contents))
          (condition-case err
