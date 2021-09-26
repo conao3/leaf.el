@@ -116,7 +116,7 @@ Please put the following code (`<leaf-install-code>` to `</leaf-install-code>`) 
 
 Package to be developed
 
--   [feather.el](https://github.com/conao3/feather.el) instead of `package.el` -> (Achieved! Now available but it is just a pakcage.el wraper)
+-   [feather.el](https://github.com/conao3/feather.el) instead of `package.el` -> (Achieved! Now available but it is just a package.el wraper)
 
 -   leaf-key.el instead of `bind-key` -> (Achieved! Now `leaf` builtin)
 
