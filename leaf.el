@@ -823,7 +823,7 @@ is used to define a new list."
   "List of bindings performed by `leaf-key'.
 Elements have the form (MAP KEY CMD ORIGINAL-CMD PATH)")
 
-(defmacro leaf-key (key command &optional keymap)
+(defmacro leaf-key (key command &optional keymap predicate)
   "Bind KEY to COMMAND in KEYMAP (`global-map' if not passed).
 
 KEY-NAME may be a vector, in which case it is passed straight to
@@ -856,12 +856,15 @@ For example:
     `(let* ((old (lookup-key ,mmap ,(if vecp key* `(kbd ,key*))))
             (value ,(list '\` `(,mmap ,mstr ,command* ,',(and old (not (numberp old)) old) ,path))))
        (leaf-safe-push value leaf-key-bindlist)
-       (define-key ,mmap ,(if vecp key* `(kbd ,key*)) ',command*))))
+       ,(if predicate
+            `(define-key ,mmap ,(if vecp key* `(kbd ,key*))
+               '(menu-item "" nil :filter (lambda (&optional _) (when ,predicate ',command*))))
+          `(define-key ,mmap ,(if vecp key* `(kbd ,key*)) ',command*)))))
 
-(defmacro leaf-key* (key command)
+(defmacro leaf-key* (key command &optional predicate)
   "Similar to `leaf-key', but overrides any mode-specific bindings.
 Bind COMMAND at KEY."
-  `(leaf-key ,key ,command 'leaf-key-override-global-map))
+  `(leaf-key ,key ,command 'leaf-key-override-global-map ,predicate))
 
 (defmacro leaf-keys (bind &optional dryrun-name bind-keymap bind-keymap-pkg)
   "Bind multiple BIND for KEYMAP defined in PKG.
