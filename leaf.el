@@ -823,7 +823,7 @@ is used to define a new list."
   "List of bindings performed by `leaf-key'.
 Elements have the form (MAP KEY CMD ORIGINAL-CMD PATH)")
 
-(defmacro leaf-key (key command &optional keymap)
+(defmacro leaf-key (key command &optional keymap predicate)
   "Bind KEY to COMMAND in KEYMAP (`global-map' if not passed).
 
 KEY-NAME may be a vector, in which case it is passed straight to
@@ -856,12 +856,15 @@ For example:
     `(let* ((old (lookup-key ,mmap ,(if vecp key* `(kbd ,key*))))
             (value ,(list '\` `(,mmap ,mstr ,command* ,',(and old (not (numberp old)) old) ,path))))
        (leaf-safe-push value leaf-key-bindlist)
-       (define-key ,mmap ,(if vecp key* `(kbd ,key*)) ',command*))))
+       ,(if predicate
+            `(define-key ,mmap ,(if vecp key* `(kbd ,key*))
+               '(menu-item "" nil :filter (lambda (&optional _) (when ,predicate ',command*))))
+          `(define-key ,mmap ,(if vecp key* `(kbd ,key*)) ',command*)))))
 
-(defmacro leaf-key* (key command)
+(defmacro leaf-key* (key command &optional predicate)
   "Similar to `leaf-key', but overrides any mode-specific bindings.
 Bind COMMAND at KEY."
-  `(leaf-key ,key ,command 'leaf-key-override-global-map))
+  `(leaf-key ,key ,command 'leaf-key-override-global-map ,predicate))
 
 (defmacro leaf-keys (bind &optional dryrun-name bind-keymap bind-keymap-pkg)
   "Bind multiple BIND for KEYMAP defined in PKG.
@@ -872,8 +875,8 @@ If BIND-KEYMAP-PKG is passed, require it before binding.
 OPTIONAL:
   BIND also accept below form.
     (:{{map}} :package {{pkg}} (KEY . COMMAND) (KEY . COMMAND))
-  KEYMAP is quoted keymap name.
-  PKG is quoted package name which define KEYMAP.
+  KEYMAP is keymap name.
+  PKG is package name which define KEYMAP.
   (wrap `eval-after-load' PKG)
 
   If DRYRUN-NAME is non-nil, return list like
@@ -924,7 +927,7 @@ NOTE: BIND can also accept list of these."
                                  (lambda (elm)
                                    (push (cdr elm) fns)
                                    (if bind-keymap
-                                       `(leaf-key-bind-keymap ,(car elm) ,(cdr elm) ',map ',pkg)
+                                       `(leaf-key-bind-keymap ,(car elm) ,(cdr elm) ',map ,bind-keymap-pkg)
                                      `(leaf-key ,(car elm) #',(cdr elm) ',map)))
                                  elmbinds))))
                 (push (if pkg
@@ -953,9 +956,14 @@ BIND must not contain :{{map}}."
 
 (defmacro leaf-key-bind-keymap (key kmap &optional keymap pkg)
   "Bind KEY to KMAP in KEYMAP (`global-map' if not passed).
-If PKG passed, require PKG before binding."
+If PKG passed, require PKG before binding. PKG is a quoted list or atom"
   `(progn
-     ,(when pkg `(require ,pkg))
+     (cond
+       ((and (atom ,pkg) ,pkg)
+        (require ,pkg))
+       ((listp ,pkg)
+        (mapcar (lambda (p) (when p (require p))) ,pkg))
+       (t))
      (leaf-key ,key ,kmap ,keymap)))
 
 (defmacro leaf-key-bind-keymap* (key keymap &optional pkg)
@@ -984,12 +992,12 @@ OPTIONAL:
 NOTE: BIND can also accept list of these."
   `(leaf-keys ,bind ,dryrun-name 'bind-keymap ,pkg))
 
-(defmacro leaf-keys-bind-keymap* (bind &optional pkg)
+(defmacro leaf-keys-bind-keymap* (bind &optional dryrun-name pkg)
   "Similar to `leaf-keys-bind-keymap' but overrides any mode-specific bindings.
 BIND must not contain :{{map}}.
 If PKG passed, require PKG before binding."
   (let ((binds (if (and (atom (car bind)) (atom (cdr bind))) `(,bind) bind)))
-    `(leaf-keys (:leaf-key-override-global-map ,@binds) ,pkg)))
+    `(leaf-keys (:leaf-key-override-global-map ,@binds) ,dryrun-name 'bind-keymap ,pkg)))
 
 (define-derived-mode leaf-key-list-mode tabulated-list-mode "Leaf-key Bindings"
   "Major mode for listing bindings configured via `leaf-key'."
