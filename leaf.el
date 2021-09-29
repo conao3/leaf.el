@@ -953,9 +953,14 @@ BIND must not contain :{{map}}."
 
 (defmacro leaf-key-bind-keymap (key kmap &optional keymap pkg)
   "Bind KEY to KMAP in KEYMAP (`global-map' if not passed).
-If PKG passed, require PKG before binding."
+If PKG passed, require PKG before binding. PKG is a quoted list or atom"
   `(progn
-     ,(when pkg `(require ,pkg))
+     (cond
+       ((and (atom ,pkg) ,pkg)
+        (require ,pkg))
+       ((listp ,pkg)
+        (mapcar (lambda (p) (when p (require p))) ,pkg))
+       (t))
      (leaf-key ,key ,kmap ,keymap)))
 
 (defmacro leaf-key-bind-keymap* (key keymap &optional pkg)
