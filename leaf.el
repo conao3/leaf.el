@@ -872,8 +872,8 @@ If BIND-KEYMAP-PKG is passed, require it before binding.
 OPTIONAL:
   BIND also accept below form.
     (:{{map}} :package {{pkg}} (KEY . COMMAND) (KEY . COMMAND))
-  KEYMAP is quoted keymap name.
-  PKG is quoted package name which define KEYMAP.
+  KEYMAP is keymap name.
+  PKG is package name which define KEYMAP.
   (wrap `eval-after-load' PKG)
 
   If DRYRUN-NAME is non-nil, return list like
@@ -924,7 +924,7 @@ NOTE: BIND can also accept list of these."
                                  (lambda (elm)
                                    (push (cdr elm) fns)
                                    (if bind-keymap
-                                       `(leaf-key-bind-keymap ,(car elm) ,(cdr elm) ',map ',pkg)
+                                       `(leaf-key-bind-keymap ,(car elm) ,(cdr elm) ',map ,bind-keymap-pkg)
                                      `(leaf-key ,(car elm) #',(cdr elm) ',map)))
                                  elmbinds))))
                 (push (if pkg
