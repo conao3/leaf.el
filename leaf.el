@@ -1074,8 +1074,10 @@ FN also accept list of FN."
       (add-to-list 'leaf--paths (cons ',name file)))))
 
 (defmacro leaf-handler-package (name pkg _pin)
-  "Handler ensure PKG via PIN in NAME leaf block."
-  `(unless (package-installed-p ',pkg)
+  "Handler for ensuring the installation of PKG with package.el
+via PIN in the leaf block NAME."
+  `(if (package-installed-p ',pkg)
+       (package--update-selected-packages '(,pkg) nil)
      (unless (assoc ',pkg package-archive-contents)
        (package-refresh-contents))
      (condition-case _err
