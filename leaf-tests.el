@@ -1161,7 +1161,13 @@ Example:
        :bind (([(control ?x) (control ?f)] . find-file)))
      (prog1 'files
        (unless (fboundp 'find-file) (autoload #'find-file "files" nil t))
-       (leaf-keys (([(control ?x) (control ?f)] . find-file)))))))
+       (leaf-keys (([(control ?x) (control ?f)] . find-file)))))
+
+    ;; you can bind the lambda.
+    ((leaf color-moccur
+       :bind ("M-s O" . (lambda () "color-moccur" (interactive) (color-moccur))))
+     (prog1 'color-moccur
+       (leaf-keys (("M-s O" . (lambda () "color-moccur" (interactive) (color-moccur)))))))))
 
 (cort-deftest-with-macroexpand leaf/bind*
   '(
