@@ -984,12 +984,12 @@ OPTIONAL:
 NOTE: BIND can also accept list of these."
   `(leaf-keys ,bind ,dryrun-name 'bind-keymap ,pkg))
 
-(defmacro leaf-keys-bind-keymap* (bind &optional pkg)
+(defmacro leaf-keys-bind-keymap* (bind &optional dryrun-name pkg)
   "Similar to `leaf-keys-bind-keymap' but overrides any mode-specific bindings.
 BIND must not contain :{{map}}.
 If PKG passed, require PKG before binding."
   (let ((binds (if (and (atom (car bind)) (atom (cdr bind))) `(,bind) bind)))
-    `(leaf-keys (:leaf-key-override-global-map ,@binds) ,pkg)))
+    `(leaf-keys (:leaf-key-override-global-map ,@binds) ,dryrun-name 'bind-keymap ,pkg)))
 
 (define-derived-mode leaf-key-list-mode tabulated-list-mode "Leaf-key Bindings"
   "Major mode for listing bindings configured via `leaf-key'."
