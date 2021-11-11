@@ -2390,21 +2390,21 @@ Example:
     ;; otherwise try to install it.
     ;; If installation fails, update local cache and retry to install.
     ((leaf-handler-package macrostep macrostep nil)
-     (if (package-installed-p 'macrostep)
-         (package--update-selected-packages '(macrostep) nil)
-       (unless (assoc 'macrostep package-archive-contents)
-         (package-refresh-contents))
-       (condition-case _err
-           (package-install 'macrostep)
-         (error
-          (condition-case err
-              (progn
-                (package-refresh-contents)
-                (package-install 'macrostep))
-            (error
-             (display-warning 'leaf
-                              (format "In `macrostep' block, failed to :package of `macrostep'.  Error msg: %s"
-                                      (error-message-string err)))))))))))
+     (progn
+       (leaf-safe-push 'macrostep package-selected-packages 'no-dup)
+       (unless (package-installed-p 'macrostep)
+         (unless (assoc 'macrostep package-archive-contents)
+           (package-refresh-contents))
+         (condition-case _err
+             (package-install 'macrostep)
+           (error
+            (package-refresh-contents)
+            (condition-case err
+                (package-install 'macrostep)
+              (error
+               (display-warning 'leaf
+                                (format "In `macrostep' block, failed to :package of `macrostep'.  Error msg: %s"
+                                        (error-message-string err))))))))))))
 
 (when (version< "24.0" emacs-version)
   (cort-deftest-with-macroexpand leaf/leaf-key
