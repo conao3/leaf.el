@@ -2448,7 +2448,13 @@ Example:
        (let* ((old (lookup-key global-map [(control 120) (control 102)]))
               (value `(global-map "C-x C-f" undo ,(and old (not (numberp old)) old) nil)))
          (leaf-safe-push value leaf-key-bindlist)
-         (define-key global-map [(control 120) (control 102)] 'undo))))))
+         (define-key global-map [(control 120) (control 102)] 'undo)))
+
+      ((leaf-key "M-s O" (lambda nil "color-moccur" (interactive) (color-moccur)))
+       (let* ((old (lookup-key global-map (kbd "M-s O")))
+              (value `(global-map "M-s O" *lambda-function* ,(and old (not (numberp old)) old) nil)))
+         (leaf-safe-push value leaf-key-bindlist)
+         (define-key global-map (kbd "M-s O") (lambda nil "color-moccur" (interactive) (color-moccur))))))))
 
 (when (version< "24.0" emacs-version)
   (cort-deftest-with-macroexpand leaf/leaf-key-bind-keymap
