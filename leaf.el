@@ -775,12 +775,16 @@ see `alist-get'."
       (indent-region (point-min) (point-max))
       (display-buffer buf))))
 
-(defmacro leaf-safe-push (newelt place)
+(defmacro leaf-safe-push (newelt place &optional no-dup)
   "Safely add NEWELT to the list stored in the generalized variable PLACE.
 This is equivalent to `push' if PLACE is bound, otherwise, `setq'
-is used to define a new list."
+is used to define a new list.
+If NO-DUP is non-nil, do not `push' if the element already exists."
   `(if (boundp ',place)
-       (push ,newelt ,place)
+       ,(if (not no-dup)
+            `(push ,newelt ,place)
+          `(unless (memq ,newelt ,place)
+             (push ,newelt ,place)))
      (setq ,place (list ,newelt))))
 
 
@@ -1076,27 +1080,27 @@ FN also accept list of FN."
 (defmacro leaf-handler-package (name pkg _pin)
   "Handler for ensuring the installation of PKG with package.el
 via PIN in the leaf block NAME."
-  `(if (package-installed-p ',pkg)
-       (package--update-selected-packages '(,pkg) nil)
-     (unless (assoc ',pkg package-archive-contents)
-       (package-refresh-contents))
-     (condition-case _err
-         (package-install ',pkg)
-       (error
-        (condition-case err
-            (progn
-              (package-refresh-contents)
-              (package-install ',pkg))
-          (error
-           (display-warning 'leaf
-                            (format
-                             ,(concat
-                               (format "In `%s' block" name)
-                               (when load-file-name
-                                 (format " at `%s'" load-file-name))
-                               (format ", failed to :package of `%s'." pkg)
-                               "  Error msg: %s")
-                             (error-message-string err)))))))))
+  `(progn
+     (leaf-safe-push ',pkg package-selected-packages 'no-dup)
+     (unless (package-installed-p ',pkg)
+       (unless (assoc ',pkg package-archive-contents)
+         (package-refresh-contents))
+       (condition-case _err
+           (package-install ',pkg)
+         (error
+          (package-refresh-contents)
+          (condition-case err
+              (package-install ',pkg)
+            (error
+             (display-warning 'leaf
+                              (format
+                               ,(concat
+                                 (format "In `%s' block" name)
+                                 (when load-file-name
+                                   (format " at `%s'" load-file-name))
+                                 (format ", failed to :package of `%s'." pkg)
+                                 "  Error msg: %s")
+                               (error-message-string err))))))))))
 
 (defmacro leaf-handler-auth (name sym store)
   "Handler auth-* to set SYM of NAME from STORE."
