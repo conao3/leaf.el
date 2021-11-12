@@ -2454,7 +2454,13 @@ Example:
        (let* ((old (lookup-key global-map (kbd "M-s O")))
               (value `(global-map "M-s O" *lambda-function* ,(and old (not (numberp old)) old) nil)))
          (leaf-safe-push value leaf-key-bindlist)
-         (define-key global-map (kbd "M-s O") (lambda () "color-moccur" (interactive) (color-moccur))))))))
+         (define-key global-map (kbd "M-s O") '(lambda () "color-moccur" (interactive) (color-moccur)))))
+
+      ((leaf-key "M-s O" '(menu-item "" nil :filter (lambda (&optional _) #'other-window)))
+       (let* ((old (lookup-key global-map (kbd "M-s O")))
+              (value `(global-map "M-s O" *menu-item* ,(and old (not (numberp old)) old) nil)))
+         (leaf-safe-push value leaf-key-bindlist)
+         (define-key global-map (kbd "M-s O") '(menu-item "" nil :filter (lambda (&optional _) #'other-window))))))))
 
 (when (version< "24.0" emacs-version)
   (cort-deftest-with-macroexpand leaf/leaf-key-bind-keymap
