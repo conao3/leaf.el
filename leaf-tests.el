@@ -1612,13 +1612,13 @@ Example:
     ((leaf hook
        :hook (foo-hook . (lambda () (foo))))
      (prog1 'hook
-       (add-hook 'foo-hook #'(lambda nil (foo)))))
+       (add-hook 'foo-hook #'(lambda () (foo)))))
 
     ;; lambda sexp with many sexps
     ((leaf hook
        :hook (foo-hook . (lambda () (foo) (bar) (baz))))
      (prog1 'hook
-       (add-hook 'foo-hook #'(lambda nil (foo) (bar) (baz)))))))
+       (add-hook 'foo-hook #'(lambda () (foo) (bar) (baz)))))))
 
 (cort-deftest-with-macroexpand leaf/advice
   '(
@@ -2450,7 +2450,7 @@ Example:
          (leaf-safe-push value leaf-key-bindlist)
          (define-key global-map [(control 120) (control 102)] 'undo)))
 
-      ((leaf-key "M-s O" (lambda nil "color-moccur" (interactive) (color-moccur)))
+      ((leaf-key "M-s O" (lambda () "color-moccur" (interactive) (color-moccur)))
        (let* ((old (lookup-key global-map (kbd "M-s O")))
               (value `(global-map "M-s O" *lambda-function* ,(and old (not (numberp old)) old) nil)))
          (leaf-safe-push value leaf-key-bindlist)
