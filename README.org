@@ -840,7 +840,13 @@ If you omit ~:package~, use leaf--name as ~:package~ to lazy load.
        (prog1 'files
          (unless (fboundp 'find-file) (autoload #'find-file "files" nil t))
          (declare-function find-file "files")
-         (leaf-keys (([(control ?x) (control ?f)] . find-file)))))))
+         (leaf-keys (([(control ?x) (control ?f)] . find-file)))))
+
+      ;; you can bind the lambda.
+      ((leaf color-moccur
+         :bind ("M-s O" . (lambda () "color-moccur" (interactive) (color-moccur))))
+       (prog1 'color-moccur
+         (leaf-keys (("M-s O" . (lambda () "color-moccur" (interactive) (color-moccur)))))))))
 
   (cort-deftest-with-macroexpand leaf/bind*
     '(
