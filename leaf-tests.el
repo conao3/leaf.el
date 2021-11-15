@@ -1161,7 +1161,13 @@ Example:
        :bind (([(control ?x) (control ?f)] . find-file)))
      (prog1 'files
        (unless (fboundp 'find-file) (autoload #'find-file "files" nil t))
-       (leaf-keys (([(control ?x) (control ?f)] . find-file)))))))
+       (leaf-keys (([(control ?x) (control ?f)] . find-file)))))
+
+    ;; you can bind the lambda.
+    ((leaf color-moccur
+       :bind ("M-s O" . (lambda () "color-moccur" (interactive) (color-moccur))))
+     (prog1 'color-moccur
+       (leaf-keys (("M-s O" . (lambda () "color-moccur" (interactive) (color-moccur)))))))))
 
 (cort-deftest-with-macroexpand leaf/bind*
   '(
@@ -1606,13 +1612,13 @@ Example:
     ((leaf hook
        :hook (foo-hook . (lambda () (foo))))
      (prog1 'hook
-       (add-hook 'foo-hook #'(lambda nil (foo)))))
+       (add-hook 'foo-hook #'(lambda () (foo)))))
 
     ;; lambda sexp with many sexps
     ((leaf hook
        :hook (foo-hook . (lambda () (foo) (bar) (baz))))
      (prog1 'hook
-       (add-hook 'foo-hook #'(lambda nil (foo) (bar) (baz)))))))
+       (add-hook 'foo-hook #'(lambda () (foo) (bar) (baz)))))))
 
 (cort-deftest-with-macroexpand leaf/advice
   '(
@@ -2442,7 +2448,19 @@ Example:
        (let* ((old (lookup-key global-map [(control 120) (control 102)]))
               (value `(global-map "C-x C-f" undo ,(and old (not (numberp old)) old) nil)))
          (leaf-safe-push value leaf-key-bindlist)
-         (define-key global-map [(control 120) (control 102)] 'undo))))))
+         (define-key global-map [(control 120) (control 102)] 'undo)))
+
+      ((leaf-key "M-s O" (lambda () "color-moccur" (interactive) (color-moccur)))
+       (let* ((old (lookup-key global-map (kbd "M-s O")))
+              (value `(global-map "M-s O" *lambda-function* ,(and old (not (numberp old)) old) nil)))
+         (leaf-safe-push value leaf-key-bindlist)
+         (define-key global-map (kbd "M-s O") '(lambda () "color-moccur" (interactive) (color-moccur)))))
+
+      ((leaf-key "M-s O" '(menu-item "" nil :filter (lambda (&optional _) #'other-window)))
+       (let* ((old (lookup-key global-map (kbd "M-s O")))
+              (value `(global-map "M-s O" *menu-item* ,(and old (not (numberp old)) old) nil)))
+         (leaf-safe-push value leaf-key-bindlist)
+         (define-key global-map (kbd "M-s O") '(menu-item "" nil :filter (lambda (&optional _) #'other-window))))))))
 
 (when (version< "24.0" emacs-version)
   (cort-deftest-with-macroexpand leaf/leaf-key-bind-keymap

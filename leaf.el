@@ -5,7 +5,7 @@
 ;; Author: Naoya Yamashita <conao3@gmail.com>
 ;; Maintainer: Naoya Yamashita <conao3@gmail.com>
 ;; Keywords: lisp settings
-;; Version: 4.5.3
+;; Version: 4.5.4
 ;; URL: https://github.com/conao3/leaf.el
 ;; Package-Requires: ((emacs "24.1"))
 
@@ -834,17 +834,12 @@ KEY-NAME may be a vector, in which case it is passed straight to
 `define-key'.  Or it may be a string to be interpreted as spelled-out
 keystrokes.  See documentation of `edmacro-mode' for details.
 
-COMMAND must be an interactive function or lambda form.
+COMMAND must be an interactive function. lambda form, menu-item,
+or the form that returned one of them also be accepted.
 
 KEYMAP, if present, should be a keymap and not a quoted symbol.
 For example:
   (leaf-key \"M-h\" #'some-interactive-function my-mode-map)
-
-If PREDICATE is non-nil, it is a form evaluated to determine when a
-key should be bound. It must return non-nil in such cases.  Emacs can
-evaluate this form at any time that it does redisplay or operates on
-menu data structures, so you should write it so it can safely be
-called at any time.
 
 You can also use [remap COMMAND] as KEY.
 For example:
@@ -852,13 +847,16 @@ For example:
   (let* ((key*     (eval key))
          (command* (eval command))
          (keymap*  (eval keymap))
+         (bindto   (cond ((symbolp command*) command*)
+                         ((eq (car-safe command*) 'lambda) '*lambda-function*)
+                         ((eq (car-safe command*) 'menu-item) '*menu-item*)))
          (mmap     (or keymap* 'global-map))
          (vecp     (vectorp key*))
          (path     (leaf-this-file))
          (_mvec    (if (vectorp key*) key* (read-kbd-macro key*)))
          (mstr     (if (stringp key*) key* (key-description key*))))
     `(let* ((old (lookup-key ,mmap ,(if vecp key* `(kbd ,key*))))
-            (value ,(list '\` `(,mmap ,mstr ,command* ,',(and old (not (numberp old)) old) ,path))))
+            (value ,(list '\` `(,mmap ,mstr ,bindto ,',(and old (not (numberp old)) old) ,path))))
        (leaf-safe-push value leaf-key-bindlist)
        (define-key ,mmap ,(if vecp key* `(kbd ,key*)) ',command*))))
 
@@ -869,7 +867,7 @@ Bind COMMAND at KEY."
 
 (defmacro leaf-keys (bind &optional dryrun-name bind-keymap bind-keymap-pkg)
   "Bind multiple BIND for KEYMAP defined in PKG.
-BIND is (KEY . COMMAND) or (KEY . nil) to unbind KEY.
+BIND is (KEY . COMMAND), (KEY . (lambda ...)). (KEY . nil) to unbind KEY.
 If BIND-KEYMAP is non-nil generate `leaf-key-bind-keymap' instead of `leaf-key'.
 If BIND-KEYMAP-PKG is passed, require it before binding.
 
@@ -890,8 +888,7 @@ NOTE: BIND can also accept list of these."
                  (condition-case _err
                      (and (listp x)
                           (or (stringp (eval (car x)))
-                              (vectorp (eval (car x))))
-                          (atom (cdr x)))
+                              (vectorp (eval (car x)))))
                    (error nil))))
         recurfn forms bds fns)
     (setq recurfn
@@ -900,23 +897,12 @@ NOTE: BIND can also accept list of these."
              ((funcall pairp bind)
               (push (if bind-keymap
                         `(leaf-key-bind-keymap ,(car bind) ,(cdr bind) nil ,bind-keymap-pkg)
-                      `(leaf-key ,(car bind) #',(cdr bind)))
+                      (if (atom (cdr bind))
+                          `(leaf-key ,(car bind) #',(cdr bind))
+                        `(leaf-key ,(car bind) ,(cdr bind))))
                     forms)
               (push bind bds)
               (push (cdr bind) fns))
-             ((and (listp (car bind))
-                   (funcall pairp (car bind)))
-              (mapcar (lambda (elm)
-                        (if (funcall pairp elm)
-                            (progn
-                              (push (if bind-keymap
-                                        `(leaf-key-bind-keymap ,(car elm) ,(cdr elm) nil ,bind-keymap-pkg)
-                                      `(leaf-key ,(car elm) #',(cdr elm)))
-                                    forms)
-                              (push elm bds)
-                              (push (cdr elm) fns))
-                          (funcall recurfn elm)))
-                      bind))
              ((or (keywordp (car bind))
                   (symbolp (car bind)))
               (let* ((map (leaf-sym-from-keyword (car bind)))
@@ -929,19 +915,17 @@ NOTE: BIND can also accept list of these."
                                    (push (cdr elm) fns)
                                    (if bind-keymap
                                        `(leaf-key-bind-keymap ,(car elm) ,(cdr elm) ',map ,bind-keymap-pkg)
-                                     `(leaf-key ,(car elm) #',(cdr elm) ',map)))
+                                     (if (atom (cdr elm))
+                                         `(leaf-key ,(car elm) #',(cdr elm) ',map)
+                                       `(leaf-key ,(car elm) ,(cdr elm) ',map))))
                                  elmbinds))))
-                (push (if pkg
-                          `(,map :package ,pkg ,@elmbinds)
-                        `(,map :package ,dryrun-name ,@elmbinds))
-                      bds)
+                (push `(,map :package ,(or `,pkg `,dryrun-name) ,@elmbinds) bds)
                 (when pkg
                   (dolist (elmpkg (if (atom pkg) `(,pkg) pkg))
                     (unless bind-keymap
                       (setq form `(eval-after-load ',elmpkg ',form)))))
                 (push form forms)))
-             (t
-              (mapcar (lambda (elm) (funcall recurfn elm)) bind)))))
+             (t (mapcar recurfn bind)))))
     (funcall recurfn bind)
     (if dryrun-name
         `'(,(nreverse bds) ,(nreverse fns))
