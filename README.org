@@ -782,7 +782,7 @@ If you omit ~:package~, use leaf--name as ~:package~ to lazy load.
                       ("M-o" . isearch-moccur)
                       ("M-O" . isearch-moccur-all))))))
 
-      ;; use :package to deffering :iserch-mode-map declared
+      ;; use :package to deffering :isearch-mode-map declared
       ((leaf color-moccur
          :bind (("M-s O" . moccur)
                 (:isearch-mode-map
@@ -992,7 +992,7 @@ Basic usage is same as ~:bind~ and ~:bind*~
                       ("M-o" . isearch-moccur)
                       ("M-O" . isearch-moccur-all))))))
 
-      ;; use :package to deffering :iserch-mode-map declared
+      ;; use :package to deffering :isearch-mode-map declared
       ((leaf color-moccur
          :bind (("M-s O" . moccur)
                 (:isearch-mode-map

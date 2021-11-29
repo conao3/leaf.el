@@ -770,7 +770,7 @@ If you omit `:package`, use leaf--name as `:package` to lazy load.
                     ("M-o" . isearch-moccur)
                     ("M-O" . isearch-moccur-all))))))
 
-    ;; use :package to deffering :iserch-mode-map declared
+    ;; use :package to deffering :isearch-mode-map declared
     ((leaf color-moccur
        :bind (("M-s O" . moccur)
               (:isearch-mode-map
@@ -925,7 +925,7 @@ Basic usage is same as `:bind` and `:bind*`
 			                            ("C-%" . ctl-x-5-map)))
                               nil 'projectile)))
 
-    ;; use :package to deffering :iserch-mode-map declared
+    ;; use :package to deffering :isearch-mode-map declared
     ((leaf projectile
        :bind-keymap (("C-c p" . projectile-command-map)
                      (:isearch-mode-map
