@@ -323,8 +323,24 @@ Sort by `leaf-sort-leaf--values-plist' in this order.")
   "Normalize rule.")
 
 (defvar leaf-verify
-  '(((memq leaf--key (list :package))
+  '(((memq leaf--key '(:package))
      (if (not (equal '(nil) (car leaf--value))) leaf--value nil))
+    ((memq leaf--key '(:after))
+     (delq nil
+           (mapcar
+            (lambda (elm)
+              (cond
+               ((eq elm nil)
+                (prog1 nil
+                  (leaf-error "Error occurs in leaf block: %s" leaf--name)
+                  (leaf-error "Attempt wait constant: nil;  Please check your specification")))
+               ((keywordp elm)
+                (prog1 nil
+                  (leaf-error "Error occurs in leaf block: %s" leaf--name)
+                  (leaf-error "Attempt wait constant keyword: %s;  Please check your specification" elm)))
+               (t
+                elm)))
+            leaf--value)))
     ((memq leaf--key (list
                       :hook :defun
                       :pl-setq :pl-pre-setq :pl-setq-default :pl-custom
