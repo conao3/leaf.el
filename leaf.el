@@ -5,7 +5,7 @@
 ;; Author: Naoya Yamashita <conao3@gmail.com>
 ;; Maintainer: Naoya Yamashita <conao3@gmail.com>
 ;; Keywords: lisp settings
-;; Version: 4.5.4
+;; Version: 4.5.5
 ;; URL: https://github.com/conao3/leaf.el
 ;; Package-Requires: ((emacs "24.1"))
 
@@ -323,8 +323,24 @@ Sort by `leaf-sort-leaf--values-plist' in this order.")
   "Normalize rule.")
 
 (defvar leaf-verify
-  '(((memq leaf--key (list :package))
+  '(((memq leaf--key '(:package))
      (if (not (equal '(nil) (car leaf--value))) leaf--value nil))
+    ((memq leaf--key '(:after))
+     (delq nil
+           (mapcar
+            (lambda (elm)
+              (cond
+               ((eq elm nil)
+                (prog1 nil
+                  (leaf-error "Error occurs in leaf block: %s" leaf--name)
+                  (leaf-error "Attempt wait constant: nil;  Please check your specification")))
+               ((keywordp elm)
+                (prog1 nil
+                  (leaf-error "Error occurs in leaf block: %s" leaf--name)
+                  (leaf-error "Attempt wait constant keyword: %s;  Please check your specification" elm)))
+               (t
+                elm)))
+            leaf--value)))
     ((memq leaf--key (list
                       :hook :defun
                       :pl-setq :pl-pre-setq :pl-setq-default :pl-custom
