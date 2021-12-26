@@ -874,7 +874,8 @@ For example:
     `(let* ((old (lookup-key ,mmap ,(if vecp key* `(kbd ,key*))))
             (value ,(list '\` `(,mmap ,mstr ,bindto ,',(and old (not (numberp old)) old) ,path))))
        (leaf-safe-push value leaf-key-bindlist)
-       (define-key ,mmap ,(if vecp key* `(kbd ,key*)) ',command*))))
+       (define-key ,mmap ,(if vecp key* `(kbd ,key*))
+                   ,(if (eq bindto '*lambda-function*) command* `',command*)))))
 
 (defmacro leaf-key* (key command)
   "Similar to `leaf-key', but overrides any mode-specific bindings.
