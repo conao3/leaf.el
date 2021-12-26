@@ -832,7 +832,8 @@ If NO-DUP is non-nil, do not `push' if the element already exists."
 
 (define-minor-mode leaf-key-override-global-mode
   "A minor mode so that keymap settings override other modes."
-  t "")
+  :init-value t
+  :lighter "")
 
 ;; the keymaps in `emulation-mode-map-alists' take precedence over
 ;; `minor-mode-map-alist'
