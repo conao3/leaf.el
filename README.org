@@ -1096,7 +1096,7 @@ it is a best practice to use ~custom-set-variables~ to customize packages.
 You can of course set multiple variables and set the evaluation result
 of the S expression to a variable.
 
-The value set to ~custom-face~ should also be quoed to emphasize uniformity as ~leaf~.
+The value set to ~custom-face~ should also be quoted to emphasize uniformity as ~leaf~.
 
 #+begin_src emacs-lisp
   (cort-deftest-with-macroexpand leaf/custom

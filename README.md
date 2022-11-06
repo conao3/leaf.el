@@ -977,7 +977,7 @@ Now that the proper Elisp packaging practices have become widely known, it is a 
 
 You can of course set multiple variables and set the evaluation result of the S expression to a variable.
 
-The value set to `custom-face` should also be quoed to emphasize uniformity as `leaf`.
+The value set to `custom-face` should also be quoted to emphasize uniformity as `leaf`.
 
 ```emacs-lisp
 (cort-deftest-with-macroexpand leaf/custom
