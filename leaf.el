@@ -98,6 +98,7 @@ Same as `list' but this macro does not evaluate any arguments."
    :emacs>=           (when leaf--body `((when (version<= ,leaf--value  emacs-version) ,@leaf--body)))
 
    :package           `(,@(mapcar (lambda (elm) `(leaf-handler-package ,leaf--name ,(car elm) ,(cdr elm))) leaf--value) ,@leaf--body)
+   :vc                `(,@(mapcar (lambda (elm) `(leaf-handler-vc ,leaf--name ,elm)) leaf--value) ,@leaf--body)
 
    :after             (when leaf--body (let ((ret `(progn ,@leaf--body)))
                                          (dolist (elm leaf--value) (setq ret `(eval-after-load ',elm ',ret)))
@@ -317,6 +318,13 @@ Sort by `leaf-sort-leaf--values-plist' in this order.")
                         (push fn fns) `((',sym #',fn))))))
                   leaf--value))
        `(,val ,(delq nil (mapcar (lambda (elm) (when (symbolp elm) elm)) fns)))))
+
+    ((memq leaf--key '(:vc))
+     (mapcar (lambda (elm)
+               (if (keywordp (car elm))
+                   `(,leaf--name ,elm)
+                 `(,(car elm) ,(cdr elm))))
+             leaf--value))
 
     (t
      leaf--value))
@@ -1103,6 +1111,18 @@ via PIN in the leaf block NAME."
                                  (format ", failed to :package of `%s'." pkg)
                                  "  Error msg: %s")
                                (error-message-string err))))))))))
+
+(defmacro leaf-handler-vc (_name spec &optional _local-path)
+  "Handler for :vc SPEC for leaf block NAME.
+SPEC is a list of the form (PKG OPTIONS REVISION)"
+  (declare (indent 1))
+  (let ((pkg (nth 0 spec))
+        (opts (nth 1 spec))
+        (rev (nth 2 spec)))
+    `(unless (package-installed-p ',pkg)
+       (package-vc-install
+        ',(if opts `(,pkg ,@opts) pkg)
+        ,rev))))
 
 (defmacro leaf-handler-auth (name sym store)
   "Handler auth-* to set SYM of NAME from STORE."

@@ -27,6 +27,7 @@
   - [[none (keyword)]]
   - [[:require keyword]]
   - [[#ensure][:ensure, :package keywords]]
+  - [[:vc keyword]]
   - [[:preface, :init, :config keywords]]
   - [[:defer-config keyword]]
   - [[:commands keyword]]
@@ -105,7 +106,7 @@ Currently, ~leaf.el~ and ~leaf-keywords.el~ has below rich keywords.
   ;;    :preface
   ;;    :when :unless :if
   ;;    :emacs< :emacs<= :emacs= :emacs> :emacs>=
-  ;;    :ensure :package :feather :straight :el-get
+  ;;    :ensure :package :vc :feather :straight :el-get
   ;;    :after
   ;;    :commands
   ;;    :bind :bind*
@@ -435,6 +436,31 @@ Since ~:ensure~ is to use ~package.el~ by default, ~:ensure~ and
                                 (format "In `macrostep' block, failed to :package of macrostep.  Error msg: %s"
                                         (error-message-string err)))))))))))
 #+end_src
+
+** :vc keyword
+
+~:vc~ provide ~package-vc-install~ frontend.
+
+#+begin_src emacs-lisp
+(cort-deftest-with-macroexpand leaf/vc
+  '(((leaf bbdb
+       :vc ( :url "https://git.savannah.nongnu.org/git/bbdb.git"
+             :lisp-dir "lisp"))
+     (prog1 'bbdb
+       (leaf-handler-vc bbdb
+         (bbdb
+          (:url "https://git.savannah.nongnu.org/git/bbdb.git" :lisp-dir "lisp")))))
+
+    ((leaf *bbdb-custom*
+       :vc (bbdb
+            :url "https://git.savannah.nongnu.org/git/bbdb.git"
+            :lisp-dir "lisp"))
+     (prog1 '*bbdb-custom*
+       (leaf-handler-vc *bbdb-custom*
+         (bbdb
+          (:url "https://git.savannah.nongnu.org/git/bbdb.git" :lisp-dir "lisp")))))))
+#+end_src
+
 
 ** :preface, :init, :config keywords
 
