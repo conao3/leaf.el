@@ -319,6 +319,15 @@ Example:
      (prog1 'leaf
        (leaf-handler-package leaf leaf pin)))))
 
+(cort-deftest-with-macroexpand leaf/vc
+  '(((leaf bbdb
+       :vc ( :url "https://git.savannah.nongnu.org/git/bbdb.git"
+             :lisp-dir "lisp"))
+     (prog1 'bbdb
+       (leaf-handler-vc bbdb
+         (bbdb
+          (:url "https://git.savannah.nongnu.org/git/bbdb.git" :lisp-dir "lisp")))))))
+
 (cort-deftest-with-macroexpand leaf/doc
   '(
     ;; any sexp will be ignored
