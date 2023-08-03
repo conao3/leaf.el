@@ -320,7 +320,11 @@ Sort by `leaf-sort-leaf--values-plist' in this order.")
        `(,val ,(delq nil (mapcar (lambda (elm) (when (symbolp elm) elm)) fns)))))
 
     ((memq leaf--key '(:vc))
-     (mapcar (lambda (elm) `(,leaf--name ,elm)) leaf--value))
+     (mapcar (lambda (elm)
+               (if (keywordp (car elm))
+                   `(,leaf--name ,elm)
+                 `(,(car elm) ,(cdr elm))))
+             leaf--value))
 
     (t
      leaf--value))
