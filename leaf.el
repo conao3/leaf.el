@@ -431,7 +431,7 @@ If non-nil, disabled keywords of `leaf-expand-minimally-suppress-keywords'."
 
 (defcustom leaf-options-ensure-default-pin nil
   "Set the default pin with :package.
-'nil is using package manager default.
+\='nil is using package manager default.
 This feature is not yet implemented."
   :type 'sexp
   :group 'leaf)
@@ -501,12 +501,12 @@ Ref: `find-function-regexp-alist'."
 ;;; Polyfill for legacy Emacs
 
 (defun leaf-mapcaappend (func seq)
-  "Another implementation for `mapcan'.
-`mapcan' uses `nconc', but Emacs-22 doesn't support it.
+  "Another implementation for \=`mapcan\='.
+\=`mapcan\=' uses \=`nconc\=', but Emacs-22 doesn't support it.
 
 Apply FUNC to each element of SEQ, and concatenate
-the results by altering them (using `nconc').
-SEQ may be a list, a vector, a 'bool-vector, or a string."
+the results by altering them (using \=`nconc\=').
+SEQ may be a list, a vector, a \='bool-vector, or a string."
   (declare (indent 2))
   (apply #'append (apply #'mapcar func seq nil)))
 
@@ -575,8 +575,8 @@ The elements of LIST are not copied, just the list structure itself."
 (defun leaf-safe-mapcar (fn seq)
   "Apply FN to each element of SEQ, and make a list of the results.
 The result is a list just as long as SEQUENCE.
-SEQ may be a list, a vector, a 'bool-vector, or a string.
-Unlike `mapcar', it works well with dotlist (last cdr is non-nil list)."
+SEQ may be a list, a vector, a \='bool-vector, or a string.
+Unlike \=`mapcar\=', it works well with dotlist (last cdr is non-nil list)."
   (when (cdr (last seq))
     (setq seq (leaf-copy-list seq))
     (setcdr (last seq) nil))
@@ -853,22 +853,22 @@ If NO-DUP is non-nil, do not `push' if the element already exists."
 Elements have the form (MAP KEY CMD ORIGINAL-CMD PATH)")
 
 (defmacro leaf-key (key command &optional keymap)
-  "Bind KEY to COMMAND in KEYMAP (`global-map' if not passed).
+  "Bind KEY to COMMAND in KEYMAP (\=`global-map\=' if not passed).
 
 KEY-NAME may be a vector, in which case it is passed straight to
-`define-key'.  Or it may be a string to be interpreted as spelled-out
-keystrokes.  See documentation of `edmacro-mode' for details.
+\=`define-key\='.  Or it may be a string to be interpreted as spelled-out
+keystrokes.  See documentation of \=`edmacro-mode\=' for details.
 
 COMMAND must be an interactive function. lambda form, menu-item,
 or the form that returned one of them also be accepted.
 
 KEYMAP, if present, should be a keymap and not a quoted symbol.
 For example:
-  (leaf-key \"M-h\" #'some-interactive-function my-mode-map)
+  (leaf-key \"M-h\" #\='some-interactive-function my-mode-map)
 
 You can also use [remap COMMAND] as KEY.
 For example:
-  (leaf-key [remap backward-sentence] 'sh-beginning-of-command)"
+  (leaf-key [remap backward-sentence] \='sh-beginning-of-command)"
   (let* ((key*     (eval key))
          (command* (eval command))
          (keymap*  (eval keymap))
@@ -1229,7 +1229,7 @@ Example:
 
 EXAMPLE:
   (leaf-sort-values-plist
-    '(:config (message \"a\")
+    \='(:config (message \"a\")
       :disabled (t)))
   => (:disabled (t)
       :config (message \"a\"))"
@@ -1249,7 +1249,7 @@ EXAMPLE:
 
 EXAMPLE:
   (leaf-merge-value-on-duplicate-key
-    '(:defer (t)
+    \='(:defer (t)
       :config ((message \"a\") (message \"b\"))
       :config ((message \"c\"))))
   => (:defer (t)
@@ -1265,11 +1265,11 @@ EXAMPLE:
 (defun leaf-normalize-plist (plist &optional mergep evalp)
   "Given a pseudo-PLIST, return PLIST.
 If MERGEP is t, return well-formed PLIST.
-If EVALP is t, `eval' each element which have `quote' or `backquote'.
+If EVALP is t, \=`eval\=' each element which have \=`quote\=' or \=`backquote\='.
 
 EXAMPLE:
   (leaf-normalize-plist
-    '(:defer t
+    \='(:defer t
       :config (message \"a\") (message \"b\")
       :config (message \"c\")) nil)
   => (:defer (t)
@@ -1277,7 +1277,7 @@ EXAMPLE:
       :config ((message \"c\")))
 
   (leaf-normalize-plist
-    '(:defer t
+    \='(:defer t
       :config (message \"a\") (message \"b\")
       :config (message \"c\")) t)
   => (:defer (t)
