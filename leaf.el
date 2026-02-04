@@ -1119,10 +1119,12 @@ SPEC is a list of the form (PKG OPTIONS REVISION)"
   (let ((pkg (nth 0 spec))
         (opts (nth 1 spec))
         (rev (nth 2 spec)))
-    `(unless (package-installed-p ',pkg)
-       (package-vc-install
-        ',(if opts `(,pkg ,@opts) pkg)
-        ,rev))))
+    `(progn
+       (leaf-safe-push ',pkg package-selected-packages 'no-dup)
+       (unless (package-installed-p ',pkg)
+         (package-vc-install
+          ',(if opts `(,pkg ,@opts) pkg)
+          ,rev)))))
 
 (defmacro leaf-handler-auth (name sym store)
   "Handler auth-* to set SYM of NAME from STORE."
