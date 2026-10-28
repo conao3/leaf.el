@@ -2468,17 +2468,25 @@ Example:
          (leaf-safe-push value leaf-key-bindlist)
          (define-key global-map [(control 120) (control 102)] 'undo)))
 
-      ((leaf-key "M-s O" (lambda () "color-moccur" (interactive) (color-moccur)))
-       (let* ((old (lookup-key global-map (kbd "M-s O")))
-              (value `(global-map "M-s O" *lambda-function* ,(and old (not (numberp old)) old) nil)))
-         (leaf-safe-push value leaf-key-bindlist)
-         (define-key global-map (kbd "M-s O") (lambda () "color-moccur" (interactive) (color-moccur)))))
-
       ((leaf-key "M-s O" '(menu-item "" nil :filter (lambda (&optional _) #'other-window)))
        (let* ((old (lookup-key global-map (kbd "M-s O")))
               (value `(global-map "M-s O" *menu-item* ,(and old (not (numberp old)) old) nil)))
          (leaf-safe-push value leaf-key-bindlist)
          (define-key global-map (kbd "M-s O") '(menu-item "" nil :filter (lambda (&optional _) #'other-window))))))))
+
+(when (version< "24.0" emacs-version)
+  (cort-deftest leaf/leaf-key-lambda
+    `((:equal
+       ',(if (version<= "31" emacs-version)
+             `(let* ((old (lookup-key global-map (kbd "M-s O")))
+                     (value `(global-map "M-s O" *lambda-function* ,(and old (not (numberp old)) old) nil)))
+                (leaf-safe-push value leaf-key-bindlist)
+                (define-key global-map (kbd "M-s O") ,(eval '(lambda () "color-moccur" (interactive) (color-moccur)))))
+           '(let* ((old (lookup-key global-map (kbd "M-s O")))
+                   (value `(global-map "M-s O" *lambda-function* ,(and old (not (numberp old)) old) nil)))
+              (leaf-safe-push value leaf-key-bindlist)
+              (define-key global-map (kbd "M-s O") (lambda () "color-moccur" (interactive) (color-moccur)))))
+       (macroexpand-1 '(leaf-key "M-s O" (lambda () "color-moccur" (interactive) (color-moccur))))))))
 
 (when (version< "24.0" emacs-version)
   (cort-deftest-with-macroexpand leaf/leaf-key-bind-keymap

@@ -874,6 +874,7 @@ For example:
          (keymap*  (eval keymap))
          (bindto   (cond ((symbolp command*) command*)
                          ((eq (car-safe command*) 'lambda) '*lambda-function*)
+                         ((functionp command*) '*lambda-function*)
                          ((eq (car-safe command*) 'menu-item) '*menu-item*)))
          (mmap     (or keymap* 'global-map))
          (vecp     (vectorp key*))
