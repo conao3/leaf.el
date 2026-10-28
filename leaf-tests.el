@@ -2479,9 +2479,9 @@ Example:
     `((:equal
        ',(if (version<= "31" emacs-version)
              `(let* ((old (lookup-key global-map (kbd "M-s O")))
-                     (value `(global-map "M-s O" nil ,(and old (not (numberp old)) old) nil)))
+                     (value `(global-map "M-s O" *lambda-function* ,(and old (not (numberp old)) old) nil)))
                 (leaf-safe-push value leaf-key-bindlist)
-                (define-key global-map (kbd "M-s O") ',(eval '(lambda () "color-moccur" (interactive) (color-moccur)))))
+                (define-key global-map (kbd "M-s O") ,(eval '(lambda () "color-moccur" (interactive) (color-moccur)))))
            '(let* ((old (lookup-key global-map (kbd "M-s O")))
                    (value `(global-map "M-s O" *lambda-function* ,(and old (not (numberp old)) old) nil)))
               (leaf-safe-push value leaf-key-bindlist)
